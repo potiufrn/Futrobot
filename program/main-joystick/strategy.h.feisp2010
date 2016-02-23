@@ -1,0 +1,62 @@
+#ifndef _STRATEGY_H_
+#define _STRATEGY_H_
+
+#include "futdata.h"
+
+#define TSIZE_ZAG 1024
+#define TSIZE_ATA 512
+#define TSIZE_GOL 2
+
+class Strategy : public virtual FutData
+{
+private:
+  double t;
+
+  // Analise da situacao da bola
+
+  bool bola_parada, bola_no_ataque;
+  // Soh um desses predicados pode ser true ao mesmo tempo
+  bool bola_dentro_gol, bola_area_defesa, bola_frente_area, bola_lado_area,
+    bola_parede_fundo, bola_quina_fundo, bola_fundo, bola_parede_lateral,
+    bola_lateral, bola_quina_frente, bola_parede_frente, bola_frente,
+    bola_regiao_central;
+
+  // Para determinar jogadores bloqueados
+  unsigned contador_parado[3];
+
+  // Para determinar jogadores perdidos
+  unsigned contador_perdido[3];
+  bool perdido[3];
+
+  // Lado do campo
+  int sinal;
+
+  //ACTION resp_com_bola[512];
+  //ACTION resp_sem_bola[1024];
+
+  //void preenchimento();
+
+  int estado_penalty;
+ private: 
+  //bool setint (FUNCTION f, const char * binario, ACTION resp, bool silence);
+  //bool full_table (FUNCTION f);
+  void analisa_bola();
+  PWM_WHEEL descolar_parede(int id);
+  POS_ROBO posicao_para_descolar_bola();
+  POS_ROBO calcula_origem_parede();
+  void detecta_bloqueados();
+  void escolhe_funcoes();
+  void acao_goleiro(int id);
+  void acao_goleiro_play(int id);
+  void acao_com_bola(int id); 
+  void acao_com_bola_play(int id);
+  void acao_sem_bola(int id);
+  void calcula_referencias(int id);
+public:
+  Strategy(TEAM time, SIDE lado, GAME_MODE gameMode);
+  ~Strategy();
+  bool strategy();
+
+};
+
+#endif
