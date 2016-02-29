@@ -1,5 +1,5 @@
 /* Codigo receptor bluetooth para o futebol de robos 2015
-   Feito por Elitelma Souza  */
+   Feito por Elitelma Souza - 2012924160 */
    
 //Motor 1 - Pinos e PWM
 int PWM_A = 5; // /Controla a velocidade do motor A
@@ -46,7 +46,6 @@ void loop() {
   bool frente_left, frente_right;
   int pwm_left, pwm_right;
 
-  // Read device output if available.
 
             
     do
