@@ -88,7 +88,11 @@ Camera::Camera (CAMERA_T cam):
 
   // 1) Instance a Camera object
   //CameraUSB *c(dev, 640, 480, 30);
+<<<<<<< HEAD
   width = 1280; height = 960; fps = 20;
+=======
+  width = 1280; height = 720; fps = 30;
+>>>>>>> 864beae56adab91fc0f7f0ca0cea8920b2bfd82d
 //  width = 800; height =600; fps = 30;
   //camera = new CameraUSB(dev, width, height, 30);
 
@@ -563,7 +567,11 @@ void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
       }
     }
   }
+<<<<<<< HEAD
 	// Reduz Tamanho imagem para metade
+=======
+
+>>>>>>> 864beae56adab91fc0f7f0ca0cea8920b2bfd82d
   tmp= dst;
   for(int i=0; i<height; i+=2)
   {
@@ -573,9 +581,56 @@ void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
         *tmp++= (*(tmp+pos)+*((tmp+pos)+3)+*((tmp+pos)+3*width)+*((tmp+pos)+3*width+3))/4;
         *tmp++= (*(tmp+pos)+*((tmp+pos)+3)+*((tmp+pos)+3*width)+*((tmp+pos)+3*width+3))/4;
         *tmp++= (*(tmp+pos)+*((tmp+pos)+3)+*((tmp+pos)+3*width)+*((tmp+pos)+3*width+3))/4;
+<<<<<<< HEAD
     }
     tmp+=3*width/2;
   }
+=======
+//        *tmp++= (*temp+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
+//        temp++;
+////        tmp+=2;
+//        *tmp++= (*temp+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
+//        temp++;
+////        tmp+=2;
+//        *tmp++= (*temp+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
+//        temp++;
+//        temp+=3;
+    }
+    tmp+=3*width/2;
+//    temp+=3*width;
+  }
+//  for(int i=0; i<width*height*3/4; i++)
+//  {
+//    *tmp++= *temp++;
+//  }
+//  for (line = 0; line < height; line++) {
+// // for (line = 0; line < 160; ++line) {
+//    //cout<<"line = "<<line<<endl;
+//    for (column = 0; column < width; ++column) {
+//        uint8_t temp1, temp2, temp3;
+//      temp1 = CLIP((double)*py + 1.402*((double)*pv-128.0));
+//      temp2 = CLIP((double)*py - 0.344*((double)*pu-128.0) - 0.714*((double)*pv-128.0));
+//      temp3 = CLIP((double)*py + 1.772*((double)*pu-128.0));
+//      py += 2;
+//      if ((column & 1)==1) {
+//        pu += 4;
+//        pv += 4;
+//      }
+//      column++;
+//      temp1 += CLIP((double)*py + 1.402*((double)*pv-128.0));
+//      temp2 += CLIP((double)*py - 0.344*((double)*pu-128.0) - 0.714*((double)*pv-128.0));
+//      temp3 += CLIP((double)*py + 1.772*((double)*pu-128.0));
+//      py += 2;
+//      if ((column & 1)==1) {
+//        pu += 4;
+//        pv += 4;
+//      }
+//      *tmp++= temp1/2.0;
+//      *tmp++= temp2/2.0;
+//      *tmp++= temp3/2.0;
+//    }
+//  }
+>>>>>>> 864beae56adab91fc0f7f0ca0cea8920b2bfd82d
 }
 
 bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
