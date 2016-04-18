@@ -871,18 +871,7 @@ bool Acquisition::processGameState()
 	      }
 	    }
 	    break;
-	   
-	case REG_COLOR_ORANGE:
-	    if(nRegOrange < 1){
-	      regOrange = region;
-	      nRegOrange++;
-	    }else{
-	      if(region.nPixel > regOrange.nPixel){
-		regOrange = region;
-	      }
-	    }
-	    break;
-
+	    
 	  case REG_COLOR_YELLOW:
 	    if(nRegYellow < 3){
 	      regYellow[nRegYellow] = region;
@@ -898,7 +887,16 @@ bool Acquisition::processGameState()
 	    }
 	    break;
       
-	  
+	  case REG_COLOR_ORANGE:
+	    if(nRegOrange < 1){
+	      regOrange = region;
+	      nRegOrange++;
+	    }else{
+	      if(region.nPixel > regOrange.nPixel){
+		regOrange = region;
+	      }
+	    }
+	    break;
 	    
 	  default:
 	    cerr<<"Nao deveria chegar aqui 1!";

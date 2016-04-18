@@ -17,6 +17,7 @@
 #include <qtimer.h>
 #include <iostream>
 #include <qapplication.h>
+#include <QMessageBox>
 #include "pixmap_label.h"
 #include "calibratorprocessor.h"
 #include "variaveisglobais.h"

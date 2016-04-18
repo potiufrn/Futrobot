@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <qapplication.h>
 #include "calibrador.h"
 #include "calibratorprocessor.h"
 #include "variaveisglobais.h"
@@ -20,6 +20,7 @@ void *thread_camera(void *arg)
 
 int main( int argc, char ** argv )
 {
+    
     if(argc >2){
 	cerr<<"Parametros invalidos!"<<endl;
 	cerr<<"Use ./calibrador ou ./calibrador <arquivo_de_configuracao>"<<endl;
@@ -52,9 +53,9 @@ int main( int argc, char ** argv )
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     a.exec();
 
-
+    X.terminar();
     pthread_join(a_thread,NULL);
- 
+
     return 0;
     
 }

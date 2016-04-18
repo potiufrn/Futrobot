@@ -16,6 +16,7 @@
 //#define ALTURA_EXIBICAO 480
 //#define METADE_LARGURA_EXIBICAO 320
 //#define METADE_ALTURA_EXIBICAO 240
+#include <QMessageBox>
 
 typedef double *pdouble;
 
@@ -80,14 +81,23 @@ void calibrador::fileSaveAs()
     }
 }
 
-
-
 void calibrador::fileExit()
 {
     //TODO: Exibir pop-up aqui, caso os parametros nao estejam salvos ainda.
     //terminar = true;
-    X.terminar();
-    close();
+
+	QMessageBox msgBox;
+	msgBox.setWindowTitle("Fechando Janela");
+	msgBox.setText("Tem Certeza que deseja fechar");
+	msgBox.setStandardButtons(QMessageBox::Yes);
+	msgBox.addButton(QMessageBox::No);
+	msgBox.setDefaultButton(QMessageBox::No);
+	if(msgBox.exec() == QMessageBox::Yes){
+		X.terminar();
+    		close();
+	}else {
+		
+	}
 }
 
 void calibrador::cameraLoadParam(){

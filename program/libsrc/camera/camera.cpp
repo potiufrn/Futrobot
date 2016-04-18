@@ -92,7 +92,7 @@ Camera::Camera (CAMERA_T cam):
 //  width = 800; height =600; fps = 30;
   //camera = new CameraUSB(dev, width, height, 30);
   
-  name= "/dev/video0";
+  name= "/dev/video1";
   
 
  // data=(unsigned char *)malloc(width*height*4);
