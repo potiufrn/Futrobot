@@ -33,7 +33,7 @@ bool PARAMETROS_CAMERA::read (const char * arquivo) {
   if (arq==NULL) {
     return true;
   }
-
+  
   unsigned bri, exp, hue, sat, gam, shu, gai;
   if(fscanf(arq,"Brightness: %u\n",&bri) != 1) return true;
   if(fscanf(arq,"Auto exposure: %u\n",&exp) != 1) return true;
@@ -42,9 +42,9 @@ bool PARAMETROS_CAMERA::read (const char * arquivo) {
   if(fscanf(arq,"Gamma: %u\n",&gam) != 1) return true;
   if(fscanf(arq,"Shutter: %u\n",&shu) != 1) return true;
   if(fscanf(arq,"Gain: %u\n",&gai) != 1) return true;
-
+        
   fclose(arq);
-
+      
   brightness = bri;
   exposure = exp;
   hue = hue;
@@ -52,14 +52,14 @@ bool PARAMETROS_CAMERA::read (const char * arquivo) {
   gamma = gam;
   shutter = shu;
   gain = gai;
-
+  
   return false;
 }
 
 bool PARAMETROS_CAMERA::write(const char* arquivo) const{
   FILE *arq=fopen(arquivo,"w");
   if(arq == NULL){
-    return true;
+    return true;  
   }
 
   fprintf(arq,"Brightness: %u\n",brightness);
@@ -69,9 +69,9 @@ bool PARAMETROS_CAMERA::write(const char* arquivo) const{
   fprintf(arq,"Gamma: %u\n",gamma);
   fprintf(arq,"Shutter: %u\n",shutter);
   fprintf(arq,"Gain: %u\n",gain);
-
+        
   fclose(arq);
-
+      
   return false;
 }
 
@@ -81,29 +81,30 @@ Camera::Camera (CAMERA_T cam):
   encerrar(false),
   ImBruta(0,0)
 {
-
-
+  
+   
   //Mudar para 0 se pc não tem webcam instalada de fábrica
   //const char *dev="/dev/video1";
 
   // 1) Instance a Camera object
   //CameraUSB *c(dev, 640, 480, 30);
-  width = 1280; height = 720; fps = 30;
+  width = 640; height = 480; fps = 30;
 //  width = 800; height =600; fps = 30;
   //camera = new CameraUSB(dev, width, height, 30);
-
+  
   name= "/dev/video0";
-
+  
 
  // data=(unsigned char *)malloc(width*height*4);
 //  dst = (unsigned char*)malloc(width*height*3*sizeof(char));
-
+   
   this->Open();
   this->Init();
   this->Start();
   initialised = true;
+  
+  ImBruta.resize (width, height);
 
-  ImBruta.resize (width/2, height/2);
 }
 
 
@@ -131,7 +132,7 @@ void Camera::Open() { // Rotina que serve para abrir dispositivo.
 
 
 void Camera::Init() { // Rotina que configura os principais parâmetros da câmera.
-
+  
   struct v4l2_capability cap;
   struct v4l2_cropcap cropcap;
   struct v4l2_crop crop;
@@ -230,7 +231,7 @@ if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
   mb=queryctrl.minimum;
   Mb=queryctrl.maximum;
   db=queryctrl.default_value;
-
+  
   //Exposure
   v4l2_control c;
   c.id = V4L2_CID_EXPOSURE_AUTO;
@@ -275,8 +276,8 @@ if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
   mw=queryctrl.minimum;
   Mw=queryctrl.maximum;
   dw=queryctrl.default_value;
-
-
+  
+  
   memset(&queryctrl, 0, sizeof(queryctrl));
   queryctrl.id = V4L2_CID_CONTRAST;
   if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
@@ -380,7 +381,7 @@ if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
 
   //
   init_mmap();
-
+     
 
 }
 
@@ -400,7 +401,7 @@ void Camera::Start() {
       errno_exit ("VIDIOC_QBUF");
   }
 
-  enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE; 
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
     errno_exit ("VIDIOC_STREAMON");
 }
@@ -436,8 +437,8 @@ void Camera::init_mmap() {
 
     meuBufferLength[i] = buf.length;
     meuBuffer[i] = (uint8_t*)mmap (NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
-
-
+   
+  
     if(MAP_FAILED == meuBuffer[i])
       errno_exit ("mmap");
 
@@ -461,19 +462,19 @@ bool Camera::start_transmission(){
 
 void Camera::run () {
   //cout<<"Estou em run"<<endl;
-
-  while(!encerrar){
+  
+  while(!encerrar){ 
     waitforimage();
     captureimage();
 
- }
-
-
+ } 
+  
+  
 }
 //******************************
   //modificado por Filipe
 bool Camera::waitforimage(){
-
+    
     fd_set fds;
     FD_ZERO(&fds);
     FD_SET(fd, &fds);
@@ -487,7 +488,7 @@ bool Camera::waitforimage(){
     }
     //*/
    return false;
-
+  
 }
 
 
@@ -496,7 +497,7 @@ bool Camera::waitforimage(){
 
 bool Camera::captureimage() {
    if (capturando) {
-
+    
     struct v4l2_buffer buf;
     CLEAR(buf);
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -505,18 +506,18 @@ bool Camera::captureimage() {
       perror("Retrieving Frame");
       return true;
     }
-
+    
     //cout<<"buf.index = "<<buf.index<<endl;
     YUV422toRGB888(width,height,meuBuffer[buf.index],(uint8_t*)ImBruta.getRawData());
-
+     
     if(-1 == xioctl (fd, VIDIOC_QBUF, &buf)) {
         perror("Requesting new Frame");
         return true; //errno_exit ("VIDIOC_QBUF");
     }
-
-  }
+    
+  }  
   return false;
-
+  
 }
 
 void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
@@ -524,10 +525,10 @@ void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
   //cout<<"Estou aqui 1"<<endl;
   int line, column;
   uint8_t *py, *pu, *pv;
-  uint8_t *tmp = dst, *temp= new uint8_t[width*height*3];
-
-
-  /* In this format each four bytes is two pixels. Each four bytes is two Y's, a Cb and a Cr.
+  uint8_t *tmp = dst;
+  
+  
+  /* In this format each four bytes is two pixels. Each four bytes is two Y's, a Cb and a Cr. 
      Each Y goes to one of the pixels, and the Cb and Cr belong to both pixels. */
   py = src;
   pu = src + 1;
@@ -535,13 +536,14 @@ void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
   //cout<<"Estou aqui 2"<<endl;
   #define CLIP(x) ( (x)>=0xFF ? 0xFF : ( (x) <= 0x00 ? 0x00 : (x) ) )
 
-    for (line = 0; line < height; ++line) {
+  for (line = 0; line < height; ++line) {
  // for (line = 0; line < 160; ++line) {
     //cout<<"line = "<<line<<endl;
     for (column = 0; column < width; ++column) {
-      *temp++ = CLIP((double)*py + 1.402*((double)*pv-128.0));
-      *temp++ = CLIP((double)*py - 0.344*((double)*pu-128.0) - 0.714*((double)*pv-128.0));
-      *temp++ = CLIP((double)*py + 1.772*((double)*pu-128.0));
+      *tmp++ = CLIP((double)*py + 1.402*((double)*pv-128.0));
+      *tmp++ = CLIP((double)*py - 0.344*((double)*pu-128.0) - 0.714*((double)*pv-128.0));      
+      *tmp++ = CLIP((double)*py + 1.772*((double)*pu-128.0));
+      
       // increase py every time
       py += 2;
       // increase pu,pv every second time
@@ -551,21 +553,27 @@ void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
       }
     }
   }
-  // Resize image to w/2 h/2
-  temp= temp-width*height*3;
+  tmp= dst;
   for(int i=0; i<height; i+=2)
   {
     for(int j=0; j<width; j+=2)
     {
-        *tmp++= (*(temp)+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
-        temp++;
-        *tmp++= (*(temp)+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
-        temp++;
-        *tmp++= (*(temp)+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
-        temp++;
-        temp+=3;
+        int pos= i*3*width/2+3*j/2-1;
+        *tmp++= (*(tmp+pos)+*((tmp+pos)+3)+*((tmp+pos)+3*width)+*((tmp+pos)+3*width+3))/4;
+        *tmp++= (*(tmp+pos)+*((tmp+pos)+3)+*((tmp+pos)+3*width)+*((tmp+pos)+3*width+3))/4;
+        *tmp++= (*(tmp+pos)+*((tmp+pos)+3)+*((tmp+pos)+3*width)+*((tmp+pos)+3*width+3))/4;
+//        *tmp++= (*temp+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
+//        temp++;
+////        tmp+=2;
+//        *tmp++= (*temp+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
+//        temp++;
+////        tmp+=2;
+//        *tmp++= (*temp+*(temp+3)+*(temp+3*width)+*(temp+3*width+3))/4;
+//        temp++;
+//        temp+=3;
     }
-    temp+=3*width;
+    tmp+=3*width/2;
+//    temp+=3*width;
   }
 }
 
@@ -575,13 +583,13 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
   setContrast(cameraParam.exposure);
   setHue(cameraParam.hue);
   setSaturation(cameraParam.saturation);
-
+  
   setWhiteness(cameraParam.shutter);
   setSharpness(cameraParam.gain);
-
-
-
-
+  
+  
+  
+  
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_BRIGHTNESS,
 // 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
@@ -594,7 +602,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 //     fprintf(stderr,"Could not set camera brightness value\n");
 //     return true;
 //   }
-//
+//       
 //   //setting auto exposure
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_EXPOSURE,
@@ -608,7 +616,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 //     fprintf(stderr,"Could not set camera exposure value\n");
 //     return true;
 //   }
-//
+//       
 //   //setting white balance
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_WHITE_BALANCE,
@@ -616,7 +624,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 //     fprintf(stderr,"Could not set camera white balance mode\n");
 //     return true;
 //   }
-//
+//       
 //   //setting hue
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_HUE,
@@ -630,7 +638,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 //     fprintf(stderr,"Could not set camera hue value\n");
 //     return true;
 //   }
-//
+//       
 //   //setting saturation
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_SATURATION,
@@ -644,7 +652,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 //     fprintf(stderr,"Could not set camera saturation value\n");
 //     return true;
 //   }
-//
+//       
 //   //setting gamma
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_GAMMA,
@@ -658,7 +666,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 //     fprintf(stderr,"Could not set camera gamma value\n");
 //     return true;
 //   }
-//
+//       
 //   //setting shutter
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_SHUTTER,
@@ -670,9 +678,9 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 // 			      DC1394_FEATURE_SHUTTER,
 // 			      cameraParam.shutter) != DC1394_SUCCESS){
 //     fprintf(stderr,"Could not set camera shutter value\n");
-//     return true;
+//     return true; 
 //   }
-//
+//       
 //   //setting gain
 //   if(dc1394_feature_set_mode(camera,
 // 			     DC1394_FEATURE_GAIN,
@@ -684,7 +692,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
 // 			      DC1394_FEATURE_GAIN,
 // 			      cameraParam.gain) != DC1394_SUCCESS){
 //     fprintf(stderr,"Could not set camera gain value\n");
-//     return true;
+//     return true; 
 //   }
    return false;
 }
@@ -819,7 +827,7 @@ int Camera::setContrast(int v) {
     perror("error setting contrast");
     return -1;
   }
-
+  
   return 1;
 }
 
@@ -834,7 +842,7 @@ int Camera::setSaturation(int v) {
     perror("error setting saturation");
     return -1;
   }
-
+  
   return 1;
 }
 
@@ -849,7 +857,7 @@ int Camera::setHue(int v) {
     perror("error setting hue");
     return -1;
   }
-
+  
   return 1;
 }
 
@@ -864,7 +872,7 @@ int Camera::setWhiteness(int v) {
     perror("error setting Whiteness");
     return -1;
   }
-
+  
   return 1;
 }
 
@@ -879,7 +887,7 @@ int Camera::setSharpness(int v) {
     perror("error setting sharpness");
     return -1;
   }
-
+  
   return 1;
 }
 
@@ -888,10 +896,10 @@ Camera::~Camera() {
   encerrar = true;
   UnInit();
   Stop();
-
+  
   //free ((void *) mRgbFrame);
   //dc1394_video_set_transmission(camera, DC1394_OFF);
-  //dc1394_capture_stop(camera);
+  //dc1394_capture_stop(camera); 
 
 }
 

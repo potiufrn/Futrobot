@@ -3,7 +3,7 @@ LANGUAGE	= C++
 
 CONFIG	+= qt warn_on release
 
-LIBS	+= -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem -ldc1394
+LIBS	+= -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem
 
 INCLUDEPATH	+= ../../include /usr/include/qt3/
 

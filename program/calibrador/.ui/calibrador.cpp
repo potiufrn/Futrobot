@@ -5,7 +5,7 @@
 #include <qpixmap.h>
 
 #include "pixmap_label.h"
-#include "../calibrador.ui.h"
+#include "calibrador.ui.h"
 /*
  *  Constructs a calibrador as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.

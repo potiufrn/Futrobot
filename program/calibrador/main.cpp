@@ -53,9 +53,9 @@ int main( int argc, char ** argv )
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     a.exec();
 
-
+    X.terminar();
     pthread_join(a_thread,NULL);
- 
+
     return 0;
     
 }
