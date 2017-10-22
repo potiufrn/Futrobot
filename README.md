@@ -21,7 +21,7 @@ Comando para instalação de pacotes para utilização do bluetooth
 sudo apt-get install bluetooth bluez-utils blueman
 ```
 
-Após esse comado, verificar se na pasta include do computador está a pasta `/usr/include/bluetooth`. Caso não, use o comando abaixo:
+Após esse comado, verificar se na pasta include do computador está a pasta `/usr/include/bluetooth`. Caso não, use o comando a seguir:
 ```
 sudo apt-get install build-essential libbluetooth-dev libdbus-1-dev
 ```
