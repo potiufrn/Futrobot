@@ -26,10 +26,10 @@ Após esse comado, verificar se na pasta include do computador está a pasta `/u
 sudo apt-get install build-essential libbluetooth-dev libdbus-1-dev
 ```
 
-+Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
- +```
- +sudo apt-get install libqt4-dev qt4-dev-tools
- +```
+Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
+```
+sudo apt-get install libqt4-dev qt4-dev-tools
+```
 
 ### Make Make Make Make Make...
 Agora, utilizar os comandos a seguir em todas as pastas da pasta `libsrc`:
