@@ -1,0 +1,88 @@
+ ./interface
+
+warning: .dynamic section for "/lib/libpthread.so.0" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libm.so.6" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libc.so.6" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libdl.so.2" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libXrender.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libfontconfig.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libz.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libXext.so.6" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libgthread-2.0.so.0" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/librt.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libgobject-2.0.so.0" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libXdamage.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libexpat.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libXau.so.6" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libxcb.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libXinerama.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libgmodule-2.0.so.0" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/lib/libattr.so.1" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libwacomcfg.so.0" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libgdk-x11-2.0.so.0" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+
+warning: .dynamic section for "/usr/lib/libavahi-client.so.3" is not at the expected address
+
+warning: difference appears to be caused by prelink, adjusting expectations
+Missing separate debuginfo for /usr/lib/libtdb.so.1
+Try: yum --enablerepo='*-debuginfo' install /usr/lib/debug/.build-id/85/b6149a8377a357541e89471eb7ee92474cc8de.debug
+
