@@ -26,7 +26,11 @@ double PID::controle(double e, double h)
 }
 
 void PID::anti_windup() {
-  I_ant = I_ant2;
+ // Quando o robô saia de uma situação de bloqueio passava muito tempo girando
+ // Isso deve ser porque o anti_windup não estava sendo efetivo
+ // Vamos modificar para ao invés de parar de crescer o efeito integral, vamos zerar
+ // I_ant = I_ant2;         // Suspende a Integração
+  I_ant = I_ant2 = 0.0;   // Zera a parte Integral   
 }
 
 void PID::reset() {
@@ -35,7 +39,7 @@ void PID::reset() {
   D_ant = 0.0;
 }
 
-Control::Control(TEAM team, SIDE side, GAME_MODE gameMode): 
+Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   FutData(team,side,gameMode)
 {
   // Quer ou não o controle de orientação
@@ -56,7 +60,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   // Os sistemas (linear e angular) são descritos pela função de
   // transferência em malha aberta G(s)=V/(s(Ts+1)), onde V é a
   // velocidade máxima e T é constante de tempo.
-  
+
   const double RAIO_RODA=0.017;
   const double VEL_ANG_RODA=1.0/RAIO_RODA;
   const double Vlin=VEL_ANG_RODA*RAIO_RODA;
@@ -65,37 +69,37 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   const double Tlin=CONST_TEMPO_LIN;
   const double AFAST_MASSA=0.5;
   const double Tang=pow2(AFAST_MASSA)*CONST_TEMPO_LIN;
-  
+
   // O ganho do controlador proporcional (P) que torna o sistema mais
   // rápido e não introduz sobressinal é k=1/(4VT).
-  
+
   klin=1/(4*Vlin*Tlin); tilin=1E+10; tdlin=0.0;
   kang=1/(4*Vang*Tang); tiang=1E+10; tdang=0.0;
-  cout << "Sugestao 1: klin=" << klin << " tilin=" << tilin << " tdlin=" << tdlin 
+  cout << "Sugestao 1: klin=" << klin << " tilin=" << tilin << " tdlin=" << tdlin
        << " kang=" << kang << " tiang=" << tiang << " tdang=" << tdang << endl;
-  
+
   // Para o controlador proporcional-derivativo (PD), de forma a não
   // se ter sobressinal e se alterar a constante de tempo de T para
   // Tot, deve-se ter:
-  
+
   Totlin=1.0; Totang=0.5;
   klin=1/(Vlin*Totlin); tilin=1E+10; tdlin=Tlin;
   kang=1/(Vang*Totang); tiang=1E+10; tdang=Tang;
-  cout << "Sugestao 2: klin=" << klin << " tilin=" << tilin << " tdlin=" << tdlin 
+  cout << "Sugestao 2: klin=" << klin << " tilin=" << tilin << " tdlin=" << tdlin
        << " kang=" << kang << " tiang=" << tiang << " tdang=" << tdang << endl;
-  
+
   // Para o controlador proporcional-derivativo (PD), de forma a
   // se ter sobressinal de 5% (ksi=0,707) e se alterar a constante de
   // tempo de T para Tot, deve-se ter:
-  
+
   Totlin=0.3333; Totang=0.1;
   klin=2*Tlin/(pow2(Totlin)*Vlin);
   tilin=5; tdlin=Totlin*(2*Tlin-Totlin)/(2*Tlin);
   kang=2*Tang/(pow2(Totang)*Vang);
   tiang=5; tdang=Totang*(2*Tang-Totang)/(2*Tang);
-  cout << "Sugestao 3: klin=" << klin << " tilin=" << tilin << " tdlin=" << tdlin 
+  cout << "Sugestao 3: klin=" << klin << " tilin=" << tilin << " tdlin=" << tdlin
        << " kang=" << kang << " tiang=" << tiang << " tdang=" << tdang << endl;
-  
+
   // Se não quiser fazer nada disso, fixe as constantes na mâo!
   */
 
@@ -103,23 +107,33 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   //################################################################
 
   // Controle Poti
-  double klin = 2.3;																					;
-  double tilin = 28.0;
+  double klin = 1.3;//1.3;
+  double tilin= 1E+10;//1E+10;
+  double tdlin = 0.08;//0.08;
+
+  double kang = 0.05;//0.08
+  double tiang = 1.5;//1.5
+  double tdang = 0.07;//0.07;
+
+  /*
+	double klin = 0.9;
+  double tilin = 1E+10;
   double tdlin = 0.07;
 
-  double kang = 0.2;
-  double tiang = 28.0;
+  double kang = 0.12; //0.12
+  double tiang = 18.0;
   double tdang = 0.01;
-  
+*/
+
   // Controle Jerimum
 //   double klin = 0.15;//0.3
 //   double tilin = 50.0;//50.0
 //   double tdlin = 0.0;
-// 
+//
 //   double kang = 0.02;//0.02
 //   double tiang = 50.0;
 //   double tdang = 0.0;
-  
+
   //################################################################
   //################################################################
 
@@ -133,7 +147,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
 
 Control::~Control()
 {
-  
+
 }
 
 // Esta função calcula o "percentual de levada em conta" do controle
@@ -178,14 +192,14 @@ bool Control::control()
 	if (!chegou[i]) {
 	  chegou[i] = (distancia < EPSILON_L);
 	  if (chegou[i]) {
-	    ang[i].reset(); 
+	    ang[i].reset();
 	    lin[i].reset();
 	  }
 	}
 	else {
 	  chegou[i] = (distancia < DELTA_L);
 	  if (!chegou[i]) {
-	    ang[i].reset(); 
+	    ang[i].reset();
 	    lin[i].reset();
 	  }
 	}
@@ -217,7 +231,7 @@ bool Control::control()
 	    erro_ang= 0.0;
 	  } else {
 	    erro_ang = ang_equiv(ref.me[i].theta() - pos.me[i].theta());
-	  }	 
+	  }
 	  //lin[i].reset();
 	  erro_lin = 0.0;
 	  //erro_lin = distancia*cos(erro_ang);
@@ -225,7 +239,7 @@ bool Control::control()
 	// Calcula o sentido mais curto para girar
 	// Na medida do possível, mantém a mesma direção de giro anterior
 	erro_ang2 = ang_equiv2(erro_ang);
-	
+
 	if (fabs(erro_ang2)>M_PI_4 && sentidoGiro[i]*erro_ang2<0.0) {
 	  if (sentidoGiro[i] > 0) {
 	    erro_ang2 += M_PI;
@@ -267,24 +281,24 @@ bool Control::control()
 	  lin[i].anti_windup(); // Podia dispensar, já que é PD
 	}
       }
-      
+
       // Cálculo dos percentuais dos motores das rodas. Os valores
       // "alpha_ang" e "alpha_lin" são puramente teóricas, pois o que se
       // controla na prática são os percentuais dos motores direito e
       // esquerdo.
-      
+
       pwm.me[i].right = alpha_lin+alpha_ang;
       if (fabs(pwm.me[i].right) < PWM_ZERO) pwm.me[i].right = 0.0;
       else if (pwm.me[i].right > 0.0)
 	pwm.me[i].right = PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].right;
       else pwm.me[i].right = -PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].right;
-      
+
       pwm.me[i].left = alpha_lin-alpha_ang;
       if (fabs(pwm.me[i].left)<1.0/127.0) pwm.me[i].left = 0.0;
       else if (pwm.me[i].left > 0.0)
 	pwm.me[i].left = PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].left;
       else pwm.me[i].left = -PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].left;
-      
+
     }
   }
   return false;

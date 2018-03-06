@@ -19,9 +19,9 @@
 #else  //#ifndef _TRANSMITION_BLUETOOTH_
 #include <bluetoothAction.h>
 
-#define ID_ROBO_0 "20:15:07:14:12:00"
-#define ID_ROBO_1 "98:D3:31:B4:34:01"
-#define ID_ROBO_2 "20:15:07:14:31:79"
+#define ID_ROBO_0 "20:17:03:06:25:29"
+#define ID_ROBO_1 "20:17:03:06:00:34"
+#define ID_ROBO_2 "20:17:03:06:17:86"
  
 #endif //#ifndef _TRANSMITION_BLUETOOTH_
 #endif //#ifndef _SO_SIMULADO_

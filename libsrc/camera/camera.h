@@ -30,8 +30,8 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
-//#define NUM_BUFFERS 4
-#define NUM_BUFFERS 30
+#define NUM_BUFFERS 4
+//#define NUM_BUFFERS 30
 //#define NUM_BUFFERS 10
 #define ISO_SPEED DC1394_ISO_SPEED_400
 #define FRAME_RATE_FUT DC1394_FRAMERATE_30
@@ -134,8 +134,8 @@ class Camera {
    
   //buffer *buffers;
   typedef uint8_t* ptr_uint8;
-  ptr_uint8 meuBuffer[4];
-  size_t meuBufferLength[4];
+  ptr_uint8 meuBuffer[NUM_BUFFERS];
+  size_t meuBufferLength[NUM_BUFFERS];
   //int n_buffers;
 
   int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;

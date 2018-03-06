@@ -32,8 +32,16 @@ bool Obstacles::obstacles()
     return false;
   }
 
-  //  desvio_area (com_bola());
-  //return false;
+  // O desvio de obstaculos nao estah funcionando bem em razao do tempo de atraso
+  // As posicoes dos obstaculos nao correspondem aa realidade
+  // Por essa razao, o desvio de obstaculos serah desativo
+  // Rever essa decisao quando o tempo de atraso for resolvido (08/11/2017)
+ // return false;
+
+  // Essa funcao tenta evitar que o robo cometa penalti
+  // Por alguma razao, estah comentada (08/11/2017)
+  // Verificar se deve ou nao ser incluida no futuro
+  //desvio_area (com_bola());
 
   bool ignora_meu[3], ignora_adv[3];
   double dist, xc, yc, raio, gama, delta_gama;

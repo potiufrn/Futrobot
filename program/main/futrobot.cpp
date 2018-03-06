@@ -117,6 +117,7 @@ void Futrobot::management()
        finish();
        cerr << "Erro na exportacao dos dados!\n";
      }
+  
     myt_end_exp = relogio();
 
     t_start = myt_start;

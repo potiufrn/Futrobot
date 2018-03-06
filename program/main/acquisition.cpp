@@ -892,9 +892,15 @@ bool Acquisition::processGameState()
 	      regOrange = region;
 	      nRegOrange++;
 	    }else{
-	      if(region.nPixel > regOrange.nPixel){
+		if(region.nPixel > regOrange.nPixel){
 		regOrange = region;
 	      }
+		//cout<<region.nPixel<<endl;
+		// Inicio da gambiarra 
+		// Escolhendo a menor região ao invés da maior	
+	      //if(region.nPixel>100 && region.nPixel < regOrange.nPixel){
+	//	regOrange = region;
+	  //    }
 	    }
 	    break;
 	    
@@ -1230,9 +1236,10 @@ bool Acquisition::processGameState()
 
   if(saveNextImage){
     cout << "Regioes encontradas:\n";
+    cout << "Orange: "<< nRegOrange << endl;
     cout << "Azul: "<< nRegBlue << endl;
     cout << "Amarelo: "<< nRegYellow << endl;
-    cout << "Orange: "<< nRegOrange << endl;
+    
     
     for(i = 0; i < nRegBlue; i++){
       cout << "Azul " << i << "\t" << regBlue[i];

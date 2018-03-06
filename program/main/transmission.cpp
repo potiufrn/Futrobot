@@ -2,8 +2,14 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
 #include "transmission.h"
-
+//static int cont=-100;
+//static double x[1000];
+//static double y[1000];
+//static double tetta[1000];
+//static double pwml[1000];
+//static double pwmr[1000];
 
 //const double treshold = 1.0/8.0;
 //const double limiarZero = 0.00781;
@@ -129,6 +135,38 @@ bool Transmission::transmission(){
 	//cerr << "Erro na escrita no dispositivo bluetooth " << i << endl;
 	//return true;
       }
+      /* // identificação Equipe poti 2017
+      if(i==0 && cont<1000)
+      {	
+	  if(cont>=0)
+	  {
+	    x[cont]=pos.me[i].x();
+	    y[cont]=pos.me[i].y();
+	    tetta[cont]=pos.me[i].theta();
+	    pwmr[cont]=pwm.me[0].right;
+	    pwml[cont]=pwm.me[0].left;
+	  }
+	  cont++;
+	
+      }
+      if(i==0 && cont==1000)
+      {
+	ofstream myfile("amostras.txt");
+	for(int ii=0;ii<1000;ii++)
+	{
+	   if(myfile.is_open())
+	   {
+	     myfile<<x[ii]<<'\t'<< y[ii]<<'\t'<< tetta[ii]<<'\t'<< pwmr[ii]<<'\t'<< pwml[ii]<<endl;
+				 
+	   }
+	 }
+         myfile.close();
+	cout<<"Feito arquivo"<<endl;
+         cont++;
+      }
+      */
+			
+	    
     }
     #endif //#ifndef _TRANSMITION_BLUETOOTH_
        

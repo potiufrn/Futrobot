@@ -21,25 +21,23 @@ private:
 
   double dist_meu[3], dist_adv[3];
 
+  // predicados para os meus robos
   //a principio os booleanos dos jogadores tem uso especifico, mas mesmo assim foram criados para os tres jogadores 
 
-  //booleanos do predicados do goleiro
-  bool meu_lado_area[3], bola_frente_x_do_meu[3];
+  bool meu_lado_area[3], meu_atras_gol[3];;
 
-  //booleanos para ambos 
   bool meu_na_area[3];
 
-  //booleanos do predicado com bola
-  bool meu_na_area_hist[3], meu_na_frente_bola[3], meu_na_frente_bola_hist[3], 
+  bool meu_na_frente_bola[3], 
      meu_posicionado_descolar[3], meu_furou[3], meu_frente_area[3], 
      meu_alinhado_chutar[3], meu_bem_alinhado_chutar[3], bola_frente_y_do_meu[3],
-     bola_frente_y_do_meu_hist[3], meu_posicionado_isolar[3], meu_posicionado_isolar_hist[3], 
+     meu_posicionado_isolar[3],
      meu_alinhado_isolar[3], meu_bem_alinhado_isolar[3];
 
   // Analise da situacao da bola
   bool bola_parada, bola_no_ataque, bola_minha_area_lateral;
 
-  // So um desses predicados pode ser true ao mesmo tempo
+  // Soh um desses predicados pode ser true ao mesmo tempo
   bool bola_dentro_gol, bola_area_defesa, bola_frente_area, bola_lado_area,
     bola_parede_fundo, bola_quina_fundo, bola_fundo, bola_parede_lateral,
     bola_lateral, bola_quina_frente, bola_parede_frente, bola_frente,

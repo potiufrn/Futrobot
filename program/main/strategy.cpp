@@ -9,17 +9,19 @@
 
 using namespace::std;
 
-// As constantes numericas usados na estrategia
+// As constantes numericasla usados na estrategia
 static const double EPSILON_L(0.005);         //CHECAR
 static const double EPSILON_ANG(0.087);       //5graus//CHECAR
 static const double LONGE_L(4*EPSILON_L);     //CHECAR
 static const double LONGE_ANG(4*EPSILON_ANG); //CHECAR
-static const double DIST_CHUTE(ROBOT_RADIUS+BALL_RADIUS+0.05);
+static const double DIST_CHUTE(ROBOT_RADIUS+BALL_RADIUS+0.05); // (ROBOT_RADIUS+BALL_RADIUS-0.075-0.018) LARC 2016
 static const double VEL_BOLA_LENTA(0.2);
 static const double DIST_COLADA(3.0*BALL_RADIUS);
+// Distancia a partir da qual se considera que a bola estah na lateral do campo
+// ou que um robo ou a bola estao suficientemente proximos da area do gol
 static const double LARGURA_ZONA(DIST_CHUTE+ROBOT_EDGE);
-
-static const double MARGEM_HIS (0.01);//em cm
+// Pequena distancia que vai ser utilizada para dar comportamento de histerese aos predicados
+static const double MARGEM_HISTERESE (0.01);//em cm
 static const unsigned COM_BOLA_DEFAULT(0);
 static const unsigned SEM_BOLA_DEFAULT(2);
 static const unsigned GOLEIRO_DEFAULT(1);
@@ -241,29 +243,27 @@ bool Strategy::strategy()
 void Strategy::analisa_jogadores(){
   for(int i = 0; i<3 ; i++){
  
-  //PREDICADOS GOLEIRO
+  // O roboh estah dentro da sua area do gol
   meu_na_area[i] =
-  	sinal*pos.me[i].x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH) &&
+  	(sinal*pos.me[i].x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)
+         ||
+  	 (sinal*pos.me[i].x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HISTERESE && meu_na_area[i]) )
+        &&
   	fabs(pos.me[i].y()) < GOAL_FIELD_HEIGHT/2.0;
-	
+
+  // O roboh estah "encalhado" na regiao concava que existe atras do gol do seu time
+  meu_atras_gol[i] = sinal*pos.me[i].x() < -FIELD_WIDTH/2.0;
+
+  // O roboh tem coordenada x dentro ou perto da area do gol	
   meu_lado_area[i] =
 	sinal*pos.me[i].x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH-LARGURA_ZONA);
 
-  bola_frente_x_do_meu[i] =
-	sinal*pos.ball.x() > sinal*pos.me[i].x();
-  
-  //PREDICADOS COM BOLA
-  
-  meu_na_area_hist[i] = 
-	sinal*pos.me[i].x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HIS &&
-	fabs(pos.me[i].y()) < GOAL_FIELD_HEIGHT/2.0+MARGEM_HIS;
-
+  // O robo estah  a frente da bola
   meu_na_frente_bola[i] =
-	(sinal*pos.me[i].x() - sinal*pos.ball.x() > 0.0);
+	(sinal*pos.me[i].x() - sinal*pos.ball.x() > 0.0)
+        ||
+        (sinal*pos.me[i].x() - sinal*pos.ball.x() > -MARGEM_HISTERESE && meu_na_frente_bola[i]);
 
-  meu_na_frente_bola_hist[i] = 
-	(sinal*pos.me[i].x() - sinal*pos.ball.x() > -0.05);
-  
   ref_desc[i] = posicao_para_descolar_bola();
   dlin_desc[i] = hypot(ref_desc[i].y()-pos.me[i].y(),
 		       ref_desc[i].x()-pos.me[i].x());
@@ -273,8 +273,7 @@ void Strategy::analisa_jogadores(){
 
   meu_furou[i] = 
 	dlin_desc[i] > ROBOT_RADIUS && dang_desc[i] < M_PI/8.0;
-  
-  
+    
   meu_frente_area[i] = 
 	sinal*pos.me[i].x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH-LARGURA_ZONA) &&
         fabs(pos.me[i].y()) < GOAL_FIELD_HEIGHT/2.0;
@@ -299,19 +298,20 @@ void Strategy::analisa_jogadores(){
 	fabs(yalin[i])<GOAL_HEIGHT/2.0;
   
   bola_frente_y_do_meu[i] =
-	fabs (pos.me[i].y()) < fabs(pos.ball.y());
-
-  bola_frente_y_do_meu_hist[i] =
-	fabs (pos.me[i].y()) < fabs(pos.ball.y())+MARGEM_HIS;
+	fabs (pos.me[i].y()) < fabs(pos.ball.y())
+        ||
+        (fabs (pos.me[i].y()) < (fabs(pos.ball.y())+MARGEM_HISTERESE) && bola_frente_y_do_meu[i]);
 
   meu_posicionado_isolar[i] =
-	sgn(pos.ball.y())*pos.ball.y() < sgn(pos.ball.y())*pos.me[i].y() &&
-	sinal*pos.me[i].x() < sinal*pos.ball.y();
-
-  meu_posicionado_isolar_hist[i] =
-	sgn(pos.ball.y())*pos.ball.y() < 
-	sgn(pos.ball.y())*pos.me[i].y()-MARGEM_HIS &&
-	sinal*pos.me[i].x() < sinal*pos.ball.x()-MARGEM_HIS;
+	(sgn(pos.ball.y())*pos.ball.y() < sgn(pos.ball.y())*pos.me[i].y()
+         ||
+         (sgn(pos.ball.y())*pos.ball.y() < sgn(pos.ball.y())*pos.me[i].y()-MARGEM_HISTERESE && meu_posicionado_isolar[i])
+        )
+        &&
+	(sinal*pos.me[i].x() < sinal*pos.ball.x()
+         ||
+         (sinal*pos.me[i].x() < sinal*pos.ball.x()-MARGEM_HISTERESE && meu_posicionado_isolar[i])
+        );
 
   meu_alinhado_isolar[i] =
 	fabs(pos.me[i].y()-pos.ball.y())< ROBOT_EDGE;
@@ -357,8 +357,8 @@ void Strategy::analisa_bola()
   bola_minha_area_lateral = 
     fabs(pos.ball.y())> GOAL_HEIGHT/2.0;	
 
-  bola_dentro_gol = fabs(pos.ball.x()) > (FIELD_WIDTH/2.0)+MARGEM_HIS || //MAIS RESTRITIVO
-    (fabs(pos.ball.x()) > (FIELD_WIDTH/2.0-MARGEM_HIS) && bola_dentro_gol);  
+  bola_dentro_gol = fabs(pos.ball.x()) > (FIELD_WIDTH/2.0)+MARGEM_HISTERESE || //MAIS RESTRITIVO
+    (fabs(pos.ball.x()) > (FIELD_WIDTH/2.0-MARGEM_HISTERESE) && bola_dentro_gol);  
   if (bola_dentro_gol) {
     bola_area_defesa = bola_frente_area = bola_lado_area =	
       bola_parede_fundo = bola_quina_fundo = bola_fundo =
@@ -368,10 +368,10 @@ void Strategy::analisa_bola()
   }
 
   bola_area_defesa = 
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)-MARGEM_HIS &&
-     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0-MARGEM_HIS) || // MAIS_RESTRITIVO
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HIS &&
-     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0+MARGEM_HIS && bola_area_defesa); 
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)-MARGEM_HISTERESE &&
+     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0-MARGEM_HISTERESE) || // MAIS_RESTRITIVO
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HISTERESE &&
+     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0+MARGEM_HISTERESE && bola_area_defesa); 
   if (bola_area_defesa) {
     bola_dentro_gol = bola_frente_area = bola_lado_area =
       bola_parede_fundo = bola_quina_fundo = bola_fundo =
@@ -381,10 +381,10 @@ void Strategy::analisa_bola()
   }
 
   bola_frente_area = 
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH-LARGURA_ZONA+MARGEM_HIS) &&
-     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0-MARGEM_HIS) || // MAIS RESTRITIVO
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH-LARGURA_ZONA-MARGEM_HIS) &&
-     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0+MARGEM_HIS && bola_frente_area);
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH-LARGURA_ZONA+MARGEM_HISTERESE) &&
+     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0-MARGEM_HISTERESE) || // MAIS RESTRITIVO
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH-LARGURA_ZONA-MARGEM_HISTERESE) &&
+     fabs(pos.ball.y()) < GOAL_FIELD_HEIGHT/2.0+MARGEM_HISTERESE && bola_frente_area);
   if (bola_frente_area) {
     bola_dentro_gol = bola_area_defesa = bola_lado_area =
       bola_parede_fundo = bola_quina_fundo = bola_fundo =
@@ -394,10 +394,10 @@ void Strategy::analisa_bola()
   }
   
   bola_lado_area = 
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)-MARGEM_HIS &&
-     fabs(pos.ball.y()) < (GOAL_FIELD_HEIGHT/2.0 + ROBOT_RADIUS + BALL_RADIUS)-MARGEM_HIS) || // MAIS RESTRITIVO
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HIS &&
-     fabs(pos.ball.y()) < (GOAL_FIELD_HEIGHT/2.0 + ROBOT_RADIUS + BALL_RADIUS)+MARGEM_HIS && bola_lado_area);
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)-MARGEM_HISTERESE &&
+     fabs(pos.ball.y()) < (GOAL_FIELD_HEIGHT/2.0 + ROBOT_RADIUS + BALL_RADIUS)-MARGEM_HISTERESE) || // MAIS RESTRITIVO
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HISTERESE &&
+     fabs(pos.ball.y()) < (GOAL_FIELD_HEIGHT/2.0 + ROBOT_RADIUS + BALL_RADIUS)+MARGEM_HISTERESE && bola_lado_area);
   if (bola_lado_area) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area =
       bola_parede_fundo = bola_quina_fundo = bola_fundo =
@@ -407,8 +407,8 @@ void Strategy::analisa_bola()
   }
   
   bola_parede_fundo = 
-    sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-DIST_COLADA)-MARGEM_HIS ||//MAIS RESTRITIVO    
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-DIST_COLADA)+MARGEM_HIS && bola_parede_fundo);
+    sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-DIST_COLADA)-MARGEM_HISTERESE ||//MAIS RESTRITIVO    
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-DIST_COLADA)+MARGEM_HISTERESE && bola_parede_fundo);
   if (bola_parede_fundo) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = 
       bola_lado_area =  bola_quina_fundo = bola_fundo =
@@ -420,10 +420,10 @@ void Strategy::analisa_bola()
   bola_quina_fundo =
     fabs(pos.ball.y()) > (FIELD_HEIGHT/2.0-CORNER_DIMENSION
 			  -sqrt(2.0)*DIST_COLADA
-			  +sinal*pos.ball.x()+FIELD_WIDTH/2.0)+MARGEM_HIS || //MAIS RESTRITIVO;
+			  +sinal*pos.ball.x()+FIELD_WIDTH/2.0)+MARGEM_HISTERESE || //MAIS RESTRITIVO;
     (fabs(pos.ball.y()) > (FIELD_HEIGHT/2.0-CORNER_DIMENSION
 			   -sqrt(2.0)*DIST_COLADA
-			   +sinal*pos.ball.x()+FIELD_WIDTH/2.0)-MARGEM_HIS && bola_quina_fundo);
+			   +sinal*pos.ball.x()+FIELD_WIDTH/2.0)-MARGEM_HISTERESE && bola_quina_fundo);
   if (bola_quina_fundo) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = 
       bola_lado_area = bola_parede_fundo = bola_fundo =
@@ -433,8 +433,8 @@ void Strategy::analisa_bola()
   }
 
   bola_parede_lateral =
-    fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-DIST_COLADA)+MARGEM_HIS || // MAIS RESTRITIVO;
-    (fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-DIST_COLADA)-MARGEM_HIS && bola_parede_lateral);
+    fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-DIST_COLADA)+MARGEM_HISTERESE || // MAIS RESTRITIVO;
+    (fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-DIST_COLADA)-MARGEM_HISTERESE && bola_parede_lateral);
   if (bola_parede_lateral) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = 
       bola_lado_area = bola_parede_fundo = bola_quina_fundo =
@@ -446,10 +446,10 @@ void Strategy::analisa_bola()
   bola_quina_frente =
     fabs(pos.ball.y()) > (FIELD_HEIGHT/2.0-CORNER_DIMENSION
 			  -sqrt(2.0)*DIST_COLADA
-			  -sinal*pos.ball.x()+FIELD_WIDTH/2.0)+MARGEM_HIS || //MAIS RESTRITIVO;
+			  -sinal*pos.ball.x()+FIELD_WIDTH/2.0)+MARGEM_HISTERESE || //MAIS RESTRITIVO;
     (fabs(pos.ball.y()) > (FIELD_HEIGHT/2.0-CORNER_DIMENSION
 			   -sqrt(2.0)*DIST_COLADA
-			   -sinal*pos.ball.x()+FIELD_WIDTH/2.0)-MARGEM_HIS && bola_quina_frente);
+			   -sinal*pos.ball.x()+FIELD_WIDTH/2.0)-MARGEM_HISTERESE && bola_quina_frente);
   if (bola_quina_frente) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = 
       bola_lado_area = bola_parede_fundo = bola_quina_fundo = 
@@ -459,10 +459,10 @@ void Strategy::analisa_bola()
   }
   
   bola_parede_frente = 
-    (sinal*pos.ball.x() > (FIELD_WIDTH/2.0-DIST_COLADA)+MARGEM_HIS &&
-     fabs(pos.ball.y()) > GOAL_HEIGHT/2.0+MARGEM_HIS) || //MAIS RESTRITIVO;
-    (sinal*pos.ball.x() > (FIELD_WIDTH/2.0-DIST_COLADA-MARGEM_HIS) &&
-     fabs(pos.ball.y()) > GOAL_HEIGHT/2.0-MARGEM_HIS && bola_parede_frente);
+    (sinal*pos.ball.x() > (FIELD_WIDTH/2.0-DIST_COLADA)+MARGEM_HISTERESE &&
+     fabs(pos.ball.y()) > GOAL_HEIGHT/2.0+MARGEM_HISTERESE) || //MAIS RESTRITIVO;
+    (sinal*pos.ball.x() > (FIELD_WIDTH/2.0-DIST_COLADA-MARGEM_HISTERESE) &&
+     fabs(pos.ball.y()) > GOAL_HEIGHT/2.0-MARGEM_HISTERESE && bola_parede_frente);
   if (bola_parede_frente) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = 
       bola_lado_area = bola_parede_fundo = bola_quina_fundo = 
@@ -472,8 +472,8 @@ void Strategy::analisa_bola()
   }
 
   bola_fundo = 
-    sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)-MARGEM_HIS || // MAIS RESTRITIVO
-    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HIS && bola_fundo);
+    sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)-MARGEM_HISTERESE || // MAIS RESTRITIVO
+    (sinal*pos.ball.x() < -(FIELD_WIDTH/2.0-GOAL_FIELD_WIDTH)+MARGEM_HISTERESE && bola_fundo);
   if (bola_fundo) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = 
       bola_lado_area = bola_parede_fundo = bola_quina_fundo =
@@ -484,8 +484,8 @@ void Strategy::analisa_bola()
   
 
   bola_frente =
-    fabs(pos.ball.y()) > -(sinal*pos.ball.x())+FIELD_WIDTH/2.0+GOAL_HEIGHT/2.0+sqrt(2.0)*MARGEM_HIS ||// MAIS_RESTRITIVO
-    (fabs(pos.ball.y()) > -(sinal*pos.ball.x())+FIELD_WIDTH/2.0+GOAL_HEIGHT/2.0-sqrt(2.0)*MARGEM_HIS && bola_frente);
+    fabs(pos.ball.y()) > -(sinal*pos.ball.x())+FIELD_WIDTH/2.0+GOAL_HEIGHT/2.0+sqrt(2.0)*MARGEM_HISTERESE ||// MAIS_RESTRITIVO
+    (fabs(pos.ball.y()) > -(sinal*pos.ball.x())+FIELD_WIDTH/2.0+GOAL_HEIGHT/2.0-sqrt(2.0)*MARGEM_HISTERESE && bola_frente);
   if (bola_frente) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area = bola_lado_area =
       bola_parede_fundo = bola_quina_fundo = bola_fundo =
@@ -495,8 +495,8 @@ void Strategy::analisa_bola()
   }
 
   bola_lateral =
-    fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-LARGURA_ZONA)+MARGEM_HIS || //MAIS RESTRITIVO;
-    (fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-LARGURA_ZONA)-MARGEM_HIS && bola_lateral);
+    fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-LARGURA_ZONA)+MARGEM_HISTERESE || //MAIS RESTRITIVO;
+    (fabs (pos.ball.y()) >  (FIELD_HEIGHT/2.0-LARGURA_ZONA)-MARGEM_HISTERESE && bola_lateral);
   if (bola_lateral) {
     bola_dentro_gol = bola_area_defesa = bola_frente_area =
       bola_lado_area = bola_parede_fundo = bola_quina_fundo = 
@@ -770,15 +770,20 @@ void Strategy::acao_goleiro_play(int id)
       papeis.me[id].acao = LADO_AREA;
     }
   }
+  // testar se o goleiro estah preso atras do gol
+  else if (meu_atras_gol[id])
+  {
+    papeis.me[id].acao = G_CENTRO_GOL;
+  }      
   // BOLA NA AREA
   else if (bola_area_defesa) {
     if (bola_parada && 
 	!adv_na_area[id] && !adv_mais_prox_bola[id] &&
-	bola_frente_x_do_meu[id] ) { // predicado para bola bola_na_minha_frente
+	!meu_na_frente_bola[id] ) { // predicado para bola bola_na_minha_frente
       papeis.me[id].acao = ISOLAR_BOLA;
     }
     else if (bola_minha_area_lateral ||   //predicado para bola_dentro_area_lateral
-	     bola_frente_x_do_meu[id] ) { //bola_na_minha_frente
+	     !meu_na_frente_bola[id] ) { //bola_na_minha_frente
       papeis.me[id].acao = IR_BOLA;
     }
     else {
@@ -848,8 +853,6 @@ void Strategy::acao_com_bola(int id)
   }
 }
 
-
-
 void Strategy::acao_com_bola_play(int id) {
   if (bola_dentro_gol) {
     if (bola_no_ataque) { 
@@ -886,7 +889,7 @@ void Strategy::acao_com_bola_play(int id) {
   if (bola_frente_area) {
     
     if (meu_frente_area[id] && (papeis.me[id].acao==ISOLAR_BOLA ||
-			    bola_frente_x_do_meu)) { // predicado bola bola_na_minha_frente
+			        !meu_na_frente_bola[id]) ) { // predicado bola bola_na_minha_frente
       papeis.me[id].acao = ISOLAR_BOLA;
     }
     else {
@@ -898,9 +901,13 @@ void Strategy::acao_com_bola_play(int id) {
 
   // Bola no lado da area
   if (bola_lado_area) {
-    if (meu_na_area[id] || (meu_na_area_hist[id] &&
-			     papeis.me[id].acao == ISOLAR_BOLA)) {
-      papeis.me[id].acao = ISOLAR_BOLA;
+    if (meu_na_area[id]) {
+        if (meu_atras_gol[id]) {
+          papeis.me[id].acao = G_CENTRO_GOL;
+        }
+        else {
+          papeis.me[id].acao = ISOLAR_BOLA;
+        }
     }
     else {
       papeis.me[id].acao = LADO_AREA;
@@ -910,9 +917,7 @@ void Strategy::acao_com_bola_play(int id) {
 
   // Bola nas outras regiões do campo:
   // bola_fundo, bola_lateral, bola_frente ou região normal
-  if (meu_na_frente_bola_hist[id] || (meu_na_frente_bola[id] &&
-			 (papeis.me[id].acao==A_CONTORNAR ||
-			  papeis.me[id].acao==A_CONTORNAR_POR_DENTRO)) ) {
+  if (meu_na_frente_bola[id]) {
     if (bola_fundo || bola_lateral || bola_frente) {
       papeis.me[id].acao = A_CONTORNAR_POR_DENTRO;
     }
@@ -939,8 +944,7 @@ void Strategy::acao_com_bola_play(int id) {
       //      bool nao_passou = fabs (pos.me[id].y()) < fabs(pos.ball.y()); 
       //      bool nao_bem_passado = fabs (pos.me[id].y()) < fabs(pos.ball.y())+MARGEM_HIS;
       if (bola_lateral) {
-	if (bola_frente_y_do_meu[id] ||    //bola_frente_lateral
-	    (bola_frente_y_do_meu_hist[id] && papeis.me[id].acao==A_ALINHAR_SEM_ORIENTACAO)){
+	if (bola_frente_y_do_meu[id]) {
 	  papeis.me[id].acao = A_ALINHAR_SEM_ORIENTACAO;
 	} else {
 	  papeis.me[id].acao = ISOLAR_BOLA;
@@ -949,8 +953,7 @@ void Strategy::acao_com_bola_play(int id) {
       }
       if (bola_frente) {
 	
-	if (meu_posicionado_isolar_hist[id] || (meu_posicionado_isolar[id] &&  
-				papeis.me[id].acao == ISOLAR_BOLA)) {
+	if (meu_posicionado_isolar[id]) {
 	  papeis.me[id].acao = ISOLAR_BOLA;
 	} else {
 	  papeis.me[id].acao = A_ALINHAR_SEM_ORIENTACAO;
@@ -1061,7 +1064,7 @@ void Strategy::calcula_referencias(int id)
   case COMEMORAR:
     {      // :-)
       
-      	     double tempo_volta = 2.0;  // Uma volta em 5 segundos
+      	     double tempo_volta = 5.0;  // Uma volta em 5 segundos
              double ang_circulo = ang_equiv(2.0*M_PI*id_pos/(30.0*tempo_volta));
              ang_circulo += id*2.0*M_PI/3.0;
              ref.me[id].x() = 1.0*CIRCLE_RADIUS*cos(ang_circulo);

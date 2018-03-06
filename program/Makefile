@@ -1,18 +1,61 @@
-all: makeprograms 
+BASEDIR = ..
 
-makelibsrc: 
-	cd lib && rm -rf *.a
-	cd include && rm -rf *.h
-	cd libsrc && ${MAKE} 
+CC = g++ 
+CXX = g++ 
+CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
+CFLAGS =
+LDFLAGS = -L ${BASEDIR}/lib
+LDLIBS = 
 
-makeprograms:
-	cd program && ${MAKE}
+PROGRAMS = system.o dados_calibracao.o functions.o
 
-.PHONY: clean realclean 
+all: makeprogram makecalibrador makeinterface makesimple makemain
 
-clean: 	
-	cd program && ${MAKE} clean
+old: makeprogram makecalibrador makeinterface makesimpleold makemainold
 
-realclean: 
-	cd program && ${MAKE} realclean
+
+makeprogram: ${PROGRAMS}
+
+makemain: makeprogram
+	cd main && ${MAKE}
+
+makemainold: makeprogram
+	cd main && ${MAKE} old
+
+makecalibrador: makeprogram
+	cd calibrador && ${MAKE}
+
+makeinterface: makeprogram makemain
+	cd interface && ${MAKE}
+
+makesimple: 
+	cd simple && ${MAKE}
+
+makesimpleold: 
+	cd simple && ${MAKE} old
+
+system.o: system.h system.cpp
+
+functions.o: functions.h functions.cpp
+
+dados_calibracao.o: dados_calibracao.h dados_calibracao.cpp
+
+##### SPECIAL TARGETS ######
+
+.PHONY: clean cleanall 
+
+clean:
+	-rm -f *.o *~ 
+	cd main && ${MAKE} clean
+	cd calibrador && ${MAKE} clean
+	cd interface && ${MAKE} clean
+	cd simple && ${MAKE} clean
+
+cleanall: clean
+	cd main && ${MAKE} cleanall
+	cd calibrador && ${MAKE} clean
+	cd interface && ${MAKE} clean
+	cd simple && ${MAKE} cleanall
+
+
 
