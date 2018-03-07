@@ -6,7 +6,7 @@ CXX = g++
 CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
-LDLIBS = -ldc1394 -limagem -lxfig -lotim -lmatrix -lpthread
+LDLIBS = -limagem -lxfig -lotim -lmatrix -lpthread
 
 all: camera.o libcamera.a
 
