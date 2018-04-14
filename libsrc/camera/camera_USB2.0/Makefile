@@ -1,5 +1,5 @@
 #BASEDIR = /futrobot
-BASEDIR = ../..
+BASEDIR = ../../..
 
 CC = g++
 CXX = g++
@@ -10,7 +10,7 @@ LDLIBS = -limagem -lxfig -lotim -lmatrix -lpthread
 
 all: camera.o libcamera.a
 
-libcamera.a: camera.o 
+libcamera.a: camera.o
 	ar r $@ $?
 
 camera.o: camera.h camera.cpp
