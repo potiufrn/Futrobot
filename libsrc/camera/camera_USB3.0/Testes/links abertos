@@ -1,0 +1,15 @@
+http://jwhsmith.net/2014/12/capturing-a-webcam-stream-using-v4l2/
+
+http://www.jayrambhia.com/blog/capture-v4l2
+
+https://gist.github.com/Circuitsoft/1126411
+
+http://man7.org/linux/man-pages/man2/select.2.html
+
+http://man7.org/linux/man-pages/man2/poll.2.html
+
+http://man7.org/linux/man-pages/man2/pselect.2.html
+
+http://pubs.opengroup.org/onlinepubs/009695399/functions/poll.html
+
+https://stackoverflow.com/questions/12444679/how-does-the-poll-c-linux-function-work
