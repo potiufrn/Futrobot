@@ -1,4 +1,3 @@
-#BASEDIR = /futrobot
 BASEDIR = ../../..
 
 CC = g++
@@ -14,8 +13,6 @@ libcamera.a: camera.o
 	ar r $@ $?
 
 camera.o: camera.h camera.cpp
-
-libcam.o: libcam.cpp libcam.h
 
 ##### SPECIAL TARGETS ######
 

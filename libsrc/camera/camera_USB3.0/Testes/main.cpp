@@ -14,10 +14,6 @@
 #include <sys/select.h> // select
 #include <sys/types.h>
 
-#include <string>
-//Bibliotecas para testes e medicoes
-//#include <ctime>
-
 using namespace std;
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -26,7 +22,7 @@ using namespace std;
 #define HEIGHT 480
 #define fps 30
 
-#define NUM_BUFFERS 10
+#define NUM_BUFFERS 1
 
 static int xioctl(int fd, int request, void *arg)
 {
@@ -57,6 +53,7 @@ void delBuffer();
 char* camera = "/dev/video1";
 uint8_t *ptr_buffer[NUM_BUFFERS];
 int fd;
+
 uint8_t* imgGBRG;
 
 int main()
@@ -69,14 +66,14 @@ int main()
   //Liga o dispositivo no modo stream
   //Enfileira os buffers
   start();
-  //config();
+  config();
   //esperando resposta do dispositivo estar pronto:
   /*
   char* nomesArq[] = {"etc/1.ppm","etc/2.ppm", "etc/3.ppm","etc/4.ppm","etc/5.ppm","etc/6.ppm","etc/7.ppm",
                       "etc/8.ppm","etc/9.ppm","etc/10.ppm","etc/11.ppm","etc/12.ppm","etc/13.ppm","etc/14.ppm",
                       "etc/15.ppm","etc/16.ppm","etc/17.ppm","etc/18.ppm","etc/19.ppm","etc/20.ppm","etc/21.ppm"};
   */
-
+  /*
   int begin;
   int end;
   double tempo;
@@ -106,6 +103,11 @@ int main()
   registrador << "Maior tempo gasto " << max<< endl;
   registrador <<"Tempo medio de captura "<< medio << endl;
   registrador.close();
+  */
+
+  wait();
+  capture();
+  save("mudando_save.ppm");
 
   stop();
   delBuffer();
@@ -147,6 +149,7 @@ void capture(){
 
   imgGBRG = ptr_buffer[buffer.index];
   //cout << "Peguei do buffer " << buffer.index << endl;
+  //...
 }
 
 void init()
@@ -314,13 +317,12 @@ void save(char *nome)
   for(unsigned lin = 0; lin < HEIGHT; lin ++)for(unsigned col = 0; col < WIDTH; col ++)
   {
     if( (lin%2 == 0) && (col%2 != 0) )//azul
-      file << (unsigned char)0 << (unsigned char)0 << *(imgGBRG+offset);
+      file << (unsigned char)0 << (unsigned char)0 << imgGBRG[offset];
     else if( (lin%2 != 0) && (col%2 == 0) )//vermelho
-      file << *(imgGBRG+offset) << (unsigned char)0 << (unsigned char)0;
+      file << imgGBRG[offset] << (unsigned char)0 << (unsigned char)0;
     else//verde
-      file << (unsigned char)0 << *(imgGBRG + offset) << (unsigned char)0;
+      file << (unsigned char)0 << imgGBRG[offset] << (unsigned char)0;
 
-    //cout << "offset " << offset << endl;
     offset++;
   }
 
