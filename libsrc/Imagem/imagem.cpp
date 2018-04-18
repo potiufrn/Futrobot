@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+
+#include <fstream>
 #include "imagem.h"
 
 using namespace std;
@@ -141,7 +143,7 @@ void PxRGB::setHSL(float H, float S, float L)
   }
   #endif
   uint8_t bmax,bmin;
-  if (L<=0.5) {
+  if (L <= 0.5) {
     bmax = float2byte(L*(1.0+S));
     bmin = float2byte(L*(1.0-S));
   }
@@ -325,8 +327,8 @@ ostream& operator<<(ostream& os, const PxRGB &P)
 // Definicao de PxYUV a partir de um PxRGB
 PxYUV::PxYUV(const PxRGB &P)
 {
-  float Y = limita_faixa((+0.299*P.r  
-			   +0.587*P.g  
+  float Y = limita_faixa((+0.299*P.r
+			   +0.587*P.g
 			   +0.114*P.b)/255.0);
   // Na realidade, eh U+0.5
   float U = limita_faixa(0.5+(-0.168736*P.r
@@ -531,7 +533,7 @@ ImagemRGB::ImagemRGB(const char *arq)
       return;
     }
   }
-      
+
   // Alocacao da imagem
   Ncol = nc;
   Nlin = nl;
@@ -565,7 +567,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	  return;
 	}
 	if (ug>valmax) {
-	  cerr << "Valor do pixel (" << v << "," << u 
+	  cerr << "Valor do pixel (" << v << "," << u
 	       << ") acima do maximo " << valmax << ": ("
 	       << ug << ")\n";
 	  return;
@@ -581,7 +583,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	  return;
 	}
 	if (ur>valmax || ug>valmax || ub>valmax) {
-	  cerr << "Valor do pixel (" << v << "," << u 
+	  cerr << "Valor do pixel (" << v << "," << u
 	       << ") acima do maximo " << valmax << ": ("
 	       << ur << "," << ug << "," << ub << ")\n";
 	  return;
@@ -590,6 +592,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	bg = float2byte(float(ug)/valmax);
 	bb = float2byte(float(ub)/valmax);
 	img[u+Ncol*v]=PxRGB(br,bg,bb);
+
 	break;
       case 4:
 	// Imagem preta e branca, em bits
@@ -677,10 +680,10 @@ bool ImagemRGB::resize(unsigned Larg, unsigned Alt, bool keepData)
     }
     if (keepData) {
       for (unsigned i=0; i<min(Nlin,Alt); i++) {
-	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
+      	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
       }
     }
-    destruct(); 
+    destruct();
     move(prov);
   }
   return true;
@@ -692,7 +695,7 @@ bool ImagemRGB::load(const char *arq)
   if (prov.ptPNM==NULL) {
     return false;
   }
-  destruct(); 
+  destruct();
   move(prov);
   return true;
 }
@@ -765,7 +768,7 @@ void ImagemRGB::save(const char *arq, bool ascii) const
       cerr << "Erro na escrita do valor maximo do pixel\n";
       return;
     }
-      
+
     // Escrita dos pixels
     int nby,nbylinha=0;
     for (unsigned v=0; v<Nlin; v++) {
@@ -812,4 +815,112 @@ size_t ImagemRGB::getPNMSize()
 size_t ImagemRGB::getRawSize()
 {
   return sizeof(PxRGB)*(Ncol*Nlin);
+}
+
+// Classe ImagemGBRG
+void ImagemGBRG::create(unsigned Larg,unsigned Alt):
+Ncol(Larg),Nlin(Alt)
+{
+  if(Larg == 0 || Alt == 0)
+    Ncol = Nlin = 0;
+  img = new uint8_t[Larg*Alt];
+}
+
+void ImagemGBRG::copy(const ImagemGBRG &I){
+  Ncol = I.Ncol;
+  Nlin = I.Nlin;
+  memcpy(img, I.img, I.getRawSize());
+}
+void ImagemGBRG::move(ImagemGBRG &I){
+  Ncol = I.Ncol;
+  Nlin = I.Nlin;
+  img = I.img;
+  I.Ncol = I.Nlin = 0;
+  I.ptPNM = I.img = NULL;
+}
+
+ImagemGBRG::save(const char* arq)
+{
+  ofstream file;
+  file.open(arq);
+
+  if(file.is_open() == false)
+  {
+    cerr << "Erro no arquivo de save " << endl;
+    return;
+  }
+  //cabecalho
+  file << "P6\n";
+  file << Ncol << " " << Nlin << '\n';
+  file << 255 << '\n';
+  //fim cabecalho
+  if(img == NULL){
+    cerr << "Nao ha oque salvar " << endl;
+    return;
+  }
+  int offset = 0;
+  for(unsigned lin = 0; lin < HEIGHT; lin ++)for(unsigned col = 0; col < WIDTH; col ++)
+  {
+    if( (lin%2 == 0) && (col%2 != 0) )//azul
+      file << (unsigned char)0 << (unsigned char)0 << img[offset];
+    else if( (lin%2 != 0) && (col%2 == 0) )//vermelho
+      file << img[offset] << (unsigned char)0 << (unsigned char)0;
+    else//verde
+      file << (unsigned char)0 << img[offset] << (unsigned char)0;
+    offset++;
+  }
+
+  file.close();
+}
+
+void ImagemGBRG::destruct()
+{
+  Nlin = Ncol = 0;
+  delete[] img;
+  img = NULL;
+}
+
+bool ImagemGBRG::resize(unsigned Larg, unsigned Alt,bool keepData)
+{
+  if (Larg==0 || Alt==0) {
+    cerr << "Dimensao nula para imagem\n";
+    return false;
+  }
+  if (Larg!=Ncol || Alt!=Nlin) {
+    ImagemGBRG prov(Larg,Alt);
+    if (keepData) {
+      for (unsigned i=0; i<min(Nlin,Alt); i++) {
+      	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
+      }
+    }
+    destruct();
+    move(prov);
+  }
+  return true;
+}
+
+void ImagemGBRG::operator=(const ImagemGBRG &I){
+  copy(I);
+}
+
+uint8_t &ImagemGBRG::operator()(unsigned lin,unsigned col)const{
+  if(lin > Nlin || col > Ncol)
+  {
+    cerr << "Pixel invalido \n";
+    exit(1);
+  }
+  return img[lin*Ncol + col];
+}
+
+const PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)const
+{
+  PxRGB pixel;
+  //falta fazer
+  return pixel;
+}
+void ImagemGBRG::toImgRGB(ImagemRGB &dest)
+{
+  ImagemRGB imRGB(Ncol,Nlin);
+  //falta fazer
+  return imRGB;
 }

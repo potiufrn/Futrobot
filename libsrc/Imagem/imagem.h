@@ -110,11 +110,8 @@ class PxYUV
   // Impressao
   friend std::ostream& operator<<(std::ostream& os, const PxYUV &);
 };
-
 // As classes para armazenar coordenadas de pontos
-
 // Ponto 2D
-
 struct Coord2{
   double X,Y;
   inline Coord2(double pX=0.0, double pY=0.0):X(pX),Y(pY) {}
@@ -146,6 +143,8 @@ inline std::ostream& operator<<(std::ostream& OS, const Coord2 &C) {
   return OS << '(' << C.X << ',' << C.Y << ')';
 }
 
+//
+
 // Conjunto de dois pontos 2D
 
 struct DCoord2
@@ -175,7 +174,6 @@ struct TCoord2
 };
 
 // Ponto 3D
-
 struct Coord3{
   double X,Y,Z;
   inline Coord3(double pX=0.0, double pY=0.0, double pZ=0.0):
@@ -238,13 +236,25 @@ class LinhaImagemRGB
   #endif
 };
 
+//Classe abstrata
+//Incompleta
+class Imagem
+{
+private:
+  unsigned Ncol,Nlin;
+  //Pixel *px; //para quando a classe Pixel for virtualizada
+public:
+  //Imagem(unsigned Larg, unsigned Alt);
+
+  inline unsigned ncol() const {return Ncol;}
+  inline unsigned nlin() const {return Nlin;}
+};
+
 // A classe ImagemRGB lê e salva imagens no formato PNM (PPM, PGM,
 // PBM)
-
-class ImagemRGB
+class ImagemRGB:public Imagem
 {
  private:
-  unsigned Ncol,Nlin;
   PxRGB *img;
   void *ptPNM;
   void geraCabecalho();
@@ -260,8 +270,7 @@ class ImagemRGB
   bool resize(unsigned Larg, unsigned Alt, bool keepData=false);
   bool load(const char *arq);
   void operator=(const ImagemRGB &I);
-  inline unsigned ncol() const {return Ncol;}
-  inline unsigned nlin() const {return Nlin;}
+
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   const LinhaImagemRGB operator[](unsigned lin) const;
   LinhaImagemRGB operator[](unsigned lin);
@@ -278,6 +287,45 @@ class ImagemRGB
   size_t getPNMSize();
   const PxRGB *getRawData();
   size_t getRawSize();
+};
+
+//Neste formato cada pixel RGB, contem apenas um canal diferente de zero
+class ImagemGBRG:public Imagem
+{
+private:
+  //PxGBRG *img;
+  //Pixel **img; //caso a classe Pixel fosse abstrata
+  uint8_t *img;
+
+  bool create(unsigned Larg,unsigned Alt);
+  bool copy(const ImagemGBRG &I); //Virtual
+  bool move(ImagemGBRG &I);        //virtual
+public:
+
+  inline ImagemGBRG(const ImagemGBRG &I) { copy(I); }
+  //explicit ImagemGBRG(const char* arq);
+  inline ImagemGBRG(unsigned Larg,unsigned Alt):img(NULL) { create(Larg,Alt); }
+  ~ImagemGBRG();
+
+
+  bool resize(unsigned Larg, unsigned Alt, bool keepData=false); //virtual
+  //bool load(const char *arq);                                    //virtual
+  void operator=(const ImagemGBRG &I);                           //virtual
+
+  inline unsigned getWidth() const{ return Ncol; }
+  inline unsigned getHeight() const{ return Nlin; }
+  const PxRGB getRGB(unsigned lin,unsigned col)const;  //falta fazer
+
+  uint8_t &operator()(unsigned lin,unsigned col)const;
+
+
+  void toImgRGB(ImagemRGB &dest);                     // falta fazer
+
+  //salva em GBRG
+  void save(const char* arq, bool ascii = false) const;          //virtual
+
+  inline const uint8_t* getRawData() { return img;}              //virtual
+  inline const uint8_t* getRawSize() { return sizeof(img)*Nlin*Ncol;}              //virtual
 };
 
 /* ==============================================================
