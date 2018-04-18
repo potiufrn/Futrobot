@@ -11,14 +11,7 @@
 
 using namespace std;
 
-//#define N_PONTOS_NOTAVEIS 28
-//#define NUM_RETAS 31
-//#define LARGURA_CAPTURA 640
-//#define ALTURA_CAPTURA 480
-//#define METADE_LARGURA_CAPTURA (LARGURA_CAPTURA/2)
-//#define METADE_ALTURA_CAPTURA (ALTURA_CAPTURA/2)
-//#define NUM_CORES 11
-//#define NUM_CORES_ADV 3
+
 #define LARGURA_EXIBICAO 640
 #define ALTURA_EXIBICAO 480
 #define NUM_LIMITES 6
@@ -45,34 +38,22 @@ class CalibratorProcessor:
 public Camera
 {
  private:
-  //Camera camera; 
-  //ImagemRGB *ImBruta;
-  //ImagemRGB ImBruta; Esta na classe camera
   ImagemRGB ImProcessada;
   //as variaveis que controlam o modo de funcionamento da classe
   MODOS_PROCESSAMENTO modo;
-  // bool capturando;
-  //bool novocamparam;
-  //unsigned nPontosNotaveis;
   unsigned nRetas, LarguraCaptura, AlturaCaptura;
-  //unsigned nCores;
     
   //as variaveis que armazenam dados vindos da interface
-  //Coord2 pixelsNotaveis[N_PONTOS_NOTAVEIS];
-  //Coord2 pontosNotaveis[N_PONTOS_NOTAVEIS];
-  
-  //Coord2 *pixelsNotaveis;
   Coord2 *pontosImagemIniciais;
-  //Coord2 *pontosNotaveis;
-  //RETA retas[NUM_RETAS];
+
   PARAMETROS_CAMERA cameraParam;    
   PARAMETROS_CALIBRACAO calibracaoParam;
   RETA *retas;
-  //limitesHPG *limHPG;
+
   char** nomeCor;
   PxRGB *cores;
   PxRGB *coresInversas;
-  //int limiarPinf, limiarPsup;
+
   int corAtual;
   unsigned offset_u,offset_v;
   bool true_color;
@@ -83,7 +64,7 @@ public Camera
   CalibratorProcessor(const char* arquivo);
   ~CalibratorProcessor();
   bool readFile(const char* arquivo);
-  //void run();	
+
   inline void setMode(MODOS_PROCESSAMENTO m){modo = m;}
   inline void setColor(int cor){corAtual = cor;}
   int getColor();
