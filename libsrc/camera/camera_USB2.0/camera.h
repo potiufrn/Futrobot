@@ -62,7 +62,6 @@ struct buffer {
   CAM_FUTMIX
 };
 
-
 class Camera {
  private:
   unsigned int width, height, fps;
@@ -107,7 +106,6 @@ class Camera {
 
    bool waitforimage();
    bool captureimage();
-   // bool capturetcimage(); // <- True color
 
    inline unsigned int Width() {return width;};
    inline unsigned int Height() {return height;};
@@ -115,7 +113,7 @@ class Camera {
  public:
 
    void run ();
-   void terminar ();
+   void terminar();
    void printvideoformats();
 
    void StopCam();

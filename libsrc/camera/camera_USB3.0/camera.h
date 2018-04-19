@@ -51,8 +51,6 @@ class Camera {
 
   void init_mmap();
 
-  //void GBRGtoRGB(int width_, int height_, uint8_t *src_, uint8_t *dst_);
-
    int fd;
    const char *name;  //dev_name
 
@@ -64,21 +62,21 @@ class Camera {
 
    bool ajusteparam(PARAMETROS_CAMERA cameraparam);
    bool capturando;
-   ImagemGBRG imBruta;
+
+   //Imagem *imgBruta; //Quando imagem for uma classe a abstrata
+   ImagemGBRG imgBruta;
 
    bool waitforimage();
    bool captureimage();
 
-   inline unsigned int getWidth()const {return width;};
-   inline unsigned int getHeight()const {return height;};
-   bool start_transmission();
+   inline unsigned getWidth()const {return width;};
+   inline unsigned getHeight()const {return height;};
+
  public:
-
-   void run ();
-   void terminar ();
-   void printvideoformats();
-
-   void StopCam();
+   void run();
+   void terminar();
+   //equivalente a v4l2-ctl --list-formats-ext
+   void printvideoformats(); //falta fazer
 
   int minBrightness();
   int maxBrightness();

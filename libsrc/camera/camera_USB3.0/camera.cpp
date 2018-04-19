@@ -10,6 +10,7 @@ static void errno_exit (const char * s)
 }
 */
 
+
 static int xioctl(int fd, int request, void *arg)
 {
   int r,itt=0;
@@ -18,7 +19,6 @@ static int xioctl(int fd, int request, void *arg)
 		r = ioctl (fd, request, arg);
 		itt++;
 	}while ((-1 == r) && (itt<100));
-
   return r;
 }
 
