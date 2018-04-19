@@ -916,11 +916,43 @@ const PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)const
 {
   PxRGB pixel;
   //falta fazer
+
+
   return pixel;
 }
+
+uint8_t& ImagemGBRG::getPixel(unsigned lin, unsigned col)
+{
+  return this->operator()(i,j);
+}
+
 void ImagemGBRG::toImgRGB(ImagemRGB &dest)
 {
-  ImagemRGB imRGB(Ncol,Nlin);
-  //falta fazer
-  return imRGB;
+  for (unsigned i = 0; i < Nlin; i++)
+  {
+    for (unsigned j = 0; j<Ncol; j++)
+    {
+      
+
+
+      if(i%2 == 0 & j%2 != 0)
+      {
+          dest[i][j].r = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
+          dest[i][j].g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
+          dest[i][j].b = getPixel(i,j);
+      }
+      else if(i%2 != 0 & j%2 == 0)
+      {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
+          dest[i][j].b = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
+      }
+      else
+      {
+          dest[i][j].r = (getPixel(i,j-1)+getPixel(i,j+1))/2;
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+      }
+    }
+  }
 }
