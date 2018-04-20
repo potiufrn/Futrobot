@@ -244,17 +244,16 @@ private:
   unsigned Ncol,Nlin;
   //Pixel *px; //para quando a classe Pixel for virtualizada
 public:
-  //Imagem(unsigned Larg, unsigned Alt);
+  Imagem(unsigned Larg, unsigned Alt):Ncol(Larg),Nlin(Alt) {}
 
-  inline unsigned ncol() const {return Ncol;}
-  inline unsigned nlin() const {return Nlin;}
 };
 
 // A classe ImagemRGB lê e salva imagens no formato PNM (PPM, PGM,
 // PBM)
-class ImagemRGB:public Imagem
+class ImagemRGB
 {
  private:
+  unsigned Ncol,Nlin;
   PxRGB *img;
   void *ptPNM;
   void geraCabecalho();
@@ -281,6 +280,10 @@ class ImagemRGB:public Imagem
     return(LinhaImagemRGB(Ncol,img+Ncol*lin)); }
   #endif
   void save(const char *arq, bool ascii=false) const;
+
+  inline unsigned getWidth() const{ return Ncol; }
+  inline unsigned getHeight() const{ return Nlin; }
+
   // Métodos de acesso aos dados de baixo nível
   // Cuidado ao usar! Nao altere os dados para onde os ponteiros apontam...
   const void *getPNMData();
@@ -290,27 +293,29 @@ class ImagemRGB:public Imagem
 };
 
 //Neste formato cada pixel RGB, contem apenas um canal diferente de zero
-class ImagemGBRG:public Imagem
+class ImagemGBRG
 {
 private:
   //PxGBRG *img;
   //Pixel **img; //caso a classe Pixel fosse abstrata
   uint8_t *img;
+  unsigned Ncol,Nlin;
 
-  bool create(unsigned Larg,unsigned Alt);
-  bool copy(const ImagemGBRG &I); //Virtual
-  bool move(ImagemGBRG &I);        //virtual
+  void destruct();
+  void copy(const ImagemGBRG &I); //Virtual
+  void move(ImagemGBRG &I);        //virtual
 public:
 
   inline ImagemGBRG(const ImagemGBRG &I) { copy(I); }
   //explicit ImagemGBRG(const char* arq);
-  inline ImagemGBRG(unsigned Larg,unsigned Alt):img(NULL) { create(Larg,Alt); }
+  ImagemGBRG(unsigned Larg,unsigned Alt);
   ~ImagemGBRG();
 
 
   bool resize(unsigned Larg, unsigned Alt, bool keepData=false); //virtual
   //bool load(const char *arq);                                    //virtual
   void operator=(const ImagemGBRG &I);                           //virtual
+
 
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
@@ -322,10 +327,10 @@ public:
   void toImgRGB(ImagemRGB &dest);                     // falta fazer
 
   //salva em GBRG
-  void save(const char* arq, bool ascii = false) const;          //virtual
+  void save(const char* arq) const;          //virtual
 
   inline const uint8_t* getRawData() { return img;}              //virtual
-  inline const uint8_t* getRawSize() { return sizeof(img)*Nlin*Ncol;}              //virtual
+
 };
 
 /* ==============================================================

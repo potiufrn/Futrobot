@@ -818,7 +818,7 @@ size_t ImagemRGB::getRawSize()
 }
 
 // Classe ImagemGBRG
-void ImagemGBRG::create(unsigned Larg,unsigned Alt):
+ImagemGBRG::ImagemGBRG(unsigned Larg,unsigned Alt):
 Ncol(Larg),Nlin(Alt)
 {
   if(Larg == 0 || Alt == 0)
@@ -829,17 +829,17 @@ Ncol(Larg),Nlin(Alt)
 void ImagemGBRG::copy(const ImagemGBRG &I){
   Ncol = I.Ncol;
   Nlin = I.Nlin;
-  memcpy(img, I.img, I.getRawSize());
+  memcpy(img, I.img, I.getWidth()*I.getHeight());
 }
 void ImagemGBRG::move(ImagemGBRG &I){
   Ncol = I.Ncol;
   Nlin = I.Nlin;
   img = I.img;
   I.Ncol = I.Nlin = 0;
-  I.ptPNM = I.img = NULL;
+  I.img = NULL;
 }
 
-ImagemGBRG::save(const char* arq)
+void ImagemGBRG::save(const char* arq)const
 {
   ofstream file;
   file.open(arq);
@@ -859,7 +859,7 @@ ImagemGBRG::save(const char* arq)
     return;
   }
   int offset = 0;
-  for(unsigned lin = 0; lin < HEIGHT; lin ++)for(unsigned col = 0; col < WIDTH; col ++)
+  for(unsigned lin = 0; lin < Nlin; lin ++)for(unsigned col = 0; col < Ncol; col ++)
   {
     if( (lin%2 == 0) && (col%2 != 0) )//azul
       file << (unsigned char)0 << (unsigned char)0 << img[offset];
@@ -871,6 +871,11 @@ ImagemGBRG::save(const char* arq)
   }
 
   file.close();
+}
+
+ImagemGBRG::~ImagemGBRG()
+{
+  this->destruct();
 }
 
 void ImagemGBRG::destruct()
@@ -920,7 +925,5 @@ const PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)const
 }
 void ImagemGBRG::toImgRGB(ImagemRGB &dest)
 {
-  ImagemRGB imRGB(Ncol,Nlin);
   //falta fazer
-  return imRGB;
 }

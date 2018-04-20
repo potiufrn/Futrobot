@@ -10,7 +10,6 @@ static void errno_exit (const char * s)
 }
 */
 
-
 static int xioctl(int fd, int request, void *arg)
 {
   int r,itt=0;

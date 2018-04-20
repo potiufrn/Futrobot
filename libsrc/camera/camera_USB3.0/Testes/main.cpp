@@ -14,6 +14,8 @@
 #include <sys/select.h> // select
 #include <sys/types.h>
 
+#include <imagem.h>
+
 using namespace std;
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -22,7 +24,7 @@ using namespace std;
 #define HEIGHT 480
 #define fps 30
 
-#define NUM_BUFFERS 1
+#define NUM_BUFFERS 4
 
 static int xioctl(int fd, int request, void *arg)
 {
@@ -54,7 +56,9 @@ char* camera = "/dev/video1";
 uint8_t *ptr_buffer[NUM_BUFFERS];
 int fd;
 
-uint8_t* imgGBRG;
+ImagemGBRG img(WIDTH,HEIGHT);
+
+uint8_t* imgGBRG = (uint8_t*)img.getRawData();
 
 int main()
 {
@@ -66,7 +70,7 @@ int main()
   //Liga o dispositivo no modo stream
   //Enfileira os buffers
   start();
-  config();
+  //config();
   //esperando resposta do dispositivo estar pronto:
   /*
   char* nomesArq[] = {"etc/1.ppm","etc/2.ppm", "etc/3.ppm","etc/4.ppm","etc/5.ppm","etc/6.ppm","etc/7.ppm",
@@ -105,9 +109,16 @@ int main()
   registrador.close();
   */
 
-  wait();
-  capture();
-  save("mudando_save.ppm");
+  //config();
+
+  for(unsigned i = 0; i < 10; i++)
+  {
+    wait();
+    capture();
+  }
+
+  img.save("ImagemGBRG.ppm");
+  save("teste.ppm");
 
   stop();
   delBuffer();
