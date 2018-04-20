@@ -58,7 +58,7 @@ int fd;
 
 ImagemGBRG img(WIDTH,HEIGHT);
 
-uint8_t* imgGBRG = (uint8_t*)img.getRawData();
+uint8_t* imgGBRG;
 
 int main()
 {
@@ -117,6 +117,7 @@ int main()
     capture();
   }
 
+  memcpy(img.getRawData(),imgGBRG,WIDTH*HEIGHT);
   img.save("ImagemGBRG.ppm");
   save("teste.ppm");
 

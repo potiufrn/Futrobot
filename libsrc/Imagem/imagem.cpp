@@ -917,24 +917,24 @@ uint8_t &ImagemGBRG::operator()(unsigned lin,unsigned col)const{
   return img[lin*Ncol + col];
 }
 
-const PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)const
-{
-  PxRGB pixel;
+//const PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)const
+//{
+//  PxRGB pixel;
 
-  return pixel;
-}
+//  return pixel;
+//}
 
 uint8_t& ImagemGBRG::getPixel(unsigned lin, unsigned col)
 {
-  return this->operator()(i,j);
+  return this->operator()(lin,col);
 }
 
 void ImagemGBRG::toImgRGB(ImagemRGB &dest)
 {
-<<<<<<< HEAD
   for (unsigned i = 0; i < Nlin; i++)
   {
     for (unsigned j = 0; j<Ncol; j++)
+    {
       //Pixel Azul
       if(i%2 == 0 && j%2 != 0)
       {
@@ -955,13 +955,13 @@ void ImagemGBRG::toImgRGB(ImagemRGB &dest)
         if(i!=0 && i!=Nlin-1 && j==0)
         {
           dest[i][j].r = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
-          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j);
+          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
           dest[i][j].b = getPixel(i,j);
         }
         if(i!=0 && i!=Nlin-1 && j==Ncol-1)
         {
-          dest[i][j].r = getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
-          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j);
+          dest[i][j].r = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
+          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
           dest[i][j].b = getPixel(i,j);
         }
 
@@ -1014,14 +1014,14 @@ void ImagemGBRG::toImgRGB(ImagemRGB &dest)
         if(i!=0 && i!=Nlin-1 && j==0)
         {
           dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j);
+          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
           dest[i][j].b = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
         }
         if(i!=0 && i!=Nlin-1 && j==Ncol-1)
         {
           dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j);
-          dest[i][j].b = getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
+          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+          dest[i][j].b = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
         }
 
         //Condições de cantos
@@ -1061,7 +1061,7 @@ void ImagemGBRG::toImgRGB(ImagemRGB &dest)
         if(i==0 && j!=0 && j!=Ncol-1 && i%2 == 0)
         {
           dest[i][j].r = getPixel(i+1,j);
-          dest[i][j].g = getPixel(i,j)
+          dest[i][j].g = getPixel(i,j);
           dest[i][j].b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
         }
         if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 == 0)
@@ -1074,7 +1074,7 @@ void ImagemGBRG::toImgRGB(ImagemRGB &dest)
         if(i==0 && j!=0 && j!=Ncol-1 && i%2 != 0)
         {
           dest[i][j].r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
-          dest[i][j].g = getPixel(i,j)
+          dest[i][j].g = getPixel(i,j);
           dest[i][j].b = getPixel(i+1,j);
         }
         if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 != 0)
@@ -1143,7 +1143,4 @@ void ImagemGBRG::toImgRGB(ImagemRGB &dest)
       }
     }
   }
-=======
-  //falta fazer
->>>>>>> 7b24553913cd7172063d38753a18eaf335f52301
 }

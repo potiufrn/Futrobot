@@ -320,6 +320,7 @@ public:
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
   const PxRGB getRGB(unsigned lin,unsigned col)const;  //falta fazer
+  uint8_t& getPixel(unsigned lin, unsigned col);
 
   uint8_t &operator()(unsigned lin,unsigned col)const;
 
