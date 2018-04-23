@@ -305,7 +305,7 @@ private:
   void copy(const ImagemGBRG &I); //Virtual
   void move(ImagemGBRG &I);        //virtual
 public:
-
+  explicit ImagemGBRG(const uint8_t*Img,unsigned Larg,unsigned Alt);
   inline ImagemGBRG(const ImagemGBRG &I) { copy(I); }
   //explicit ImagemGBRG(const char* arq);
   ImagemGBRG(unsigned Larg,unsigned Alt);

@@ -12,6 +12,8 @@
 #include <sys/select.h> // select
 #include <sys/types.h>
 
+#include <imagem.h>
+
 using namespace std;
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -31,9 +33,9 @@ struct PARAMETROS_CAMERA {
   bool write(const char * arquivo) const;
 };
 
-struct buffer {
-        uint8_t*                start;
-        size_t                  length;
+struct buffer{
+  uint8_t * bytes;
+  unsigned length;
 };
 
 class Camera {
@@ -54,53 +56,61 @@ class Camera {
    int fd;
    const char *name;  //dev_name
 
-  buffer meuBuffer[NUM_BUFFERS];
+  struct buffer meuBuffer[NUM_BUFFERS];
 
- protected:
-  Camera();
+public:
+  Camera(unsigned index);
    ~Camera();
 
-   bool ajusteparam(PARAMETROS_CAMERA cameraparam);
+   //Falta fazer
+   //bool ajusteparam(PARAMETROS_CAMERA cameraparam);
+
    bool capturando;
+   bool inicializado;
+   bool encerrar;
 
    //Imagem *imgBruta; //Quando imagem for uma classe a abstrata
    ImagemGBRG imgBruta;
 
+   //Estes metodos retornam true em caso de saida indesejada
+   //e false caso tudo ocorreu como esperado
    bool waitforimage();
    bool captureimage();
 
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
 
- public:
+ //public:
    void run();
    void terminar();
    //equivalente a v4l2-ctl --list-formats-ext
    void printvideoformats(); //falta fazer
+   //Falta fazer esses metodos abaixo
+   /*
+   int minBrightness();
+   int maxBrightness();
+   int defaultBrightness();
+   int minContrast();
+   int maxContrast();
+   int defaultContrast();
+   int minSaturation();
+   int maxSaturation();
+   int defaultSaturation();
+   int minHue();
+   int maxHue();
+   int defaultHue();
+   bool isHueAuto();
+   int minSharpness();
+   int maxSharpness();
+   int defaultSharpness();
 
-  int minBrightness();
-  int maxBrightness();
-  int defaultBrightness();
-  int minContrast();
-  int maxContrast();
-  int defaultContrast();
-  int minSaturation();
-  int maxSaturation();
-  int defaultSaturation();
-  int minHue();
-  int maxHue();
-  int defaultHue();
-  bool isHueAuto();
-  int minSharpness();
-  int maxSharpness();
-  int defaultSharpness();
-
-  bool setBrightness(int v);
-  bool setExposure(int v);
-  bool setContrast(int v);
-  bool setSaturation(int v);
-  bool setHue(int v);
-  bool setHueAuto(bool v);
-  bool setSharpness(int v);
-  bool setWhiteness(int v);
+   int setBrightness(int v);
+   int setExposure(int v);
+   int setContrast(int v);
+   int setSaturation(int v);
+   int setHue(int v);
+   int setHueAuto(bool v);
+   int setSharpness(int v);
+   int setWhiteness(int v);
+   */
 };

@@ -818,6 +818,20 @@ size_t ImagemRGB::getRawSize()
 }
 
 // Classe ImagemGBRG
+ImagemGBRG::ImagemGBRG(const uint8_t*Img,unsigned Larg,unsigned Alt)
+{
+  if(Larg == 0 || Alt == 0)
+  {
+    Ncol = Nlin = 0;
+    img = NULL;
+    return;
+  }
+  Nlin = Alt;
+  Ncol = Larg;
+
+  memcpy(img,Img,Larg*Alt);
+}
+
 ImagemGBRG::ImagemGBRG(unsigned Larg,unsigned Alt):
 Ncol(Larg),Nlin(Alt)
 {

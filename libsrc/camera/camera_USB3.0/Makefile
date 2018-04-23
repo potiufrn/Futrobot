@@ -5,11 +5,13 @@ CXX = g++
 CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
-LDLIBS = -limagem -lxfig -lotim -lmatrix -lpthread
+LDLIBS = -limagem	-lotim -lmatrix -lpthread
 
-#PROGRAMAS	=	teste_captura
+PROGRAMAS	=	teste_captura
 
-all:	libcamera.a
+all:	${PROGRAMAS}
+
+${PROGRAMAS}:	libcamera.a
 
 libcamera.a: camera.o
 	ar r $@ $?
@@ -28,5 +30,4 @@ realclean: clean
 
 install: libcamera.a
 	-cp -f camera.h ${BASEDIR}/include
-	-cp -f baseframebuffer.h ${BASEDIR}/include
 	-cp -f libcamera.a ${BASEDIR}/lib

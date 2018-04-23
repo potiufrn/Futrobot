@@ -1,14 +1,12 @@
+#include "camera.h"
+#include <cstdlib> //exit() 
 
-
-/*
-static void errno_exit (const char * s)
+static void errno_exit (const char* s)
 {
-        fprintf (stderr, "%s error %d, %s\n",
-                 s, errno, strerror (errno));
-
+        cerr << s << endl;
         exit (EXIT_FAILURE);
 }
-*/
+
 
 static int xioctl(int fd, int request, void *arg)
 {
@@ -51,9 +49,8 @@ bool PARAMETROS_CAMERA::read (const char * arquivo) {
 
 bool PARAMETROS_CAMERA::write(const char* arquivo) const{
   FILE *arq=fopen(arquivo,"w");
-  if(arq == NULL){
+  if(arq == NULL)
     return true;
-  }
 
   fprintf(arq,"Brightness: %u\n",brightness);
   fprintf(arq,"Auto exposure: %u\n",exposure);
@@ -69,25 +66,23 @@ bool PARAMETROS_CAMERA::write(const char* arquivo) const{
 }
 
 
-Camera::Camera ():
+Camera::Camera (unsigned index):
   encerrar(false),
-  ImBruta(0,0)
+  capturando(false),
+  imgBruta(0,0)
 {
 
   //Mudar para 0 se pc não tem webcam instalada de fábrica
   width = 640; height = 480; fps = 30;
-
-  name="/dev/video1";
-
- // data=(unsigned char *)malloc(width*height*4);
- // dst = (unsigned char*)malloc(width*height*3*sizeof(char));
+  if(index == 0) name ="/dev/video0";
+  else name = "/dev/video1";
 
   this->Open();
   this->Init();
   this->Start();
-  initialised = true;
+  inicializado = true;
 
-  ImBruta.resize (width, height);
+  imgBruta.resize(width, height);
 }
 
 
@@ -95,14 +90,118 @@ void Camera::Open() { // Rotina que serve para abrir dispositivo.
 
   fd = open(name, O_RDWR | O_NONBLOCK, 0);
 
-  if(-1 == fd) {
-    fprintf(stderr, "Cannot open '%s': %d, %s\n", name, errno, strerror(errno));
-    exit(1);
-  }
+  if(-1 == fd)
+    errno_exit("No Open");
 
 }
+void Camera::Close()
+{
+  close(fd);
+}
 
-void capture(){
+void Camera::Init(){
+  //formatar o dispotivo
+  struct v4l2_format format;
+  format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  format.fmt.pix.pixelformat = V4L2_PIX_FMT_SGBRG8;
+  format.fmt.pix.width = this->width;
+  format.fmt.pix.height = this->height;
+
+  //aplicar
+  if( -1 == xioctl(fd, VIDIOC_S_FMT,&format) )
+    errno_exit("Format");
+  //Configuracoes da camera
+
+  //configuracoes de captura
+  struct v4l2_streamparm p;
+
+  p.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  p.parm.capture.timeperframe.numerator=1;
+  p.parm.capture.timeperframe.denominator=fps;
+  p.parm.output.timeperframe.numerator=1;
+  p.parm.output.timeperframe.denominator=fps;
+
+  if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
+    errno_exit("Stream Param");
+
+  init_mmap();
+}
+
+void Camera::init_mmap(){
+  //Informando ao dispositivo sobre os buffers utilizados
+  //Alocando buffer
+  struct v4l2_requestbuffers bufrequest;
+  CLEAR(bufrequest);
+  bufrequest.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  //como serao alocados e como o dispositivo deve lidar com ele (o buffer)
+  bufrequest.memory = V4L2_MEMORY_MMAP;
+  //numero de buffers
+  bufrequest.count = NUM_BUFFERS;
+  //aplicar
+  if(-1 == xioctl(fd,VIDIOC_REQBUFS, &bufrequest))
+    errno_exit("Request Buffer");
+  //limpando a memoria
+  //Obs.: o memset(ptr,value,size_t) => preencher um espaco de memoria apartir de ptr com tamanho size_t
+  //com o valor value;
+  //memset(&buffer,0,sizeof(buffer));
+  for(int i = 0; i < NUM_BUFFERS; i++)
+  {
+    //Alocando os buffer de consulta
+    struct v4l2_buffer buffer;
+    CLEAR(buffer);
+    buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buffer.memory = V4L2_MEMORY_MMAP;
+    buffer.index = i;
+    //aplicar
+    if( -1 == xioctl(fd,VIDIOC_QUERYBUF,&buffer) )
+      errno_exit("Query buffer");
+    //Mapeando o buffer em na memoria virtual da aplicação
+    meuBuffer[i].bytes  = (uint8_t*)mmap(NULL,buffer.length,PROT_READ | PROT_WRITE,MAP_SHARED,fd,buffer.m.offset);
+    meuBuffer[i].length = buffer.length;
+    if(meuBuffer[i].bytes == MAP_FAILED)
+      errno_exit("Mmap");
+  }
+}
+
+void Camera::UnInit() {
+  for(unsigned int i = 0;i<1;i++){
+     if(-1 == munmap (meuBuffer[i].bytes, meuBuffer[i].length))
+	errno_exit ("munmap");
+  }
+}
+
+void Camera::Start()
+{
+  capturando = true;
+  for(unsigned int i = 0; i < NUM_BUFFERS; i++) {
+    struct v4l2_buffer buffer;
+    CLEAR (buffer);
+    buffer.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buffer.memory      = V4L2_MEMORY_MMAP;
+    buffer.index       = i;
+
+    if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer))
+      errno_exit("Start: Query Buffer");
+  }
+
+  enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
+    errno_exit("Start: streamON");
+}
+
+void Camera::Stop()
+{
+  enum v4l2_buf_type type;
+  type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  if(-1 == xioctl (fd, VIDIOC_STREAMOFF, &type))
+    errno_exit("Stop");
+  capturando = false;
+}
+
+bool Camera::captureimage(){
+
+  if(!this->capturando)return true;
+
   struct v4l2_buffer buffer;
   CLEAR(buffer);
 
@@ -110,13 +209,56 @@ void capture(){
   buffer.memory = V4L2_MEMORY_MMAP;
   // Recuperando o buffer (tirando da fila)
 
-  if(-1 == xioctl(fd, VIDIOC_DQBUF, &buffer))
-    cerr << "Recuperando o buffer" << endl;
-
-  //Pedindo um novo frame (Colocando na fila)
-  if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer)) {
-    cerr << "Pedido de novo frame" << endl;
+  if(-1 == xioctl(fd, VIDIOC_DQBUF, &buffer)){
+    cerr << "Captura: Recuperando frame"<< endl;
+    return true;
   }
 
-  imBruta = ptr_buffer[buffer.index];
+  //Pedindo um novo frame (Colocando na fila)
+  if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer)){
+    cerr << "Captura: Pedido de novo Frame " << endl;
+    return true;
+  }
+
+  memcpy((uint8_t*)imgBruta.getRawData(),meuBuffer[buffer.index].bytes,meuBuffer[buffer.index].length);
+  return false;
+}
+
+bool Camera::waitforimage()
+{
+  fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(fd, &fds);
+  struct timeval tv = {0};
+  tv.tv_sec = 2;
+
+  //double time0 = clock();
+  int r = select(fd+1, &fds, NULL, NULL, &tv);
+  //cout << "Tempo decorrido " << clock() - time0 << endl;
+  if(r == 0 ){
+    cerr << "Wait: Tempo excedido";
+    return true;
+  }
+  if(-1 == r)
+    errno_exit("Wait: Erro");
+  return false;
+}
+
+
+void Camera::run()
+{
+  while(!encerrar){
+    waitforimage();
+    captureimage();
+  }
+}
+
+void Camera::terminar () {
+  encerrar = true;
+  UnInit();
+  Stop();
+}
+
+Camera::~Camera(){
+  terminar();
 }

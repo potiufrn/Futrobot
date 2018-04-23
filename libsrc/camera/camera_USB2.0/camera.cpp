@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <iostream>
-#include "../../program/system.h"
+#include "../../../program/system.h"
 using namespace std;
 
 
@@ -300,9 +300,7 @@ void Camera::run () {
   while(!encerrar){
     waitforimage();
     captureimage();
-
- }
-
+  }
 
 }
 //******************************
@@ -321,13 +319,12 @@ bool Camera::waitforimage(){
    // cout <<"_Select:" << fim - inicio << "\t"<< r <<"\n";
     if(-1 == r){
         perror("Waiting for Frame");
-	return true;
+	      return true;
     }
     //*/
    return false;
 
 }
-
 
 
 //******************************
@@ -353,7 +350,6 @@ bool Camera::captureimage() {
 
   }
   return false;
-
 }
 
 void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
@@ -602,11 +598,9 @@ Camera::~Camera() {
   encerrar = true;
   UnInit();
   Stop();
-
   //free ((void *) mRgbFrame);
   //dc1394_video_set_transmission(camera, DC1394_OFF);
   //dc1394_capture_stop(camera);
-
 }
 
 void Camera::terminar () {

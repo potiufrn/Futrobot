@@ -1,9 +1,9 @@
 BASEDIR	=	../../../..
-CC	=	g++ -std=c++11
+CC	=	g++
 CXX	=	g++
 CPPFLAGS	=	-Wall -I	${BASEDIR}/include
 LDFLAGS	=	-L	${BASEDIR}/lib
-LDLIBS = -limagem	-lotim -lmatrix -lpthread	#-lxfig
+LDLIBS = -limagem	-lotim -lmatrix -lpthread	-lcamera
 
 all:	main
 main:	main.cpp
