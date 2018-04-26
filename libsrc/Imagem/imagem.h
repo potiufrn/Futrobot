@@ -319,18 +319,12 @@ public:
 
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
-  const PxRGB getRGB(unsigned lin,unsigned col)const;  //falta fazer
-  uint8_t& getPixel(unsigned lin, unsigned col);
-
+  PxRGB getRGB(unsigned lin,unsigned col);
+  uint8_t& getPixel(unsigned lin, unsigned col); //testar
   uint8_t &operator()(unsigned lin,unsigned col)const;
-
-
-  void toImgRGB(ImagemRGB &dest);                     // falta fazer
-
-  //salva em GBRG
+  void toImgRGB(ImagemRGB &dest);                    //testar
   void save(const char* arq) const;          //virtual
-
-  inline const uint8_t* getRawData() { return img;}              //virtual
+  inline const uint8_t* getRawData() { return img;}//virtual
 
 };
 
