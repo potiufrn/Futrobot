@@ -1,0 +1,3 @@
+2 buffer 
+Maior tempo gasto 0.171
+Tempo medio de captura 0.0578874

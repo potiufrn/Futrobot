@@ -51,28 +51,23 @@ CalibratorProcessor::CalibratorProcessor() :
 }
 
 CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
-  //  ImBruta(0,0),
-  //	ImBruta("imagem_clara.ppm"),
-  Camera (CAM_FUTROBOT),	
+
+  Camera (CAM_FUTROBOT),
   ImProcessada(0,0),
   modo(CALIBRATOR_IMAGEM_REAL),
-  //capturando(false),
-  //novocamparam(false),
-  //nPontosNotaveis(0),
+
   nRetas(0),
   LarguraCaptura(0), 
   AlturaCaptura(0),
-  //nCores(0),
-  //pixelsNotaveis(NULL),
+
   pontosImagemIniciais(NULL),
-  //pontosNotaveis(NULL),
+
   retas(NULL),
-  //limHPG(NULL),
+
   nomeCor(NULL),
   cores(NULL),
   coresInversas(NULL),
-  //limiarPinf(PG_MIN_VALUE),
-  //limiarPsup(PG_MAX_VALUE),
+
   corAtual(0),
   offset_u(0),
   offset_v(0),
@@ -267,10 +262,6 @@ bool CalibratorProcessor::processImage(){
   int count=0, cor_pixel=0;
   float H, P, G;
      
-  //ponteiros para percorrer as imagensRGB
-  //    PxRGB *ptBruta;
-  //    PxRGB *ptProcessada;
-    
   //Cores padroes a serem usadas no processamento
   static PxRGB PxPreto(0,0,0);
   static PxRGB PxVermelho(255,0,0);
@@ -280,7 +271,7 @@ bool CalibratorProcessor::processImage(){
   case CALIBRATOR_IMAGEM_REAL:
     for(i = 0; i < ImProcessada.nlin(); i++){
       for(j = 0; j < ImProcessada.ncol(); j++){
-	ImProcessada[i][j] = ImBruta[offset_v + i][offset_u + j];
+        ImProcessada[i][j] = ImBruta[offset_v + i][offset_u + j];
       }
     }
     //	ImProcessada = ImBruta;
@@ -311,8 +302,7 @@ bool CalibratorProcessor::processImage(){
     }
   case CALIBRATOR_PONTOS:
     //desenha os pontos
-    if(modo == CALIBRATOR_PONTOS){
-      //	    ImProcessada = ImBruta;	    
+    if(modo == CALIBRATOR_PONTOS){    
       for(i = 0; i < ImProcessada.nlin(); i++){
 	for(j = 0; j < ImProcessada.ncol(); j++){
 	  ImProcessada[i][j] = ImBruta[offset_v + i][offset_u + j];

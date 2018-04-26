@@ -35,7 +35,6 @@ int main( int argc, char ** argv )
     
     QApplication a( argc, argv );    
     
-    //X = &CP;
         
      int res;
     pthread_t a_thread;

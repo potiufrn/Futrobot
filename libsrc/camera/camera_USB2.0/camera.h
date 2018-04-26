@@ -56,55 +56,17 @@ struct buffer {
         size_t                  length;
 };
 
-
  enum CAMERA_T{
   CAM_FUTROBOT,
   CAM_MIXREAL,
   CAM_FUTMIX
 };
 
-/*
-static void errno_exit (const char * s)
-{
-        fprintf (stderr, "%s error %d, %s\n",
-                 s, errno, strerror (errno));
-
-        exit (EXIT_FAILURE);
-}
-
-static int xioctl(int fd, int request, void *arg)
-{
-        int r,itt=0;
-
-        do {
-		r = ioctl (fd, request, arg);
-		itt++;
-	}
-        while ((-1 == r) && (EINTR == errno) && (itt<100));
-
-        return r;
-}
-*/
-
 class Camera {
  private:
-  /* void setparameters (dc1394camera_t * pcamera, PARAMETROS_CAMERA cameraparam); //chamar dentro da thread */
-  /* uint tempo_captura;//usar dentro da thread */
-  /* bool capturar;//inibi ponteiro receber nova imagem */
-  /* bool novocamparam; */
-  /* ImageRGB  Imbruta;  */
-  /* PARAMETROS_CAMERA params; */
-  //********************************************
-  // Modificado por Filipe
-  //dc1394camera_t * camera;
-  //dc1394video_modes_t modos;
-//********************************************  
-  
- // CameraUSB * camera;
   unsigned int width, height, fps;
-  
-  
- FILE* imagefile;
+
+  FILE* imagefile;
 
   void Open();
   void Close();
@@ -116,22 +78,14 @@ class Camera {
   void Stop();
 
   void init_mmap();
-    
+
   void YUV422toRGB888(int width_, int height_, uint8_t *src_, uint8_t *dst_);
-  
+
   bool initialised;
-  
+
    int fd;
    const char *name;  //dev_name
-   
 
- // unsigned char *data;
-
-  
-  
-  //unsigned char* src;
-  //unsigned char* dst;
-   
   //buffer *buffers;
   typedef uint8_t* ptr_uint8;
   ptr_uint8 meuBuffer[NUM_BUFFERS];
@@ -140,8 +94,8 @@ class Camera {
 
   int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
   bool ha;
-   
- protected:
+
+public:
   Camera(CAMERA_T cam);
    ~Camera();
    CAMERA_T tipoCam;
@@ -152,18 +106,16 @@ class Camera {
 
    bool waitforimage();
    bool captureimage();
-   // bool capturetcimage(); // <- True color
-   
+
    inline unsigned int Width() {return width;};
    inline unsigned int Height() {return height;};
    bool start_transmission();
+ //public:
 
- public:
-   
    void run ();
-   void terminar ();
+   void terminar();
    void printvideoformats();
-   
+
    void StopCam();
 
   int minBrightness();
@@ -194,4 +146,4 @@ class Camera {
 };
 
 
-#endif 
+#endif

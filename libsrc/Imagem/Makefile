@@ -11,7 +11,7 @@ LDLIBS = -lotim -lmatrix
 #PROGRAMAS = teste_calibr teste_HPG teste_YUV teste_tempo
 PROGRAMAS = teste_HPG teste_YUV teste_tempo
 
-all: ${PROGRAMAS}
+all: libimagem.a	#${PROGRAMAS}
 
 ${PROGRAMAS}: libimagem.a
 

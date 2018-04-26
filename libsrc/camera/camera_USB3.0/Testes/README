@@ -1,0 +1,15 @@
+#Comandos uteis do v4l2 para se colocar no terminal
+para listar informações gerais do dispositivo
+	
+webcam do notebook caso tenha, ou o unico dispositivo que estiver conectado:
+	v4l2-ctl -d /dev/video0 --all  
+caso tenha webcam e queira acessar outro dispositivo conectado:
+	v4l2-ctl -d /dev/video1 --all
+
+
+
+informações sobre formato de captura
+	v4l2-ctl -d ... --list-formats-ext
+
+para mais use:
+	v4l2-ctl --help

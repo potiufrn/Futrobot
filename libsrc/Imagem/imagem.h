@@ -110,11 +110,8 @@ class PxYUV
   // Impressao
   friend std::ostream& operator<<(std::ostream& os, const PxYUV &);
 };
-
 // As classes para armazenar coordenadas de pontos
-
 // Ponto 2D
-
 struct Coord2{
   double X,Y;
   inline Coord2(double pX=0.0, double pY=0.0):X(pX),Y(pY) {}
@@ -146,6 +143,8 @@ inline std::ostream& operator<<(std::ostream& OS, const Coord2 &C) {
   return OS << '(' << C.X << ',' << C.Y << ')';
 }
 
+//
+
 // Conjunto de dois pontos 2D
 
 struct DCoord2
@@ -175,7 +174,6 @@ struct TCoord2
 };
 
 // Ponto 3D
-
 struct Coord3{
   double X,Y,Z;
   inline Coord3(double pX=0.0, double pY=0.0, double pZ=0.0):
@@ -238,13 +236,24 @@ class LinhaImagemRGB
   #endif
 };
 
+//Classe abstrata
+//Incompleta
+class Imagem
+{
+private:
+  unsigned Ncol,Nlin;
+  //Pixel *px; //para quando a classe Pixel for virtualizada
+public:
+  Imagem(unsigned Larg, unsigned Alt):Ncol(Larg),Nlin(Alt) {}
+
+};
+
 // A classe ImagemRGB lê e salva imagens no formato PNM (PPM, PGM,
 // PBM)
-
 class ImagemRGB
 {
  private:
-  unsigned Ncol,Nlin;
+  unsigned ncol,nlin;
   PxRGB *img;
   void *ptPNM;
   void geraCabecalho();
@@ -260,8 +269,7 @@ class ImagemRGB
   bool resize(unsigned Larg, unsigned Alt, bool keepData=false);
   bool load(const char *arq);
   void operator=(const ImagemRGB &I);
-  inline unsigned ncol() const {return Ncol;}
-  inline unsigned nlin() const {return Nlin;}
+
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   const LinhaImagemRGB operator[](unsigned lin) const;
   LinhaImagemRGB operator[](unsigned lin);
@@ -272,12 +280,52 @@ class ImagemRGB
     return(LinhaImagemRGB(Ncol,img+Ncol*lin)); }
   #endif
   void save(const char *arq, bool ascii=false) const;
+
+  inline unsigned getWidth() const{ return Ncol; }
+  inline unsigned getHeight() const{ return Nlin; }
+
   // Métodos de acesso aos dados de baixo nível
   // Cuidado ao usar! Nao altere os dados para onde os ponteiros apontam...
   const void *getPNMData();
   size_t getPNMSize();
   const PxRGB *getRawData();
   size_t getRawSize();
+};
+
+//Neste formato cada pixel RGB, contem apenas um canal diferente de zero
+class ImagemGBRG
+{
+private:
+  //PxGBRG *img;
+  //Pixel **img; //caso a classe Pixel fosse abstrata
+  uint8_t *img;
+  unsigned Ncol,Nlin;
+
+  void destruct();
+  void copy(const ImagemGBRG &I); //Virtual
+  void move(ImagemGBRG &I);        //virtual
+public:
+  explicit ImagemGBRG(const uint8_t*Img,unsigned Larg,unsigned Alt);
+  inline ImagemGBRG(const ImagemGBRG &I) { copy(I); }
+  //explicit ImagemGBRG(const char* arq);
+  ImagemGBRG(unsigned Larg,unsigned Alt);
+  ~ImagemGBRG();
+
+
+  bool resize(unsigned Larg, unsigned Alt, bool keepData=false); //virtual
+  //bool load(const char *arq);                                    //virtual
+  void operator=(const ImagemGBRG &I);                           //virtual
+
+
+  inline unsigned getWidth() const{ return Ncol; }
+  inline unsigned getHeight() const{ return Nlin; }
+  PxRGB getRGB(unsigned lin,unsigned col);
+  uint8_t& getPixel(unsigned lin, unsigned col); //testar
+  uint8_t &operator()(unsigned lin,unsigned col)const;
+  void toImgRGB(ImagemRGB &dest);                    //testar
+  void save(const char* arq) const;          //virtual
+  inline const uint8_t* getRawData() { return img;}//virtual
+
 };
 
 /* ==============================================================

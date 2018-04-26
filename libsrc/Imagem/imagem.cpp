@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+
+#include <fstream>
 #include "imagem.h"
 
 using namespace std;
@@ -141,7 +143,7 @@ void PxRGB::setHSL(float H, float S, float L)
   }
   #endif
   uint8_t bmax,bmin;
-  if (L<=0.5) {
+  if (L <= 0.5) {
     bmax = float2byte(L*(1.0+S));
     bmin = float2byte(L*(1.0-S));
   }
@@ -325,8 +327,8 @@ ostream& operator<<(ostream& os, const PxRGB &P)
 // Definicao de PxYUV a partir de um PxRGB
 PxYUV::PxYUV(const PxRGB &P)
 {
-  float Y = limita_faixa((+0.299*P.r  
-			   +0.587*P.g  
+  float Y = limita_faixa((+0.299*P.r
+			   +0.587*P.g
 			   +0.114*P.b)/255.0);
   // Na realidade, eh U+0.5
   float U = limita_faixa(0.5+(-0.168736*P.r
@@ -531,7 +533,7 @@ ImagemRGB::ImagemRGB(const char *arq)
       return;
     }
   }
-      
+
   // Alocacao da imagem
   Ncol = nc;
   Nlin = nl;
@@ -565,7 +567,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	  return;
 	}
 	if (ug>valmax) {
-	  cerr << "Valor do pixel (" << v << "," << u 
+	  cerr << "Valor do pixel (" << v << "," << u
 	       << ") acima do maximo " << valmax << ": ("
 	       << ug << ")\n";
 	  return;
@@ -581,7 +583,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	  return;
 	}
 	if (ur>valmax || ug>valmax || ub>valmax) {
-	  cerr << "Valor do pixel (" << v << "," << u 
+	  cerr << "Valor do pixel (" << v << "," << u
 	       << ") acima do maximo " << valmax << ": ("
 	       << ur << "," << ug << "," << ub << ")\n";
 	  return;
@@ -590,6 +592,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	bg = float2byte(float(ug)/valmax);
 	bb = float2byte(float(ub)/valmax);
 	img[u+Ncol*v]=PxRGB(br,bg,bb);
+
 	break;
       case 4:
 	// Imagem preta e branca, em bits
@@ -677,10 +680,10 @@ bool ImagemRGB::resize(unsigned Larg, unsigned Alt, bool keepData)
     }
     if (keepData) {
       for (unsigned i=0; i<min(Nlin,Alt); i++) {
-	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
+      	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
       }
     }
-    destruct(); 
+    destruct();
     move(prov);
   }
   return true;
@@ -692,7 +695,7 @@ bool ImagemRGB::load(const char *arq)
   if (prov.ptPNM==NULL) {
     return false;
   }
-  destruct(); 
+  destruct();
   move(prov);
   return true;
 }
@@ -765,7 +768,7 @@ void ImagemRGB::save(const char *arq, bool ascii) const
       cerr << "Erro na escrita do valor maximo do pixel\n";
       return;
     }
-      
+
     // Escrita dos pixels
     int nby,nbylinha=0;
     for (unsigned v=0; v<Nlin; v++) {
@@ -812,4 +815,553 @@ size_t ImagemRGB::getPNMSize()
 size_t ImagemRGB::getRawSize()
 {
   return sizeof(PxRGB)*(Ncol*Nlin);
+}
+
+// Classe ImagemGBRG
+ImagemGBRG::ImagemGBRG(const uint8_t*Img,unsigned Larg,unsigned Alt)
+{
+  if(Larg == 0 || Alt == 0)
+  {
+    Ncol = Nlin = 0;
+    img = NULL;
+    return;
+  }
+  Nlin = Alt;
+  Ncol = Larg;
+
+  memcpy(img,Img,Larg*Alt);
+}
+
+ImagemGBRG::ImagemGBRG(unsigned Larg,unsigned Alt):
+Ncol(Larg),Nlin(Alt)
+{
+  if(Larg == 0 || Alt == 0)
+    Ncol = Nlin = 0;
+  img = new uint8_t[Larg*Alt];
+}
+
+void ImagemGBRG::copy(const ImagemGBRG &I){
+  Ncol = I.Ncol;
+  Nlin = I.Nlin;
+  memcpy(img, I.img, I.getWidth()*I.getHeight());
+}
+void ImagemGBRG::move(ImagemGBRG &I){
+  Ncol = I.Ncol;
+  Nlin = I.Nlin;
+  img = I.img;
+  I.Ncol = I.Nlin = 0;
+  I.img = NULL;
+}
+
+void ImagemGBRG::save(const char* arq)const
+{
+  ofstream file;
+  file.open(arq);
+
+  if(file.is_open() == false)
+  {
+    cerr << "Erro no arquivo de save " << endl;
+    return;
+  }
+  //cabecalho
+  file << "P6\n";
+  file << Ncol << " " << Nlin << '\n';
+  file << 255 << '\n';
+  //fim cabecalho
+  if(img == NULL){
+    cerr << "Nao ha oque salvar " << endl;
+    return;
+  }
+  int offset = 0;
+  for(unsigned lin = 0; lin < Nlin; lin ++)for(unsigned col = 0; col < Ncol; col ++)
+  {
+    if( (lin%2 == 0) && (col%2 != 0) )//azul
+      file << (unsigned char)0 << (unsigned char)0 << img[offset];
+    else if( (lin%2 != 0) && (col%2 == 0) )//vermelho
+      file << img[offset] << (unsigned char)0 << (unsigned char)0;
+    else//verde
+      file << (unsigned char)0 << img[offset] << (unsigned char)0;
+    offset++;
+  }
+
+  file.close();
+}
+
+ImagemGBRG::~ImagemGBRG()
+{
+  this->destruct();
+}
+
+void ImagemGBRG::destruct()
+{
+  Nlin = Ncol = 0;
+  delete[] img;
+  img = NULL;
+}
+
+bool ImagemGBRG::resize(unsigned Larg, unsigned Alt,bool keepData)
+{
+  if (Larg==0 || Alt==0) {
+    cerr << "Dimensao nula para imagem\n";
+    return false;
+  }
+  if (Larg!=Ncol || Alt!=Nlin) {
+    ImagemGBRG prov(Larg,Alt);
+    if (keepData) {
+      for (unsigned i=0; i<min(Nlin,Alt); i++) {
+      	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
+      }
+    }
+    destruct();
+    move(prov);
+  }
+  return true;
+}
+
+void ImagemGBRG::operator=(const ImagemGBRG &I){
+  copy(I);
+}
+
+uint8_t &ImagemGBRG::operator()(unsigned lin,unsigned col)const{
+  if(lin > Nlin || col > Ncol)
+  {
+    cerr << "Pixel invalido \n";
+    exit(1);
+  }
+  return img[lin*Ncol + col];
+}
+
+PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
+{
+  PxRGB pixel;
+   unsigned i = lin;
+   unsigned j = col;
+  if(i%2 == 0 && j%2 != 0)
+  {
+    //Condição de linhas das bordas
+    if(i==0 && j!=0 && j!=Ncol-1)
+    {
+      pixel.r = (getPixel(i+1, j-1)+getPixel(i+1, j+1))/2;
+      pixel.g = (getPixel(i, j-1)+getPixel(i, j+1)+getPixel(i+1,j))/3;
+      pixel.b = getPixel(i,j);
+    }
+    if(i==Nlin-1 && j!=0 && j!=Ncol-1)
+    {
+      pixel.r = (getPixel(i-1, j-1)+getPixel(i-1, j+1))/2;
+      pixel.g = (getPixel(i-1,j)+getPixel(i, j+1)+getPixel(i,j-1))/3;
+      pixel.b = getPixel(i,j);
+    }
+    //Condição de colunas
+    if(i!=0 && i!=Nlin-1 && j==0)
+    {
+      pixel.r = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
+      pixel.g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+      pixel.b = getPixel(i,j);
+    }
+    if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+    {
+      pixel.r = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
+      pixel.g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+      pixel.b = getPixel(i,j);
+    }
+
+    //Condições de cantos
+    if(i=0, j=0)
+    {
+      pixel.r = getPixel(i+1, j+1);
+      pixel.g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
+      pixel.b = getPixel(i,j);
+    }
+    if(i=0, j=Ncol-1)
+    {
+      pixel.r = getPixel(i+1, j-1);
+      pixel.g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
+      pixel.b = getPixel(i,j);
+    }
+    if(i=Nlin-1, j=0)
+    {
+      pixel.r = getPixel(i-1, j+1);
+      pixel.g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
+      pixel.b = getPixel(i,j);
+    }
+    if(i=Nlin-1, j=Ncol-1)
+    {
+      pixel.r = getPixel(i-1, j-1);
+      pixel.g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
+      pixel.b = getPixel(i,j);
+    }
+    pixel.r = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
+    pixel.g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
+    pixel.b = getPixel(i,j);
+  }
+  //Pixel vermelho
+  else if(i%2 != 0 && j%2 == 0)
+  {
+    //Condição de linhas das bordas
+    if(i==0 && j!=0 && j!=Ncol-1)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i, j-1)+getPixel(i, j+1)+getPixel(i+1,j))/3;
+      pixel.b = (getPixel(i+1, j-1)+getPixel(i+1, j+1))/2;
+    }
+    if(i==Nlin-1 && j!=0 && j!=Ncol-1)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i-1,j)+getPixel(i, j+1)+getPixel(i,j-1))/3;
+      pixel.b = (getPixel(i-1, j-1)+getPixel(i-1, j+1))/2;
+    }
+    //Condição de colunas
+    if(i!=0 && i!=Nlin-1 && j==0)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+      pixel.b = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
+    }
+    if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+      pixel.b = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
+    }
+
+    //Condições de cantos
+    if(i=0, j=0)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
+      pixel.b = getPixel(i+1, j+1);
+    }
+    if(i=0, j=Ncol-1)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
+      pixel.b = getPixel(i+1, j-1);
+    }
+    if(i=Nlin-1, j=0)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
+      pixel.b = getPixel(i-1, j+1);
+    }
+    if(i=Nlin-1, j=Ncol-1)
+    {
+      pixel.r = getPixel(i,j);
+      pixel.g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
+      pixel.b = getPixel(i-1, j-1);
+    }
+
+    pixel.r = getPixel(i,j);
+    pixel.g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
+    pixel.b = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
+  }
+  //Pixel verde
+  else
+  {
+    //Condição de linhas das bordas pares
+    if(i==0 && j!=0 && j!=Ncol-1 && i%2 == 0)
+    {
+      pixel.r = getPixel(i+1,j);
+      pixel.g = getPixel(i,j);
+      pixel.b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+    }
+    if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 == 0)
+    {
+      pixel.r = getPixel(i-1, j);
+      pixel.g = getPixel(i,j);
+      pixel.b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+    }
+    //Condição de linhas das bordas ímpares
+    if(i==0 && j!=0 && j!=Ncol-1 && i%2 != 0)
+    {
+      pixel.r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i+1,j);
+    }
+    if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 != 0)
+    {
+      pixel.r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i-1, j);
+    }
+
+    //Condição de colunas de borda par
+    if(i!=0 && i!=Nlin-1 && j==0)
+    {
+      pixel.r = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i,j+1);
+    }
+    if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+    {
+      pixel.r = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i,j-1);
+    }
+
+    //Condição de colunas de borda ímpar
+    if(i!=0 && i!=Nlin-1 && j==0)
+    {
+      pixel.r = getPixel(i, j+1);
+      pixel.g = getPixel(i,j);
+      pixel.b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+    }
+    if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+    {
+      pixel.r = getPixel(i,j-1);
+      pixel.g = getPixel(i,j);
+      pixel.b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+    }
+
+    //Condições de cantos
+    if(i=0, j=0)
+    {
+      pixel.r = getPixel(i+1,j);
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i, j+1);
+    }
+    if(i=0, j=Ncol-1)
+    {
+      pixel.r = getPixel(i+1,j);
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i, j-1);
+    }
+    if(i=Nlin-1, j=0)
+    {
+      pixel.r = getPixel(i-1,j);
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i, j+1);
+    }
+    if(i=Nlin-1, j=Ncol-1)
+    {
+      pixel.r = getPixel(i-1,j);
+      pixel.g = getPixel(i,j);
+      pixel.b = getPixel(i, j-1);
+    }
+    pixel.r = (getPixel(i,j-1)+getPixel(i,j+1))/2;
+    pixel.g = getPixel(i,j);
+    pixel.b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+  }
+  return pixel;
+}
+
+uint8_t& ImagemGBRG::getPixel(unsigned lin, unsigned col)
+{
+  return this->operator()(lin,col);
+}
+
+void ImagemGBRG::toImgRGB(ImagemRGB &dest)
+{
+  for (unsigned i = 0; i < Nlin; i++)
+  {
+    for (unsigned j = 0; j<Ncol; j++)
+    {
+      dest[i][j] = getRGB(i, j);
+      //Pixel Azul
+      /*if(i%2 == 0 && j%2 != 0)
+      {
+        //Condição de linhas das bordas
+        if(i==0 && j!=0 && j!=Ncol-1)
+        {
+          dest[i][j].r = (getPixel(i+1, j-1)+getPixel(i+1, j+1))/2;
+          dest[i][j].g = (getPixel(i, j-1)+getPixel(i, j+1)+getPixel(i+1,j))/3;
+          dest[i][j].b = getPixel(i,j);
+        }
+        if(i==Nlin-1 && j!=0 && j!=Ncol-1)
+        {
+          dest[i][j].r = (getPixel(i-1, j-1)+getPixel(i-1, j+1))/2;
+          dest[i][j].g = (getPixel(i-1,j)+getPixel(i, j+1)+getPixel(i,j-1))/3;
+          dest[i][j].b = getPixel(i,j);
+        }
+        //Condição de colunas
+        if(i!=0 && i!=Nlin-1 && j==0)
+        {
+          dest[i][j].r = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
+          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+          dest[i][j].b = getPixel(i,j);
+        }
+        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+        {
+          dest[i][j].r = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
+          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+          dest[i][j].b = getPixel(i,j);
+        }
+
+        //Condições de cantos
+        if(i=0, j=0)
+        {
+          dest[i][j].r = getPixel(i+1, j+1);
+          dest[i][j].g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
+          dest[i][j].b = getPixel(i,j);
+        }
+        if(i=0, j=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i+1, j-1);
+          dest[i][j].g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
+          dest[i][j].b = getPixel(i,j);
+        }
+        if(i=Nlin-1, j=0)
+        {
+          dest[i][j].r = getPixel(i-1, j+1);
+          dest[i][j].g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
+          dest[i][j].b = getPixel(i,j);
+        }
+        if(i=Nlin-1, j=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i-1, j-1);
+          dest[i][j].g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
+          dest[i][j].b = getPixel(i,j);
+        }
+        dest[i][j].r = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
+        dest[i][j].g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
+        dest[i][j].b = getPixel(i,j);
+      }
+      //Pixel vermelho
+      else if(i%2 != 0 && j%2 == 0)
+      {
+        //Condição de linhas das bordas
+        if(i==0 && j!=0 && j!=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i, j-1)+getPixel(i, j+1)+getPixel(i+1,j))/3;
+          dest[i][j].b = (getPixel(i+1, j-1)+getPixel(i+1, j+1))/2;
+        }
+        if(i==Nlin-1 && j!=0 && j!=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i-1,j)+getPixel(i, j+1)+getPixel(i,j-1))/3;
+          dest[i][j].b = (getPixel(i-1, j-1)+getPixel(i-1, j+1))/2;
+        }
+        //Condição de colunas
+        if(i!=0 && i!=Nlin-1 && j==0)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+          dest[i][j].b = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
+        }
+        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
+          dest[i][j].b = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
+        }
+
+        //Condições de cantos
+        if(i=0, j=0)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
+          dest[i][j].b = getPixel(i+1, j+1);
+        }
+        if(i=0, j=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
+          dest[i][j].b = getPixel(i+1, j-1);
+        }
+        if(i=Nlin-1, j=0)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
+          dest[i][j].b = getPixel(i-1, j+1);
+        }
+        if(i=Nlin-1, j=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i,j);
+          dest[i][j].g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
+          dest[i][j].b = getPixel(i-1, j-1);
+        }
+
+        dest[i][j].r = getPixel(i,j);
+        dest[i][j].g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
+        dest[i][j].b = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
+      }
+      //Pixel verde
+      else
+      {
+        //Condição de linhas das bordas pares
+        if(i==0 && j!=0 && j!=Ncol-1 && i%2 == 0)
+        {
+          dest[i][j].r = getPixel(i+1,j);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+        }
+        if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 == 0)
+        {
+          dest[i][j].r = getPixel(i-1, j);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+        }
+        //Condição de linhas das bordas ímpares
+        if(i==0 && j!=0 && j!=Ncol-1 && i%2 != 0)
+        {
+          dest[i][j].r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i+1,j);
+        }
+        if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 != 0)
+        {
+          dest[i][j].r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i-1, j);
+        }
+
+        //Condição de colunas de borda par
+        if(i!=0 && i!=Nlin-1 && j==0)
+        {
+          dest[i][j].r = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i,j+1);
+        }
+        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+        {
+          dest[i][j].r = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i,j-1);
+        }
+
+        //Condição de colunas de borda ímpar
+        if(i!=0 && i!=Nlin-1 && j==0)
+        {
+          dest[i][j].r = getPixel(i, j+1);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+        }
+        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
+        {
+          dest[i][j].r = getPixel(i,j-1);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+        }
+
+        //Condições de cantos
+        if(i=0, j=0)
+        {
+          dest[i][j].r = getPixel(i+1,j);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i, j+1);
+        }
+        if(i=0, j=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i+1,j);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i, j-1);
+        }
+        if(i=Nlin-1, j=0)
+        {
+          dest[i][j].r = getPixel(i-1,j);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i, j+1);
+        }
+        if(i=Nlin-1, j=Ncol-1)
+        {
+          dest[i][j].r = getPixel(i-1,j);
+          dest[i][j].g = getPixel(i,j);
+          dest[i][j].b = getPixel(i, j-1);
+        }
+        dest[i][j].r = (getPixel(i,j-1)+getPixel(i,j+1))/2;
+        dest[i][j].g = getPixel(i,j);
+        dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
+      }*/
+    }
+  }
 }
