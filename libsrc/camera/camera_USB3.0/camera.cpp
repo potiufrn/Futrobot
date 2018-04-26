@@ -1,5 +1,5 @@
 #include "camera.h"
-#include <cstdlib> //exit() 
+#include <cstdlib> //exit()
 
 static void errno_exit (const char* s)
 {
@@ -11,7 +11,6 @@ static void errno_exit (const char* s)
 static int xioctl(int fd, int request, void *arg)
 {
   int r,itt=0;
-
   do {
 		r = ioctl (fd, request, arg);
 		itt++;
@@ -85,10 +84,9 @@ Camera::Camera (unsigned index):
   imgBruta.resize(width, height);
 }
 
-
 void Camera::Open() { // Rotina que serve para abrir dispositivo.
 
-  fd = open(name, O_RDWR | O_NONBLOCK, 0);
+  fd = open(name, O_RDWR | O_NONBLOCK , 0);
 
   if(-1 == fd)
     errno_exit("No Open");
@@ -173,17 +171,6 @@ void Camera::UnInit() {
 void Camera::Start()
 {
   capturando = true;
-  for(unsigned int i = 0; i < NUM_BUFFERS; i++) {
-    struct v4l2_buffer buffer;
-    CLEAR (buffer);
-    buffer.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buffer.memory      = V4L2_MEMORY_MMAP;
-    buffer.index       = i;
-
-    if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer))
-      errno_exit("Start: Query Buffer");
-  }
-
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
     errno_exit("Start: streamON");
@@ -201,26 +188,17 @@ void Camera::Stop()
 bool Camera::captureimage(){
 
   if(!this->capturando)return true;
+  for(unsigned i = 0; i < NUM_BUFFERS; i++)
+  {
+    struct v4l2_buffer buffer;
+    CLEAR (buffer);
+    buffer.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buffer.memory      = V4L2_MEMORY_MMAP;
+    buffer.index       = i;
 
-  struct v4l2_buffer buffer;
-  CLEAR(buffer);
-
-  buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  buffer.memory = V4L2_MEMORY_MMAP;
-  // Recuperando o buffer (tirando da fila)
-
-  if(-1 == xioctl(fd, VIDIOC_DQBUF, &buffer)){
-    cerr << "Captura: Recuperando frame"<< endl;
-    return true;
+    if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer))
+    errno_exit("Captura: QBuffer");
   }
-
-  //Pedindo um novo frame (Colocando na fila)
-  if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer)){
-    cerr << "Captura: Pedido de novo Frame " << endl;
-    return true;
-  }
-
-  memcpy((uint8_t*)imgBruta.getRawData(),meuBuffer[buffer.index].bytes,meuBuffer[buffer.index].length);
   return false;
 }
 
@@ -230,17 +208,30 @@ bool Camera::waitforimage()
   FD_ZERO(&fds);
   FD_SET(fd, &fds);
   struct timeval tv = {0};
-  tv.tv_sec = 2;
+  tv.tv_sec = 1;
 
-  //double time0 = clock();
-  int r = select(fd+1, &fds, NULL, NULL, &tv);
-  //cout << "Tempo decorrido " << clock() - time0 << endl;
+  int r = select(fd+1, &fds,NULL, NULL,&tv);
+
   if(r == 0 ){
     cerr << "Wait: Tempo excedido";
     return true;
   }
   if(-1 == r)
     errno_exit("Wait: Erro");
+
+  struct v4l2_buffer buffer;
+  CLEAR(buffer);
+
+  buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  buffer.memory = V4L2_MEMORY_MMAP;
+
+   // Recuperando o buffer (tirando da fila)
+   if(-1 == xioctl(fd, VIDIOC_DQBUF, &buffer)){
+     cerr << "Wait: Recuperando frame"<< endl;
+     return true;
+   }
+
+  memcpy((uint8_t*)imgBruta.getRawData(),meuBuffer[buffer.index].bytes,meuBuffer[buffer.index].length);
   return false;
 }
 

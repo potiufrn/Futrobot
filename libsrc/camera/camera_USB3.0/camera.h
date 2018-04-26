@@ -25,10 +25,12 @@ using namespace std;
 #define fps 30
 */
 
+//Nao mudar o numero de buffer
 #define NUM_BUFFERS 1
 
 struct PARAMETROS_CAMERA {
   int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
+
   bool read(const char * arquivo);
   bool write(const char * arquivo) const;
 };

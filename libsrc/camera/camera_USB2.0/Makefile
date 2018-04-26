@@ -5,9 +5,13 @@ CXX = g++
 CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
-LDLIBS = -limagem -lxfig -lotim -lmatrix -lpthread
+LDLIBS = -limagem
 
-all: camera.o libcamera.a
+PROGRAMAS	=	teste_captura
+
+all: ${PROGRAMAS}
+
+${PROGRAMAS}:	libcamera.a
 
 libcamera.a: camera.o
 	ar r $@ $?

@@ -95,7 +95,7 @@ class Camera {
   int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
   bool ha;
 
- protected:
+public:
   Camera(CAMERA_T cam);
    ~Camera();
    CAMERA_T tipoCam;
@@ -110,7 +110,7 @@ class Camera {
    inline unsigned int Width() {return width;};
    inline unsigned int Height() {return height;};
    bool start_transmission();
- public:
+ //public:
 
    void run ();
    void terminar();

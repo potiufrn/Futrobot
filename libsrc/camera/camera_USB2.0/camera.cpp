@@ -85,7 +85,7 @@ Camera::Camera (CAMERA_T cam):
   //Mudar para 0 se pc não tem webcam instalada de fábrica
   width = 640; height = 480; fps = 30;
 
-  name="/dev/video1";
+  name="/dev/video2";
 
  // data=(unsigned char *)malloc(width*height*4);
  // dst = (unsigned char*)malloc(width*height*3*sizeof(char));
@@ -492,7 +492,6 @@ int Camera::setBrightness(int v) {
   struct v4l2_control control;
   control.id = V4L2_CID_BRIGHTNESS;
   control.value = v;
-
   if(-1 == ioctl (fd, VIDIOC_S_CTRL, &control)) {
     perror("error setting brightness");
     return -1;

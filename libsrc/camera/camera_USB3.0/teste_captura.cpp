@@ -1,18 +1,23 @@
-#include <camera.h>
+#include "camera.h"
 
 using namespace std;
 
 int main(){
   Camera cam(1);
-  unsigned N = 2;
-  cam.capturando = true;
+  char key;
+  cout << "q - Exit \n ENTER - Print "<<endl;
 
-  for(unsigned i = 0; i < N; i++)
-  {
-    cam.waitforimage();
-    cam.captureimage();
-  }
+  while(true){
+    cin.get(key);
+    if(key == 'q')return 0;
+    else if(key == '\n')
+    {
+      cam.captureimage();
+      cam.waitforimage();
+      cam.imgBruta.save("CamSaveTeste.ppm");
+    }
+  };
 
-  cam.imgBruta.save("CamSaveTeste.ppm");
+
   return 0;
 }
