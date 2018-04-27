@@ -7,14 +7,15 @@ class TesteCam:public Camera
 public:
   TesteCam(unsigned index = 0):Camera(index){}
 
-  inline bool capture()const{ return Camera::captureimage(); }
-  inline bool wait()const {return Camera::waitforimage(); }
+  inline bool capture(){ return Camera::captureimage(); }
+  inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ imgBruta.save(arq); }
-}
+  inline void toirgb(ImagemRGB &dest){imgBruta.toImgRGB(dest); }
+};
 
 int main(){
   TesteCam cam(1);
-
+  ImagemRGB imrgb(0,0);
   char key;
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
@@ -27,7 +28,10 @@ int main(){
       cam.capture();
       cam.wait();
       cam.save("CamSaveTeste.ppm");
+      cam.toirgb(imrgb);
+      imrgb.save("RGBtest.ppm");
     }
+    
   };
 
   return 0;

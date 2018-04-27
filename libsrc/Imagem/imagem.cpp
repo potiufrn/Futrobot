@@ -669,6 +669,7 @@ ImagemRGB::~ImagemRGB()
 
 bool ImagemRGB::resize(unsigned Larg, unsigned Alt, bool keepData)
 {
+  cout << "resize\n";
   if (Larg==0 || Alt==0) {
     cerr << "Dimensao nula para imagem\n";
     return false;
@@ -735,6 +736,7 @@ LinhaImagemRGB ImagemRGB::operator[](unsigned lin)
 
 void ImagemRGB::save(const char *arq, bool ascii) const
 {
+  cout<<"hey";
   FILE *f = fopen(arq, "w");
   if (f==NULL) {
     cerr << "Impossivel abrir arquivo para salvar imagem\n";
@@ -1151,6 +1153,7 @@ uint8_t& ImagemGBRG::getPixel(unsigned lin, unsigned col)
 
 void ImagemGBRG::toImgRGB(ImagemRGB &dest)
 {
+  dest.resize(Ncol, Nlin, true);
   for (unsigned i = 0; i < Nlin; i++)
   {
     for (unsigned j = 0; j<Ncol; j++)

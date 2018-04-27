@@ -77,9 +77,10 @@ Camera::Camera (unsigned index):
 
   if(index > 9)errno_exit("Camera: device invalid index");
 
-  char *index = new (char)(i+48);
-  string dev =  string("/dev/video") + string(index);
+  
+  string dev =  string("/dev/video") + string(new (char)(index+48));
   name = (char*)dev.c_str();
+  cout << name << endl;
 
   this->Open();
   this->Init();

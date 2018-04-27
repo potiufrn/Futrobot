@@ -25,10 +25,12 @@ using namespace std;
 #define fps 30
 */
 
+//Nao mudar o numero de buffer
 #define NUM_BUFFERS 1
 
 struct PARAMETROS_CAMERA {
   int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
+
   bool read(const char * arquivo);
   bool write(const char * arquivo) const;
 };
@@ -58,7 +60,7 @@ class Camera {
 
   struct buffer meuBuffer[NUM_BUFFERS];
 
-public:
+protected:
   Camera(unsigned index);
    ~Camera();
 
@@ -74,13 +76,13 @@ public:
 
    //Estes metodos retornam true em caso de saida indesejada
    //e false caso tudo ocorreu como esperado
-   bool waitforimage();
    bool captureimage();
+   bool waitforimage();
 
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
 
- //public:
+ public:
    void run();
    void terminar();
    //equivalente a v4l2-ctl --list-formats-ext

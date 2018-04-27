@@ -253,7 +253,7 @@ public:
 class ImagemRGB
 {
  private:
-  unsigned ncol,nlin;
+  unsigned Ncol,Nlin;
   PxRGB *img;
   void *ptPNM;
   void geraCabecalho();
