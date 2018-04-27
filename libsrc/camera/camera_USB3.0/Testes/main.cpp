@@ -13,8 +13,8 @@ int main()
   //para poder ter a primeira imagem
   for(unsigned i = 0; i < N; i++)
   {
-    cam.waitforimage();
     cam.captureimage();
+    cam.waitforimage();
   }
 
   cam.imgBruta.save("CamSaveTeste.ppm");

@@ -2,27 +2,35 @@
 
 using namespace std;
 
+class TesteCam:public Camera
+{
+public:
+  TesteCam(CAMERA_T CAM):Camera(CAM){ this->capturando = true; }
+
+  inline bool capture()const{ return Camera::captureimage(); }
+  inline bool wait()const {return Camera::waitforimage(); }
+  inline void save(const char* arq){ ImBruta.save(arq); }
+}
+
 int main()
 {
-  Camera cam(CAM_FUTROBOT);
-  cam.capturando = true;
+  TesteCam cam(CAM_FUTROBOT);
 
   char key;
   while(true)
   {
-    cout << "q- quit or ENTER- print\n";
+    cout << "q - Quit or ENTER - Capture\n";
     cin.get(key);
     if(key == 'q'){
       cout << "Quit\n";
       return 0;
     }
     if(key == '\n'){
-      
-      cam.waitforimage();
-      cam.captureimage();
-      cam.ImBruta.save("CamSaveTeste.ppm");
+      cam.wait();
+      cam.capture();
+      cam.save("CamSaveTeste.ppm");
     }
-  }
+  };
 
   return 0;
 }

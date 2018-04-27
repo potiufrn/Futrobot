@@ -85,7 +85,7 @@ Camera::Camera (CAMERA_T cam):
   //Mudar para 0 se pc não tem webcam instalada de fábrica
   width = 640; height = 480; fps = 30;
 
-  name="/dev/video2";
+  name="/dev/video1";
 
  // data=(unsigned char *)malloc(width*height*4);
  // dst = (unsigned char*)malloc(width*height*3*sizeof(char));
@@ -96,7 +96,6 @@ Camera::Camera (CAMERA_T cam):
   initialised = true;
 
   ImBruta.resize (width, height);
-
 }
 
 

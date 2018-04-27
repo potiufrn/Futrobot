@@ -60,7 +60,7 @@ class Camera {
 
   struct buffer meuBuffer[NUM_BUFFERS];
 
-public:
+protected:
   Camera(unsigned index);
    ~Camera();
 
@@ -76,13 +76,13 @@ public:
 
    //Estes metodos retornam true em caso de saida indesejada
    //e false caso tudo ocorreu como esperado
-   bool waitforimage();
    bool captureimage();
+   bool waitforimage();
 
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
 
- //public:
+ public:
    void run();
    void terminar();
    //equivalente a v4l2-ctl --list-formats-ext

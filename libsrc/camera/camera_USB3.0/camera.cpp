@@ -3,7 +3,7 @@
 
 static void errno_exit (const char* s)
 {
-        cerr << s << endl;
+        std::cerr << s << endl;
         exit (EXIT_FAILURE);
 }
 
@@ -68,13 +68,18 @@ bool PARAMETROS_CAMERA::write(const char* arquivo) const{
 Camera::Camera (unsigned index):
   encerrar(false),
   capturando(false),
+  inicializado(false),
   imgBruta(0,0)
 {
 
   //Mudar para 0 se pc não tem webcam instalada de fábrica
   width = 640; height = 480; fps = 30;
-  if(index == 0) name ="/dev/video0";
-  else name = "/dev/video1";
+
+  if(index > 9)errno_exit("Camera: device invalid index");
+
+  char *index = new (char)(i+48);
+  string dev =  string("/dev/video") + string(index);
+  name = (char*)dev.c_str();
 
   this->Open();
   this->Init();
@@ -88,8 +93,7 @@ void Camera::Open() { // Rotina que serve para abrir dispositivo.
 
   fd = open(name, O_RDWR | O_NONBLOCK , 0);
 
-  if(-1 == fd)
-    errno_exit("No Open");
+  if(-1 == fd)errno_exit("No Open");
 
 }
 void Camera::Close()
@@ -188,6 +192,7 @@ void Camera::Stop()
 bool Camera::captureimage(){
 
   if(!this->capturando)return true;
+
   for(unsigned i = 0; i < NUM_BUFFERS; i++)
   {
     struct v4l2_buffer buffer;
@@ -199,6 +204,7 @@ bool Camera::captureimage(){
     if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer))
     errno_exit("Captura: QBuffer");
   }
+
   return false;
 }
 
@@ -213,7 +219,7 @@ bool Camera::waitforimage()
   int r = select(fd+1, &fds,NULL, NULL,&tv);
 
   if(r == 0 ){
-    cerr << "Wait: Tempo excedido";
+    std::cerr << "Wait: Tempo excedido";
     return true;
   }
   if(-1 == r)
@@ -227,10 +233,11 @@ bool Camera::waitforimage()
 
    // Recuperando o buffer (tirando da fila)
    if(-1 == xioctl(fd, VIDIOC_DQBUF, &buffer)){
-     cerr << "Wait: Recuperando frame"<< endl;
+     std::cerr << "Wait: Recuperando frame"<< endl;
      return true;
    }
 
+  //Copia o frame diretamente da memoria para o objeto ImagemGBRG
   memcpy((uint8_t*)imgBruta.getRawData(),meuBuffer[buffer.index].bytes,meuBuffer[buffer.index].length);
   return false;
 }
@@ -239,8 +246,8 @@ bool Camera::waitforimage()
 void Camera::run()
 {
   while(!encerrar){
-    waitforimage();
     captureimage();
+    waitforimage();
   }
 }
 
