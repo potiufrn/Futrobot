@@ -1,5 +1,5 @@
 #include "camera.h"
-
+#include <time.h>
 using namespace std;
 
 class TesteCam:public Camera
@@ -15,6 +15,8 @@ public:
 
 int main(){
   TesteCam cam(1);
+  clock_t tick[2];
+
   ImagemRGB imrgb(0,0);
   char key;
   while(true){
@@ -25,8 +27,12 @@ int main(){
       return 0;
     }
     if(key == '\n'){
+      tick[0] = clock();
       cam.capture();
       cam.wait();
+      tick[1] = clock();
+      cout << (tick[1] - tick[0])*10000/CLOCKS_PER_SEC << "*10ms\n";
+
       cam.save("CamSaveTeste.ppm");
       cam.toirgb(imrgb);
       imrgb.save("RGBtest.ppm");

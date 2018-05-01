@@ -7,10 +7,10 @@ class TesteCam:public Camera
 public:
   TesteCam(CAMERA_T CAM):Camera(CAM){ this->capturando = true; }
 
-  inline bool capture()const{ return Camera::captureimage(); }
-  inline bool wait()const {return Camera::waitforimage(); }
+  inline bool capture(){ return Camera::captureimage(); }
+  inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
-}
+};
 
 int main()
 {

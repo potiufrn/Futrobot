@@ -106,7 +106,7 @@ void Camera::Init(){
   //formatar o dispotivo
   struct v4l2_format format;
   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  format.fmt.pix.pixelformat = V4L2_PIX_FMT_SGBRG8;
+  format.fmt.pix.pixelformat = V4L2_PIX_FMT_SGBRG8; //Depende da camera
   format.fmt.pix.width = this->width;
   format.fmt.pix.height = this->height;
 
