@@ -669,7 +669,7 @@ ImagemRGB::~ImagemRGB()
 
 bool ImagemRGB::resize(unsigned Larg, unsigned Alt, bool keepData)
 {
-  cout << "resize\n";
+
   if (Larg==0 || Alt==0) {
     cerr << "Dimensao nula para imagem\n";
     return false;
@@ -736,7 +736,7 @@ LinhaImagemRGB ImagemRGB::operator[](unsigned lin)
 
 void ImagemRGB::save(const char *arq, bool ascii) const
 {
-  cout<<"hey";
+
   FILE *f = fopen(arq, "w");
   if (f==NULL) {
     cerr << "Impossivel abrir arquivo para salvar imagem\n";
@@ -877,13 +877,14 @@ void ImagemGBRG::save(const char* arq)const
   int offset = 0;
   for(unsigned lin = 0; lin < Nlin; lin ++)for(unsigned col = 0; col < Ncol; col ++)
   {
+    uint8_t u_byte;
+    u_byte = img[lin*Ncol + col];
     if( (lin%2 == 0) && (col%2 != 0) )//azul
-      file << (unsigned char)0 << (unsigned char)0 << img[offset];
+      file << (unsigned char)0 << (unsigned char)0 << u_byte;
     else if( (lin%2 != 0) && (col%2 == 0) )//vermelho
-      file << img[offset] << (unsigned char)0 << (unsigned char)0;
+      file << u_byte << (unsigned char)0 << (unsigned char)0;
     else//verde
-      file << (unsigned char)0 << img[offset] << (unsigned char)0;
-    offset++;
+      file << (unsigned char)0 << u_byte << (unsigned char)0;
   }
 
   file.close();
@@ -928,6 +929,7 @@ uint8_t &ImagemGBRG::operator()(unsigned lin,unsigned col)const{
   if(lin > Nlin || col > Ncol)
   {
     cerr << "Pixel invalido \n";
+    cerr << lin << ' ' << col << endl;
     exit(1);
   }
   return img[lin*Ncol + col];
@@ -935,9 +937,12 @@ uint8_t &ImagemGBRG::operator()(unsigned lin,unsigned col)const{
 
 PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
 {
-  PxRGB pixel;
+    PxRGB pixel;
    unsigned i = lin;
    unsigned j = col;
+
+
+  //Pixel azul
   if(i%2 == 0 && j%2 != 0)
   {
     //Condição de linhas das bordas
@@ -968,25 +973,25 @@ PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
     }
 
     //Condições de cantos
-    if(i=0, j=0)
+    if(i== 0 && j ==0)
     {
       pixel.r = getPixel(i+1, j+1);
       pixel.g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
       pixel.b = getPixel(i,j);
     }
-    if(i=0, j=Ncol-1)
+    if(i== 0  && j == Ncol-1)
     {
       pixel.r = getPixel(i+1, j-1);
       pixel.g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
       pixel.b = getPixel(i,j);
     }
-    if(i=Nlin-1, j=0)
+    if(i == Nlin-1 && j == 0)
     {
       pixel.r = getPixel(i-1, j+1);
       pixel.g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
       pixel.b = getPixel(i,j);
     }
-    if(i=Nlin-1, j=Ncol-1)
+    if(i==Nlin-1 && j==Ncol-1)
     {
       pixel.r = getPixel(i-1, j-1);
       pixel.g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
@@ -1027,25 +1032,25 @@ PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
     }
 
     //Condições de cantos
-    if(i=0, j=0)
+    if(i== 0 && j==0)
     {
       pixel.r = getPixel(i,j);
       pixel.g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
       pixel.b = getPixel(i+1, j+1);
     }
-    if(i=0, j=Ncol-1)
+    if(i== 0 && j==Ncol-1)
     {
       pixel.r = getPixel(i,j);
       pixel.g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
       pixel.b = getPixel(i+1, j-1);
     }
-    if(i=Nlin-1, j=0)
+    if(i== Nlin-1 && j==0)
     {
       pixel.r = getPixel(i,j);
       pixel.g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
       pixel.b = getPixel(i-1, j+1);
     }
-    if(i=Nlin-1, j=Ncol-1)
+    if(i==Nlin-1 && j==Ncol-1)
     {
       pixel.r = getPixel(i,j);
       pixel.g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
@@ -1115,25 +1120,25 @@ PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
     }
 
     //Condições de cantos
-    if(i=0, j=0)
+    if(i== 0 && j == 0)
     {
       pixel.r = getPixel(i+1,j);
       pixel.g = getPixel(i,j);
       pixel.b = getPixel(i, j+1);
     }
-    if(i=0, j=Ncol-1)
+    if(i== 0 && j == Ncol-1)
     {
       pixel.r = getPixel(i+1,j);
       pixel.g = getPixel(i,j);
       pixel.b = getPixel(i, j-1);
     }
-    if(i=Nlin-1, j=0)
+    if(i == (Nlin-1) && j==0)
     {
       pixel.r = getPixel(i-1,j);
       pixel.g = getPixel(i,j);
       pixel.b = getPixel(i, j+1);
     }
-    if(i=Nlin-1, j=Ncol-1)
+    if(i == (Nlin-1) && j == Ncol-1)
     {
       pixel.r = getPixel(i-1,j);
       pixel.g = getPixel(i,j);
@@ -1153,218 +1158,7 @@ uint8_t& ImagemGBRG::getPixel(unsigned lin, unsigned col)
 
 void ImagemGBRG::toImgRGB(ImagemRGB &dest)
 {
-  dest.resize(Ncol, Nlin, true);
-  for (unsigned i = 0; i < Nlin; i++)
-  {
-    for (unsigned j = 0; j<Ncol; j++)
-    {
+  dest.resize(Ncol, Nlin);
+  for (unsigned i = 0; i < Nlin; i++)for (unsigned j = 0; j<Ncol; j++)
       dest[i][j] = getRGB(i, j);
-      //Pixel Azul
-      /*if(i%2 == 0 && j%2 != 0)
-      {
-        //Condição de linhas das bordas
-        if(i==0 && j!=0 && j!=Ncol-1)
-        {
-          dest[i][j].r = (getPixel(i+1, j-1)+getPixel(i+1, j+1))/2;
-          dest[i][j].g = (getPixel(i, j-1)+getPixel(i, j+1)+getPixel(i+1,j))/3;
-          dest[i][j].b = getPixel(i,j);
-        }
-        if(i==Nlin-1 && j!=0 && j!=Ncol-1)
-        {
-          dest[i][j].r = (getPixel(i-1, j-1)+getPixel(i-1, j+1))/2;
-          dest[i][j].g = (getPixel(i-1,j)+getPixel(i, j+1)+getPixel(i,j-1))/3;
-          dest[i][j].b = getPixel(i,j);
-        }
-        //Condição de colunas
-        if(i!=0 && i!=Nlin-1 && j==0)
-        {
-          dest[i][j].r = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
-          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
-          dest[i][j].b = getPixel(i,j);
-        }
-        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
-        {
-          dest[i][j].r = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
-          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
-          dest[i][j].b = getPixel(i,j);
-        }
-
-        //Condições de cantos
-        if(i=0, j=0)
-        {
-          dest[i][j].r = getPixel(i+1, j+1);
-          dest[i][j].g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
-          dest[i][j].b = getPixel(i,j);
-        }
-        if(i=0, j=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i+1, j-1);
-          dest[i][j].g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
-          dest[i][j].b = getPixel(i,j);
-        }
-        if(i=Nlin-1, j=0)
-        {
-          dest[i][j].r = getPixel(i-1, j+1);
-          dest[i][j].g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
-          dest[i][j].b = getPixel(i,j);
-        }
-        if(i=Nlin-1, j=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i-1, j-1);
-          dest[i][j].g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
-          dest[i][j].b = getPixel(i,j);
-        }
-        dest[i][j].r = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
-        dest[i][j].g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
-        dest[i][j].b = getPixel(i,j);
-      }
-      //Pixel vermelho
-      else if(i%2 != 0 && j%2 == 0)
-      {
-        //Condição de linhas das bordas
-        if(i==0 && j!=0 && j!=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i, j-1)+getPixel(i, j+1)+getPixel(i+1,j))/3;
-          dest[i][j].b = (getPixel(i+1, j-1)+getPixel(i+1, j+1))/2;
-        }
-        if(i==Nlin-1 && j!=0 && j!=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i-1,j)+getPixel(i, j+1)+getPixel(i,j-1))/3;
-          dest[i][j].b = (getPixel(i-1, j-1)+getPixel(i-1, j+1))/2;
-        }
-        //Condição de colunas
-        if(i!=0 && i!=Nlin-1 && j==0)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
-          dest[i][j].b = (getPixel(i-1,j+1)+getPixel(i+1,j+1))/2;
-        }
-        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i,j-1)+getPixel(i-1,j)+getPixel(i+1,j))/3;
-          dest[i][j].b = (getPixel(i-1,j-1)+getPixel(i+1,j-1))/2;
-        }
-
-        //Condições de cantos
-        if(i=0, j=0)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i, j+1)+getPixel(i+1,j))/2;
-          dest[i][j].b = getPixel(i+1, j+1);
-        }
-        if(i=0, j=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i, j-1)+getPixel(i+1,j))/2;
-          dest[i][j].b = getPixel(i+1, j-1);
-        }
-        if(i=Nlin-1, j=0)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i, j+1)+getPixel(i-1,j))/2;
-          dest[i][j].b = getPixel(i-1, j+1);
-        }
-        if(i=Nlin-1, j=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i,j);
-          dest[i][j].g = (getPixel(i, j-1)+getPixel(i-1,j))/2;
-          dest[i][j].b = getPixel(i-1, j-1);
-        }
-
-        dest[i][j].r = getPixel(i,j);
-        dest[i][j].g = (getPixel(i,j-1)+getPixel(i,j+1)+getPixel(i-1,j)+getPixel(i+1,j))/4;
-        dest[i][j].b = (getPixel(i-1,j-1)+getPixel(i-1,j+1)+getPixel(i+1,j-1)+getPixel(i+1, j+1))/4;
-      }
-      //Pixel verde
-      else
-      {
-        //Condição de linhas das bordas pares
-        if(i==0 && j!=0 && j!=Ncol-1 && i%2 == 0)
-        {
-          dest[i][j].r = getPixel(i+1,j);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
-        }
-        if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 == 0)
-        {
-          dest[i][j].r = getPixel(i-1, j);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = (getPixel(i, j-1)+getPixel(i, j+1))/2;
-        }
-        //Condição de linhas das bordas ímpares
-        if(i==0 && j!=0 && j!=Ncol-1 && i%2 != 0)
-        {
-          dest[i][j].r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i+1,j);
-        }
-        if(i==Nlin-1 && j!=0 && j!=Ncol-1 && i%2 != 0)
-        {
-          dest[i][j].r = (getPixel(i, j-1)+getPixel(i, j+1))/2;
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i-1, j);
-        }
-
-        //Condição de colunas de borda par
-        if(i!=0 && i!=Nlin-1 && j==0)
-        {
-          dest[i][j].r = (getPixel(i-1,j)+getPixel(i+1,j))/2;
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i,j+1);
-        }
-        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
-        {
-          dest[i][j].r = (getPixel(i-1,j)+getPixel(i+1,j))/2;
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i,j-1);
-        }
-
-        //Condição de colunas de borda ímpar
-        if(i!=0 && i!=Nlin-1 && j==0)
-        {
-          dest[i][j].r = getPixel(i, j+1);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
-        }
-        if(i!=0 && i!=Nlin-1 && j==Ncol-1)
-        {
-          dest[i][j].r = getPixel(i,j-1);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
-        }
-
-        //Condições de cantos
-        if(i=0, j=0)
-        {
-          dest[i][j].r = getPixel(i+1,j);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i, j+1);
-        }
-        if(i=0, j=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i+1,j);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i, j-1);
-        }
-        if(i=Nlin-1, j=0)
-        {
-          dest[i][j].r = getPixel(i-1,j);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i, j+1);
-        }
-        if(i=Nlin-1, j=Ncol-1)
-        {
-          dest[i][j].r = getPixel(i-1,j);
-          dest[i][j].g = getPixel(i,j);
-          dest[i][j].b = getPixel(i, j-1);
-        }
-        dest[i][j].r = (getPixel(i,j-1)+getPixel(i,j+1))/2;
-        dest[i][j].g = getPixel(i,j);
-        dest[i][j].b = (getPixel(i-1,j)+getPixel(i+1,j))/2;
-      }*/
-    }
-  }
 }

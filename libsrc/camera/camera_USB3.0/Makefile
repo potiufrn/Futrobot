@@ -11,7 +11,7 @@ PROGRAMAS	=	teste_captura
 
 all:	${PROGRAMAS}
 
-${PROGRAMAS}:	libcamera.a
+${PROGRAMAS}:	libcamera.a	../../../program/system.o
 
 libcamera.a: camera.o
 	ar r $@ $?

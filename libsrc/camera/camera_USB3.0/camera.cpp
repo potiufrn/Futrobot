@@ -77,7 +77,6 @@ Camera::Camera (unsigned index):
 
   if(index > 9)errno_exit("Camera: device invalid index");
 
-  
   string dev =  string("/dev/video") + string(new (char)(index+48));
   name = (char*)dev.c_str();
   cout << name << endl;
@@ -175,10 +174,21 @@ void Camera::UnInit() {
 
 void Camera::Start()
 {
-  capturando = true;
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
-    errno_exit("Start: streamON");
+  errno_exit ("VIDIOC_STREAMON");
+
+  for(unsigned int i = 0; i < NUM_BUFFERS; i++) {
+    struct v4l2_buffer buf;
+    CLEAR (buf);
+
+    buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory      = V4L2_MEMORY_MMAP;
+    buf.index       = i;
+
+    if(-1 == xioctl (fd, VIDIOC_QBUF, &buf))
+      errno_exit ("VIDIOC_QBUF");
+  }
 }
 
 void Camera::Stop()
@@ -192,54 +202,42 @@ void Camera::Stop()
 
 bool Camera::captureimage(){
 
-  if(!this->capturando)return true;
+  if (capturando) {
 
-  for(unsigned i = 0; i < NUM_BUFFERS; i++)
-  {
-    struct v4l2_buffer buffer;
-    CLEAR (buffer);
-    buffer.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buffer.memory      = V4L2_MEMORY_MMAP;
-    buffer.index       = i;
+   struct v4l2_buffer buf;
+   CLEAR(buf);
+   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+   buf.memory = V4L2_MEMORY_MMAP;
+   if(-1 == xioctl (fd, VIDIOC_DQBUF, &buf)) {
+     perror("Retrieving Frame");
+     return true;
+    }
 
-    if(-1 == xioctl (fd, VIDIOC_QBUF, &buffer))
-    errno_exit("Captura: QBuffer");
+   if(-1 == xioctl (fd, VIDIOC_QBUF, &buf)) {
+       perror("Requesting new Frame");
+       return true; //errno_exit ("VIDIOC_QBUF");
+     }
+    memcpy((uint8_t*)imgBruta.getRawData(),meuBuffer[buf.index].bytes,meuBuffer[buf.index].length);
   }
-
-  return false;
+ return false;
 }
 
 bool Camera::waitforimage()
 {
+
   fd_set fds;
   FD_ZERO(&fds);
   FD_SET(fd, &fds);
   struct timeval tv = {0};
-  tv.tv_sec = 1;
+  tv.tv_sec = 2;
 
-  int r = select(fd+1, &fds,NULL, NULL,&tv);
+  int r = select(fd+1, &fds, NULL, NULL, &tv);
 
-  if(r == 0 ){
-    std::cerr << "Wait: Tempo excedido";
+  if(-1 == r){
+    perror("Waiting for Frame");
     return true;
   }
-  if(-1 == r)
-    errno_exit("Wait: Erro");
 
-  struct v4l2_buffer buffer;
-  CLEAR(buffer);
-
-  buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  buffer.memory = V4L2_MEMORY_MMAP;
-
-   // Recuperando o buffer (tirando da fila)
-   if(-1 == xioctl(fd, VIDIOC_DQBUF, &buffer)){
-     std::cerr << "Wait: Recuperando frame"<< endl;
-     return true;
-   }
-
-  //Copia o frame diretamente da memoria para o objeto ImagemGBRG
-  memcpy((uint8_t*)imgBruta.getRawData(),meuBuffer[buffer.index].bytes,meuBuffer[buffer.index].length);
   return false;
 }
 
@@ -247,8 +245,8 @@ bool Camera::waitforimage()
 void Camera::run()
 {
   while(!encerrar){
-    captureimage();
     waitforimage();
+    captureimage();
   }
 }
 

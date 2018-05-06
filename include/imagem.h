@@ -238,15 +238,10 @@ class LinhaImagemRGB
 
 //Classe abstrata
 //Incompleta
-class Imagem
-{
-private:
-  unsigned Ncol,Nlin;
-  //Pixel *px; //para quando a classe Pixel for virtualizada
-public:
-  Imagem(unsigned Larg, unsigned Alt):Ncol(Larg),Nlin(Alt) {}
-
-};
+// class Imagem
+// {
+//   //falta fazer
+// };
 
 // A classe ImagemRGB lê e salva imagens no formato PNM (PPM, PGM,
 // PBM)
@@ -269,7 +264,8 @@ class ImagemRGB
   bool resize(unsigned Larg, unsigned Alt, bool keepData=false);
   bool load(const char *arq);
   void operator=(const ImagemRGB &I);
-
+  inline unsigned ncol() const {return Ncol;}
+  inline unsigned nlin() const {return Nlin;}
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   const LinhaImagemRGB operator[](unsigned lin) const;
   LinhaImagemRGB operator[](unsigned lin);
@@ -316,16 +312,21 @@ public:
   //bool load(const char *arq);                                    //virtual
   void operator=(const ImagemGBRG &I);                           //virtual
 
+  inline unsigned ncol() const {return Ncol;}
+  inline unsigned nlin() const {return Nlin;}
 
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
   PxRGB getRGB(unsigned lin,unsigned col);
   uint8_t& getPixel(unsigned lin, unsigned col); //testar
+  
   uint8_t &operator()(unsigned lin,unsigned col)const;
-  void toImgRGB(ImagemRGB &dest);                    //testar
-  void save(const char* arq) const;          //virtual
-  inline const uint8_t* getRawData() { return img;}//virtual
 
+  void toImgRGB(ImagemRGB &dest);             //testar
+
+  void save(const char* arq) const;          //virtual
+
+  inline const uint8_t* getRawData() { return img;}//virtual
 };
 
 /* ==============================================================

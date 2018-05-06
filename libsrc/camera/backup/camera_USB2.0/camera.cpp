@@ -69,6 +69,7 @@ bool PARAMETROS_CAMERA::write(const char* arquivo) const{
   fprintf(arq,"Gamma: %u\n",gamma);
   fprintf(arq,"Shutter: %u\n",shutter);
   fprintf(arq,"Gain: %u\n",gain);
+
   fclose(arq);
 
   return false;
@@ -82,17 +83,12 @@ Camera::Camera (CAMERA_T cam):
 {
 
   //Mudar para 0 se pc não tem webcam instalada de fábrica
-  //const char *dev="/dev/video1";
-
-  // 1) Instance a Camera object
-  //CameraUSB *c(dev, 640, 480, 30);
-  width = 640; height =480; fps = 30;
-  //camera = new CameraUSB(dev, width, height, 30);
+  width = 640; height = 480; fps = 30;
 
   name="/dev/video1";
 
  // data=(unsigned char *)malloc(width*height*4);
-//  dst = (unsigned char*)malloc(width*height*3*sizeof(char));
+ // dst = (unsigned char*)malloc(width*height*3*sizeof(char));
 
   this->Open();
   this->Init();
@@ -208,164 +204,6 @@ if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
   //default values, mins and maxes
   struct v4l2_queryctrl queryctrl;
 
-/*
-  // Brightness
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_BRIGHTNESS;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("brightness error\n");
-    } else {
-      printf("brightness is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("brightness is not supported\n");
-  }
-  mb=queryctrl.minimum;
-  Mb=queryctrl.maximum;
-  db=queryctrl.default_value;
-
-  //Exposure
-  v4l2_control c;
-  c.id = V4L2_CID_EXPOSURE_AUTO;
-  c.value = V4L2_EXPOSURE_MANUAL;
-  if(xioctl(fd, VIDIOC_S_CTRL, &c) == 0)
-    printf("Exposure error\n");
-//   memset(&queryctrl, 0, sizeof(queryctrl));
-//   queryctrl.id = V4L2_CID_EXPOSURE_AUTO;
-//   queryctrl.value = V4L2_EXPOSURE_MANUAL;
-//   if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-//     if(errno != EINVAL) {
-//       //perror ("VIDIOC_QUERYCTRL");
-//       //exit(EXIT_FAILURE);
-//       printf("Exposure error\n");
-//     } else {
-//       printf("Exposure is not supported\n");
-//     }
-//   } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-//     printf ("Exposure is not supported\n");
-//   }
-//   me=queryctrl.minimum;
-//   printf("me = %d",me);
-//   Me=queryctrl.maximum;
-//   printf("Me = %d",Me);
-//   de=queryctrl.default_value;
-//   printf("de = %d",de);
-
-  //Whiteness
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_WHITENESS;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("Whiteness error\n");
-    } else {
-      printf("Whiteness is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("Whiteness is not supported\n");
-  }
-  mw=queryctrl.minimum;
-  Mw=queryctrl.maximum;
-  dw=queryctrl.default_value;
-
-
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_CONTRAST;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("contrast error\n");
-    } else {
-      printf("contrast is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("contrast is not supported\n");
-  }
-  mc=queryctrl.minimum;
-  Mc=queryctrl.maximum;
-  dc=queryctrl.default_value;
-
-
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_SATURATION;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("saturation error\n");
-    } else {
-      printf("saturation is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("saturation is not supported\n");
-  }
-  ms=queryctrl.minimum;
-  Ms=queryctrl.maximum;
-  ds=queryctrl.default_value;
-
-
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_HUE;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("hue error\n");
-    } else {
-      printf("hue is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("hue is not supported\n");
-  }
-  mh=queryctrl.minimum;
-  Mh=queryctrl.maximum;
-  dh=queryctrl.default_value;
-
-
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_HUE_AUTO;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("hueauto error\n");
-    } else {
-      printf("hueauto is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("hueauto is not supported\n");
-  }
-  ha=queryctrl.default_value;
-
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_SHARPNESS;
-  if(-1 == xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) {
-    if(errno != EINVAL) {
-      //perror ("VIDIOC_QUERYCTRL");
-      //exit(EXIT_FAILURE);
-      printf("sharpness error\n");
-    } else {
-      printf("sharpness is not supported\n");
-    }
-  } else if(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    printf ("sharpness is not supported\n");
-  }
-  msh=queryctrl.minimum;
-  Msh=queryctrl.maximum;
-  dsh=queryctrl.default_value;
-
-//TODO: TO ADD SETTINGS
-//here should go custom calls to xioctl
-
-//END TO ADD SETTINGS
-*/
-  /* Note VIDIOC_S_FMT may change width and height. */
-
   /* Buggy driver paranoia. */
   min = fmt.fmt.pix.width * 2;
   if(fmt.fmt.pix.bytesperline < min)
@@ -374,9 +212,9 @@ if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
   if(fmt.fmt.pix.sizeimage < min)
     fmt.fmt.pix.sizeimage = min;
 
-  //
   init_mmap();
 }
+
 
 
 void Camera::Start() {
@@ -457,10 +295,12 @@ bool Camera::start_transmission(){
 
 
 void Camera::run () {
+
   while(!encerrar){
     waitforimage();
     captureimage();
- }
+  }
+
 }
 //******************************
   //modificado por Filipe
@@ -471,17 +311,19 @@ bool Camera::waitforimage(){
     FD_SET(fd, &fds);
     struct timeval tv = {0};
     tv.tv_sec = 2;
-
+    //*
+   // double inicio = relogio();
     int r = select(fd+1, &fds, NULL, NULL, &tv);
-
+    //double fim = relogio();
+   // cout <<"_Select:" << fim - inicio << "\t"<< r <<"\n";
     if(-1 == r){
         perror("Waiting for Frame");
 	      return true;
     }
-
+    //*/
    return false;
-}
 
+}
 
 
 //******************************
@@ -498,6 +340,7 @@ bool Camera::captureimage() {
       return true;
     }
 
+
     if(-1 == xioctl (fd, VIDIOC_QBUF, &buf)) {
         perror("Requesting new Frame");
         return true; //errno_exit ("VIDIOC_QBUF");
@@ -506,7 +349,6 @@ bool Camera::captureimage() {
 
   }
   return false;
-
 }
 
 void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
@@ -514,7 +356,6 @@ void Camera::YUV422toRGB888(int width, int height, uint8_t *src, uint8_t *dst)
   int line, column;
   uint8_t *py, *pu, *pv;
   uint8_t *tmp = dst;
-
 
   /* In this format each four bytes is two pixels. Each four bytes is two Y's, a Cb and a Cr.
      Each Y goes to one of the pixels, and the Cb and Cr belong to both pixels. */
@@ -553,114 +394,7 @@ bool Camera::ajusteparam (PARAMETROS_CAMERA cameraParam) {
   setWhiteness(cameraParam.shutter);
   setSharpness(cameraParam.gain);
 
-
-
-
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_BRIGHTNESS,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera brightness mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_BRIGHTNESS,
-// 			      cameraParam.brightness) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera brightness value\n");
-//     return true;
-//   }
-//
-//   //setting auto exposure
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_EXPOSURE,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera exposure mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_EXPOSURE,
-// 			      cameraParam.exposure) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera exposure value\n");
-//     return true;
-//   }
-//
-//   //setting white balance
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_WHITE_BALANCE,
-// 			     DC1394_FEATURE_MODE_AUTO) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera white balance mode\n");
-//     return true;
-//   }
-//
-//   //setting hue
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_HUE,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera hue mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_HUE,
-// 			      cameraParam.hue) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera hue value\n");
-//     return true;
-//   }
-//
-//   //setting saturation
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_SATURATION,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera saturation mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_SATURATION,
-// 			      cameraParam.saturation) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera saturation value\n");
-//     return true;
-//   }
-//
-//   //setting gamma
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_GAMMA,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera gamma mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_GAMMA,
-// 			      cameraParam.gamma) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera gamma value\n");
-//     return true;
-//   }
-//
-//   //setting shutter
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_SHUTTER,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera shutter mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_SHUTTER,
-// 			      cameraParam.shutter) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera shutter value\n");
-//     return true;
-//   }
-//
-//   //setting gain
-//   if(dc1394_feature_set_mode(camera,
-// 			     DC1394_FEATURE_GAIN,
-// 			     DC1394_FEATURE_MODE_MANUAL) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera gain mode\n");
-//     return true;
-//   }
-//   if(dc1394_feature_set_value(camera,
-// 			      DC1394_FEATURE_GAIN,
-// 			      cameraParam.gain) != DC1394_SUCCESS){
-//     fprintf(stderr,"Could not set camera gain value\n");
-//     return true;
-//   }
-   return false;
+  return false;
 }
 
 void Camera::Stop() {
@@ -757,7 +491,6 @@ int Camera::setBrightness(int v) {
   struct v4l2_control control;
   control.id = V4L2_CID_BRIGHTNESS;
   control.value = v;
-
   if(-1 == ioctl (fd, VIDIOC_S_CTRL, &control)) {
     perror("error setting brightness");
     return -1;
@@ -863,11 +596,9 @@ Camera::~Camera() {
   encerrar = true;
   UnInit();
   Stop();
-
   //free ((void *) mRgbFrame);
   //dc1394_video_set_transmission(camera, DC1394_OFF);
   //dc1394_capture_stop(camera);
-
 }
 
 void Camera::terminar () {

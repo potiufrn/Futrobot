@@ -29,8 +29,8 @@
 
 #ifndef CAMERA_H_
 #define CAMERA_H_
-
-#define NUM_BUFFERS 4
+//Nao altere o numero de buffers
+#define NUM_BUFFERS 1
 //#define NUM_BUFFERS 30
 //#define NUM_BUFFERS 10
 #define ISO_SPEED DC1394_ISO_SPEED_400
@@ -56,6 +56,7 @@ struct buffer {
         size_t                  length;
 };
 
+
  enum CAMERA_T{
   CAM_FUTROBOT,
   CAM_MIXREAL,
@@ -63,10 +64,12 @@ struct buffer {
 };
 
 class Camera {
- private:
+private:
+
   unsigned int width, height, fps;
 
-  FILE* imagefile;
+
+ FILE* imagefile;
 
   void Open();
   void Close();
@@ -86,6 +89,12 @@ class Camera {
    int fd;
    const char *name;  //dev_name
 
+
+  // unsigned char *data;
+
+  //unsigned char* src;
+  //unsigned char* dst;
+
   //buffer *buffers;
   typedef uint8_t* ptr_uint8;
   ptr_uint8 meuBuffer[NUM_BUFFERS];
@@ -94,7 +103,6 @@ class Camera {
 
   int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
   bool ha;
-
 protected:
   Camera(CAMERA_T cam);
    ~Camera();
@@ -104,16 +112,20 @@ protected:
    bool capturando;
    ImagemRGB ImBruta;
 
+   uint8_t* getFrame(){ return meuBuffer[0]; }
+
    bool waitforimage();
    bool captureimage();
+   // bool capturetcimage(); // <- True color
 
    inline unsigned int Width() {return width;};
    inline unsigned int Height() {return height;};
    bool start_transmission();
+
  public:
 
    void run ();
-   void terminar();
+   void terminar ();
    void printvideoformats();
 
    void StopCam();
@@ -144,6 +156,5 @@ protected:
   int setSharpness(int v);
   int setWhiteness(int v);
 };
-
 
 #endif
