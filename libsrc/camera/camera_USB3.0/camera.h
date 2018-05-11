@@ -14,19 +14,19 @@
 
 #include <imagem.h>
 
-using namespace std;
+
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
 //Default
-/*
-#define WIDTH 752
+#define WIDTH 640
 #define HEIGHT 480
-#define fps 30
-*/
+#define FPS 30
+
 
 
 #define NUM_BUFFERS 1
+
 
 struct PARAMETROS_CAMERA {
   int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
@@ -36,13 +36,50 @@ struct PARAMETROS_CAMERA {
 };
 
 struct buffer{
-  uint8_t * bytes;
+  uint8_t *bytes;
   unsigned length;
 };
+
+struct controler{
+  bool enable;
+  __u8 name[32];
+  int min,max;
+  int default_value;
+};
+
+// class Controler{
+// private:
+//   struct v4l2_queryctrl queryctrl;
+//   /**Atributos uteis queryctrl:
+//     __u8 name[32]
+//     __u32 id
+//     int minimum e maximum
+//     int default_value
+//   **/
+//   struct v4l2_control control;
+//   /**Atributos uteis queryctrl:
+//     __u8 name[32]
+//     __u32 id
+//     int value
+//   **/
+//   bool enable;
+//   __u8 name[32];
+//   int min,max;
+//   int default_value;
+//
+//   Controler(__u32 id);
+//
+//   friend class Camera;
+//   friend class ListControler;
+// };
+
+// class ListCtrls{
+// }
 
 class Camera {
  private:
   unsigned int width, height, fps;
+
 
   void Open();
   void Close();
@@ -60,8 +97,13 @@ class Camera {
 
   struct buffer meuBuffer[NUM_BUFFERS];
 
+  bool setControl(__u32 id, int v);
+  int getControl(__u32 id)const;
+  struct controler queryControl(__u32 id)const;
+
 protected:
-  Camera(unsigned index);
+  Camera(unsigned index = 0);
+  Camera(const char* device);
    ~Camera();
 
    //Falta fazer
@@ -71,8 +113,7 @@ protected:
    bool inicializado;
    bool encerrar;
 
-   //Imagem *imgBruta; //Quando imagem for uma classe a abstrata
-   ImagemGBRG imgBruta;
+   ImagemGBRG ImBruta;
 
    //Estes metodos retornam true em caso de saida indesejada
    //e false caso tudo ocorreu como esperado
@@ -82,37 +123,56 @@ protected:
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
 
+   bool ajusteparam(PARAMETROS_CAMERA cameraparam);//falta fazer
+
+   inline void toRGB(ImagemRGB &imgRGB) { ImBruta.toImageRGB(imgRGB); }
+
+
  public:
    void run();
    void terminar();
-   //equivalente a v4l2-ctl --list-formats-ext
-   void printvideoformats(); //falta fazer
-   //Falta fazer esses metodos abaixo
-   /*
-   int minBrightness();
-   int maxBrightness();
-   int defaultBrightness();
-   int minContrast();
-   int maxContrast();
-   int defaultContrast();
-   int minSaturation();
-   int maxSaturation();
-   int defaultSaturation();
-   int minHue();
-   int maxHue();
-   int defaultHue();
-   bool isHueAuto();
-   int minSharpness();
-   int maxSharpness();
-   int defaultSharpness();
 
-   int setBrightness(int v);
-   int setExposure(int v);
-   int setContrast(int v);
-   int setSaturation(int v);
-   int setHue(int v);
-   int setHueAuto(bool v);
-   int setSharpness(int v);
-   int setWhiteness(int v);
-   */
+   //equivalente a v4l2-ctl --list-formats-ext
+   //char* printVideoFormats()const; //falta fazer
+
+   //Falta fazer esses metodos abaixo
+   //Os metodos abaixo Retornam false caso o controler nao exista (get)
+   //para o dispositivo ou ocorra falha na setagem dos parados
+   bool queryBrightness(struct controler &ctrl)const;
+   int  getBrightness()const;
+   bool setBrightness(int v);
+
+   bool queryContrast(struct controler &ctrl)const;
+   int  getContrast()const;
+   bool setConstrast(int v);
+
+   bool querySaturation(struct controler &ctrl)const;
+   int  getSaturation()const;
+   bool setSaturation(int v);
+
+   //V4L2_CID_GAMMA
+   bool queryGamma(struct controler &ctrl)const;
+   int  getGamma()const;
+   bool setGamma(int v);
+
+   bool queryHue(struct controler &ctrl)const;
+   int  getHue()const;
+   bool setHue(int v);
+
+   bool querySharpness(struct controler &ctrl)const;
+   int  getSharpness()const;
+   bool setSharpness(int v);
+
+   bool queryGain(struct controler &ctrl)const;
+   int  getGain()const;
+   bool setGain(int v);
+
+   bool queryExposureAbs(struct controler &ctrl)const;
+   int  getExposureAbs()const;
+   bool setExposureAbs(int v);
+
+   bool queryExposure(struct controler &ctrl)const;
+   int  getExposure()const;
+   bool setExposure(int v);
+
 };

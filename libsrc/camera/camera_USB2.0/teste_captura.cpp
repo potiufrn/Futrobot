@@ -7,17 +7,18 @@ using namespace std;
 class TesteCam:public Camera
 {
 public:
-  TesteCam(CAMERA_T CAM):Camera(CAM){ this->capturando = true; }
+  TesteCam():Camera(){ this->capturando = true; }
 
   inline bool capture(){ return Camera::captureimage(); }
   inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
-  PxRGB getPixel(unsigned lin,unsigned col){ return ImBruta[lin][col]; }
+  PxRGB getPixel(unsigned lin,unsigned col){ return ImBruta[lin][col];}
+
 };
 
 int main()
 {
-  TesteCam cam(CAM_FUTROBOT);
+  TesteCam cam;
   clock_t tick[2];
 
   char key;

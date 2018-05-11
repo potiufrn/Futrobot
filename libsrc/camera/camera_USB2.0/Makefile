@@ -8,7 +8,7 @@ CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 LDLIBS = -limagem -lpthread	#-lxfig
 
-PROGRAMAS = teste_campoVazio	teste_captura	teste_opencv
+PROGRAMAS = teste_campoVazio	teste_captura
 
 all:	${PROGRAMAS}
 

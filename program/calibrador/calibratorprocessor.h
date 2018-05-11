@@ -39,14 +39,15 @@ public Camera
 {
  private:
   ImagemRGB ImProcessada;
+  ImagemRGB ImBrutaRGB;
   //as variaveis que controlam o modo de funcionamento da classe
   MODOS_PROCESSAMENTO modo;
   unsigned nRetas, LarguraCaptura, AlturaCaptura;
-    
+
   //as variaveis que armazenam dados vindos da interface
   Coord2 *pontosImagemIniciais;
 
-  PARAMETROS_CAMERA cameraParam;    
+  PARAMETROS_CAMERA cameraParam;
   PARAMETROS_CALIBRACAO calibracaoParam;
   RETA *retas;
 
@@ -57,8 +58,8 @@ public Camera
   int corAtual;
   unsigned offset_u,offset_v;
   bool true_color;
-    
-    
+
+
  public:
   CalibratorProcessor();
   CalibratorProcessor(const char* arquivo);
@@ -71,7 +72,7 @@ public Camera
   bool fileOpen(const char* text);
   bool fileSave(const char* text);
   bool loadCameraParam(const char* arquivo);
-  bool saveCameraParam(const char* arquivo);    
+  bool saveCameraParam(const char* arquivo);
   void setParameters();
   inline int getPinf(){return calibracaoParam.limiarPInf;}
   inline int getPsup(){return calibracaoParam.limiarPSup;}
@@ -81,7 +82,7 @@ public Camera
   }
   inline void setPsup(int Psup){
     calibracaoParam.limiarPSup = Psup;
-    setMaxP(calibracaoParam.limiarPSup/100.0);	
+    setMaxP(calibracaoParam.limiarPSup/100.0);
   }
   inline limitesHPG getLimHPG(int i){return calibracaoParam.limHPG[i];}
   inline void setHmin(int i, int valor){calibracaoParam.limHPG[i].H.min = valor;};
@@ -90,19 +91,19 @@ public Camera
   inline void setPmax(int i, int valor){calibracaoParam.limHPG[i].P.max = valor;};
   inline void setGmin(int i, int valor){calibracaoParam.limHPG[i].G.min = valor;};
   inline void setGmax(int i, int valor){calibracaoParam.limHPG[i].G.max = valor;};
-  inline PARAMETROS_CAMERA getCameraParam(){return cameraParam;}    
+  inline PARAMETROS_CAMERA getCameraParam(){return cameraParam;}
   inline void setBrightness(int valor){cameraParam.brightness = valor;};
   inline void setExposure(int valor){cameraParam.exposure = valor;};
   inline void setHue(int valor){cameraParam.hue = valor;};
   inline void setSaturation(int valor){cameraParam.saturation = valor;};
   inline void setGamma(int valor){cameraParam.gamma = valor;};
-  inline void setShutter(int valor){cameraParam.shutter = valor;};    
+  inline void setShutter(int valor){cameraParam.shutter = valor;};
   inline void setGain(int valor){cameraParam.gain = valor;};
   void resetHPG();
   void resetPixelsNotaveis();
   void resetCameraParam();
   bool loadImage(const char* arq);
-  void saveImage(const char* arq);  
+  void saveImage(const char* arq);
   bool processImage();
   inline const void *getPNMdata(){return ImProcessada.getPNMData();};
   inline int getPNMsize(){return ImProcessada.getPNMSize();};

@@ -1,75 +1,85 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <linux/videodev2.h> //struct
+#include <fcntl.h>  // O_RDWR
+#include <unistd.h> //close() , select
+#include <sys/ioctl.h> //ioctl
+#include <sys/mman.h> // mmap
+//#include <sys/select.h> //select
+#include <stdint.h> //unt8_t
+#include <string.h>//memset
+#include <fstream>
 
-#include <getopt.h>             /* getopt_long() */
-
-#include <fcntl.h>              /* low-level i/o */
-#include <unistd.h>
-#include <errno.h>
-#include <malloc.h>
-#include <sys/stat.h>
+#include <sys/time.h> //timevalue
+#include <sys/select.h> // select
 #include <sys/types.h>
-#include <sys/time.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
 
-#include <asm/types.h>          /* for videodev2.h */
+#include <imagem.h>
 
-#include <linux/videodev2.h>
+
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+//Default
+#define WIDTH 640
+#define HEIGHT 480
+#define FPS 30
 
-#include <stdio.h>
-#include <pthread.h>
-#include <imagem.h>
-#include <stdlib.h>
 
-#ifndef CAMERA_H_
-#define CAMERA_H_
-//Nao altere o numero de buffers
+
 #define NUM_BUFFERS 1
-//#define NUM_BUFFERS 30
-//#define NUM_BUFFERS 10
-#define ISO_SPEED DC1394_ISO_SPEED_400
-#define FRAME_RATE_FUT DC1394_FRAMERATE_30
-#define FRAME_RATE_MIX DC1394_FRAMERATE_15
-//#define DEBAYER_METHOD DC1394_BAYER_METHOD_NEAREST
-#define DEBAYER_METHOD DC1394_BAYER_METHOD_BILINEAR
-#define VIDEO_MODE_FUT DC1394_VIDEO_MODE_640x480_MONO8
-#define VIDEO_MODE_MIX DC1394_VIDEO_MODE_1280x960_MONO8
-#define BAYER_FILTER DC1394_COLOR_FILTER_GBRG
-
-#define IMAGE_FILE_NAME "ImageRGB.ppm"
 
 
 struct PARAMETROS_CAMERA {
   int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
+
   bool read(const char * arquivo);
   bool write(const char * arquivo) const;
 };
 
-struct buffer {
-        void *                  start;
-        size_t                  length;
+struct buffer{
+  uint8_t *bytes;
+  unsigned length;
 };
 
-
- enum CAMERA_T{
-  CAM_FUTROBOT,
-  CAM_MIXREAL,
-  CAM_FUTMIX
+struct controler{
+  bool enable;
+  __u8 name[32];
+  int min,max;
+  int default_value;
 };
+
+// class Controler{
+// private:
+//   struct v4l2_queryctrl queryctrl;
+//   /**Atributos uteis queryctrl:
+//     __u8 name[32]
+//     __u32 id
+//     int minimum e maximum
+//     int default_value
+//   **/
+//   struct v4l2_control control;
+//   /**Atributos uteis queryctrl:
+//     __u8 name[32]
+//     __u32 id
+//     int value
+//   **/
+//   bool enable;
+//   __u8 name[32];
+//   int min,max;
+//   int default_value;
+//
+//   Controler(__u32 id);
+//
+//   friend class Camera;
+//   friend class ListControler;
+// };
+
+// class ListCtrls{
+// }
 
 class Camera {
-private:
-
+ private:
   unsigned int width, height, fps;
 
-
- FILE* imagefile;
 
   void Open();
   void Close();
@@ -82,79 +92,82 @@ private:
 
   void init_mmap();
 
-  void YUV422toRGB888(int width_, int height_, uint8_t *src_, uint8_t *dst_);
-
-  bool initialised;
-
    int fd;
    const char *name;  //dev_name
 
+  struct buffer meuBuffer[NUM_BUFFERS];
 
-  // unsigned char *data;
+  bool setControl(__u32 id, int v);
+  int getControl(__u32 id)const;
+  struct controler queryControl(__u32 id)const;
 
-  //unsigned char* src;
-  //unsigned char* dst;
-
-  //buffer *buffers;
-  typedef uint8_t* ptr_uint8;
-  ptr_uint8 meuBuffer[NUM_BUFFERS];
-  size_t meuBufferLength[NUM_BUFFERS];
-  //int n_buffers;
-
-  int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
-  bool ha;
 protected:
-  Camera(CAMERA_T cam);
+  Camera(unsigned index = 0);
+  Camera(const char* device);
    ~Camera();
-   CAMERA_T tipoCam;
-   bool ajusteparam(PARAMETROS_CAMERA cameraparam);
-   bool encerrar;
+
+   //Falta fazer
+   //bool ajusteparam(PARAMETROS_CAMERA cameraparam);
+
    bool capturando;
-   ImagemRGB ImBruta;
+   bool inicializado;
+   bool encerrar;
 
-   uint8_t* getFrame(){ return meuBuffer[0]; }
+   ImagemGBRG ImBruta;
 
-   bool waitforimage();
+   //Estes metodos retornam true em caso de saida indesejada
+   //e false caso tudo ocorreu como esperado
    bool captureimage();
-   // bool capturetcimage(); // <- True color
+   bool waitforimage();
 
-   inline unsigned int Width() {return width;};
-   inline unsigned int Height() {return height;};
-   bool start_transmission();
+   inline unsigned getWidth()const {return width;};
+   inline unsigned getHeight()const {return height;};
+
+   bool ajusteparam(PARAMETROS_CAMERA cameraparam);//falta fazer
+
+   inline void toRGB(ImagemRGB &imgRGB) { ImBruta.toImageRGB(imgRGB); }
+
 
  public:
+   void run();
+   void terminar();
 
-   void run ();
-   void terminar ();
-   void printvideoformats();
+   //equivalente a v4l2-ctl --list-formats-ext
+   //char* printVideoFormats()const; //falta fazer
 
-   void StopCam();
+   //Falta fazer esses metodos abaixo
+   //Os metodos abaixo Retornam false caso o controler nao exista (get)
+   //para o dispositivo ou ocorra falha na setagem dos parados
+   bool queryBrightness(struct controler &ctrl)const;
+   int  getBrightness()const;
+   bool setBrightness(int v);
 
-  int minBrightness();
-  int maxBrightness();
-  int defaultBrightness();
-  int minContrast();
-  int maxContrast();
-  int defaultContrast();
-  int minSaturation();
-  int maxSaturation();
-  int defaultSaturation();
-  int minHue();
-  int maxHue();
-  int defaultHue();
-  bool isHueAuto();
-  int minSharpness();
-  int maxSharpness();
-  int defaultSharpness();
+   bool queryContrast(struct controler &ctrl)const;
+   int  getContrast()const;
+   bool setConstrast(int v);
 
-  int setBrightness(int v);
-  int setExposure(int v);
-  int setContrast(int v);
-  int setSaturation(int v);
-  int setHue(int v);
-  int setHueAuto(bool v);
-  int setSharpness(int v);
-  int setWhiteness(int v);
+   bool querySaturation(struct controler &ctrl)const;
+   int  getSaturation()const;
+   bool setSaturation(int v);
+
+   bool queryHue(struct controler &ctrl)const;
+   int  getHue()const;
+   bool setHue(int v);
+
+   bool querySharpness(struct controler &ctrl)const;
+   int  getSharpness()const;
+   bool setSharpness(int v);
+
+   bool queryGain(struct controler &ctrl)const;
+   int  getGain()const;
+   bool setGain(int v);
+
+   bool queryExposureAbs(struct controler &ctrl)const;
+   int  getExposureAbs()const;
+   bool setExposureAbs(int v);
+
+   bool queryExposure(struct controler &ctrl)const;
+   int  getExposure()const;
+   bool setExposure(int v);
+
 };
-
-#endif

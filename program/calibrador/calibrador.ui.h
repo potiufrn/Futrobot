@@ -149,34 +149,34 @@ void calibrador::init()
     //inicializa posição do mouse.
     MouseX = 0;
     MouseY = 0;
-    
+
     //exibe a tela de calibracao de pontos.
     mostrarTela0();
-    
+
     //inicializacoes do mouse
     ponto_dragged = false;
     ponto_selecionado = -1;
-    
+
     //inicializacao das flags para redesenhar a imagem
     novosLimites = true;
     novosParametros = true;
-    
+
     //inicializarComValoresPadroes();
     arquivo = QString::null;
     arquivo_cameraParam = QString::null;
-    
+
     Timer = new QTimer(this,"Timer");
-    connect( Timer, SIGNAL(timeout()), this, SLOT(novosParametrosCamera()) );	
+    connect( Timer, SIGNAL(timeout()), this, SLOT(novosParametrosCamera()) );
     connect( Timer, SIGNAL(timeout()), this, SLOT(processarImagem()) );
     //connect( Timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
     Timer->start(200,false);
-    
-    
-    
+
+
+
 }
 
 bool calibrador::carregaInterface(){
-    
+
     QString ColorName;
     for(unsigned i=0; i < X.getNumCores(); i++){
 	ColorName = X.getNomeCor(i);
@@ -198,19 +198,19 @@ void calibrador::destroy()
 }
 
 void calibrador::mouseMove( QPoint Point)
-{  
+{
       if( X.posicaoValida((unsigned int)Point.x(),(unsigned int)Point.y() )){
 //	ImPosicaoValida(Point.x(),Point.y())) {
 	MouseX = Point.x();
 	MouseY = Point.y();
-	atualizarDisplays();	
+	atualizarDisplays();
 	if(ponto_dragged){
 	  X.moverPonto(ponto_selecionado,MouseX,MouseY);
 	  novosLimites = true;
 	  //	    pixelsNotaveis[ponto_selecionado].u() = MouseX;
 	  //	    pixelsNotaveis[ponto_selecionado].v() = MouseY;
 	  //	    desenharCampo(	);
-	}	
+	}
     }
 }
 
@@ -221,7 +221,7 @@ void calibrador::mousePress( QPoint Point)
     int selec = X.pontoSelecionado(Point.x(),Point.y());
     if(selec != -1){
 	ponto_selecionado = selec;
-	ponto_dragged = true;	
+	ponto_dragged = true;
 	X.moverPonto(ponto_selecionado,MouseX,MouseY);
 	novosLimites = true;
     }
@@ -249,8 +249,8 @@ void calibrador::imageOpen()
 	text=fd->selectedFile();
 	if (X.loadImage(text)){
 	    //pop-up de erro!
-	}	
-    }	
+	}
+    }
 }
 
 void calibrador::imageSave()
@@ -263,7 +263,7 @@ void calibrador::imageSave()
 	text=fd->selectedFile();
 	if( !text.isEmpty() ){
 	    X.saveImage(text);
-	}	
+	}
     }
 }
 
@@ -273,20 +273,20 @@ void calibrador::imageSave()
 void calibrador::atualizarDisplays()
 {
     //    cout << "MOUSE!" << endl;
-    
+
     //tela 1
     //X.getPxValor(MouseX,MouseY,R,G1,B,H,P,G2);
     lcdX->display(MouseX);
     lcdY->display(MouseY);
-    
+
     lcdRGB_R->display(R);
     lcdRGB_G->display(G1);
     lcdRGB_B->display(B);
-    
-    lcdHGP_H->display(H);    
-    lcdHGP_P->display(P);        
-    lcdHGP_G->display(G2);    
-    
+
+    lcdHGP_H->display(H);
+    lcdHGP_P->display(P);
+    lcdHGP_G->display(G2);
+
     //Tela 2
     lcdX2->display(MouseX);
     lcdY2->display(MouseY);
@@ -294,11 +294,11 @@ void calibrador::atualizarDisplays()
     lcdRGB_R2->display(R);
     lcdRGB_G2->display(G1);
     lcdRGB_B2->display(B);
-    
-    lcdHGP_H2->display(H);    
-    lcdHGP_P2->display(P);        
-    lcdHGP_G2->display(G2);    
-    
+
+    lcdHGP_H2->display(H);
+    lcdHGP_P2->display(P);
+    lcdHGP_G2->display(G2);
+
 
     /*
     QRgb ponto;
@@ -307,33 +307,33 @@ void calibrador::atualizarDisplays()
     }else{
 	ponto = imagem.pixel(MouseX,MouseY);
     }
-    
+
     lcdRGB_R->display((int)round((qRed(ponto)/255.0)*100));
     lcdRGB_G->display((int)round((qGreen(ponto)/255.0)*100));
     lcdRGB_B->display((int)round((qBlue(ponto)/255.0)*100));
     pixel=PxRGB(qRed(ponto),qGreen(ponto),qBlue(ponto));
-    
+
 //	pixel.set( ((double)qRed(ponto))/255.0,
 //		   ((double)qGreen(ponto))/255.0,
 //		   ((double)qBlue(ponto))/255.0 );
-    
+
     pixel.getHPG(H, P_, G_);
     if(isnan(H)){
-	lcdHGP_H->display(999);   
+	lcdHGP_H->display(999);
     }
     else{
 	lcdHGP_H->display((int)round(H*100.0));
     }
     lcdHGP_P->display((int)round(P_*100.0));
     if(isnan(G_)){
-	lcdHGP_G->display(999);    
+	lcdHGP_G->display(999);
     }
     else{
-	lcdHGP_G->display((int)round(G_*100.0));    
+	lcdHGP_G->display((int)round(G_*100.0));
     }
     lcdX->display(MouseX);
     lcdY->display(MouseY);
-   */ 
+   */
 }
 
 void calibrador::sliderLimiarPInfValueChanged( int valor )
@@ -343,7 +343,7 @@ void calibrador::sliderLimiarPInfValueChanged( int valor )
 	    sliderLimiarPSup->setValue(valor+1);
 	}
 	spinLimiarPInf->setValue(valor);
-	X.setPinf(valor);		
+	X.setPinf(valor);
 	//novosLimites = true;
     }
 }
@@ -355,7 +355,7 @@ void calibrador::spinLimiarPInfValueChanged( int valor )
 	    spinLimiarPSup->setValue(valor+1);
 	}
 	sliderLimiarPInf->setValue(valor);
-	X.setPinf(valor);	
+	X.setPinf(valor);
 	//spinLimiarPSup->setMinValue(valor);
 	//novosLimites = true;
     }
@@ -380,8 +380,8 @@ void calibrador::spinLimiarPSupValueChanged( int valor )
 	if(valor <= spinLimiarPInf->value() ){
 	    spinLimiarPInf->setValue(valor-1);
 	}
-	sliderLimiarPSup->setValue(valor);	
-	X.setPsup(valor);	
+	sliderLimiarPSup->setValue(valor);
+	X.setPsup(valor);
 //	novosParametros = true;
 	//novosLimites = true;
     }
@@ -390,16 +390,15 @@ void calibrador::spinLimiarPSupValueChanged( int valor )
 
 void calibrador::BrightnessValueChanged(int valor)
 {
-    if(valor != spinBrightness->value() ){
-	spinBrightness->setValue(valor);
-	X.setBrightness(valor);
-	//novosLimites = true;
-    }
-    if(valor != sliderBrightness->value() ){
-	sliderBrightness->setValue(valor);
-	X.setBrightness(valor);
-	//novosLimites = true;
-    }
+  if(valor != spinBrightness->value() ){
+  	spinBrightness->setValue(valor);
+  	X.setBrightness(valor);
+  	//novosLimites = true;
+  }
+  if(valor != sliderBrightness->value() ){
+  	sliderBrightness->setValue(valor);
+  	X.setBrightness(valor);
+  }
 }
 
 void calibrador::ExposureValueChanged(int valor)
@@ -422,45 +421,45 @@ void calibrador::ExposureValueChanged(int valor)
 
 void calibrador::HueValueChanged(int valor)
 {
-    if(valor != spinHue->value() ){
-	spinHue->setValue(valor);
-	X.setHue(valor);
-	//novosLimites = true;
-    }
-    if(valor != sliderHue->value() ){
-	sliderHue->setValue(valor);
-	X.setHue(valor);
-	//novosLimites = true;
-    }
+  if(valor != spinHue->value() ){
+  	spinHue->setValue(valor);
+  	X.setHue(valor);
+  	//novosLimites = true;
+  }
+  if(valor != sliderHue->value() ){
+  	sliderHue->setValue(valor);
+  	X.setHue(valor);
+  	//novosLimites = true;
+  }
 }
 
 void calibrador::SaturationValueChanged(int valor)
 {
     if(valor != spinSaturation->value() ){
-	spinSaturation->setValue(valor);
-	X.setSaturation(valor);
-	//novosLimites = true;
+    	spinSaturation->setValue(valor);
+    	X.setSaturation(valor);
+    	//novosLimites = true;
     }
     if(valor != sliderSaturation->value() ){
-	sliderSaturation->setValue(valor);
-	X.setSaturation(valor);
-	//novosLimites = true;
+    	sliderSaturation->setValue(valor);
+    	X.setSaturation(valor);
+    	//novosLimites = true;
     }
 }
 
-void calibrador::GammaValueChanged(int valor)
-{
-    if(valor != spinGamma->value() ){
-	spinGamma->setValue(valor);
-	X.setGamma(valor);
-	//novosLimites = true;
-    }
-    if(valor != sliderGamma->value() ){
-	sliderGamma->setValue(valor);
-	X.setGamma(valor);
-	//novosLimites = true;
-    }
-}
+// void calibrador::GammaValueChanged(int valor)
+// {
+//     if(valor != spinGamma->value() ){
+// 	spinGamma->setValue(valor);
+// 	X.setGamma(valor);
+// 	//novosLimites = true;
+//     }
+//     if(valor != sliderGamma->value() ){
+// 	sliderGamma->setValue(valor);
+// 	X.setGamma(valor);
+// 	//novosLimites = true;
+//     }
+// }
 
 void calibrador::ShutterValueChanged(int valor)
 {
@@ -533,7 +532,7 @@ void calibrador::GMinValueChanged(int valor)
     }
     if(valor != sliderHGP_Gmin->value() ){
 	sliderHGP_Gmin->setValue(valor);
-	X.setGmin(comboCores->currentItem(),valor);	
+	X.setGmin(comboCores->currentItem(),valor);
 	//novosLimites = true;
     }
 }
@@ -556,19 +555,19 @@ void calibrador::GMaxValueChanged(int valor)
 
 void calibrador::PMinValueChanged(int valor)
 {
-    
+
     //    limitesHPG[comboCores->currentItem()][2] = valor;
     if(valor != spinHGP_Pmin->value() ){
 	spinHGP_Pmin->setValue(valor);
-	X.setPmin(comboCores->currentItem(),valor);    
+	X.setPmin(comboCores->currentItem(),valor);
     	//novosLimites = true;
     }
     if(valor != sliderHGP_Pmin->value() ){
 	sliderHGP_Pmin->setValue(valor);
-	X.setPmin(comboCores->currentItem(),valor);    
+	X.setPmin(comboCores->currentItem(),valor);
 	//novosLimites = true;
     }
-}	
+}
 
 
 void calibrador::PMaxValueChanged(int valor)
@@ -633,7 +632,7 @@ void calibrador::mostrarTela1()
     widgetStack1->raiseWidget(tela1);
     telaAtual = 1;
     //novosLimites = true;
-    setarModo();    
+    setarModo();
 }
 
 
@@ -663,11 +662,11 @@ void calibrador::processarImagem()
 	pixmap_label1->redesenhe();
 	novosLimites = false;
     }
-  
+
 /*    pixmap_label1->loadFromData((uchar*)mimimi.getPNMData(),
 				mimimi.getPNMSize(),"PPM");
-    pixmap_label1->redesenhe();	
-*/    
+    pixmap_label1->redesenhe();
+*/
 }
 
 
@@ -697,7 +696,7 @@ void calibrador::setarModo()
 	case 2: //Tagget Image
 	    X.setMode(CALIBRATOR_COR_ETIQUETADA);
 	    break;
-	case 3: //SOFT Tagget Image 
+	case 3: //SOFT Tagget Image
 	    X.setMode(CALIBRATOR_COR_ETIQUETADA_SOFT);
 	    break;
 	case 4: //Error Image
@@ -707,14 +706,14 @@ void calibrador::setarModo()
 	    //cerr<<"Qual modo vc quer que eu use?"<<endl;
 	    exit(1);
 	    break;
-	}	
-	
+	}
+
     }else{
 	//	cerr<<"Qual tela vc está exibindo?!\n";
 	//TODO: popup de erro aki.
 	exit(1);
     }
-    
+
 }
 
 
@@ -754,4 +753,3 @@ void calibrador::changeVOffset( int new_offset )
 {
     X.setOffsetV(new_offset);
 }
-

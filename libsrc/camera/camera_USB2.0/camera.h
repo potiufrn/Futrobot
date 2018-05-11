@@ -57,12 +57,6 @@ struct buffer {
 };
 
 
- enum CAMERA_T{
-  CAM_FUTROBOT,
-  CAM_MIXREAL,
-  CAM_FUTMIX
-};
-
 class Camera {
 private:
 
@@ -104,9 +98,9 @@ private:
   int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
   bool ha;
 protected:
-  Camera(CAMERA_T cam);
+  Camera();
    ~Camera();
-   CAMERA_T tipoCam;
+
    bool ajusteparam(PARAMETROS_CAMERA cameraparam);
    bool encerrar;
    bool capturando;
@@ -124,8 +118,8 @@ protected:
 
  public:
 
-   void run ();
-   void terminar ();
+   void run();
+   void terminar();
    void printvideoformats();
 
    void StopCam();

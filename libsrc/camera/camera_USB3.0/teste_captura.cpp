@@ -12,25 +12,30 @@ public:
 
   inline bool capture(){ return Camera::captureimage(); }
   inline bool wait(){return Camera::waitforimage(); }
-  inline void save(const char* arq){ imgBruta.save(arq); }
-  inline void toirgb(ImagemRGB &dest){imgBruta.toImgRGB(dest); }
+  inline void save(const char* arq){ ImBruta.save(arq); }
+  inline void toirgb(ImagemRGB &dest){ Camera::toRGB(dest); }
 
-  PxRGB getPixel(unsigned lin,unsigned col) { return imgBruta.getRGB(lin,col); } ;
-  PxRGB getGBRG(unsigned lin, unsigned col) {
-    uint8_t u_byte = imgBruta.getPixel(lin,col);
-    if( (lin%2 == 0) && (col%2 != 0) )//azul
-      return PxRGB(0,0,u_byte);
-    else if( (lin%2 != 0) && (col%2 == 0) )//vermelho
-      return PxRGB(u_byte,0,0);
-    else//verde
-      return PxRGB(0,u_byte,0);
-  }
+  PxRGB getRGB(unsigned lin,unsigned col) { return ImBruta.getRGB(lin,col); } ;
+
 };
 
 int main(){
-  TesteCam cam(3);
+  TesteCam cam(1);
   ImagemRGB imrgb(0,0);
   char key;
+
+
+
+  struct controler qGain;
+  struct controler qExpAbs;
+
+  if(!cam.queryGain(qGain) ) std::cout << "Camera nao possui o controles" << '\n';
+  else std::cout << "Gain min  - max " <<qGain.min << ' ' <<qGain.max << '\n';
+  if ( !cam.setGain(240) ) std::cout << "falha na alteracao dos controles" << '\n';
+
+  if(!cam.queryExposureAbs(qExpAbs) ) std::cout << "Camera nao possui o controles" << '\n';
+  else  std::cout << "Exposure(Absolute) min  - max " <<qExpAbs.min << ' ' <<qExpAbs.max << '\n';
+  if ( !cam.setExposureAbs( (qExpAbs.max+qExpAbs.min)/2.0 ) ) std::cout << "falha na alteracao do controle" << '\n';
 
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
@@ -44,19 +49,19 @@ int main(){
       cam.wait();
       cam.capture();
       double end = relogio();
-      cout << "Captura time : " << end - start << endl;
+
       cam.save("CamSaveTeste.ppm");
+
+      double start_2RGB = relogio();
       cam.toirgb(imrgb);
+      double end_2RGB = relogio();
+
       imrgb.save("RGBtest.ppm");
+
+      cout << "Captura time : " << end - start << endl;
+      cout << "To RGB time  : " << end_2RGB - start_2RGB << endl;
     }
 
-    // unsigned i = 0;
-    // unsigned j = 0;
-    // cout << "Original " << cam.getGBRG(i,j) << endl;
-    // cout << "Pixel convertido " << cam.getPixel(i,j) << endl;
-    //
-    // cout << cam.getGBRG(i,j) << ' ' << cam.getGBRG(i,j+1) << '\n'
-    //       << cam.getGBRG(i+1,j) << ' ' << cam.getGBRG(i+1,j+1) << endl;
   };
 
   return 0;

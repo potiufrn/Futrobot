@@ -8,23 +8,19 @@ using namespace std;
 
 static void errno_exit (const char * s)
 {
-        fprintf (stderr, "%s error %d, %s\n",
-                 s, errno, strerror (errno));
-
-        exit (EXIT_FAILURE);
+  fprintf (stderr, "%s error %d, %s\n",
+           s, errno, strerror (errno));
+  exit (EXIT_FAILURE);
 }
 
 static int xioctl(int fd, int request, void *arg)
 {
-        int r,itt=0;
-
-        do {
+  int r,itt=0;
+  do {
 		r = ioctl (fd, request, arg);
 		itt++;
-	}
-        while ((-1 == r) && (EINTR == errno) && (itt<100));
-
-        return r;
+	}while ((-1 == r)  && (EINTR == errno) && (itt<100));
+  return r;
 }
 
  //Função que lê de um arquivo os parametros da câmera
@@ -75,8 +71,7 @@ bool PARAMETROS_CAMERA::write(const char* arquivo) const{
 }
 
 
-Camera::Camera (CAMERA_T cam):
-  tipoCam(cam),
+Camera::Camera ():
   encerrar(false),
   ImBruta(0,0)
 {
