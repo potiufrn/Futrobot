@@ -28,17 +28,37 @@
 #define NUM_BUFFERS 1
 
 
-struct PARAMETROS_CAMERA {
-  int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
+// class Controler{
+//
+// public:
+//   inline int   getMin()     { return (enable)?queryCtrl.minimum:-1; }
+//   inline int   getMax()     { return (enable)?queryCtrl.maximum:-1; }
+//   inline int   getDefault() { return (enable)?queryCtrl.default_value:-1; }
+//   inline __u8* getName()    { return (enable)?queryCtrl.name:"0"; }
+//
+//   virtual int  get()const = 0;
+//   virtual bool set(int v) = 0;
+//
+//   virtual bool write(std::ostream &O) = 0;
+//   virtual bool read(std::istream &I) = 0;
+//
+// private:
+//   bool enable;
+//   v4l2_queryctrl queryCtrl;//Todas as info. sobre o controle
+//   v4l2_control control; // estado atual do controle
+//
+//   struct controler *nextCtrl;
+//
+//
+//   virtual Controler(const int &fd) = 0;
+//   virtual ~Controler();
+//
+//   friend class ListaCtrls;
+// };
 
-  bool read(const char * arquivo);
-  bool write(const char * arquivo) const;
-};
-
-struct buffer{
-  uint8_t *bytes;
-  unsigned length;
-};
+// class ListCtrl{
+//
+// }
 
 struct controler{
   bool enable;
@@ -47,34 +67,17 @@ struct controler{
   int default_value;
 };
 
-// class Controler{
-// private:
-//   struct v4l2_queryctrl queryctrl;
-//   /**Atributos uteis queryctrl:
-//     __u8 name[32]
-//     __u32 id
-//     int minimum e maximum
-//     int default_value
-//   **/
-//   struct v4l2_control control;
-//   /**Atributos uteis queryctrl:
-//     __u8 name[32]
-//     __u32 id
-//     int value
-//   **/
-//   bool enable;
-//   __u8 name[32];
-//   int min,max;
-//   int default_value;
-//
-//   Controler(__u32 id);
-//
-//   friend class Camera;
-//   friend class ListControler;
-// };
 
-// class ListCtrls{
-// }
+struct PARAMETROS_CAMERA {
+  struct controler ctrls[];
+  bool read(const char *arquivo);
+  bool write(const char *arquivo) const;
+};
+
+struct buffer{
+  uint8_t *bytes;
+  unsigned length;
+};
 
 class Camera {
  private:
@@ -150,6 +153,11 @@ protected:
    int  getSaturation()const;
    bool setSaturation(int v);
 
+   //V4L2_CID_GAMMA
+   bool queryGamma(struct controler &ctrl)const;
+   int  getGamma()const;
+   bool setGamma(int v);
+
    bool queryHue(struct controler &ctrl)const;
    int  getHue()const;
    bool setHue(int v);
@@ -170,4 +178,5 @@ protected:
    int  getExposure()const;
    bool setExposure(int v);
 
+   bool queryMinBuffer(struct controler &ctrl)const;
 };

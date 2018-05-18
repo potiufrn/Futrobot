@@ -48,11 +48,11 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
 
     QWidget* privateLayoutWidget = new QWidget( centralWidget(), "layout55" );
     privateLayoutWidget->setGeometry( QRect( 4, 10, 1042, 518 ) );
-    layout55 = new QHBoxLayout( privateLayoutWidget, 11, 6, "layout55"); 
+    layout55 = new QHBoxLayout( privateLayoutWidget, 11, 6, "layout55");
 
-    layout54 = new QHBoxLayout( 0, 0, 6, "layout54"); 
+    layout54 = new QHBoxLayout( 0, 0, 6, "layout54");
 
-    layout53 = new QVBoxLayout( 0, 0, 6, "layout53"); 
+    layout53 = new QVBoxLayout( 0, 0, 6, "layout53");
 
     sliderVOffset = new QSlider( privateLayoutWidget, "sliderVOffset" );
     sliderVOffset->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sliderVOffset->sizePolicy().hasHeightForWidth() ) );
@@ -64,7 +64,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout53->addItem( spacer25 );
     layout54->addLayout( layout53 );
 
-    layout48 = new QVBoxLayout( 0, 0, 6, "layout48"); 
+    layout48 = new QVBoxLayout( 0, 0, 6, "layout48");
 
     pixmap_label1 = new pixmap_label( privateLayoutWidget, "pixmap_label1" );
     pixmap_label1->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, pixmap_label1->sizePolicy().hasHeightForWidth() ) );
@@ -73,7 +73,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     pixmap_label1->setMouseTracking( TRUE );
     layout48->addWidget( pixmap_label1 );
 
-    layout47 = new QHBoxLayout( 0, 0, 6, "layout47"); 
+    layout47 = new QHBoxLayout( 0, 0, 6, "layout47");
 
     sliderUOffset = new QSlider( privateLayoutWidget, "sliderUOffset" );
     sliderUOffset->setOrientation( QSlider::Horizontal );
@@ -93,11 +93,11 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
 
     QWidget* privateLayoutWidget_2 = new QWidget( tela1, "layout45" );
     privateLayoutWidget_2->setGeometry( QRect( 10, 10, 340, 490 ) );
-    layout45 = new QVBoxLayout( privateLayoutWidget_2, 11, 6, "layout45"); 
+    layout45 = new QVBoxLayout( privateLayoutWidget_2, 11, 6, "layout45");
 
-    layout9 = new QVBoxLayout( 0, 0, 6, "layout9"); 
+    layout9 = new QVBoxLayout( 0, 0, 6, "layout9");
 
-    layout1 = new QHBoxLayout( 0, 0, 6, "layout1"); 
+    layout1 = new QHBoxLayout( 0, 0, 6, "layout1");
 
     labelRGB = new QLabel( privateLayoutWidget_2, "labelRGB" );
     layout1->addWidget( labelRGB );
@@ -115,7 +115,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout1->addWidget( lcdRGB_B );
     layout9->addLayout( layout1 );
 
-    layout2 = new QHBoxLayout( 0, 0, 6, "layout2"); 
+    layout2 = new QHBoxLayout( 0, 0, 6, "layout2");
 
     labelHGP = new QLabel( privateLayoutWidget_2, "labelHGP" );
     layout2->addWidget( labelHGP );
@@ -133,7 +133,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout2->addWidget( lcdHGP_G );
     layout9->addLayout( layout2 );
 
-    layout7 = new QHBoxLayout( 0, 0, 6, "layout7"); 
+    layout7 = new QHBoxLayout( 0, 0, 6, "layout7");
 
     labelX = new QLabel( privateLayoutWidget_2, "labelX" );
     layout7->addWidget( labelX );
@@ -145,7 +145,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout7->addItem( spacer3 );
     layout9->addLayout( layout7 );
 
-    layout8 = new QHBoxLayout( 0, 0, 6, "layout8"); 
+    layout8 = new QHBoxLayout( 0, 0, 6, "layout8");
 
     labelY = new QLabel( privateLayoutWidget_2, "labelY" );
     layout8->addWidget( labelY );
@@ -160,9 +160,9 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer9 = new QSpacerItem( 20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout45->addItem( spacer9 );
 
-    layout31 = new QHBoxLayout( 0, 0, 6, "layout31"); 
+    layout31 = new QHBoxLayout( 0, 0, 6, "layout31");
 
-    layout10 = new QVBoxLayout( 0, 0, 6, "layout10"); 
+    layout10 = new QVBoxLayout( 0, 0, 6, "layout10");
 
     checkExibirGrade = new QCheckBox( privateLayoutWidget_2, "checkExibirGrade" );
     checkExibirGrade->setChecked( TRUE );
@@ -177,9 +177,9 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer9_2 = new QSpacerItem( 20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout45->addItem( spacer9_2 );
 
-    layout27 = new QVBoxLayout( 0, 0, 6, "layout27"); 
+    layout27 = new QVBoxLayout( 0, 0, 6, "layout27");
 
-    layout26 = new QHBoxLayout( 0, 0, 6, "layout26"); 
+    layout26 = new QHBoxLayout( 0, 0, 6, "layout26");
 
     labelLimiarPInf = new QLabel( privateLayoutWidget_2, "labelLimiarPInf" );
     layout26->addWidget( labelLimiarPInf );
@@ -187,7 +187,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout26->addItem( spacer5_2 );
     layout27->addLayout( layout26 );
 
-    layout14 = new QHBoxLayout( 0, 0, 6, "layout14"); 
+    layout14 = new QHBoxLayout( 0, 0, 6, "layout14");
 
     spinLimiarPInf = new QSpinBox( privateLayoutWidget_2, "spinLimiarPInf" );
     spinLimiarPInf->setMaxValue( 99 );
@@ -202,9 +202,9 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout27->addLayout( layout14 );
     layout45->addLayout( layout27 );
 
-    layout29 = new QVBoxLayout( 0, 0, 6, "layout29"); 
+    layout29 = new QVBoxLayout( 0, 0, 6, "layout29");
 
-    layout28 = new QHBoxLayout( 0, 0, 6, "layout28"); 
+    layout28 = new QHBoxLayout( 0, 0, 6, "layout28");
 
     labelLimiarPSup = new QLabel( privateLayoutWidget_2, "labelLimiarPSup" );
     layout28->addWidget( labelLimiarPSup );
@@ -212,7 +212,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout28->addItem( spacer5 );
     layout29->addLayout( layout28 );
 
-    layout15 = new QHBoxLayout( 0, 0, 6, "layout15"); 
+    layout15 = new QHBoxLayout( 0, 0, 6, "layout15");
 
     spinLimiarPSup = new QSpinBox( privateLayoutWidget_2, "spinLimiarPSup" );
     spinLimiarPSup->setMaxValue( 100 );
@@ -231,7 +231,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer11 = new QSpacerItem( 20, 38, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout45->addItem( spacer11 );
 
-    layout43 = new QHBoxLayout( 0, 0, 6, "layout43"); 
+    layout43 = new QHBoxLayout( 0, 0, 6, "layout43");
 
     pushVoltarTela1 = new QPushButton( privateLayoutWidget_2, "pushVoltarTela1" );
     layout43->addWidget( pushVoltarTela1 );
@@ -245,13 +245,13 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
 
     QWidget* privateLayoutWidget_3 = new QWidget( tela2, "layout44" );
     privateLayoutWidget_3->setGeometry( QRect( 10, 10, 339, 486 ) );
-    layout44 = new QVBoxLayout( privateLayoutWidget_3, 11, 6, "layout44"); 
+    layout44 = new QVBoxLayout( privateLayoutWidget_3, 11, 6, "layout44");
 
-    layout43_2 = new QHBoxLayout( 0, 0, 6, "layout43_2"); 
+    layout43_2 = new QHBoxLayout( 0, 0, 6, "layout43_2");
     spacer41 = new QSpacerItem( 34, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout43_2->addItem( spacer41 );
 
-    layout55_2 = new QHBoxLayout( 0, 0, 6, "layout55_2"); 
+    layout55_2 = new QHBoxLayout( 0, 0, 6, "layout55_2");
 
     textLabel1 = new QLabel( privateLayoutWidget_3, "textLabel1" );
     layout55_2->addWidget( textLabel1 );
@@ -263,11 +263,11 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout43_2->addLayout( layout55_2 );
     layout44->addLayout( layout43_2 );
 
-    layout67 = new QHBoxLayout( 0, 0, 6, "layout67"); 
+    layout67 = new QHBoxLayout( 0, 0, 6, "layout67");
     spacer42 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout67->addItem( spacer42 );
 
-    layout56 = new QHBoxLayout( 0, 0, 6, "layout56"); 
+    layout56 = new QHBoxLayout( 0, 0, 6, "layout56");
 
     labelCor = new QLabel( privateLayoutWidget_3, "labelCor" );
     layout56->addWidget( labelCor );
@@ -280,16 +280,16 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout67->addLayout( layout56 );
     layout44->addLayout( layout67 );
 
-    layout123 = new QVBoxLayout( 0, 0, 6, "layout123"); 
+    layout123 = new QVBoxLayout( 0, 0, 6, "layout123");
 
-    layout58 = new QHBoxLayout( 0, 0, 6, "layout58"); 
+    layout58 = new QHBoxLayout( 0, 0, 6, "layout58");
 
     labelHMin = new QLabel( privateLayoutWidget_3, "labelHMin" );
     layout58->addWidget( labelHMin );
     spacer34 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout58->addItem( spacer34 );
 
-    layout106 = new QHBoxLayout( 0, 0, 6, "layout106"); 
+    layout106 = new QHBoxLayout( 0, 0, 6, "layout106");
 
     spinHGP_Hmin = new QSpinBox( privateLayoutWidget_3, "spinHGP_Hmin" );
     spinHGP_Hmin->setMaxValue( 180 );
@@ -307,14 +307,14 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout58->addLayout( layout106 );
     layout123->addLayout( layout58 );
 
-    layout60 = new QHBoxLayout( 0, 0, 6, "layout60"); 
+    layout60 = new QHBoxLayout( 0, 0, 6, "layout60");
 
     labelHMax = new QLabel( privateLayoutWidget_3, "labelHMax" );
     layout60->addWidget( labelHMax );
     spacer36 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout60->addItem( spacer36 );
 
-    layout105 = new QHBoxLayout( 0, 0, 6, "layout105"); 
+    layout105 = new QHBoxLayout( 0, 0, 6, "layout105");
 
     spinHGP_Hmax = new QSpinBox( privateLayoutWidget_3, "spinHGP_Hmax" );
     spinHGP_Hmax->setMaxValue( 180 );
@@ -333,14 +333,14 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout60->addLayout( layout105 );
     layout123->addLayout( layout60 );
 
-    layout122 = new QHBoxLayout( 0, 0, 6, "layout122"); 
+    layout122 = new QHBoxLayout( 0, 0, 6, "layout122");
 
     labelPMin = new QLabel( privateLayoutWidget_3, "labelPMin" );
     layout122->addWidget( labelPMin );
     spacer39 = new QSpacerItem( 60, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout122->addItem( spacer39 );
 
-    layout121 = new QHBoxLayout( 0, 0, 6, "layout121"); 
+    layout121 = new QHBoxLayout( 0, 0, 6, "layout121");
 
     spinHGP_Pmin = new QSpinBox( privateLayoutWidget_3, "spinHGP_Pmin" );
     spinHGP_Pmin->setMaxValue( 100 );
@@ -355,14 +355,14 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout122->addLayout( layout121 );
     layout123->addLayout( layout122 );
 
-    layout64 = new QHBoxLayout( 0, 0, 6, "layout64"); 
+    layout64 = new QHBoxLayout( 0, 0, 6, "layout64");
 
     labelPMax = new QLabel( privateLayoutWidget_3, "labelPMax" );
     layout64->addWidget( labelPMax );
     spacer40 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout64->addItem( spacer40 );
 
-    layout98 = new QHBoxLayout( 0, 0, 6, "layout98"); 
+    layout98 = new QHBoxLayout( 0, 0, 6, "layout98");
 
     spinHGP_Pmax = new QSpinBox( privateLayoutWidget_3, "spinHGP_Pmax" );
     spinHGP_Pmax->setMaxValue( 100 );
@@ -379,14 +379,14 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout64->addLayout( layout98 );
     layout123->addLayout( layout64 );
 
-    layout61 = new QHBoxLayout( 0, 0, 6, "layout61"); 
+    layout61 = new QHBoxLayout( 0, 0, 6, "layout61");
 
     labelGMin = new QLabel( privateLayoutWidget_3, "labelGMin" );
     layout61->addWidget( labelGMin );
     spacer37 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout61->addItem( spacer37 );
 
-    layout104 = new QHBoxLayout( 0, 0, 6, "layout104"); 
+    layout104 = new QHBoxLayout( 0, 0, 6, "layout104");
 
     spinHGP_Gmin = new QSpinBox( privateLayoutWidget_3, "spinHGP_Gmin" );
     spinHGP_Gmin->setMaxValue( 100 );
@@ -401,14 +401,14 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout61->addLayout( layout104 );
     layout123->addLayout( layout61 );
 
-    layout62 = new QHBoxLayout( 0, 0, 6, "layout62"); 
+    layout62 = new QHBoxLayout( 0, 0, 6, "layout62");
 
     labelGMax = new QLabel( privateLayoutWidget_3, "labelGMax" );
     layout62->addWidget( labelGMax );
     spacer38 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout62->addItem( spacer38 );
 
-    layout103 = new QHBoxLayout( 0, 0, 6, "layout103"); 
+    layout103 = new QHBoxLayout( 0, 0, 6, "layout103");
 
     spinHGP_Gmax = new QSpinBox( privateLayoutWidget_3, "spinHGP_Gmax" );
     spinHGP_Gmax->setMaxValue( 100 );
@@ -428,9 +428,9 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer45 = new QSpacerItem( 20, 44, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout44->addItem( spacer45 );
 
-    layout73 = new QHBoxLayout( 0, 0, 6, "layout73"); 
+    layout73 = new QHBoxLayout( 0, 0, 6, "layout73");
 
-    layout69 = new QHBoxLayout( 0, 0, 6, "layout69"); 
+    layout69 = new QHBoxLayout( 0, 0, 6, "layout69");
 
     labelX2 = new QLabel( privateLayoutWidget_3, "labelX2" );
     layout69->addWidget( labelX2 );
@@ -443,7 +443,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer43 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout73->addItem( spacer43 );
 
-    layout71 = new QHBoxLayout( 0, 0, 6, "layout71"); 
+    layout71 = new QHBoxLayout( 0, 0, 6, "layout71");
 
     labelRGB2 = new QLabel( privateLayoutWidget_3, "labelRGB2" );
     layout71->addWidget( labelRGB2 );
@@ -465,9 +465,9 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     layout73->addLayout( layout71 );
     layout44->addLayout( layout73 );
 
-    layout42 = new QHBoxLayout( 0, 0, 6, "layout42"); 
+    layout42 = new QHBoxLayout( 0, 0, 6, "layout42");
 
-    layout70 = new QHBoxLayout( 0, 0, 6, "layout70"); 
+    layout70 = new QHBoxLayout( 0, 0, 6, "layout70");
 
     labelY2 = new QLabel( privateLayoutWidget_3, "labelY2" );
     layout70->addWidget( labelY2 );
@@ -480,7 +480,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer44 = new QSpacerItem( 41, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout42->addItem( spacer44 );
 
-    layout41 = new QHBoxLayout( 0, 0, 6, "layout41"); 
+    layout41 = new QHBoxLayout( 0, 0, 6, "layout41");
 
     labelHGP2 = new QLabel( privateLayoutWidget_3, "labelHGP2" );
     layout41->addWidget( labelHGP2 );
@@ -504,7 +504,7 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     spacer48 = new QSpacerItem( 20, 44, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout44->addItem( spacer48 );
 
-    layout76 = new QHBoxLayout( 0, 0, 6, "layout76"); 
+    layout76 = new QHBoxLayout( 0, 0, 6, "layout76");
 
     pushVoltarTela2 = new QPushButton( privateLayoutWidget_3, "pushVoltarTela2" );
     layout76->addWidget( pushVoltarTela2 );
@@ -523,26 +523,51 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     textLabel1_2_2_2_2_2 = new QLabel( tela0, "textLabel1_2_2_2_2_2" );
     textLabel1_2_2_2_2_2->setGeometry( QRect( 13, 177, 96, 25 ) );
 
+    struct controler ctrl;
+    X.queryGamma(ctrl);
+    min = (ctrl.enable)?ctrl.min:0;
+    max = (ctrl.enable)?ctrl.max:0;
     sliderGamma = new QSlider( tela0, "sliderGamma" );
     sliderGamma->setGeometry( QRect( 115, 212, 179, 16 ) );
-    sliderGamma->setMinValue( 0 );
-    sliderGamma->setMaxValue( 0 );
+    sliderGamma->setMinValue( min );
+    sliderGamma->setMaxValue( max );
     sliderGamma->setOrientation( QSlider::Horizontal );
-
-    sliderBrightness = new QSlider( tela0, "sliderBrightness" );
-    sliderBrightness->setGeometry( QRect( 115, 88, 179, 16 ) );
-    sliderBrightness->setMinValue( -64 );
-    sliderBrightness->setMaxValue( 64 );
-    sliderBrightness->setOrientation( QSlider::Horizontal );
 
     spinGamma = new QSpinBox( tela0, "spinGamma" );
     spinGamma->setGeometry( QRect( 300, 208, 53, 25 ) );
-    spinGamma->setMaxValue( 0 );
-    spinGamma->setMinValue( 0 );
+    spinGamma->setMaxValue( min );
+    spinGamma->setMinValue( max );
 
+    struct controler ctrl;
+    X.queryBrightness(ctrl);
+    min = (ctrl.enable)?ctrl.min:0;
+    max = (ctrl.enable)?ctrl.max:0;
+    if(ctrl.enable)std::cout << "possui o controle Brightness" << '\n';
+    sliderBrightness = new QSlider( tela0, "sliderBrightness" );
+    sliderBrightness->setGeometry( QRect( 115, 88, 179, 16 ) );
+    sliderBrightness->setMinValue( min );
+    sliderBrightness->setMaxValue( max );
+    sliderBrightness->setOrientation( QSlider::Horizontal );
+
+    spinBrightness = new QSpinBox( tela0, "spinBrightness" );
+    spinBrightness->setGeometry( QRect( 300, 84, 53, 25 ) );
+    spinBrightness->setMinValue( min );
+    spinBrightness->setMaxValue( max );
+
+    struct controler ctrl;
+    X.queryContrast(ctrl);
+    min = (ctrl.enable)?ctrl.min:0;
+    max = (ctrl.enable)?ctrl.max:0;
     spinContrast = new QSpinBox( tela0, "spinContrast" );
     spinContrast->setGeometry( QRect( 300, 115, 53, 25 ) );
-    spinContrast->setMaxValue( 64 );
+    spinContrast->setMinValue( min );
+    spinContrast->setMaxValue( max );
+
+    sliderContrast = new QSlider( tela0, "sliderContrast" );
+    sliderContrast->setGeometry( QRect( 115, 119, 179, 16 ) );
+    sliderContrast->setMinValue( min );
+    sliderContrast->setMaxValue( max );
+    sliderContrast->setOrientation( QSlider::Horizontal );
 
     textLabel1_2_2_2_2_2_2 = new QLabel( tela0, "textLabel1_2_2_2_2_2_2" );
     textLabel1_2_2_2_2_2_2->setGeometry( QRect( 13, 208, 96, 25 ) );
@@ -550,10 +575,6 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     textLabel1_2_2_2_2 = new QLabel( tela0, "textLabel1_2_2_2_2" );
     textLabel1_2_2_2_2->setGeometry( QRect( 13, 146, 96, 25 ) );
 
-    sliderContrast = new QSlider( tela0, "sliderContrast" );
-    sliderContrast->setGeometry( QRect( 115, 119, 179, 16 ) );
-    sliderContrast->setMaxValue( 64 );
-    sliderContrast->setOrientation( QSlider::Horizontal );
 
     textLabel1_2 = new QLabel( tela0, "textLabel1_2" );
     textLabel1_2->setGeometry( QRect( 13, 84, 96, 25 ) );
@@ -561,42 +582,59 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     textLabel1_2_2_2_2_2_4 = new QLabel( tela0, "textLabel1_2_2_2_2_2_4" );
     textLabel1_2_2_2_2_2_4->setGeometry( QRect( 13, 270, 96, 25 ) );
 
+
+    struct controler ctrl;
+    X.queryGain(ctrl);
+    min = (ctrl.enable)?ctrl.min:0;
+    max = (ctrl.enable)?ctrl.max:0;
+    if(ctrl.enable){
+      std::cout << "Gain enble" << '\n';
+      std::cout << "min e max : "<<min << ' '<<max << '\n';
+    }
     spinGain = new QSpinBox( tela0, "spinGain" );
     spinGain->setGeometry( QRect( 300, 270, 53, 25 ) );
-    spinGain->setMaxValue( 0 );
-    spinGain->setMinValue( 0 );
-    
+    spinGain->setMaxValue( max );
+    spinGain->setMinValue( min );
+
     // Setado para zero pois nao é usado nesse tipo de camera
     sliderGain = new QSlider( tela0, "sliderGain" );
     //sliderGain->setGeometry( QRect( 115, 274, 179, 16 ) );
     sliderGain->setGeometry( QRect( 150, 274, 144, 16 ) );
-    sliderGain->setMinValue( 0 );
-    sliderGain->setMaxValue( 0 );
+    sliderGain->setMinValue( min );
+    sliderGain->setMaxValue( max );
     sliderGain->setOrientation( QSlider::Horizontal );
 
+    struct controler ctrl;
+    X.querySaturation(ctrl);
+    min = (ctrl.enable)?ctrl.min:0;
+    max = (ctrl.enable)?ctrl.max:0;
     sliderSaturation = new QSlider( tela0, "sliderSaturation" );
     sliderSaturation->setGeometry( QRect( 115, 181, 179, 16 ) );
-    sliderSaturation->setMaxValue( 128 );
+    sliderSaturation->setMinValue( min );
+    sliderSaturation->setMaxValue( max );
     sliderSaturation->setOrientation( QSlider::Horizontal );
+
+    spinSaturation = new QSpinBox( tela0, "spinSaturation" );
+    spinSaturation->setGeometry( QRect( 300, 177, 53, 25 ) );
+    spinSaturation->setMinValue( min );
+    spinSaturation->setMaxValue( max );
+
+    struct controler ctrl;
+    X.queryHue(ctrl);
+    min = (ctrl.enable)?ctrl.min:0;
+    max = (ctrl.enable)?ctrl.max:0;
 
     sliderHue = new QSlider( tela0, "sliderHue" );
     sliderHue->setGeometry( QRect( 115, 150, 179, 16 ) );
-    sliderHue->setMaxValue( 0 );
+    sliderHue->setMaxValue( max );
     sliderHue->setOrientation( QSlider::Horizontal );
 
     spinShutter = new QSpinBox( tela0, "spinShutter" );
     spinShutter->setGeometry( QRect( 300, 239, 53, 25 ) );
-    spinShutter->setMaxValue( 0 );
+    spinShutter->setMaxValue( max );
 
-    spinSaturation = new QSpinBox( tela0, "spinSaturation" );
-    spinSaturation->setGeometry( QRect( 300, 177, 53, 25 ) );
-    spinSaturation->setMaxValue( 128 );
 
-    spinBrightness = new QSpinBox( tela0, "spinBrightness" );
-    spinBrightness->setGeometry( QRect( 300, 84, 53, 25 ) );
-    spinBrightness->setMinValue( -64 );
-    spinBrightness->setMaxValue( 64 );
-    
+
 
     textLabel1_2_2 = new QLabel( tela0, "textLabel1_2_2" );
     textLabel1_2_2->setGeometry( QRect( 13, 115, 96, 25 ) );
@@ -866,4 +904,3 @@ void calibrador::languageChange()
     if (MenuBar->findItem(3))
         MenuBar->findItem(3)->setText( tr( "Camera" ) );
 }
-

@@ -92,13 +92,15 @@ public Camera
   inline void setGmin(int i, int valor){calibracaoParam.limHPG[i].G.min = valor;};
   inline void setGmax(int i, int valor){calibracaoParam.limHPG[i].G.max = valor;};
   inline PARAMETROS_CAMERA getCameraParam(){return cameraParam;}
-  inline void setBrightness(int valor){cameraParam.brightness = valor;};
-  inline void setExposure(int valor){cameraParam.exposure = valor;};
-  inline void setHue(int valor){cameraParam.hue = valor;};
-  inline void setSaturation(int valor){cameraParam.saturation = valor;};
-  inline void setGamma(int valor){cameraParam.gamma = valor;};
-  inline void setShutter(int valor){cameraParam.shutter = valor;};
-  inline void setGain(int valor){cameraParam.gain = valor;};
+  inline void setBrightness(int valor){setBrightness(valor);};
+  inline void setExposure(int valor){setExposure(valor);};
+  inline void setHue(int valor){setHue(valor);};
+  inline void setSaturation(int valor){setSaturation(valor);};
+  inline void setGamma(int valor){setGamma(valor);};
+  inline void setShutter(int valor){setShutter(valor);};
+  inline void setGain(int valor){setGain(valor);};
+  inline void setExposureAbs(int valor){setExposureAbs(valor);};
+
   void resetHPG();
   void resetPixelsNotaveis();
   void resetCameraParam();

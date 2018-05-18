@@ -298,19 +298,21 @@ private:
   unsigned Ncol,Nlin;
 
   void destruct();
+  //retorna true caso a criacao de errado
+  bool create();
   void copy(const ImagemGBRG &I); //Virtual
   void move(ImagemGBRG &I);        //virtual
 public:
   explicit ImagemGBRG(const uint8_t*Img,unsigned Larg,unsigned Alt);
-  inline ImagemGBRG(const ImagemGBRG &I) { copy(I); }
+  ImagemGBRG(const ImagemGBRG &I);
   //explicit ImagemGBRG(const char* arq);
   ImagemGBRG(unsigned Larg,unsigned Alt);
   ~ImagemGBRG();
 
 
-  bool resize(unsigned Larg, unsigned Alt, bool keepData=false); //virtual
-  //bool load(const char *arq);                                    //virtual
-  void operator=(const ImagemGBRG &I);                           //virtual
+  bool resize(unsigned Larg, unsigned Alt, bool keepData=false);
+  //bool load(const char *arq);
+  void operator=(const ImagemGBRG &I);
 
   inline unsigned ncol() const {return Ncol;}
   inline unsigned nlin() const {return Nlin;}
@@ -318,15 +320,25 @@ public:
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
   PxRGB getRGB(unsigned lin,unsigned col);
-  uint8_t& getPixel(unsigned lin, unsigned col); //testar
+  uint8_t& getPixel(unsigned lin, unsigned col);
 
   uint8_t &operator()(unsigned lin,unsigned col)const;
 
-  void toImageRGB(ImagemRGB &dest);             //testar
+  void toImageRGB(ImagemRGB &dest);
 
-  void save(const char* arq) const;          //virtual
-  bool load(const char *arq);//falta fazer 
+  void save(const char* arq) const;
+  bool load(const char *arq);//falta fazer
+  //Operacoes pixel a pixel
+  // ImagemGBRG &operator+(const ImagemGBRG &imgB);
+  // ImagemGBRG &operator-(const ImagemGBRG &imgB);
+  // ImagemGBRG &operator*(const ImagemGBRG &imgB);
+  // ImagemGBRG &operator^(float e);
 
+  // ImagemGBRG &operator*(float v);
+  // inline ImagemGBRG &operator/(float v) {return operator*(1.0/v); }
+
+
+  //Retorna o ponteiro aonde comeca a imagem
   inline const uint8_t* getRawData() { return img;}//virtual
 };
 

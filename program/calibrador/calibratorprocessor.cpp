@@ -1,4 +1,4 @@
- #include "calibratorprocessor.h"
+#include "calibratorprocessor.h"
 #include "variaveisglobais.h"
 #include <iostream>
 #include <cmath>
@@ -21,7 +21,7 @@ using namespace std;
 CalibratorProcessor::CalibratorProcessor() :
 
   //Camera (CAM_FUTROBOT),
-  Camera(1),
+  Camera(2),
   ImProcessada(0,0),
   ImBrutaRGB(0,0),
   modo(CALIBRATOR_IMAGEM_REAL),
@@ -234,16 +234,15 @@ void CalibratorProcessor::resetHPG(){
 }
 
 void CalibratorProcessor::resetCameraParam(){
-  cameraParam.brightness = 0;
-  cameraParam.exposure = 33;
-  cameraParam.hue = 0;
-  cameraParam.saturation = 62;
-  cameraParam.gamma = 0;
-  cameraParam.shutter = 0;
-  cameraParam.gain = 0;
+  // cameraParam.brightness = 0;
+  // cameraParam.exposure = 33;
+  // cameraParam.hue = 0;
+  // cameraParam.saturation = 62;
+  // cameraParam.gamma = 0;
+  // cameraParam.shutter = 0;
+  // cameraParam.gain = 0;
 
    setParameters ();
-
 }
 
 bool CalibratorProcessor::loadImage(const char* arq){

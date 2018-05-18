@@ -715,6 +715,7 @@ void ImagemRGB::operator=(const ImagemRGB &I)
 }
 
 #ifdef _IMAGEM_WITH_CHECK_ERROS_
+
 const LinhaImagemRGB ImagemRGB::operator[](unsigned lin) const
 {
   if (lin>=Nlin) {
@@ -834,18 +835,29 @@ ImagemGBRG::ImagemGBRG(const uint8_t*Img,unsigned Larg,unsigned Alt)
   memcpy(img,Img,Larg*Alt);
 }
 
+bool ImagemGBRG::create(){
+  img = new uint8_t[Ncol*Nlin];
+  if(img == NULL)return false;
+  return true;
+}
+
 ImagemGBRG::ImagemGBRG(unsigned Larg,unsigned Alt):
 Ncol(Larg),Nlin(Alt)
 {
-  if(Larg == 0 || Alt == 0)
-    Ncol = Nlin = 0;
-  img = new uint8_t[Larg*Alt];
+  if (Ncol==0 || Nlin==0) {
+    Ncol=Nlin=0;
+  }
+  create();
+}
+
+ImagemGBRG::ImagemGBRG(const ImagemGBRG &I):
+  Nlin(I.nlin()),Ncol(I.ncol())
+{
+  if(create())copy(I);
 }
 
 void ImagemGBRG::copy(const ImagemGBRG &I){
-  Ncol = I.Ncol;
-  Nlin = I.Nlin;
-  memcpy(img, I.img, I.getWidth()*I.getHeight());
+  memcpy((uint8_t*)this->img, (uint8_t*)I.img, sizeof(uint8_t)*Ncol*Nlin);
 }
 void ImagemGBRG::move(ImagemGBRG &I){
   Ncol = I.Ncol;
@@ -908,7 +920,7 @@ bool ImagemGBRG::resize(unsigned Larg, unsigned Alt,bool keepData)
     cerr << "Dimensao nula para imagem\n";
     return false;
   }
-  if (Larg!=Ncol || Alt!=Nlin) {
+  if (Larg!=Ncol || Alt!=Nlin){
     ImagemGBRG prov(Larg,Alt);
     if (keepData) {
       for (unsigned i=0; i<min(Nlin,Alt); i++) {
@@ -922,6 +934,13 @@ bool ImagemGBRG::resize(unsigned Larg, unsigned Alt,bool keepData)
 }
 
 void ImagemGBRG::operator=(const ImagemGBRG &I){
+  if (Ncol!=I.Ncol || Nlin!=I.Nlin) {
+    destruct();
+    Ncol=I.Ncol;
+    Nlin=I.Nlin;
+    if (!create())
+      return;
+  }
   copy(I);
 }
 
@@ -932,7 +951,6 @@ uint8_t &ImagemGBRG::operator()(unsigned lin,unsigned col)const{
   }
   return img[lin*Ncol + col];
 }
-
 
 
 PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
@@ -970,7 +988,6 @@ PxRGB ImagemGBRG::getRGB(unsigned lin,unsigned col)
 
 uint8_t& ImagemGBRG::getPixel(unsigned lin, unsigned col)
 {
-
   return this->operator()(lin,col);
 }
 
@@ -985,3 +1002,41 @@ void ImagemGBRG::toImageRGB(ImagemRGB &dest)
   for (unsigned i = 0; i < Nlin; i++)for (unsigned j = 0; j<Ncol; j++)
       dest[i][j] = getRGB(i, j);
 }
+
+// ImagemGBRG& ImagemGBRG::operator+(const ImagemGBRG &imgB){
+//   if(imgB.getHeight() != this->getHeight() || imgB.getWidth()() != this->getWidth()()){
+//     std::cerr << "ImagemGBRG-Error: tamanhos diferentes de imagens" << '\n';
+//     exit(1);
+//   }
+//   for(unsigned lin = 0; lin < Nlin;lin++)for(unsigned col = 0; col < Ncol;col++)
+//       this->getPixel(lin,col) = this->getPixel(lin,col) + imgB.getPixel(lin,col);
+//   return *this;
+// }
+//
+// ImagemGBRG &ImagemGBRG::operator-(const ImagemGBRG &imgB){
+//   if(imgB.getHeight() != this->getHeight() || imgB.getWidth()() != this->getWidth()()){
+//     std::cerr << "ImagemGBRG-Error: tamanhos diferentes de imagens" << '\n';
+//     exit(1);
+//   }
+//   for(unsigned lin = 0; lin < Nlin;lin++)for(unsigned col = 0; col < Ncol;col++)
+//       this->getPixel(lin,col) = this->getPixel(lin,col) - imgB.getPixel(lin,col);
+//   return *this;
+// }
+//
+// ImagemGBRG &ImagemGBRG::operator*(const ImagemGBRG &imgB){
+//   if(imgB.getHeight() != this->getHeight() || imgB.getWidth()() != this->getWidth()()){
+//     std::cerr << "ImagemGBRG-Error: tamanhos diferentes de imagens" << '\n';
+//     exit(1);
+//   }
+//   for(unsigned lin = 0; lin < Nlin;lin++)for(unsigned col = 0; col < Ncol;col++)
+//       this->getPixel(lin,col) = this->getPixel(lin,col) * imgB.getPixel(lin,col);
+//   return *this;
+// }
+//
+// ImagemGBRG &ImagemGBRG::operator^(float e){
+//
+// }
+//
+// ImagemGBRG &ImagemGBRG::operator*(float v){
+//
+// }

@@ -21,48 +21,13 @@ static int xioctl(int fd, int request, void *arg)
 }
 
 bool PARAMETROS_CAMERA::read (const char * arquivo) {
-  FILE * arq=fopen(arquivo, "r");
-  if (arq==NULL) {
-    return true;
-  }
-
-  unsigned bri, exp, hue, sat, gam, shu, gai;
-  if(fscanf(arq,"Brightness: %u\n",&bri) != 1) return true;
-  if(fscanf(arq,"Auto exposure: %u\n",&exp) != 1) return true;
-  if(fscanf(arq,"Hue: %u\n",&hue) != 1) return true;
-  if(fscanf(arq,"Saturation: %u\n",&sat) != 1) return true;
-  if(fscanf(arq,"Gamma: %u\n",&gam) != 1) return true;
-  if(fscanf(arq,"Shutter: %u\n",&shu) != 1) return true;
-  if(fscanf(arq,"Gain: %u\n",&gai) != 1) return true;
-
-  fclose(arq);
-
-  brightness = bri;
-  exposure = exp;
-  hue = hue;
-  saturation = sat;
-  gamma = gam;
-  shutter = shu;
-  gain = gai;
-
-  return false;
+  return true;
 }
 
 bool PARAMETROS_CAMERA::write(const char* arquivo) const{
-  FILE *arq=fopen(arquivo,"w");
-  if(arq == NULL)
-    return true;
-
-  fprintf(arq,"Brightness: %u\n",brightness);
-  fprintf(arq,"Auto exposure: %u\n",exposure);
-  fprintf(arq,"Hue: %u\n",hue);
-  fprintf(arq,"Saturation: %u\n",saturation);
-  fprintf(arq,"Gamma: %u\n",gamma);
-  fprintf(arq,"Shutter: %u\n",shutter);
-  fprintf(arq,"Gain: %u\n",gain);
-  fclose(arq);
-  return false;
+  return true;
 }
+
 
 Camera::Camera (const char* device):
   encerrar(false),
@@ -296,7 +261,7 @@ Camera::~Camera(){
 
 bool Camera::ajusteparam(PARAMETROS_CAMERA cameraparam){
   //falta fazer
-  return false;
+  return true;
 }
 
 bool Camera::setControl(__u32 id,int v){
@@ -322,7 +287,7 @@ int Camera::getControl(__u32 id)const{
   if(!ctrl.enable)
     return 0;
 
-  control.id;
+  control.id = id;
   if(-1 == xioctl(fd,VIDIOC_G_CTRL, &control))
     errno_exit("Camera-getControl: ERRO\n");
   return control.value;
@@ -333,15 +298,14 @@ struct controler Camera::queryControl(__u32 id)const{
     struct controler ctrl;
     CLEAR(queryctrl);
     ctrl.enable = false;
-    queryctrl.id = id;
 
+    queryctrl.id = id;
     if(-1 == xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)){
-      std::cerr << "Camera-Erro: Camera nao reconhece o comando" << '\n';
+      std::cerr << "Camera-Erro: Camera nao reconhece o controle" << '\n';
       return ctrl;
     }
 
-
-    //Testa se o dispositivo possui o controler
+    //Testa se o dispositivo nao possui o controler
     if ( queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
       return ctrl;
 
@@ -438,6 +402,8 @@ bool Camera::queryContrast(struct controler &ctrl)const{
   return true;
 }
 
+
+
 bool Camera::querySaturation(struct controler &ctrl)const{
   //V4L2_CID_SATURATION
   ctrl = queryControl(V4L2_CID_SATURATION);
@@ -487,7 +453,7 @@ bool Camera::queryExposureAbs(struct controler &ctrl)const{
   ctrl = queryControl(V4L2_CID_EXPOSURE_ABSOLUTE);
   //testa se possui o controler
   if(!ctrl.enable)
-  return false;
+    return false;
   return true;
 }
 
@@ -496,6 +462,12 @@ bool Camera::queryGamma(struct controler &ctrl)const{
   ctrl = queryControl(V4L2_CID_GAMMA);
   //testa se possui o controler
   if(!ctrl.enable)
-  return false;
+    return false;
+  return true;
+}
+bool Camera::queryMinBuffer(struct controler &ctrl)const{
+  ctrl = queryControl(V4L2_CID_MIN_BUFFERS_FOR_CAPTURE);
+  if(!ctrl.enable)
+    return false;
   return true;
 }

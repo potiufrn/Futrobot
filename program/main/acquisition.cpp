@@ -50,7 +50,7 @@ public:
   bool pop(unsigned int &x, unsigned int &y);
 };
 
-// Returns false if error 
+// Returns false if error
 bool STACK::push(unsigned int x, unsigned int y)
 {
   if (size>=MAX_STACK_SIZE) return false;
@@ -189,7 +189,7 @@ static BinaryMap analisedPixel(IMAGE_WIDTH,IMAGE_HEIGHT);
   int i;
   bool ok = true;
   float H, G, P;
-  
+
   pixel.getHPG(H,P,G);
   for(i = 0;i < NUM_COLORS; i++){
   ok = false;
@@ -200,7 +200,7 @@ static BinaryMap analisedPixel(IMAGE_WIDTH,IMAGE_HEIGHT);
   if(H >= colorLimit[i].hMin || H <= colorLimit[i].hMax)
   ok = true ;
   }
-  if(ok && 
+  if(ok &&
   G >= colorLimit[i].gMin && G <= colorLimit[i].gMax &&
   P >= colorLimit[i].pMin && P <= colorLimit[i].pMax){
   return (REG_COLOR)i;
@@ -1252,7 +1252,7 @@ bool Acquisition::processGameState()
     for(i = 0; i < nRegYellow; i++) {
       cout << "Amarelo " << i << "\t" << regYellow[i];
       if(regAuxYellow[i].colorID != REG_COLOR_UNDEFINED){
-	cout << "\t" << regAuxYellow[i];
+	        cout << "\t" << regAuxYellow[i];
       }
       cout << endl;
     }

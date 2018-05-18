@@ -447,19 +447,19 @@ void calibrador::SaturationValueChanged(int valor)
     }
 }
 
-// void calibrador::GammaValueChanged(int valor)
-// {
-//     if(valor != spinGamma->value() ){
-// 	spinGamma->setValue(valor);
-// 	X.setGamma(valor);
-// 	//novosLimites = true;
-//     }
-//     if(valor != sliderGamma->value() ){
-// 	sliderGamma->setValue(valor);
-// 	X.setGamma(valor);
-// 	//novosLimites = true;
-//     }
-// }
+void calibrador::GammaValueChanged(int valor)
+{
+    if(valor != spinGamma->value() ){
+	spinGamma->setValue(valor);
+	X.setGamma(valor);
+	//novosLimites = true;
+    }
+    if(valor != sliderGamma->value() ){
+	sliderGamma->setValue(valor);
+	X.setGamma(valor);
+	//novosLimites = true;
+    }
+}
 
 void calibrador::ShutterValueChanged(int valor)
 {
@@ -598,15 +598,45 @@ void calibrador::atualizarLimitesHGP( int item )
 }
 
 void calibrador::atualizarCameraParam(){
-    PARAMETROS_CAMERA prov2 = X.getCameraParam();
-    spinBrightness->setValue(prov2.brightness);
-    spinContrast->setValue(prov2.exposure);
-    //spinExposure->setValue(prov2.exposure);
-    spinHue->setValue(prov2.hue);
-    spinSaturation->setValue(prov2.saturation);
-    spinGamma->setValue(prov2.gamma);
-    spinShutter->setValue(prov2.shutter);
-    spinGain->setValue(prov2.gain);
+
+    struct controler ctrl;
+    if(!X.queryBrightness(ctrl)){
+      spinBrightness->setEnabled(false);
+      sliderBrightness->setEnabled(false);
+    }else spinBrightness->setValue(X.getBrightness());
+
+    if(!X.queryContrast(ctrl)){
+      spinContrast->setEnabled(false);
+      sliderContrast->setEnabled(false);
+    }else spinContrast->setValue(X.getContrast());
+
+    // if(!X.queryExposure(ctrl)){
+    //   spinExposure->setEnabled(false);
+    //   sliderExposure->setEnabled(false);
+    // }else spinExposure->setValue(prov2.exposure());
+
+    if(!X.queryHue(ctrl)){
+      spinHue->setEnabled(false);
+      sliderHue->setEnabled(false);
+    }else spinHue->setValue(X.getHue());
+
+    if(!X.querySaturation(ctrl))
+    {
+      spinSaturation->setEnabled(false);
+      sliderSaturation->setEnabled(false);
+    }else spinSaturation->setValue(X.getSaturation());
+
+    if(!X.queryGamma(ctrl))
+    {
+      spinGamma->setEnabled(false);
+      sliderGamma->setEnabled(false);
+    }else spinGamma->setValue(X.getGamma());
+
+    if(!X.queryGain(ctrl)){
+        spinGain->setEnabled(false);
+        sliderGain->setEnabled(false);
+    }else spinGain->setValue(X.getGain());
+
 }
 
 

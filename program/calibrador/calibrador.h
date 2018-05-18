@@ -180,6 +180,7 @@ public slots:
     virtual void spinLimiarPSupValueChanged( int valor );
     virtual void BrightnessValueChanged( int valor );
     virtual void ExposureValueChanged( int valor );
+    virtual void ExposureAbsValueChanged( int valor );
     virtual void HueValueChanged( int valor );
     virtual void SaturationValueChanged( int valor );
     virtual void GammaValueChanged( int valor );

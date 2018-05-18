@@ -16,9 +16,9 @@ CXXFLAGS      = -m64 -pipe -O2 -Wall -W -D_REENTRANT $(DEFINES)
 INCPATH       = -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4/Qt3Support -I/usr/include/qt4 -I../../include -I/usr/include/qt3/ -I.moc -I.ui
 LINK          = g++
 LFLAGS        = -m64 -Wl,-O1
-LIBS          = $(SUBLIBS)  -L/usr/lib/x86_64-linux-gnu -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem -ldc1394 -lQt3Support -lQtGui -lQtCore -lpthread 
+LIBS          = $(SUBLIBS)  -L/usr/lib/x86_64-linux-gnu -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem -ldc1394 -lQt3Support -lQtGui -lQtCore -lpthread
 AR            = ar cqs
-RANLIB        = 
+RANLIB        =
 QMAKE         = /usr/lib/x86_64-linux-gnu/qt4/bin/qmake
 TAR           = tar -cf
 COMPRESS      = gzip -9f
@@ -37,6 +37,7 @@ MOVE          = mv -f
 CHK_DIR_EXISTS= test -d
 MKDIR         = mkdir -p
 
+PROGRAMAS	=	teste_capCampoVazio.cpp
 ####### Output directory
 
 OBJECTS_DIR   = .obj/
@@ -47,7 +48,8 @@ SOURCES       = main.cpp \
 		pixmap_label.cpp \
 		calibratorprocessor.cpp .moc/moc_pixmap_label.cpp \
 		.ui/calibrador.cpp \
-		.moc/moc_calibrador.cpp
+		.moc/moc_calibrador.cpp	\
+		${PROGRAMAS}
 OBJECTS       = .obj/main.o \
 		.obj/pixmap_label.o \
 		.obj/calibratorprocessor.o \
@@ -79,7 +81,7 @@ DIST          = /usr/share/qt4/mkspecs/common/unix.conf \
 		/usr/share/qt4/mkspecs/features/lex.prf \
 		calibrador.pro
 QMAKE_TARGET  = calibrador
-DESTDIR       = 
+DESTDIR       =
 TARGET        = calibrador
 
 first: all
@@ -106,7 +108,7 @@ first: all
 
 all: Makefile $(TARGET)
 
-$(TARGET):  $(OBJECTS)  
+$(TARGET):  $(OBJECTS)
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: calibrador.pro  /usr/share/qt4/mkspecs/linux-g++-64/qmake.conf /usr/share/qt4/mkspecs/common/unix.conf \
@@ -165,12 +167,12 @@ Makefile: calibrador.pro  /usr/share/qt4/mkspecs/linux-g++-64/qmake.conf /usr/sh
 qmake:  FORCE
 	@$(QMAKE) -spec /usr/share/qt4/mkspecs/linux-g++-64 -o Makefile calibrador.pro
 
-dist: 
-	@$(CHK_DIR_EXISTS) .obj/calibrador1.0.0 || $(MKDIR) .obj/calibrador1.0.0 
+dist:
+	@$(CHK_DIR_EXISTS) .obj/calibrador1.0.0 || $(MKDIR) .obj/calibrador1.0.0
 	$(COPY_FILE) --parents $(SOURCES) $(DIST) .obj/calibrador1.0.0/ && $(COPY_FILE) --parents pixmap_label.h variaveisglobais.h calibratorprocessor.h .obj/calibrador1.0.0/ && $(COPY_FILE) --parents main.cpp pixmap_label.cpp calibratorprocessor.cpp .obj/calibrador1.0.0/ && $(COPY_FILE) --parents calibrador.ui .obj/calibrador1.0.0/ && $(COPY_FILE) --parents calibrador.ui .obj/calibrador1.0.0/ && $(COPY_FILE) --parents .ui/calibrador.h .obj/calibrador1.0.0/ && (cd `dirname .obj/calibrador1.0.0` && $(TAR) calibrador1.0.0.tar calibrador1.0.0 && $(COMPRESS) calibrador1.0.0.tar) && $(MOVE) `dirname .obj/calibrador1.0.0`/calibrador1.0.0.tar.gz . && $(DEL_FILE) -r .obj/calibrador1.0.0
 
 
-clean:compiler_clean 
+clean:compiler_clean
 	-$(DEL_FILE) $(OBJECTS)
 	-$(DEL_FILE) *~ core *.core
 
@@ -178,7 +180,7 @@ clean:compiler_clean
 ####### Sub-libraries
 
 distclean: clean
-	-$(DEL_FILE) $(TARGET) 
+	-$(DEL_FILE) $(TARGET)
 	-$(DEL_FILE) Makefile
 
 
@@ -239,7 +241,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_header_clean compiler_uic3_decl_clean compiler_uic3_impl_clean compiler_uic3_moc_clean 
+compiler_clean: compiler_moc_header_clean compiler_uic3_decl_clean compiler_uic3_impl_clean compiler_uic3_moc_clean
 
 ####### Compile
 
@@ -258,13 +260,13 @@ compiler_clean: compiler_moc_header_clean compiler_uic3_decl_clean compiler_uic3
 		variaveisglobais.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/calibratorprocessor.o calibratorprocessor.cpp
 
-.obj/moc_pixmap_label.o: .moc/moc_pixmap_label.cpp 
+.obj/moc_pixmap_label.o: .moc/moc_pixmap_label.cpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/moc_pixmap_label.o .moc/moc_pixmap_label.cpp
 
-.obj/calibrador.o: .ui/calibrador.cpp 
+.obj/calibrador.o: .ui/calibrador.cpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/calibrador.o .ui/calibrador.cpp
 
-.obj/moc_calibrador.o: .moc/moc_calibrador.cpp 
+.obj/moc_calibrador.o: .moc/moc_calibrador.cpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/moc_calibrador.o .moc/moc_calibrador.cpp
 
 ####### Install
@@ -274,4 +276,3 @@ install:   FORCE
 uninstall:   FORCE
 
 FORCE:
-

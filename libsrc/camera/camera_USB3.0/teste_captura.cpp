@@ -1,5 +1,3 @@
-#include <time.h>
-
 #include "camera.h"
 #include "../../../program/system.h"
 
@@ -13,10 +11,7 @@ public:
   inline bool capture(){ return Camera::captureimage(); }
   inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
-  inline void toirgb(ImagemRGB &dest){ Camera::toRGB(dest); }
-
-  PxRGB getRGB(unsigned lin,unsigned col) { return ImBruta.getRGB(lin,col); } ;
-
+  inline void toRGB(ImagemRGB &dest){ Camera::toRGB(dest); }
 };
 
 int main(){
@@ -24,18 +19,20 @@ int main(){
   ImagemRGB imrgb(0,0);
   char key;
 
-
+  int gain = 77;
+  int ExpAbs = 292;
 
   struct controler qGain;
   struct controler qExpAbs;
 
   if(!cam.queryGain(qGain) ) std::cout << "Camera nao possui o controles" << '\n';
-  else std::cout << "Gain min  - max " <<qGain.min << ' ' <<qGain.max << '\n';
-  if ( !cam.setGain(240) ) std::cout << "falha na alteracao dos controles" << '\n';
+  else std::cout << "Gain min - max " <<qGain.min << ' ' <<qGain.max << '\n';
+  if ( !cam.setGain(gain) ) std::cout << "falha na alteracao dos controles" << '\n';
 
   if(!cam.queryExposureAbs(qExpAbs) ) std::cout << "Camera nao possui o controles" << '\n';
   else  std::cout << "Exposure(Absolute) min  - max " <<qExpAbs.min << ' ' <<qExpAbs.max << '\n';
-  if ( !cam.setExposureAbs( (qExpAbs.max+qExpAbs.min)/2.0 ) ) std::cout << "falha na alteracao do controle" << '\n';
+  if ( !cam.setExposureAbs( ExpAbs ) ) std::cout << "falha na alteracao do controle" << '\n';
+
 
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
@@ -53,7 +50,7 @@ int main(){
       cam.save("CamSaveTeste.ppm");
 
       double start_2RGB = relogio();
-      cam.toirgb(imrgb);
+      cam.toRGB(imrgb);
       double end_2RGB = relogio();
 
       imrgb.save("RGBtest.ppm");
