@@ -125,8 +125,6 @@ class ListImgGBRG{
     }
     length++;
     calcVariancia();
-
-
   }
 
   ImgAmostra begin()const{ return *first;}
@@ -165,80 +163,25 @@ public:
 
 
 int main(){
-  TesteCam cam(2);
+  TesteCam cam(1);
   ImagemRGB imrgb(0,0);
   char key;
 
-  int gain = 100;
-  int ExpAbs = 292;
-
-  struct controler ctrl;
-  if(!cam.queryMinBuffer(ctrl))
-    std::cout << "Comando nao reconhecido" << '\n';
-  else{
-    std::cout << "Min buffer"<<ctrl.min << '\n';
-    std::cout << "Max Buffer"<<ctrl.max << '\n';
+  double start = relogio();
+  for(unsigned n = 0; n < 100; n++){
+    cam.wait();
+    cam.capture();
+    cam.push();
   }
+  double end = relogio();
 
-  // struct controler qGain;
-  // struct controler qExpAbs;
-  //
-  // if(!cam.queryGain(qGain) ) std::cout << "Camera nao possui o controles" << '\n';
-  // else std::cout << "Gain min - max " <<qGain.min << ' ' <<qGain.max << '\n';
-  // if ( !cam.setGain(gain) ) std::cout << "falha na alteracao dos controles" << '\n';
-  //
-  // if(!cam.queryExposureAbs(qExpAbs) ) std::cout << "Camera nao possui o controles" << '\n';
-  // else  std::cout << "Exposure(Absolute) min  - max " <<qExpAbs.min << ' ' <<qExpAbs.max << '\n';
-  // if ( !cam.setExposureAbs( ExpAbs ) ) std::cout << "falha na alteracao do controle" << '\n';
+  cam.save("Ultima_captura.ppm");
+  cam.saveMed("CampoMedio.ppm");
+  std::cout << "Tempo total Gasto : "<<end - start << '\n';
 
-  // double start = relogio();
-  // for(unsigned n = 0; n < 100; n++){
-  //   cam.wait();
-  //   cam.capture();
-  //   cam.push();
-  // }
-  // double end = relogio();
-  // cam.save("Ultima_captura.ppm");
-  // cam.saveMed("CampoMedio.ppm");
-  // std::cout << "Tempo total Gasto : "<<end - start << '\n';
-
-  while(false){
-    std::cout << "q - Quit \n ENTER - Capture "<< std::endl;
-    std::cout << "v - visualizar resultados" << '\n';
-
-    std::cin.get(key);
-    if(key == 'q'){
-      std::cout << "Quit\n";
-      break;
-    }
-    if(key == '\n'){
-      double start = relogio();
-      cam.wait();
-      cam.capture();
-      double end = relogio();
-
-      cam.save("CamSaveTeste.ppm");
-
-      double start_2RGB = relogio();
-      cam.toRGB(imrgb);
-      double end_2RGB = relogio();
-
-      imrgb.save("RGBtest.ppm");
-
-      cam.push();
-      cam.saveMed("ImagemMedia.ppm");
-
-
-      std::cout << "Captura time : " << end - start << std::endl;
-      std::cout << "To RGB time  : " << end_2RGB - start_2RGB << std::endl;
-    }
-    if(key == 'v'){
-      std::cout << "Variancia Maxima "<< cam.getVaciancia() << '\n';
-      std::cout << "Desvio Padrao Maximo "<<cam.getDesvioPadrao() << '\n';
-    }
-
-  };
   std::cout << "Variancia Maxima "<< cam.getVaciancia() << '\n';
   std::cout << "Desvio Padrao Maximo "<<cam.getDesvioPadrao() << '\n';
+
+
   return 0;
 }
