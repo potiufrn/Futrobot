@@ -50,9 +50,18 @@ public:
   }
 };
 
+void segmentacao (ImagemGBRG &dest, uint8_t ref){
+  for(unsigned i = 0; i<dest.nlin(); i++)
+  for(unsigned j = 0; j<dest.ncol(); j++){
+    if(dest(i,j) < ref) dest(i,j) = (uint8_t)0;
+    else
+    dest(i,j) = (uint8_t)255;
+  }
+};
+
 int main(){
   TesteCam cam(1);
-  ImagemRGB imrgb(0,0);
+  ImagemRGB imrgb(0,0), segRGB(0,0);
   char key;
 
 
@@ -78,9 +87,12 @@ int main(){
       cam.toRGB(imrgb);
       double end_2RGB = relogio();
 
-      imrgb.save("RGBtest.ppm");
+      // imrgb.save("RGBtest.ppm");
       cam.histogram(Imgbruta);
-
+      segmentacao(Imgbruta, 255);
+      Imgbruta.save("GBRG_seg.ppm");
+      Imgbruta.toImageRGB(segRGB);
+      segRGB.save("segmentada.ppm");
       cout << "Captura time : " << end - start << endl;
       cout << "To RGB time  : " << end_2RGB - start_2RGB << endl;
 
