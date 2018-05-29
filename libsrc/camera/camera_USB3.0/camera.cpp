@@ -20,14 +20,13 @@ static int xioctl(int fd, int request, void *arg)
   return r;
 }
 
-bool PARAMETROS_CAMERA::read (const char * arquivo) {
-  return true;
+bool PARAMETROS_CAMERA::read(const char * arquivo) {
+  return false;
 }
 
-bool PARAMETROS_CAMERA::write(const char* arquivo) const{
-  return true;
+bool PARAMETROS_CAMERA::write(const char * arquivo) const{
+  return false;
 }
-
 
 Camera::Camera (const char* device):
   encerrar(false),
@@ -110,7 +109,7 @@ void Camera::Init(){
 
   //aplicar
   if( -1 == xioctl(fd, VIDIOC_S_FMT,&format) )
-    errno_exit("Format");
+    errno_exit("Camera: Formato invalido");
   //Configuracoes da camera
 
   //configuracoes de captura
@@ -260,11 +259,12 @@ Camera::~Camera(){
 }
 
 bool Camera::ajusteparam(PARAMETROS_CAMERA cameraparam){
-  //falta fazer
-  return true;
+  //Sem utilidade, apenas para da suporte as versoes antiga
+  return false;
 }
 
 bool Camera::setControl(__u32 id,int v){
+
 
   struct v4l2_control control;
   struct controler ctrl = queryControl(id);
@@ -277,6 +277,7 @@ bool Camera::setControl(__u32 id,int v){
 
   if(-1 == xioctl(fd,VIDIOC_S_CTRL, &control))
     errno_exit("Camera-setControl: ERRO\n");
+
   return true;
 }
 
@@ -294,16 +295,15 @@ int Camera::getControl(__u32 id)const{
 }
 
 struct controler Camera::queryControl(__u32 id)const{
+
     struct v4l2_queryctrl queryctrl;
     struct controler ctrl;
     CLEAR(queryctrl);
     ctrl.enable = false;
 
     queryctrl.id = id;
-    if(-1 == xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)){
-      std::cerr << "Camera-Erro: Camera nao reconhece o controle" << '\n';
+    if(-1 == xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl))
       return ctrl;
-    }
 
     //Testa se o dispositivo nao possui o controler
     if ( queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
@@ -314,7 +314,6 @@ struct controler Camera::queryControl(__u32 id)const{
     ctrl.min = queryctrl.minimum;
     ctrl.max = queryctrl.maximum;
     ctrl.default_value = queryctrl.default_value;
-
     ctrl.enable = true;
     return ctrl;
 }
@@ -336,6 +335,7 @@ bool Camera::setSharpness(int v){
 }
 
 bool Camera::setGain(int v){
+
   return setControl(V4L2_CID_GAIN,v);
 }
 

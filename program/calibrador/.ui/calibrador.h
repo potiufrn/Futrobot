@@ -1381,7 +1381,7 @@ public:
         pushVoltarTela2->setText(QApplication::translate("calibrador", "Back", 0, QApplication::UnicodeUTF8));
         pushFim->setText(QApplication::translate("calibrador", "Finish", 0, QApplication::UnicodeUTF8));
         textLabel1_2_2_2_2_2->setText(QApplication::translate("calibrador", "Saturation", 0, QApplication::UnicodeUTF8));
-        textLabel1_2_2_2_2_2_2->setText(QApplication::translate("calibrador", "Gamma(Not Used)", 0, QApplication::UnicodeUTF8));
+        textLabel1_2_2_2_2_2_2->setText(QApplication::translate("calibrador", "Gamma", 0, QApplication::UnicodeUTF8));
         textLabel1_2_2_2_2->setText(QApplication::translate("calibrador", "Hue(Not Used)", 0, QApplication::UnicodeUTF8));
         textLabel1_2->setText(QApplication::translate("calibrador", "Brightness", 0, QApplication::UnicodeUTF8));
         textLabel1_2_2_2_2_2_4->setText(QApplication::translate("calibrador", "Gain(Not Used)", 0, QApplication::UnicodeUTF8));

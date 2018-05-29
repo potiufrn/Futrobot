@@ -21,7 +21,7 @@ using namespace std;
 CalibratorProcessor::CalibratorProcessor() :
 
   //Camera (CAM_FUTROBOT),
-  Camera(2),
+  Camera(1),
   ImProcessada(0,0),
   ImBrutaRGB(0,0),
   modo(CALIBRATOR_IMAGEM_REAL),
@@ -49,7 +49,7 @@ CalibratorProcessor::CalibratorProcessor() :
 CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
 
   //Camera (CAM_FUTROBOT),
-  Camera(),
+  Camera(1),
   ImProcessada(0,0),
   ImBrutaRGB(0,0),
   modo(CALIBRATOR_IMAGEM_REAL),
@@ -182,7 +182,7 @@ bool CalibratorProcessor::readFile(const char* arquivo)
 
   resetHPG();
   resetCameraParam();
-  //std::cout<<"redfile\n";
+  
   return false;
 }
 

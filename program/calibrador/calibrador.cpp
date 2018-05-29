@@ -35,6 +35,7 @@
  *  name 'name' and widget flags set to 'f'.
  *
  */
+
 calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
@@ -523,50 +524,32 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     textLabel1_2_2_2_2_2 = new QLabel( tela0, "textLabel1_2_2_2_2_2" );
     textLabel1_2_2_2_2_2->setGeometry( QRect( 13, 177, 96, 25 ) );
 
-    struct controler ctrl;
-    X.queryGamma(ctrl);
-    min = (ctrl.enable)?ctrl.min:0;
-    max = (ctrl.enable)?ctrl.max:0;
+
     sliderGamma = new QSlider( tela0, "sliderGamma" );
     sliderGamma->setGeometry( QRect( 115, 212, 179, 16 ) );
-    sliderGamma->setMinValue( min );
-    sliderGamma->setMaxValue( max );
     sliderGamma->setOrientation( QSlider::Horizontal );
 
     spinGamma = new QSpinBox( tela0, "spinGamma" );
     spinGamma->setGeometry( QRect( 300, 208, 53, 25 ) );
-    spinGamma->setMaxValue( min );
-    spinGamma->setMinValue( max );
 
-    struct controler ctrl;
-    X.queryBrightness(ctrl);
-    min = (ctrl.enable)?ctrl.min:0;
-    max = (ctrl.enable)?ctrl.max:0;
-    if(ctrl.enable)std::cout << "possui o controle Brightness" << '\n';
+
     sliderBrightness = new QSlider( tela0, "sliderBrightness" );
     sliderBrightness->setGeometry( QRect( 115, 88, 179, 16 ) );
-    sliderBrightness->setMinValue( min );
-    sliderBrightness->setMaxValue( max );
+
     sliderBrightness->setOrientation( QSlider::Horizontal );
 
     spinBrightness = new QSpinBox( tela0, "spinBrightness" );
     spinBrightness->setGeometry( QRect( 300, 84, 53, 25 ) );
-    spinBrightness->setMinValue( min );
-    spinBrightness->setMaxValue( max );
 
-    struct controler ctrl;
-    X.queryContrast(ctrl);
-    min = (ctrl.enable)?ctrl.min:0;
-    max = (ctrl.enable)?ctrl.max:0;
+    sliderExposure = new QSlider( tela0, "sliderExposure" );
+    sliderExposure->setGeometry( QRect( 150, 274, 144, 16 ) );
+    sliderExposure->setOrientation( QSlider::Horizontal );
+
     spinContrast = new QSpinBox( tela0, "spinContrast" );
     spinContrast->setGeometry( QRect( 300, 115, 53, 25 ) );
-    spinContrast->setMinValue( min );
-    spinContrast->setMaxValue( max );
 
     sliderContrast = new QSlider( tela0, "sliderContrast" );
     sliderContrast->setGeometry( QRect( 115, 119, 179, 16 ) );
-    sliderContrast->setMinValue( min );
-    sliderContrast->setMaxValue( max );
     sliderContrast->setOrientation( QSlider::Horizontal );
 
     textLabel1_2_2_2_2_2_2 = new QLabel( tela0, "textLabel1_2_2_2_2_2_2" );
@@ -583,55 +566,35 @@ calibrador::calibrador( QWidget* parent, const char* name, WFlags fl )
     textLabel1_2_2_2_2_2_4->setGeometry( QRect( 13, 270, 96, 25 ) );
 
 
-    struct controler ctrl;
-    X.queryGain(ctrl);
-    min = (ctrl.enable)?ctrl.min:0;
-    max = (ctrl.enable)?ctrl.max:0;
-    if(ctrl.enable){
-      std::cout << "Gain enble" << '\n';
-      std::cout << "min e max : "<<min << ' '<<max << '\n';
-    }
     spinGain = new QSpinBox( tela0, "spinGain" );
     spinGain->setGeometry( QRect( 300, 270, 53, 25 ) );
-    spinGain->setMaxValue( max );
-    spinGain->setMinValue( min );
 
     // Setado para zero pois nao é usado nesse tipo de camera
     sliderGain = new QSlider( tela0, "sliderGain" );
-    //sliderGain->setGeometry( QRect( 115, 274, 179, 16 ) );
     sliderGain->setGeometry( QRect( 150, 274, 144, 16 ) );
-    sliderGain->setMinValue( min );
-    sliderGain->setMaxValue( max );
     sliderGain->setOrientation( QSlider::Horizontal );
 
-    struct controler ctrl;
-    X.querySaturation(ctrl);
-    min = (ctrl.enable)?ctrl.min:0;
-    max = (ctrl.enable)?ctrl.max:0;
+
+    sliderExposure = new QSlider( tela0, "sliderExposure" );
+    //sliderGain->setGeometry( QRect( 115, 274, 179, 16 ) );
+    sliderExposure->setGeometry( QRect( 150, 274, 144, 16 ) );
+    sliderExposure->setOrientation( QSlider::Horizontal );
+
+
     sliderSaturation = new QSlider( tela0, "sliderSaturation" );
     sliderSaturation->setGeometry( QRect( 115, 181, 179, 16 ) );
-    sliderSaturation->setMinValue( min );
-    sliderSaturation->setMaxValue( max );
     sliderSaturation->setOrientation( QSlider::Horizontal );
 
     spinSaturation = new QSpinBox( tela0, "spinSaturation" );
     spinSaturation->setGeometry( QRect( 300, 177, 53, 25 ) );
-    spinSaturation->setMinValue( min );
-    spinSaturation->setMaxValue( max );
-
-    struct controler ctrl;
-    X.queryHue(ctrl);
-    min = (ctrl.enable)?ctrl.min:0;
-    max = (ctrl.enable)?ctrl.max:0;
 
     sliderHue = new QSlider( tela0, "sliderHue" );
     sliderHue->setGeometry( QRect( 115, 150, 179, 16 ) );
-    sliderHue->setMaxValue( max );
+
     sliderHue->setOrientation( QSlider::Horizontal );
 
     spinShutter = new QSpinBox( tela0, "spinShutter" );
     spinShutter->setGeometry( QRect( 300, 239, 53, 25 ) );
-    spinShutter->setMaxValue( max );
 
 
 
@@ -852,12 +815,12 @@ void calibrador::languageChange()
     pushVoltarTela2->setText( tr( "Back" ) );
     pushFim->setText( tr( "Finish" ) );
     textLabel1_2_2_2_2_2->setText( tr( "Saturation" ) );
-    textLabel1_2_2_2_2_2_2->setText( tr( "Gamma(Not Used)" ) );
-    textLabel1_2_2_2_2->setText( tr( "Hue(Not Used)" ) );
+    textLabel1_2_2_2_2_2_2->setText( tr( "Gamma" ) );
+    textLabel1_2_2_2_2->setText( tr( "Hue" ) );
     textLabel1_2->setText( tr( "Brightness" ) );
-    textLabel1_2_2_2_2_2_4->setText( tr( "Gain(Not Used)" ) );
+    textLabel1_2_2_2_2_2_4->setText( tr( "Gain" ) );
     textLabel1_2_2->setText( tr( "Contrast" ) );
-    textLabel1_2_2_2_2_2_3->setText( tr( "Shutter(Not Used)" ) );
+    textLabel1_2_2_2_2_2_3->setText( tr( "Shutter" ) );
     textLabel3->setText( tr( "<b><font size=\"+2\">Parametros da Camera</font></b>" ) );
     pushAvancarTela0->setText( tr( "Proximo" ) );
     fileNewAction->setText( tr( "New" ) );

@@ -23,8 +23,8 @@ public:
       histoB[i] = 0;
     }
 
-    for(unsigned i = 0; i<dest.nlin(); i++)
-      for(unsigned j = 0; j<dest.ncol(); j++){
+    for(unsigned i = 120; i< 360; i++)
+      for(unsigned j = 160; j < 480; j++){
         if( (i%2 == 0) && (j%2 != 0) )
           histoB[dest.getPixel(i,j)] +=1;
         else if( (i%2 != 0) && (j%2 == 0) )
@@ -54,20 +54,6 @@ int main(){
   TesteCam cam(1);
   ImagemRGB imrgb(0,0);
   char key;
-
-  int gain = 77;
-  int ExpAbs = 292;
-
-  struct controler qGain;
-  struct controler qExpAbs;
-
-  if(!cam.queryGain(qGain) ) std::cout << "Camera nao possui o controles" << '\n';
-  else std::cout << "Gain min - max " <<qGain.min << ' ' <<qGain.max << '\n';
-  if ( !cam.setGain(gain) ) std::cout << "falha na alteracao dos controles" << '\n';
-
-  if(!cam.queryExposureAbs(qExpAbs) ) std::cout << "Camera nao possui o controles" << '\n';
-  else  std::cout << "Exposure(Absolute) min  - max " <<qExpAbs.min << ' ' <<qExpAbs.max << '\n';
-  if ( !cam.setExposureAbs( ExpAbs ) ) std::cout << "falha na alteracao do controle" << '\n';
 
 
   while(true){
