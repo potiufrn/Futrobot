@@ -11,7 +11,7 @@ public:
   inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
   inline void toRGB(ImagemRGB &dest){ Camera::toRGB(dest); }
-  
+
 };
 
 int main(){

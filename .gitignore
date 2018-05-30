@@ -6,3 +6,9 @@ libsrc/camera/camera_USB3\.0/CamSaveTeste\.ppm
 libsrc/camera/camera_USB3\.0/libcamera\.a
 
 libsrc/camera/camera_USB3\.0/teste_captura
+
+libsrc/camera/camera_USB3\.0/teste_retas
+
+libsrc/camera/camera_USB3\.0/teste_v4l2
+
+libsrc/camera/camera_USB3\.0/teste_CampoVazio

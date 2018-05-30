@@ -23,8 +23,8 @@ public:
       histoB[i] = 0;
     }
 
-    for(unsigned i = 120; i<360; i++)
-      for(unsigned j = 160; j<480; j++){
+    for(unsigned i = 120; i< 360; i++)
+      for(unsigned j = 160; j < 480; j++){
         if( (i%2 == 0) && (j%2 != 0) )
           histoB[dest[i][j].r] +=1;
         else if( (i%2 != 0) && (j%2 == 0) )

@@ -27,11 +27,11 @@ Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
     t_end_con = t_end_tra = t_end_exp = 0.0;
 
 }
- 
+
 bool Futrobot::start_management()
 {
 #ifndef _SO_SIMULADO_
-  start_transmission();
+  // start_transmission();
 #endif
   if(pthread_create(&thr_ger, NULL, management2, (void*)this)) return true;
   return false;
@@ -40,7 +40,7 @@ bool Futrobot::start_management()
 bool Futrobot::finish_management()
 {
   pthread_join(thr_ger,NULL);
-  
+
   return(false);
 }
 
@@ -73,7 +73,7 @@ void Futrobot::management()
     myt_end_cap = relogio();
     // Fornece a pose dos robos e a posicao da
     // bola em coordenadas de mundo.
-    
+
     if (gameState() != FINISH_STATE && acquisition()) {
       finish();
       cerr << "Erro no processamento da imagem!\n";
@@ -113,11 +113,11 @@ void Futrobot::management()
     }
     myt_end_tra = relogio();
      //Modulo de exportacao dos dados
-    if (gameState() != FINISH_STATE && exxport(ImBruta.getRawData())) {
+    if (gameState() != FINISH_STATE && exxport(ImBrutaRGB.getRawData())) {
        finish();
        cerr << "Erro na exportacao dos dados!\n";
      }
-  
+
     myt_end_exp = relogio();
 
     t_start = myt_start;
@@ -153,7 +153,7 @@ void Futrobot::print_state()
   char buffer[6];
   //move(0,0);
   //clrtobot();
-  
+
   mvaddstr( 0,0,"+--------+--------------------------+--------------------------+--------+");
   mvaddstr( 1,0,"| EQUIPE |           MEUS           |        ADVERSARIOS       |  BOLA  |");
   mvaddstr( 2,0,"| ROBO   | 0 CIAN | 1 ROSA | 2 VERD | 0 CIAN | 1 ROSA | 2 VERD |        |");
@@ -279,7 +279,7 @@ void Futrobot::print_state() const
 //   pack.pap = expap();
 //   //INICIO REGIAO CRITICA
 //   pac_comp = pack;
-//   img_comp = ImBruta;  
+//   img_comp = ImBruta;
 //   //FINAL REGIAO CRITICA
 //   return false;
 // }

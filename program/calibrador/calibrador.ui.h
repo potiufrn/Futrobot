@@ -142,9 +142,10 @@ void calibrador::cameraSaveAsParam()
 
 void calibrador::init()
 {
+    textLabel1_2_2_2_2_2_3 -> setText("Exposure Absolute");
     if (carregaInterface()){
-	cerr<<"Erro na leitura do arquivo de Interface"<<endl;
-	exit(1);
+    	cerr<<"Erro na leitura do arquivo de Interface"<<endl;
+    	exit(1);
     }
     //inicializa posição do mouse.
     MouseX = 0;
@@ -170,7 +171,6 @@ void calibrador::init()
     connect( Timer, SIGNAL(timeout()), this, SLOT(processarImagem()) );
     //connect( Timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
     Timer->start(200,false);
-
 
 
 }
@@ -272,7 +272,6 @@ void calibrador::imageSave()
 
 void calibrador::atualizarDisplays()
 {
-    //    cout << "MOUSE!" << endl;
 
     //tela 1
     //X.getPxValor(MouseX,MouseY,R,G1,B,H,P,G2);
@@ -407,17 +406,19 @@ void calibrador::ExposureValueChanged(int valor)
     //if(valor != spinExposure->value() ){
 	spinContrast->setValue(valor);
 	//spinExposure->setValue(valor);
-	X.setExposure(valor);
+	X.setExposureAbs(valor);
 	//novosLimites = true;
     }
     if(valor != sliderContrast->value() ){
    // if(valor != sliderExposure->value() ){
 	sliderContrast->setValue(valor);
 	//sliderExposure->setValue(valor);
-	X.setExposure(valor);
+	X.setExposureAbs(valor);
 	//novosLimites = true;
     }
 }
+
+
 
 void calibrador::HueValueChanged(int valor)
 {
@@ -478,13 +479,13 @@ void calibrador::ShutterValueChanged(int valor)
 void calibrador::GainValueChanged(int valor)
 {
     if(valor != spinGain->value() ){
-	spinGain->setValue(valor);
-	X.setGain(valor);
+    	spinGain->setValue(valor);
+    	X.setGain(valor);
 	//novosLimites = true;
     }
     if(valor != sliderGain->value() ){
-	sliderGain->setValue(valor);
-	X.setGain(valor);
+	     sliderGain->setValue(valor);
+	     X.setGain(valor);
 	//novosLimites = true;
     }
 }
@@ -603,40 +604,97 @@ void calibrador::atualizarCameraParam(){
     if(!X.queryBrightness(ctrl)){
       spinBrightness->setEnabled(false);
       sliderBrightness->setEnabled(false);
-    }else spinBrightness->setValue(X.getBrightness());
+    }else{
+      spinBrightness->setMaxValue(ctrl.max);
+      spinBrightness->setMinValue(ctrl.min);
+
+      sliderBrightness->setMaxValue(ctrl.max);
+      sliderBrightness->setMinValue(ctrl.min);
+
+      sliderBrightness->setValue(X.getBrightness());
+      spinBrightness->setValue(X.getBrightness());
+    }
 
     if(!X.queryContrast(ctrl)){
       spinContrast->setEnabled(false);
       sliderContrast->setEnabled(false);
-    }else spinContrast->setValue(X.getContrast());
+    }else{
+      spinContrast->setMaxValue(ctrl.max);
+      spinContrast->setMinValue(ctrl.min);
 
-    // if(!X.queryExposure(ctrl)){
-    //   spinExposure->setEnabled(false);
-    //   sliderExposure->setEnabled(false);
-    // }else spinExposure->setValue(prov2.exposure());
+      sliderContrast->setMaxValue(ctrl.max);
+      sliderContrast->setMinValue(ctrl.min);
+
+      sliderContrast->setValue(X.getContrast());
+      spinContrast->setValue(X.getContrast());
+    }
+
 
     if(!X.queryHue(ctrl)){
       spinHue->setEnabled(false);
       sliderHue->setEnabled(false);
-    }else spinHue->setValue(X.getHue());
+    }else{
+      spinHue->setMaxValue(ctrl.max);
+      spinHue->setMinValue(ctrl.min);
+      spinHue->setValue(X.getHue());
+
+      sliderHue->setMaxValue(ctrl.max);
+      sliderHue->setMinValue(ctrl.min);
+      sliderHue->setValue(X.getHue());
+    }
 
     if(!X.querySaturation(ctrl))
     {
       spinSaturation->setEnabled(false);
       sliderSaturation->setEnabled(false);
-    }else spinSaturation->setValue(X.getSaturation());
+    }else{
+      spinSaturation->setMaxValue(ctrl.max);
+      spinSaturation->setMinValue(ctrl.min);
+      spinSaturation->setValue(X.getSaturation());
+
+      sliderSaturation->setMaxValue(ctrl.max);
+      sliderSaturation->setMinValue(ctrl.min);
+      sliderSaturation->setValue(X.getSaturation());
+    }
 
     if(!X.queryGamma(ctrl))
     {
       spinGamma->setEnabled(false);
       sliderGamma->setEnabled(false);
-    }else spinGamma->setValue(X.getGamma());
+    }else{
+      spinGamma->setMaxValue(ctrl.max);
+      spinGamma->setMinValue(ctrl.min);
+      spinGamma->setValue(X.getGamma());
+
+      sliderGamma->setMaxValue(ctrl.max);
+      sliderGamma->setMinValue(ctrl.min);
+      sliderGamma->setValue(X.getGamma());
+    }
 
     if(!X.queryGain(ctrl)){
         spinGain->setEnabled(false);
         sliderGain->setEnabled(false);
-    }else spinGain->setValue(X.getGain());
+    }else {
+      spinGain->setMaxValue(ctrl.max);
+      spinGain->setMinValue(ctrl.min);
+      sliderGain->setMinValue(ctrl.min);
+      sliderGain->setMaxValue(ctrl.max);
+      spinGain -> setValue(X.getGain());
+      sliderGain-> setValue(X.getGain());
+    }
 
+    //OBS: SHUTTER eh tratado como Exposure Absolute
+    if(!X.queryExposureAbs(ctrl)){
+        spinShutter->setEnabled(false);
+        sliderShutter->setEnabled(false);
+    }else {
+      spinShutter->setMaxValue(ctrl.max);
+      spinShutter->setMinValue(ctrl.min);
+      sliderShutter->setMinValue(ctrl.min);
+      sliderShutter->setMaxValue(ctrl.max);
+      spinShutter -> setValue(X.getExposureAbs());
+      sliderShutter-> setValue(X.getExposureAbs());
+    }
 }
 
 

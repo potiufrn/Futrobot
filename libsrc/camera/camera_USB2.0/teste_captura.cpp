@@ -13,13 +13,11 @@ public:
   inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
   PxRGB getPixel(unsigned lin,unsigned col){ return ImBruta[lin][col];}
-
 };
 
 int main()
 {
   TesteCam cam;
-  clock_t tick[2];
 
   char key;
   while(true)
@@ -45,9 +43,6 @@ int main()
       //tick[1] = clock();
       //cout << "Tempo pra salvar" << (tick[1]-tick[0])*1000/CLOCKS_PER_SEC << "ms\n";
     }
-
-    cout << cam.getPixel(0,0) << endl;
-    cout << cam.getPixel(1,1) << endl;
 
   };
 

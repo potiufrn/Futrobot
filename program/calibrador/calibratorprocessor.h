@@ -92,14 +92,10 @@ public Camera
   inline void setGmin(int i, int valor){calibracaoParam.limHPG[i].G.min = valor;};
   inline void setGmax(int i, int valor){calibracaoParam.limHPG[i].G.max = valor;};
   inline PARAMETROS_CAMERA getCameraParam(){return cameraParam;}
-  inline void setBrightness(int valor){setBrightness(valor);};
-  inline void setExposure(int valor){setExposure(valor);};
-  inline void setHue(int valor){setHue(valor);};
-  inline void setSaturation(int valor){setSaturation(valor);};
-  inline void setGamma(int valor){setGamma(valor);};
-  inline void setShutter(int valor){setShutter(valor);};
-  inline void setGain(int valor){setGain(valor);};
-  inline void setExposureAbs(int valor){setExposureAbs(valor);};
+
+  //O controle shutter esta sendo usado como se fosse
+  //Exposure Absolute
+  inline void setShutter(int valor){Camera::setExposureAbs(valor); };
 
   void resetHPG();
   void resetPixelsNotaveis();

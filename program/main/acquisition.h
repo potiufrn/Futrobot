@@ -55,7 +55,6 @@ private:
   DistRadial RDistortion;
   unsigned int MinU, MaxU, MinV, MaxV;
   PARAMETROS_CALIBRACAO calibracaoParam;
-
 #endif
   IDQUADRO id_ant;
   bool saveNextImage;
@@ -81,6 +80,7 @@ public:
   bool acquisition();
   void save_image();
   //  const PxRGB *exptimg () {return (ImBruta.getRawData());};
+  ImagemRGB ImBrutaRGB;
 };
 
 #endif

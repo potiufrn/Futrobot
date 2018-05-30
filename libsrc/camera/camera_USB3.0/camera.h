@@ -27,39 +27,6 @@
 
 #define NUM_BUFFERS 1
 
-
-// class Controler{
-//
-// public:
-//   inline int   getMin()     { return (enable)?queryCtrl.minimum:-1; }
-//   inline int   getMax()     { return (enable)?queryCtrl.maximum:-1; }
-//   inline int   getDefault() { return (enable)?queryCtrl.default_value:-1; }
-//   inline __u8* getName()    { return (enable)?queryCtrl.name:"0"; }
-//
-//   virtual int  get()const = 0;
-//   virtual bool set(int v) = 0;
-//
-//   virtual bool write(std::ostream &O) = 0;
-//   virtual bool read(std::istream &I) = 0;
-//
-// private:
-//   bool enable;
-//   v4l2_queryctrl queryCtrl;//Todas as info. sobre o controle
-//   v4l2_control control; // estado atual do controle
-//
-//   struct controler *nextCtrl;
-//
-//
-//   virtual Controler(const int &fd) = 0;
-//   virtual ~Controler();
-//
-//   friend class ListaCtrls;
-// };
-
-// class ListCtrl{
-//
-// }
-
 struct controler{
   bool enable;
   __u8 name[32];
@@ -67,11 +34,10 @@ struct controler{
   int default_value;
 };
 
-
 struct PARAMETROS_CAMERA {
-  struct controler ctrls[];
-  bool read(const char *arquivo);
-  bool write(const char *arquivo) const;
+  int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
+  bool write(const char * arquivo) const;
+  bool read(const char * arquivo);
 };
 
 struct buffer{
@@ -110,7 +76,7 @@ protected:
    ~Camera();
 
    //Falta fazer
-   //bool ajusteparam(PARAMETROS_CAMERA cameraparam);
+   // bool ajusteparam(const char* arq);
 
    bool capturando;
    bool inicializado;
@@ -126,10 +92,13 @@ protected:
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
 
+   //Existe apenas para rodar os programas antigos
    bool ajusteparam(PARAMETROS_CAMERA cameraparam);//falta fazer
 
    inline void toRGB(ImagemRGB &imgRGB) { ImBruta.toImageRGB(imgRGB); }
 
+   inline unsigned int Width() {return width;};
+   inline unsigned int Height() {return height;};
 
  public:
    void run();
@@ -178,5 +147,6 @@ protected:
    int  getExposure()const;
    bool setExposure(int v);
 
+   //este metodo nao funcionou como esperado
    bool queryMinBuffer(struct controler &ctrl)const;
 };
