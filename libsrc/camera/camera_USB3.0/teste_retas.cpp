@@ -92,7 +92,7 @@ int main(){
   TesteCam cam(1);
   ImagemRGB imrgb(0,0), segRGB(0,0);
   char key;
-
+  
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
     cin.get(key);
