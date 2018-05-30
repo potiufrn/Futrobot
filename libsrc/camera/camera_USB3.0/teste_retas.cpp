@@ -16,36 +16,18 @@ public:
   inline ImagemGBRG getImg()const{return ImBruta;}
 
   void histogram(ImagemRGB &dest){
-    unsigned histoR[255], histoG[255], histoB[255];
-    for(unsigned i=0; i<255; i++){
-      histoR[i] = 0;
-      histoG[i] = 0;
-      histoB[i] = 0;
-    }
+    unsigned histo[255];
+    for(unsigned i=0; i<255; i++)
+      histo[i] = 0;
 
-    for(unsigned i = 120; i< 360; i++)
-      for(unsigned j = 160; j < 480; j++){
-        if( (i%2 == 0) && (j%2 != 0) )
-          histoB[dest[i][j].r] +=1;
-        else if( (i%2 != 0) && (j%2 == 0) )
-          histoR[dest[i][j].r] +=1;
-        else
-          histoG[dest[i][j].r] +=1;
-      }
+    for(unsigned i = 120; i< 360; i++)for(unsigned j = 160; j < 480; j++)
+      histo[dest[i][j].r] +=1;
+
     ofstream histograma;
     histograma.open("grafico.txt");
     for(unsigned i=0; i<255; i++){
-      histograma << histoR[i]<< " ";
+      histograma << histo[i]<< " ";
     }
-    histograma <<"\n";
-    for(unsigned i=0; i<255; i++){
-      histograma << histoG[i] << " ";
-    }
-    histograma <<"\n";
-    for(unsigned i=0; i<255; i++){
-      histograma << histoB[i] << " ";
-    }
-    histograma <<"\n";
     histograma.close();
   }
 };
@@ -66,48 +48,50 @@ void segmentacao (ImagemRGB &dest, uint8_t ref){
   }
 };
 
-void detlinhas(ImagemRGB &dest){
-  unsigned coef[240][320];
-  for(unsigned i = 0; i<240; i++)
-  for(unsigned j = 0; j<320; j++){
-    coef[i][j] = 0;
-  }
-  for(unsigned i = 120; i<360; i++)
-  for(unsigned j = 160; j<480; j++){
-    if(dest[i][j].r >= (uint8_t)80)
-      coef[i-120][j-160] += 1;
-  }
-  ofstream f;
-  f.open("coef.txt");
-  for(unsigned i = 0; i<240; i++){
-    for(unsigned j = 0; j<320; j++)
-      f << coef[i][j] << " ";
-    f<<"\n";
-  }
-  f.close();
-};
+// void detlinhas(ImagemRGB &dest){
+//   unsigned coef[240][320];
+//   for(unsigned i = 0; i<240; i++)
+//     for(unsigned j = 0; j<320; j++)
+//       coef[i][j] = 0;
+//   for(unsigned i = 120; i<360; i++)
+//     for(unsigned j = 160; j<480; j++){
+//       if(dest[i][j].r >= (uint8_t)80)
+//         coef[i-120][j-160] += 1;
+//   }
+//   ofstream f;
+//   f.open("coef.txt");
+//   for(unsigned i = 0; i<240; i++){
+//     for(unsigned j = 0; j<320; j++)
+//       f << coef[i][j] << " ";
+//     f<<"\n";
+//   }
+//   f.close();
+// };
 
 
 int main(){
   TesteCam cam(1);
   ImagemRGB imrgb(0,0), segRGB(0,0);
   char key;
-  
+  uint8_t ref = 124;
+
   while(true){
-    cout << "q - Quit \n ENTER - Capture "<<endl;
+    cout << "q - Quit \nENTER - Capture "<<endl;
+    std::cout << "r - Alterar Referencia " << '\n';
+
     cin.get(key);
+
     if(key == 'q'){
       cout << "Quit\n";
       break;
     }
+
+
     if(key == '\n'){
       double start = relogio();
       cam.wait();
       cam.capture();
       double end = relogio();
-
-      ImagemGBRG Imgbruta(0,0);
-      Imgbruta = cam.getImg();
 
       //cam.save("CamSaveTeste.ppm");
 
@@ -119,9 +103,11 @@ int main(){
       imrgb.toGray();
       imrgb.save("RGBgray.ppm");
       cam.histogram(imrgb);
-      segmentacao(imrgb, 80);
+
+      std::cout << "Valor atual da ref " << ref << '\n';
+      segmentacao(imrgb, 60);
       imrgb.save("RGB_seg.ppm");
-      detlinhas(imrgb);
+      // detlinhas(imrgb);
       cout << "Captura time : " << end - start << endl;
       cout << "To RGB time  : " << end_2RGB - start_2RGB << endl;
 
