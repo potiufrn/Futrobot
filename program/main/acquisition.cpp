@@ -246,12 +246,14 @@ static double media_ang(double t1, double t2){
 Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
   FutData(team,side,mode)
 #ifndef _SO_SIMULADO_
-  ,Camera(CAM_FUTROBOT),
+  ,Camera(1),
+  // ,Camera(CAM_FUTROBOT),
   //image(IMAGE_WIDTH,IMAGE_HEIGHT),
   //  image(IMAGE_WIDTH,IMAGE_HEIGHT),
   //image("Campo2.ppm"),
   //RDistortion(IMAGE_WIDTH, IMAGE_HEIGHT)
-  RDistortion(Width(),Height())
+  RDistortion(Width(),Height()),
+  ImBrutaRGB(0,0)
 #endif
 {
   id_pos = id_ant = 0;
@@ -476,7 +478,7 @@ bool Acquisition::configAcquisition(const char *str)
 #ifndef _SO_SIMULADO_
 REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
 {
-#define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(ImBruta[v][u]) == colorID)
+#define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(ImBrutaRGB[v][u]) == colorID)
 
   static STACK s;
   REGION region;
@@ -484,8 +486,8 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
   double su=0, sv=0, suu=0, svv=0, suv=0;
   int nPixel=0;
   unsigned int v1;
-  unsigned int vMax=0,vMin=ImBruta.nlin();
-  unsigned int uMax=0,uMin=ImBruta.ncol();
+  unsigned int vMax=0,vMin=ImBrutaRGB.nlin();
+  unsigned int uMax=0,uMin=ImBrutaRGB.ncol();
   bool expanLeft, expanRight;
 
   region.nPixel=0;
@@ -507,7 +509,7 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
 
     expanLeft = expanRight = false;
 
-    while(v1<ImBruta.nlin() && canBePainted(colorID,u,v1) ) {
+    while(v1<ImBrutaRGB.nlin() && canBePainted(colorID,u,v1) ) {
       analisedPixel.setValue(u,v1,true);
       if(v1 < vMin) vMin = v1;
       if(v1 > vMax) vMax = v1;
@@ -530,7 +532,7 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
         expanLeft = false;
       }
 
-      if(!expanRight && u<(ImBruta.ncol()-1) &&
+      if(!expanRight && u<(ImBrutaRGB.ncol()-1) &&
 	 canBePainted(colorID,u+1,v1)) {
         if(!s.push(u+1,v1)) {
           cerr << "Buffer estourou 3!\n";
@@ -538,7 +540,7 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
         }
         expanRight = true;
       }
-      else if(expanRight && u<(ImBruta.ncol()-1) &&
+      else if(expanRight && u<(ImBrutaRGB.ncol()-1) &&
 	      !canBePainted(colorID,u+1,v1)) {
         expanRight = false;
       }
@@ -636,9 +638,9 @@ bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
 		 - RADIUS*sin(regTeam.orientation+angBusca));
   for(ui = u-2; ui <= u+2; ui++) {
     for(vi = v-2; vi <= v+2; vi++) {
-      if(ui >= 0 && ui < (int)ImBruta.ncol() &&
-	 vi >= 0 && vi < (int)ImBruta.nlin()){
-	colorID = (REG_COLOR)calibracaoParam.getHardColor(ImBruta[vi][ui]);
+      if(ui >= 0 && ui < (int)ImBrutaRGB.ncol() &&
+	 vi >= 0 && vi < (int)ImBrutaRGB.nlin()){
+	colorID = (REG_COLOR)calibracaoParam.getHardColor(ImBrutaRGB[vi][ui]);
 	if( colorID != REG_COLOR_YELLOW &&
 	    colorID != REG_COLOR_BLUE &&
 	    colorID != REG_COLOR_ORANGE &&
@@ -702,11 +704,11 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
   //     u = (int)round(regTeam.center.u() + RADIUS*cos(ang));
   //     v = (int)round(regTeam.center.v() + RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.ncol() &&
-  //        v >= 0 && v < (int)ImBruta.nlin()){
+  //     if(u >= 0 && u < (int)ImBrutaRGB.ncol() &&
+  //        v >= 0 && v < (int)ImBrutaRGB.nlin()){
 
-  //       colorID = (REG_COLOR)calibracaoParam.getHardColor(ImBruta[v][u]);
-  //       //ImBruta[v][u].setRGB(1.0,1.0,1.0);
+  //       colorID = (REG_COLOR)calibracaoParam.getHardColor(ImBrutaRGB[v][u]);
+  //       //ImBrutaRGB[v][u].setRGB(1.0,1.0,1.0);
 
   //       if( colorID != REG_COLOR_YELLOW &&
   // 	  colorID != REG_COLOR_BLUE &&
@@ -809,18 +811,18 @@ bool Acquisition::processGameState()
   //inicio da procura dos robos
   //DESCOMENTAR APOS TESTES!!
 
-  //SingleShoot(ImBruta);
-  //FlushShoot(ImBruta);
+  //SingleShoot(ImBrutaRGB);
+  //FlushShoot(ImBrutaRGB);
 
 
   //RETIRAR ISSO APÓS TESTES!!!!
-  //  ImBruta = new ImagemRGB("Campo.png");
+  //  ImBrutaRGB = new ImagemRGB("Campo.png");
   // cout << "Reseta variaveis" << endl;
 
   //reinicia as variaveis
   /*
-    for( v = 0; v < (int)ImBruta.nlin() ; v++ )
-    for( u = 0; u < (int)ImBruta.ncol() ; u++ )
+    for( v = 0; v < (int)ImBrutaRGB.nlin() ; v++ )
+    for( u = 0; u < (int)ImBrutaRGB.ncol() ; u++ )
     analisedPixel.setValue(u,v,false);
   */
   analisedPixel.setAllValues(false);
@@ -848,7 +850,7 @@ bool Acquisition::processGameState()
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
 
-      colorID = (REG_COLOR)calibracaoParam.getHardColor(ImBruta[v][u]);
+      colorID = (REG_COLOR)calibracaoParam.getHardColor(ImBrutaRGB[v][u]);
       //printColorName(colorID);
       // eliminar os pixels sem cor
       if( colorID == REG_COLOR_YELLOW ||
@@ -1004,11 +1006,11 @@ bool Acquisition::processGameState()
   //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
   //     u = (int)round(regBlue[i].center.u() + RADIUS*cos(ang));
   //     v = (int)round(regBlue[i].center.v() + RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.ncol() &&
-  // 	 v >= 0 && v < (int)ImBruta.nlin()){
+  //     if(u >= 0 && u < (int)ImBrutaRGB.ncol() &&
+  // 	 v >= 0 && v < (int)ImBrutaRGB.nlin()){
 
-  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBruta[v][u]);
-  // 	//ImBruta[v][u].setRGB(1.0,1.0,1.0);
+  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBrutaRGB[v][u]);
+  // 	//ImBrutaRGB[v][u].setRGB(1.0,1.0,1.0);
 
   // 	if( colorID != REG_COLOR_YELLOW &&
   // 	    colorID != REG_COLOR_BLUE &&
@@ -1041,10 +1043,10 @@ bool Acquisition::processGameState()
   // 	+ (int)round(RADIUS*cos(ang));
   //     v = (int)round(regYellow[i].center.v())
   // 	+ (int)round(RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.ncol() &&
-  // 	 v >= 0 && v < (int)ImBruta.nlin()){
+  //     if(u >= 0 && u < (int)ImBrutaRGB.ncol() &&
+  // 	 v >= 0 && v < (int)ImBrutaRGB.nlin()){
 
-  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBruta[v][u]);
+  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBrutaRGB[v][u]);
 
   // 	if( colorID != REG_COLOR_YELLOW &&
   // 	    colorID != REG_COLOR_BLUE &&
@@ -1259,7 +1261,7 @@ bool Acquisition::processGameState()
 
     cout << "Laranja " << regOrange << endl;
 
-    ImBruta.save("img_salva.ppm");
+    ImBrutaRGB.save("img_salva.ppm");
     saveNextImage = false;
   }
 
@@ -1353,13 +1355,16 @@ bool Acquisition::acquisition(){
 bool Acquisition::acquisitionCapture(){
 #ifndef _SO_SIMULADO_
   if(gameMode() == REAL_MODE){
-    if((Width() == 640) &&
-       (Height() == 480))
-      return captureimage();
+    if((Width() == 640) && (Height() == 480)){
+      bool temp = captureimage();
+      Camera::toRGB(ImBrutaRGB);
+      return temp ;
+    }
     //TODO: FAZER A CAPTURA DA IMAGEM DE 1280x960 PIXELS!
     // else if((Width() == 1280) &&
     //	    (Height() == 960))
     //   return !CaptureTrueColor(image);
+
     else{
       cerr<<"ERRO: Dimensoes da resolucao de camera nao suportados!"<<endl;
       return true;

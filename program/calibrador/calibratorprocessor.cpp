@@ -16,8 +16,6 @@ using namespace std;
 // #define VIDEO_MODE DC1394_VIDEO_MODE_640x480_MONO8
 
 
-
-
 CalibratorProcessor::CalibratorProcessor() :
 
   //Camera (CAM_FUTROBOT),
@@ -182,7 +180,7 @@ bool CalibratorProcessor::readFile(const char* arquivo)
 
   resetHPG();
   resetCameraParam();
-  
+
   return false;
 }
 

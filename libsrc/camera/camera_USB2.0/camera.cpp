@@ -447,7 +447,6 @@ bool Camera::start_transmission(){
   //if(dc1394_video_set_transmission(camera, DC1394_ON)!=DC1394_SUCCESS)
     return true;
   //return false;
-
 }
 
 
