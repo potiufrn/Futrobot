@@ -799,6 +799,16 @@ void ImagemRGB::save(const char *arq, bool ascii) const
   return;
 }
 
+void ImagemRGB::toGray()
+{
+  for(unsigned i =0; i<nlin(); i++)
+  for(unsigned j= 0; j<ncol(); j++){
+    (*this)[i][j].r = ((float)((*this)[i][j].r) + (float)((*this)[i][j].g) + (float)((*this)[i][j].b))/3.0;
+    (*this)[i][j].g = ((float)((*this)[i][j].r) + (float)((*this)[i][j].g) + (float)((*this)[i][j].b))/3.0;
+    (*this)[i][j].b = ((float)((*this)[i][j].r) + (float)((*this)[i][j].g) + (float)((*this)[i][j].b))/3.0;
+  }
+}
+
 // Métodos de acesso aos dados de baixo nível
 const void *ImagemRGB::getPNMData()
 {

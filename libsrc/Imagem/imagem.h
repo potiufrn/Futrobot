@@ -279,6 +279,7 @@ class ImagemRGB
 
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
+  void toGray();
 
   // Métodos de acesso aos dados de baixo nível
   // Cuidado ao usar! Nao altere os dados para onde os ponteiros apontam...
