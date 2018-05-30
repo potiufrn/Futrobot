@@ -93,7 +93,8 @@ public Camera
   inline void setGmax(int i, int valor){calibracaoParam.limHPG[i].G.max = valor;};
   inline PARAMETROS_CAMERA getCameraParam(){return cameraParam;}
 
-  //Lib camera nao possui esse metodo
+  //O controle shutter esta sendo usado como se fosse
+  //Exposure Absolute
   inline void setShutter(int valor){Camera::setExposureAbs(valor); };
 
   void resetHPG();

@@ -97,6 +97,8 @@ protected:
 
    inline void toRGB(ImagemRGB &imgRGB) { ImBruta.toImageRGB(imgRGB); }
 
+   inline unsigned int Width() {return width;};
+   inline unsigned int Height() {return height;};
 
  public:
    void run();
