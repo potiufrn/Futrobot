@@ -17,10 +17,12 @@ struct limites {
 };
 
 struct limitesHPG {
-  limites H,P,G;    
+  limites H,P,G;
 };
 
 struct PARAMETROS_CALIBRACAO {
+  //Imagem campoVazio;
+
   unsigned nPontosNotaveis;
   unsigned nCores;
   Coord2 *pontosImagem;
@@ -32,9 +34,8 @@ struct PARAMETROS_CALIBRACAO {
   ~PARAMETROS_CALIBRACAO();
   bool read(const char* arquivo);
   bool write(const char* arquivo) const;
-  int getSoftColor(const PxRGB &p) const;
-  int getHardColor(const PxRGB &p) const;
-
+  int getSoftColor(const float H,const float P, const float G) const;
+  int getHardColor(const float H,const float P, const float G) const;
 };
 
 #endif

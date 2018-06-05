@@ -4,8 +4,6 @@
 #include <cmath>
 #include <cstring>
 
-using namespace std;
-
 #define RAIO_SELECIONADO 5.0
 // #define NUM_BUFFERS 4
 // //#define NUM_BUFFERS 10
@@ -17,11 +15,9 @@ using namespace std;
 
 
 CalibratorProcessor::CalibratorProcessor() :
-
-  //Camera (CAM_FUTROBOT),
-  Camera(1),
-  ImProcessada(0,0),
-  ImBrutaRGB(0,0),
+  Camera(),
+  ImProcessada(),
+  ImBruta(),
   modo(CALIBRATOR_IMAGEM_REAL),
 
   nRetas(0),
@@ -45,11 +41,9 @@ CalibratorProcessor::CalibratorProcessor() :
 }
 
 CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
-
-  //Camera (CAM_FUTROBOT),
-  Camera(1),
-  ImProcessada(0,0),
-  ImBrutaRGB(0,0),
+  Camera(),
+  ImProcessada(),
+  ImBruta(),
   modo(CALIBRATOR_IMAGEM_REAL),
 
   nRetas(0),
@@ -75,18 +69,22 @@ CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
 
 }
 
+void CalibratorProcessor::loadImage(){
+  uint8_t * data =  (uint8_t*)Camera::getDataImage();
+  unsigned length = Camera::getDataSize();
+  uint8_t pxFormat = Camera::getPxFormat();
+  unsigned largura = Camera::getWidth();
+  unsigned altura = Camera::getHeight();
+
+  ImBruta.loadFromData(data, length,  pxFormat, largura, altura);
+}
+
 CalibratorProcessor::~CalibratorProcessor(){
-  //    for(unsigned i=0; i < nCores; i++){
-  //	delete cores[i].nome;
-  //    }
-  terminar(); // e' da Camera
+  Camera::terminar(); // e' da Camera
   delete[] cores;
   delete[] coresInversas;
-  //    delete[] limHPG;
   delete[] retas;
-  //delete[] pontosNotaveis;
   delete[] pontosImagemIniciais;
-  //delete[] pixelsNotaveis;
 }
 
 bool CalibratorProcessor::readFile(const char* arquivo)
@@ -106,8 +104,8 @@ bool CalibratorProcessor::readFile(const char* arquivo)
     return true;
   }
   true_color = (bool)true_color_local;
-  ImBrutaRGB = ImagemRGB(LarguraCaptura,AlturaCaptura);
-  ImProcessada = ImagemRGB(LARGURA_EXIBICAO,ALTURA_EXIBICAO);
+  // ImBruta = Imagem(LarguraCaptura,AlturaCaptura);
+  // ImProcessada = Imagem(LARGURA_EXIBICAO,ALTURA_EXIBICAO);
 
   if(fscanf(f,"NUMERO DE PONTOS: %d\n(Xw Yw Xi Yi)\n",&calibracaoParam.nPontosNotaveis) != 1){
     fclose(f);
@@ -177,26 +175,17 @@ bool CalibratorProcessor::readFile(const char* arquivo)
   }
 
   fclose(f);
-
   resetHPG();
-  resetCameraParam();
 
   return false;
-}
-
-void CalibratorProcessor::setParameters(){
-  ajusteparam(cameraParam);
 }
 
 bool CalibratorProcessor::saveCameraParam(const char* arquivo){
-  return cameraParam.write(arquivo);
+  return Camera::write(arquivo);
 }
 
 bool CalibratorProcessor::loadCameraParam(const char* arquivo){
-  if(cameraParam.read(arquivo)) return true;
-  setParameters();
-
-  return false;
+  return Camera::read(arquivo);
 }
 
 
@@ -231,20 +220,8 @@ void CalibratorProcessor::resetHPG(){
   }
 }
 
-void CalibratorProcessor::resetCameraParam(){
-  // cameraParam.brightness = 0;
-  // cameraParam.exposure = 33;
-  // cameraParam.hue = 0;
-  // cameraParam.saturation = 62;
-  // cameraParam.gamma = 0;
-  // cameraParam.shutter = 0;
-  // cameraParam.gain = 0;
-
-   setParameters ();
-}
-
 bool CalibratorProcessor::loadImage(const char* arq){
-  return ImBrutaRGB.load(arq);
+  return ImBruta.load(arq);
 }
 
 void CalibratorProcessor::saveImage(const char* arq){
@@ -263,18 +240,18 @@ bool CalibratorProcessor::processImage(){
   static PxRGB PxCinza(127,127,127);
 
 
-  Camera::toRGB(ImBrutaRGB);
+  // Camera::toRGB(ImBruta);
 
 
   switch(modo){
   case CALIBRATOR_IMAGEM_REAL:
-    for(i = 0; i < ImProcessada.nlin(); i++){
-      for(j = 0; j < ImProcessada.ncol(); j++){
-
-        ImProcessada[i][j] = ImBrutaRGB[offset_v + i][offset_u + j];
-      }
-    }
-    //	ImProcessada = ImBrutaRGB;
+    // for(i = 0; i < ImProcessada.getHeight(); i++){
+    //   for(j = 0; j < ImProcessada.getWidth(); j++){
+    //     // ImProcessada[i][j] = ImBruta[offset_v + i][offset_u + j];
+    //     ImProcessada.atRGB(i,j) = ImBruta.atRGB(offset_v + i, offset_u + j);
+    //   }
+    // }
+    ImProcessada = ImBruta;
     break;
   case CALIBRATOR_LIMITES_P_E_PONTOS:
   case CALIBRATOR_LIMITES_P:
@@ -283,44 +260,45 @@ bool CalibratorProcessor::processImage(){
     ptBruta = (PxRGB*)ImBruta.getRawData();
     ptProcessada = (PxRGB*)ImProcessada.getRawData();
     //	unsigned i, j2, base1, base2;
-    for(i=0;i<ImBruta.nlin()*ImBruta.ncol();i++){
+    for(i=0;i<ImBruta.getHeight()*ImBruta.getWidth();i++){
     ptBruta->getHPG(H,P,G);
     ptProcessada->setHPG(H,P,G);
     ptBruta++;
     ptProcessada++;
     }
     */
-    for(i = 0; i < ImProcessada.nlin(); i++){
-      for(j = 0; j < ImProcessada.ncol(); j++){
-	ImBrutaRGB[offset_v + i][offset_u + j].getHPG(H,P,G);
-	ImProcessada[i][j].setHPG(H,P,G);
-
-      }
-    }
+    // for(i = 0; i < ImProcessada.getHeight(); i++){
+    //   for(j = 0; j < ImProcessada.getWidth(); j++){
+    //   	ImBruta.getHPG(i,j,H,P,G);
+      	// ImProcessada.setHPG(i,j,H,P,G);
+    //   }
+    // }
+    ImProcessada = ImBruta;
     if(modo == CALIBRATOR_LIMITES_P){
       break;
     }
   case CALIBRATOR_PONTOS:
     //desenha os pontos
     if(modo == CALIBRATOR_PONTOS){
-      for(i = 0; i < ImProcessada.nlin(); i++){
-      	for(j = 0; j < ImProcessada.ncol(); j++){
-
-      	  ImProcessada[i][j] = ImBrutaRGB[offset_v + i][offset_u + j];
-      	 }
-      }
+      // for(i = 0; i < ImProcessada.getHeight(); i++){
+      // 	for(j = 0; j < ImProcessada.getWidth(); j++){
+      // 	  ImProcessada.atRGB(i,j) = ImBruta.atRGB(i+offset_v,j+ offset_u);
+      // 	 }
+      // }
+      ImProcessada = ImBruta;
     }
     int jj,kk;
     for(i = 0; i < calibracaoParam.nPontosNotaveis; i++){
       for(jj = -2; jj <=2; jj++){
-	for(kk = -2; kk <=2; kk++){
-	  if((calibracaoParam.pontosImagem[i].u() + jj - offset_u) >= 0 &&
-	     (calibracaoParam.pontosImagem[i].u() + jj - offset_u) < ImProcessada.ncol() &&
-	     (calibracaoParam.pontosImagem[i].v() + kk - offset_v) >= 0 &&
-	     (calibracaoParam.pontosImagem[i].v() + kk - offset_v) < ImProcessada.nlin()){
-	    ImProcessada[(int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v)][(int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)] = PxVermelho;
-	  }
-	}
+      	for(kk = -2; kk <=2; kk++){
+      	  if((calibracaoParam.pontosImagem[i].u() + jj - offset_u) >= 0 &&
+      	     (calibracaoParam.pontosImagem[i].u() + jj - offset_u) < ImProcessada.getWidth() &&
+      	     (calibracaoParam.pontosImagem[i].v() + kk - offset_v) >= 0 &&
+      	     (calibracaoParam.pontosImagem[i].v() + kk - offset_v) < ImProcessada.getHeight()){
+      	    // ImProcessada[(int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v)][(int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)] = PxVermelho;
+            ImProcessada.atRGB((int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v), (int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)) = PxVermelho;
+      	  }
+      	}
       }
     }
 
@@ -332,59 +310,61 @@ bool CalibratorProcessor::processImage(){
 	calibracaoParam.pontosImagem[retas[i].p1].u();
       dV = calibracaoParam.pontosImagem[retas[i].p2].v() -
 	calibracaoParam.pontosImagem[retas[i].p1].v();
-      dM = round(max(fabs(dU),fabs(dV)));
+      dM = round(std::max(fabs(dU),fabs(dV)));
       for(j=0;j<(unsigned)dM;j++){
-	u = (unsigned)round(calibracaoParam.pontosImagem[retas[i].p1].u() + (dU/dM)*j) -offset_u;
-	v = (unsigned)round(calibracaoParam.pontosImagem[retas[i].p1].v() + (dV/dM)*j) -offset_v;
-	if(u < ImProcessada.ncol()  &&
-	   v < ImProcessada.nlin()) {
-	  ImProcessada[v][u] = PxVermelho;
-	}
+      	u = (unsigned)round(calibracaoParam.pontosImagem[retas[i].p1].u() + (dU/dM)*j) -offset_u;
+      	v = (unsigned)round(calibracaoParam.pontosImagem[retas[i].p1].v() + (dV/dM)*j) -offset_v;
+      	if(u < ImProcessada.getWidth()  &&
+      	   v < ImProcessada.getHeight()) {
+      	  // ImProcessada[v][u] = PxVermelho;
+          ImProcessada.atRGB(v,u) = PxVermelho;
+      	}
       }
     }
     break;
   case CALIBRATOR_COR_ETIQUETADA:
   case CALIBRATOR_COR_ETIQUETADA_SOFT:
   case CALIBRATOR_IMAGEM_ERROS:
-    for(i = 0; i < ImProcessada.nlin(); i++){
-      for(j = 0; j < ImProcessada.ncol(); j++){
-	count = 0;
-	if(modo ==   CALIBRATOR_COR_ETIQUETADA_SOFT)
-	    cor_pixel = calibracaoParam.getSoftColor(ImBrutaRGB[offset_v + i][offset_u + j]);
-	else
-	    cor_pixel = calibracaoParam.getHardColor(ImBrutaRGB[offset_v + i][offset_u + j]);
+    for(i = 0; i < ImProcessada.getHeight(); i++){
+      for(j = 0; j < ImProcessada.getWidth(); j++){
+      	count = 0;
+        ImBruta.getHPG(i + offset_v, j + offset_u, H, P, G);
+      	if(modo ==   CALIBRATOR_COR_ETIQUETADA_SOFT)
+      	    cor_pixel = calibracaoParam.getSoftColor(H,P,G);
+      	else
+      	    cor_pixel = calibracaoParam.getHardColor(H,P,G);
 
-	if(cor_pixel >= 0) count++;
+      	if(cor_pixel >= 0) count++;
 
-	if(count == 0){
-	  ImProcessada[i][j] = PxCinza;
-	}else if(count == 1){
-	  if(modo == CALIBRATOR_IMAGEM_ERROS){
-	    ImProcessada[i][j] = PxPreto;
-	    //		    *ptProcessada = PxPreto;
-	  }else{
-	    ImProcessada[i][j] = cores[cor_pixel];
-	  }
-	}else{
-	  ImProcessada[i][j] = PxVermelho;
-	}
+      	if(count == 0){
+      	  ImProcessada.atRGB(i,j) = PxCinza;
+      	}else if(count == 1){
+      	  if(modo == CALIBRATOR_IMAGEM_ERROS){
+      	    ImProcessada.atRGB(i,j) = PxPreto;
+      	  }else{
+      	    ImProcessada.atRGB(i,j) = cores[cor_pixel];
+      	  }
+      	}else{
+      	  ImProcessada.atRGB(i,j) = PxVermelho;
+      	}
       }
     }
     break;
   case CALIBRATOR_COR_ATUAL:
-    for(i = 0; i < ImProcessada.nlin(); i++){
-      for(j = 0; j < ImProcessada.ncol(); j++) {
-	cor_pixel = calibracaoParam.getHardColor(ImBrutaRGB[offset_v + i][offset_u + j]);
-	if(cor_pixel == corAtual){
-	  ImProcessada[i][j] = ImBrutaRGB[offset_v + i][offset_u + j];
-	}else{
-	  ImProcessada[i][j] = coresInversas[corAtual];
-	}
+    for(i = 0; i < ImProcessada.getHeight(); i++){
+      for(j = 0; j < ImProcessada.getWidth(); j++){
+        ImBruta.getHPG(i,j,H,P,G);
+      	cor_pixel = calibracaoParam.getHardColor(H,P,G);
+      	if(cor_pixel == corAtual){
+      	  ImProcessada.atRGB(i,j) = ImBruta.atRGB(i+offset_v, j+offset_u);
+      	}else{
+      	  ImProcessada.atRGB(i,j) = coresInversas[corAtual];
+      	}
       }
     }
     break;
   default:
-    cerr<<"Qual modo vc espera que eu processe?\n";
+    std::cerr<<"Qual modo vc espera que eu processe?\n";
     exit(1);
     break;
   }
@@ -401,10 +381,14 @@ void CalibratorProcessor::getPxValor(int x, int y,
     devido ao acesso a mesma variavel por threads diferentes.
    */
   float myH,myP,myG;
-  R = (int)round((ImProcessada[y][x].r/255.0)*100.0);
-  G1 = (int)round((ImProcessada[y][x].g/255.0)*100.0);
-  B = (int)round((ImProcessada[y][x].b/255.0)*100.0);
-  ImProcessada[y][x].getHPG(myH,myP,myG);
+  R = (int)round((ImProcessada.atRGB(y,x).r/255.0)*100.0);
+  G1 = (int)round((ImProcessada.atRGB(y,x).g/255.0)*100.0);
+  B = (int)round((ImProcessada.atRGB(y,x).b/255.0)*100.0);
+  // R = (int)round((ImProcessada[y][x].r/255.0)*100.0);
+  // G1 = (int)round((ImProcessada[y][x].g/255.0)*100.0);
+  // B = (int)round((ImProcessada[y][x].b/255.0)*100.0);
+  // ImProcessada[y][x].getHPG(myH,myP,myG);
+  ImProcessada.getHPG(y, x, myH, myP, myG);
   H = (int)round((myH/M_PI)*180);
   P = (int)round(myP*100);
   G2 = (int)round(myG*100);

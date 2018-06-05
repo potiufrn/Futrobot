@@ -86,6 +86,7 @@ void calibrador::fileExit()
 {
     //TODO: Exibir pop-up aqui, caso os parametros nao estejam salvos ainda.
     //terminar = true;
+    fileSaveAs();
     X.terminar();
     close();
 }
@@ -109,8 +110,8 @@ void calibrador::cameraLoadParam(){
 
 void calibrador::cameraNew()
 {
-    X.resetCameraParam();
-    atualizarCameraParam();
+    // X.resetCameraParam();
+    // atualizarCameraParam();
     arquivo_cameraParam = QString::null;
 }
 
@@ -274,7 +275,7 @@ void calibrador::atualizarDisplays()
 {
 
     //tela 1
-    //X.getPxValor(MouseX,MouseY,R,G1,B,H,P,G2);
+    X.getPxValor(MouseX,MouseY,R,G1,B,H,P,G2);
     lcdX->display(MouseX);
     lcdY->display(MouseY);
 
@@ -734,14 +735,14 @@ void calibrador::mostrarTela2()
 
 void calibrador::novosParametrosCamera(){
     if(novosParametros){
-	X.setParameters();
+	// X.setParameters();
 	novosParametros = false;
     }
 }
 
 void calibrador::processarImagem()
 {
-//    static ImagemRGB mimimi("imagem_clara.ppm");
+//    static Imagem mimimi("imagem_clara.ppm");
     if(telaAtual == 0 || checkShooting->isChecked() || novosLimites){
 	X.processImage();
 	pixmap_label1->loadFromData((uchar*)X.getPNMdata(),

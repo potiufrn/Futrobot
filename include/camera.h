@@ -5,15 +5,14 @@
 #include <sys/mman.h> // mmap
 //#include <sys/select.h> //select
 #include <stdint.h> //unt8_t
-#include <string.h>//memset
+#include <string.h>//memset, memcpy
 #include <fstream>
 
 #include <sys/time.h> //timevalue
 #include <sys/select.h> // select
 #include <sys/types.h>
 
-#include <imagem.h>
-
+#include <iostream>
 
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -23,8 +22,9 @@
 #define HEIGHT 480
 #define FPS 30
 
-
-
+//WARNING o numero de buffer pode ser alterado
+//mas nao se sabe ate o momento a influencia desta alteracao
+//no desempenho da captura
 #define NUM_BUFFERS 1
 
 struct controler{
@@ -34,21 +34,23 @@ struct controler{
   int default_value;
 };
 
-struct PARAMETROS_CAMERA {
-  int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
-  bool write(const char * arquivo) const;
-  bool read(const char * arquivo);
-};
-
 struct buffer{
   uint8_t *bytes;
   unsigned length;
 };
 
+
 class Camera {
  private:
   unsigned int width, height, fps;
 
+  //TODO utilidade da propriedade pixel_type
+  // servira como auxiliar para decodigicar a informacao
+  // vinda da camera (imgData)
+  // 0 - GBRG
+  // 1 - YUYV
+  uint8_t pxFormat;
+  uint8_t *imgData;
 
   void Open();
   void Close();
@@ -75,15 +77,14 @@ protected:
   Camera(const char* device);
    ~Camera();
 
-   //Falta fazer
-   // bool ajusteparam(const char* arq);
-
    bool capturando;
    bool inicializado;
    bool encerrar;
 
-   ImagemGBRG ImBruta;
-
+   inline uint8_t getPxFormat()const{ return pxFormat; }
+   inline const uint8_t* getDataImage()const{ return imgData; }
+   const unsigned getDataSize()const{ return meuBuffer[0].length; }
+   // ImagemGBRG ImBruta;
    //Estes metodos retornam true em caso de saida indesejada
    //e false caso tudo ocorreu como esperado
    bool captureimage();
@@ -91,11 +92,6 @@ protected:
 
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
-
-   //Existe apenas para rodar os programas antigos
-   bool ajusteparam(PARAMETROS_CAMERA cameraparam);//falta fazer
-
-   inline void toRGB(ImagemRGB &imgRGB) { ImBruta.toImageRGB(imgRGB); }
 
    inline unsigned int Width() {return width;};
    inline unsigned int Height() {return height;};
@@ -107,6 +103,8 @@ protected:
    //equivalente a v4l2-ctl --list-formats-ext
    //char* printVideoFormats()const; //falta fazer
 
+   bool write(const char * arquivo) const;
+   bool read(const char * arquivo);
    //Falta fazer esses metodos abaixo
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
@@ -147,6 +145,6 @@ protected:
    int  getExposure()const;
    bool setExposure(int v);
 
-   //este metodo nao funcionou como esperado
+   //WARNING este metodo nao funcionou como esperado
    bool queryMinBuffer(struct controler &ctrl)const;
 };

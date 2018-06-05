@@ -7,10 +7,6 @@
 #include <camera.h>
 #include "../dados_calibracao.h"
 
-#include <iostream> //TODO: tirar isso
-
-using namespace std;
-
 
 #define LARGURA_EXIBICAO 640
 #define ALTURA_EXIBICAO 480
@@ -38,8 +34,11 @@ class CalibratorProcessor:
 public Camera
 {
  private:
-  ImagemRGB ImProcessada;
-  ImagemRGB ImBrutaRGB;
+  // Imagem ImProcessada;
+  // Imagem ImBrutaRGB;
+  Imagem ImBruta;
+  Imagem ImProcessada;
+  // Imagem campoVazio;
   //as variaveis que controlam o modo de funcionamento da classe
   MODOS_PROCESSAMENTO modo;
   unsigned nRetas, LarguraCaptura, AlturaCaptura;
@@ -47,7 +46,6 @@ public Camera
   //as variaveis que armazenam dados vindos da interface
   Coord2 *pontosImagemIniciais;
 
-  PARAMETROS_CAMERA cameraParam;
   PARAMETROS_CALIBRACAO calibracaoParam;
   RETA *retas;
 
@@ -59,7 +57,7 @@ public Camera
   unsigned offset_u,offset_v;
   bool true_color;
 
-
+  void loadImage();
  public:
   CalibratorProcessor();
   CalibratorProcessor(const char* arquivo);
@@ -73,7 +71,6 @@ public Camera
   bool fileSave(const char* text);
   bool loadCameraParam(const char* arquivo);
   bool saveCameraParam(const char* arquivo);
-  void setParameters();
   inline int getPinf(){return calibracaoParam.limiarPInf;}
   inline int getPsup(){return calibracaoParam.limiarPSup;}
   inline void setPinf(int Pinf){
@@ -91,7 +88,6 @@ public Camera
   inline void setPmax(int i, int valor){calibracaoParam.limHPG[i].P.max = valor;};
   inline void setGmin(int i, int valor){calibracaoParam.limHPG[i].G.min = valor;};
   inline void setGmax(int i, int valor){calibracaoParam.limHPG[i].G.max = valor;};
-  inline PARAMETROS_CAMERA getCameraParam(){return cameraParam;}
 
   //O controle shutter esta sendo usado como se fosse
   //Exposure Absolute
@@ -99,21 +95,21 @@ public Camera
 
   void resetHPG();
   void resetPixelsNotaveis();
-  void resetCameraParam();
+
   bool loadImage(const char* arq);
   void saveImage(const char* arq);
   bool processImage();
-  inline const void *getPNMdata(){return ImProcessada.getPNMData();};
-  inline int getPNMsize(){return ImProcessada.getPNMSize();};
-  inline int getImWidth(){return ImProcessada.ncol();};
-  inline int getImHeight(){return ImProcessada.nlin();};
-  inline int getCamWidth(){return ImBruta.ncol();};
-  inline int getCamHeight(){return ImBruta.nlin();};
+  inline const void *getPNMdata(){loadImage(); return ImProcessada.getPNMData(); };
+  inline int getPNMsize(){ loadImage();return ImProcessada.getPNMSize();};
+  inline int getImWidth(){  loadImage(); return ImProcessada.getWidth();};
+  inline int getImHeight(){ loadImage(); return ImProcessada.getHeight();};
+  inline int getCamWidth(){ loadImage(); return ImBruta.getWidth();};
+  inline int getCamHeight(){loadImage(); return ImBruta.getHeight();};
   void getPxValor(int x, int y, int &R, int &G1, int &B, int &H, int &P, int &G2);
   int pontoSelecionado(int x,int y);
   void moverPonto(int ponto,int x,int y);
   inline bool posicaoValida(unsigned int x, unsigned int y){
-    return (x < ImProcessada.ncol() && y < ImProcessada.nlin());
+    return (x < ImProcessada.getWidth() && y < ImProcessada.getHeight());
   }
   inline void modoCaptura(bool cap){capturando = cap;}
   inline char* getNomeCor(unsigned i){ return nomeCor[i]; }

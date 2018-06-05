@@ -7,7 +7,7 @@ CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 LDLIBS = -limagem	-lotim
 
-PROGRAMAS	=	teste_v4l2	teste_captura	teste_CampoVazio	teste_retas
+PROGRAMAS	=	teste_camera	teste_captura	teste_v4l2	#teste_CampoVazio	teste_retas
 
 all:	${PROGRAMAS}	libcamera.a
 

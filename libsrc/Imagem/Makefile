@@ -9,9 +9,9 @@ LDFLAGS = -O2 -L ${BASEDIR}/lib
 LDLIBS = -lotim -lmatrix
 
 #PROGRAMAS = teste_calibr teste_HPG teste_YUV teste_tempo
-PROGRAMAS = teste_HPG teste_YUV teste_tempo
+PROGRAMAS = #teste_imagem	#teste_HPG teste_YUV teste_tempo
 
-all: libimagem.a	#${PROGRAMAS}
+all: libimagem.a	${PROGRAMAS}
 
 ${PROGRAMAS}: libimagem.a
 

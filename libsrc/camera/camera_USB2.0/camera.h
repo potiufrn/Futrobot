@@ -44,6 +44,10 @@
 
 #define IMAGE_FILE_NAME "ImageRGB.ppm"
 
+//Default
+#define WIDTH 640
+#define HEIGHT 480
+#define FPS 30
 
 struct PARAMETROS_CAMERA {
   int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
@@ -52,8 +56,8 @@ struct PARAMETROS_CAMERA {
 };
 
 struct buffer {
-        void *                  start;
-        size_t                  length;
+    void *                  start;
+    size_t                  length;
 };
 
 
@@ -61,7 +65,6 @@ class Camera {
 private:
 
   unsigned int width, height, fps;
-
 
  FILE* imagefile;
 
@@ -80,75 +83,66 @@ private:
 
   bool initialised;
 
-   int fd;
-   const char *name;  //dev_name
+  int fd;
+  const char *name;  //dev_name
 
-
-  // unsigned char *data;
-
-  //unsigned char* src;
-  //unsigned char* dst;
-
-  //buffer *buffers;
   typedef uint8_t* ptr_uint8;
   ptr_uint8 meuBuffer[NUM_BUFFERS];
   size_t meuBufferLength[NUM_BUFFERS];
-  //int n_buffers;
 
-  int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
-  bool ha;
 protected:
-  Camera();
-   ~Camera();
+  Camera(unsigned index = 0);
+  Camera(const char* device);
+  ~Camera();
 
    bool ajusteparam(PARAMETROS_CAMERA cameraparam);
    bool encerrar;
    bool capturando;
+   bool inicializado;
+   //uint8_t *imBruta;
    ImagemRGB ImBruta;
 
    uint8_t* getFrame(){ return meuBuffer[0]; }
 
    bool waitforimage();
    bool captureimage();
-   // bool capturetcimage(); // <- True color
 
    inline unsigned int Width() {return width;};
    inline unsigned int Height() {return height;};
    bool start_transmission();
 
  public:
-
    void run();
    void terminar();
    void printvideoformats();
 
    void StopCam();
-
-  int minBrightness();
-  int maxBrightness();
-  int defaultBrightness();
-  int minContrast();
-  int maxContrast();
-  int defaultContrast();
-  int minSaturation();
-  int maxSaturation();
-  int defaultSaturation();
-  int minHue();
-  int maxHue();
-  int defaultHue();
-  bool isHueAuto();
-  int minSharpness();
-  int maxSharpness();
-  int defaultSharpness();
-
-  int setBrightness(int v);
-  int setExposure(int v);
-  int setContrast(int v);
-  int setSaturation(int v);
-  int setHue(int v);
-  int setHueAuto(bool v);
-  int setSharpness(int v);
-  int setWhiteness(int v);
+  //
+  // int minBrightness();
+  // int maxBrightness();
+  // int defaultBrightness();
+  // int minContrast();
+  // int maxContrast();
+  // int defaultContrast();
+  // int minSaturation();
+  // int maxSaturation();
+  // int defaultSaturation();
+  // int minHue();
+  // int maxHue();
+  // int defaultHue();
+  // bool isHueAuto();
+  // int minSharpness();
+  // int maxSharpness();
+  // int defaultSharpness();
+  //
+  // int setBrightness(int v);
+  // int setExposure(int v);
+  // int setContrast(int v);
+  // int setSaturation(int v);
+  // int setHue(int v);
+  // int setHueAuto(bool v);
+  // int setSharpness(int v);
+  // int setWhiteness(int v);
 };
 
 #endif

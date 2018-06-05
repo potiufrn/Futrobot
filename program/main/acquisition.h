@@ -50,7 +50,7 @@ class Acquisition :
 {
 private:
 #ifndef _SO_SIMULADO_
-  // ImagemRGB image;
+  // Imagem image;
   Homografia Homography;
   DistRadial RDistortion;
   unsigned int MinU, MaxU, MinV, MaxV;
@@ -80,7 +80,8 @@ public:
   bool acquisition();
   void save_image();
   //  const PxRGB *exptimg () {return (ImBruta.getRawData());};
-  ImagemRGB ImBrutaRGB;
+  // Imagem ImBrutaRGB;
+  Imagem ImBruta;
 };
 
 #endif

@@ -78,7 +78,7 @@ void Futrobot::management()
       finish();
       cerr << "Erro no processamento da imagem!\n";
     }
-    //    cout << "Processou imagem\n";
+    //cout << "Processou imagem\n";
     //cout << pos.ball.x() << endl << pos.ball.y() << endl << endl;
     myt_end_acq = relogio();
     //Realiza a correcao e filtragem da pose dos robos e da bola.
@@ -113,7 +113,7 @@ void Futrobot::management()
     }
     myt_end_tra = relogio();
      //Modulo de exportacao dos dados
-    if (gameState() != FINISH_STATE && exxport(ImBrutaRGB.getRawData())) {
+    if (gameState() != FINISH_STATE && exxport(ImBruta.getRawData())) {
        finish();
        cerr << "Erro na exportacao dos dados!\n";
      }

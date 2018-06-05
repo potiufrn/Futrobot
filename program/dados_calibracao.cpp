@@ -150,11 +150,14 @@ bool PARAMETROS_CALIBRACAO::write(const char* arquivo) const{
 
 //retorna a cor da qual o pixel do parametro percente. Usa somente os
 //limiares dos componentes HPG para definir a cor do pixel.
-int PARAMETROS_CALIBRACAO::getHardColor(const PxRGB &p) const
+int PARAMETROS_CALIBRACAO::getHardColor(
+  const float H,
+  const float P,
+  const float G) const
 {
   bool H_OK;
-  float H,P,G;
-  p.getHPG(H,P,G);
+  // float H,P,G;
+  // p.getHPG(H,P,G);
 
   int iH = (int)round((H/M_PI)*180.0),
     iP = (int)round(P*100.0),
@@ -164,11 +167,11 @@ int PARAMETROS_CALIBRACAO::getHardColor(const PxRGB &p) const
     H_OK = false;
     if( limHPG[k].H.min <= limHPG[k].H.max ){
       if(iH >= limHPG[k].H.min && iH <= limHPG[k].H.max){
-	H_OK = true;
+	       H_OK = true;
       }
     }else{
       if(iH >= limHPG[k].H.min || iH <= limHPG[k].H.max){
-	H_OK = true;
+	       H_OK = true;
       }
     }
 
@@ -185,16 +188,19 @@ int PARAMETROS_CALIBRACAO::getHardColor(const PxRGB &p) const
 //metodo para pegar o rotulo baseado nas componentes do pixel. Usa o
 //calculo da distancia caso o pixel nao se encontre dentro do limiar
 //das componentes.
-int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
+int PARAMETROS_CALIBRACAO::getSoftColor(
+  const float H,
+  const float P,
+  const float G) const
 {
 
-  int min_ID = getHardColor(p);
+  int min_ID = getHardColor(H,P,G);
   if(min_ID != -1)
     return min_ID;
 
   bool H_OK;
-  float H,P,G;
-  p.getHPG(H,P,G);
+  // float H,P,G;
+  // p.getHPG(H,P,G);
   float distH, fHmin, fHmax, fHmean, fHstd;
   float meanP, stdP, distP;
   float meanG, stdG, distG;
@@ -211,13 +217,13 @@ int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
     //testa se o H esta dentro dos limiares
     if( limHPG[k].H.min <= limHPG[k].H.max ){
       if(iH >= limHPG[k].H.min && iH <= limHPG[k].H.max){
-	H_OK = true;
-	distH = 0;
+      	H_OK = true;
+      	distH = 0;
       }
     }else{
       if(iH >= limHPG[k].H.min || iH <= limHPG[k].H.max){
-	H_OK = true;
-	distH = 0;
+      	H_OK = true;
+      	distH = 0;
       }
     }
     //se o H estiver fora dos limiares, ja calcula a distH
@@ -235,15 +241,15 @@ int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
       distP = 0;
     }else{
       if(limHPG[k].P.min < limHPG[k].P.max){
-	meanP = (limHPG[k].P.min + limHPG[k].P.max)/2;
-	stdP = limHPG[k].P.max - meanP;
-	if(iP > limHPG[k].P.max){
-	  distP = (iP - limHPG[k].P.max)/stdP;
-	}else if(iP < limHPG[k].P.min){
-	  distP = (limHPG[k].P.min - iP)/stdP;
-	}
+      	meanP = (limHPG[k].P.min + limHPG[k].P.max)/2;
+      	stdP = limHPG[k].P.max - meanP;
+    	   if(iP > limHPG[k].P.max){
+    	      distP = (iP - limHPG[k].P.max)/stdP;
+    	   }else if(iP < limHPG[k].P.min){
+    	      distP = (limHPG[k].P.min - iP)/stdP;
+    	   }
       }else{
-	distP = 100;
+      	distP = 100;
       }
     }
 
@@ -251,15 +257,15 @@ int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
       distG = 0;
     }else{
       if(limHPG[k].G.min < limHPG[k].G.max){
-	meanG = (limHPG[k].G.min + limHPG[k].G.max)/2;
-	stdG = limHPG[k].G.max - meanG;
-	if(iG > limHPG[k].G.max){
-	  distG = (iG - limHPG[k].G.max)/stdG;
-	}else if(iG < limHPG[k].G.min){
-	  distG = (limHPG[k].G.min - iG)/stdG;
-	}
+      	meanG = (limHPG[k].G.min + limHPG[k].G.max)/2;
+      	stdG = limHPG[k].G.max - meanG;
+      	if(iG > limHPG[k].G.max){
+      	  distG = (iG - limHPG[k].G.max)/stdG;
+      	}else if(iG < limHPG[k].G.min){
+      	  distG = (limHPG[k].G.min - iG)/stdG;
+      	}
       }else{
-	distG = 100;
+      	distG = 100;
       }
     }
     //calcula a distancia geral

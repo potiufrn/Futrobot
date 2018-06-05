@@ -3,10 +3,12 @@
 #include <errno.h> // EINVAL
 #include <sys/stat.h> //S_ISCHR
 
+
+
 static void errno_exit (const char* s)
 {
-        std::cerr << s << '\n';
-        exit (EXIT_FAILURE);
+  std::cerr << s << '\n';
+  exit (EXIT_FAILURE);
 }
 
 
@@ -20,11 +22,54 @@ static int xioctl(int fd, int request, void *arg)
   return r;
 }
 
-bool PARAMETROS_CAMERA::read(const char * arquivo) {
+bool Camera::read(const char * arquivo) {
+  FILE * arq=fopen(arquivo, "r");
+  if (arq==NULL) {
+    return true;
+  }
+
+  unsigned bri, exp, hue, sat, gam, expAbs, gai, cont, sharp;
+  if(fscanf(arq,"Brightness: %u\n",&bri) != 1) return true;
+  if(fscanf(arq,"Exposure: %u\n",&exp) != 1) return true;
+  if(fscanf(arq,"Exposure Absolute: %u\n",&expAbs) != 1) return true;
+  if(fscanf(arq,"Hue: %u\n",&hue) != 1) return true;
+  if(fscanf(arq,"Saturation: %u\n",&sat) != 1) return true;
+  if(fscanf(arq,"Gamma: %u\n",&gam) != 1) return true;
+  if(fscanf(arq,"Gain: %u\n",&gai) != 1) return true;
+  if(fscanf(arq,"Contrast: %u\n",&cont) != 1) return true;
+  if(fscanf(arq,"Sharpness: %u\n",&sharp) != 1) return true;
+
+  fclose(arq);
+
+  setBrightness(bri);
+  setExposure(exp);
+  setExposureAbs(expAbs);
+  setHue(hue);
+  setSaturation(sat);
+  setGamma(gam);
+  setGain(gai);
+  setConstrast(cont);
+  setSharpness(sharp);
+
   return false;
 }
 
-bool PARAMETROS_CAMERA::write(const char * arquivo) const{
+bool Camera::write(const char * arquivo) const{
+  FILE *arq=fopen(arquivo,"w");
+  if(arq == NULL){
+    return true;
+  }
+  fprintf(arq,"Brightness: %u\n",getBrightness());
+  fprintf(arq,"Exposure: %u\n",getExposure());
+  fprintf(arq,"Exposure Absolute: %u\n",getExposureAbs());
+  fprintf(arq,"Hue: %u\n",getHue());
+  fprintf(arq,"Saturation: %u\n",getSaturation());
+  fprintf(arq,"Gamma: %u\n",getGamma());
+  fprintf(arq,"Gain: %u\n",getGain());
+  fprintf(arq,"Contrast: %u\n",getContrast());
+  fprintf(arq,"Sharpness: %u\n",getSharpness());
+  fclose(arq);
+
   return false;
 }
 
@@ -32,10 +77,9 @@ Camera::Camera (const char* device):
   encerrar(false),
   capturando(false),
   inicializado(false),
-  ImBruta(0,0),
+  imgData(NULL),
   name(device)
 {
-  //Mudar para 0 se pc não tem webcam instalada de fábrica
   width = WIDTH;
   height = HEIGHT;
   fps = FPS;
@@ -45,33 +89,31 @@ Camera::Camera (const char* device):
   this->Start();
   inicializado = true;
 
-  ImBruta.resize(width, height);
+  imgData = new uint8_t[meuBuffer[0].length];
 }
 
 Camera::Camera (unsigned index):
   encerrar(false),
   capturando(false),
   inicializado(false),
-  ImBruta(0,0)
+  imgData(NULL)
 {
-
-  //Mudar para 0 se pc não tem webcam instalada de fábrica
   width = WIDTH;
   height = HEIGHT;
   fps = FPS;
 
   if(index > 9)errno_exit("Camera: device invalid index");
 
+  //name = concatenacao de: /dev/video + intToString(index)
   std::string dev =  std::string("/dev/video") + std::string(new (char)(index+48));
   name = (char*)dev.c_str();
-
 
   this->Open();
   this->Init();
   this->Start();
   inicializado = true;
 
-  ImBruta.resize(width, height);
+  imgData = new uint8_t[meuBuffer[0].length];
 }
 
 void Camera::Open() { // Rotina que serve para abrir dispositivo.
@@ -85,32 +127,62 @@ void Camera::Open() { // Rotina que serve para abrir dispositivo.
     fprintf(stderr, "%s is no device\n", name);
     exit(1);
   }
-
   fd = open(name, O_RDWR | O_NONBLOCK , 0);
-
-  if(-1 == fd)errno_exit("No Open");
-
+  if(-1 == fd)
+    errno_exit("Camera ERRO: No Open");
 }
-void Camera::Close()
-{
+
+void Camera::Close(){
   close(fd);
 }
 
 void Camera::Init(){
   //formatar o dispotivo
+  #define GBRG 0
+  #define YUYV 1
 
+
+  struct v4l2_fmtdesc fmtdesc;
+  CLEAR(fmtdesc);
+  fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  bool format_invalido = true;
+  while (ioctl(fd,VIDIOC_ENUM_FMT,&fmtdesc) == 0)
+  {
+      printf("%s\n", fmtdesc.description);
+      if(fmtdesc.pixelformat == V4L2_PIX_FMT_SGBRG8){
+        pxFormat = GBRG;
+        std::cout << "Suporta a GBRG" << '\n';
+        format_invalido = false;
+        break;
+      }
+      if(fmtdesc.pixelformat == V4L2_PIX_FMT_YUYV){
+        pxFormat = YUYV;
+        std::cout << "Suporta a YUYV" << '\n';
+        format_invalido = false;
+        break;
+      }
+      fmtdesc.index++;
+  }
+  if(format_invalido)errno_exit("Camera ERRO: Dispositivo sem formato de imagem conhecido");
   struct v4l2_format format;
-
+  CLEAR(format);
 
   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  format.fmt.pix.pixelformat = V4L2_PIX_FMT_SGBRG8; //Depende da camera
-  format.fmt.pix.width = this->width;
+  format.fmt.pix.width  = this->width;
   format.fmt.pix.height = this->height;
+  if(pxFormat == GBRG)
+    format.fmt.pix.pixelformat = V4L2_PIX_FMT_SGBRG8;
+  else
+    format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+  // format.fmt.pix.field  = V4L2_FIELD_INTERLACED;
 
-  //aplicar
-  if( -1 == xioctl(fd, VIDIOC_S_FMT,&format) )
-    errno_exit("Camera: Formato invalido");
-  //Configuracoes da camera
+  //aplica as configuracoes de formato
+  //Primeiro tenta-se setar o formato de Pixel GBRG, caso
+  //nao seja suportado pela camera, tenta-se o formato YUYV
+  //que eh padrao para as cameras USB
+
+  if( ioctl(fd, VIDIOC_S_FMT,&format) == -1)
+    errno_exit("Camera ERRO: init Failed");
 
   //configuracoes de captura
   struct v4l2_streamparm p;
@@ -121,8 +193,8 @@ void Camera::Init(){
   p.parm.output.timeperframe.numerator=1;
   p.parm.output.timeperframe.denominator=fps;
 
-  if(-1==xioctl(fd, VIDIOC_S_PARM, &p))
-    errno_exit("Stream Param");
+  if(-1 == xioctl(fd, VIDIOC_S_PARM, &p))
+    errno_exit("Camera ERRO: Parametros de stream");
 
   init_mmap();
 }
@@ -139,7 +211,7 @@ void Camera::init_mmap(){
   bufrequest.count = NUM_BUFFERS;
   //aplicar
   if(-1 == xioctl(fd,VIDIOC_REQBUFS, &bufrequest))
-    errno_exit("Request Buffer");
+    errno_exit("Camera ERRO: Request Buffer");
   //limpando a memoria
   //Obs.: o memset(ptr,value,size_t) => preencher um espaco de memoria apartir de ptr com tamanho size_t
   //com o valor value;
@@ -154,19 +226,19 @@ void Camera::init_mmap(){
     buffer.index = i;
     //aplicar
     if( -1 == xioctl(fd,VIDIOC_QUERYBUF,&buffer) )
-      errno_exit("Query buffer");
+      errno_exit("Camera ERRO: Query buffer");
     //Mapeando o buffer em na memoria virtual da aplicação
     meuBuffer[i].bytes  = (uint8_t*)mmap(NULL,buffer.length,PROT_READ | PROT_WRITE,MAP_SHARED,fd,buffer.m.offset);
     meuBuffer[i].length = buffer.length;
     if(meuBuffer[i].bytes == MAP_FAILED)
-      errno_exit("Mmap");
+      errno_exit("Camera ERRO: Mmap");
   }
 }
 
 void Camera::UnInit() {
   for(unsigned int i = 0;i<1;i++){
      if(-1 == munmap (meuBuffer[i].bytes, meuBuffer[i].length))
-	errno_exit ("munmap");
+	errno_exit ("Camera ERRO: munmap");
   }
 }
 
@@ -174,7 +246,7 @@ void Camera::Start()
 {
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
-  errno_exit ("VIDIOC_STREAMON");
+  errno_exit ("Camera ERRO: VIDIOC_STREAMON");
 
   for(unsigned int i = 0; i < NUM_BUFFERS; i++) {
     struct v4l2_buffer buf;
@@ -185,7 +257,7 @@ void Camera::Start()
     buf.index       = i;
 
     if(-1 == xioctl (fd, VIDIOC_QBUF, &buf))
-      errno_exit ("VIDIOC_QBUF");
+      errno_exit ("Camera ERRO: VIDIOC_QBUF");
   }
 }
 
@@ -194,35 +266,33 @@ void Camera::Stop()
   enum v4l2_buf_type type;
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMOFF, &type))
-    errno_exit("Stop");
+    errno_exit("Camera ERRO: Stop");
   capturando = false;
 }
 
 bool Camera::captureimage(){
 
-  if (capturando) {
-
+  if (capturando){
    struct v4l2_buffer buf;
    CLEAR(buf);
    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
    buf.memory = V4L2_MEMORY_MMAP;
    if(-1 == xioctl (fd, VIDIOC_DQBUF, &buf)) {
-     perror("Retrieving Frame");
+     perror("Camera WARNING: Retrieving Frame");
      return true;
     }
 
    if(-1 == xioctl (fd, VIDIOC_QBUF, &buf)) {
-       perror("Requesting new Frame");
+       perror("Camera WARNING: Requesting new Frame");
        return true; //errno_exit ("VIDIOC_QBUF");
      }
-    memcpy((uint8_t*)ImBruta.getRawData(),meuBuffer[buf.index].bytes,meuBuffer[buf.index].length);
+    // memcpy((uint8_t*)ImBruta.getRawData(),meuBuffer[buf.index].bytes,meuBuffer[buf.index].length);
+    memcpy((uint8_t*)imgData,meuBuffer[buf.index].bytes,meuBuffer[buf.index].length);
   }
  return false;
 }
 
-bool Camera::waitforimage()
-{
-
+bool Camera::waitforimage(){
   fd_set fds;
   FD_ZERO(&fds);
   FD_SET(fd, &fds);
@@ -232,13 +302,12 @@ bool Camera::waitforimage()
   int r = select(fd+1, &fds, NULL, NULL, &tv);
 
   if(-1 == r){
-    perror("Waiting for Frame");
+    perror("Camera WARNING: Waiting for Frame");
     return true;
   }
 
   return false;
 }
-
 
 void Camera::run()
 {
@@ -258,13 +327,7 @@ Camera::~Camera(){
   terminar();
 }
 
-bool Camera::ajusteparam(PARAMETROS_CAMERA cameraparam){
-  //Sem utilidade, apenas para da suporte as versoes antiga
-  return false;
-}
-
 bool Camera::setControl(__u32 id,int v){
-
 
   struct v4l2_control control;
   struct controler ctrl = queryControl(id);
@@ -276,8 +339,11 @@ bool Camera::setControl(__u32 id,int v){
     return false;
 
   if(-1 == xioctl(fd,VIDIOC_S_CTRL, &control))
-    errno_exit("Camera-setControl: ERRO\n");
-
+    //V4L2_CID_AUTOBRIGHTNESS = false(0) (desabilitar auto Brilho)
+    //V4L2_CID_HUE_AUTO = false(0) ; desabilita auto HUE
+    //V4L2_CID_AUTOGAIN = false(0); ...
+    //V4L2_CID_AUTO_WHITE_BALANC = false(0)
+    std::cerr << "Camera WARNING: setControl, controle desabilitado" << '\n';
   return true;
 }
 
@@ -290,7 +356,7 @@ int Camera::getControl(__u32 id)const{
 
   control.id = id;
   if(-1 == xioctl(fd,VIDIOC_G_CTRL, &control))
-    errno_exit("Camera-getControl: ERRO\n");
+    errno_exit("Camera ERRO: getControl\n");
   return control.value;
 }
 
@@ -319,39 +385,47 @@ struct controler Camera::queryControl(__u32 id)const{
 }
 
 bool Camera::setBrightness(int v){
+  // std::cout << "Brightness" << '\n';
   return setControl(V4L2_CID_BRIGHTNESS,v);
 }
 
 bool Camera::setConstrast(int v){
+  // std::cout << "Contrast" << '\n';
   return setControl(V4L2_CID_CONTRAST,v);
 }
 
 bool Camera::setSaturation(int v){
+  // std::cout << "Saturation" << '\n';
   return setControl(V4L2_CID_SATURATION,v);
 }
 
 bool Camera::setSharpness(int v){
+  // std::cout << "Sharpness" << '\n';
   return setControl(V4L2_CID_SHARPNESS,v);
 }
 
 bool Camera::setGain(int v){
-
+  // std::cout << "Gain" << '\n';
   return setControl(V4L2_CID_GAIN,v);
 }
 
 bool Camera::setExposure(int v){
+  // std::cout << "Exposure" << '\n';
   return setControl(V4L2_CID_EXPOSURE,v);
 }
 
 bool Camera::setExposureAbs(int v){
+  // std::cout << "Exposure Absolute" << '\n';
   return setControl(V4L2_CID_EXPOSURE_ABSOLUTE,v);
 }
 
 bool Camera::setHue(int v){
+  // std::cout << "Hue" << '\n';
   return setControl(V4L2_CID_HUE,v);
 }
 
 bool Camera::setGamma(int v){
+  // std::cout << "Gamma" << '\n';
   return setControl(V4L2_CID_GAMMA,v);
 }
 
