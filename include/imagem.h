@@ -361,6 +361,7 @@ public:
 
   inline unsigned getWidth() const{ return width; }
   inline unsigned getHeight() const{ return height; }
+  inline unsigned getDataSize()const{ return length; }
 
   const void *getPNMData();
   inline int getPNMSize(){atualizaImage(); return imgRGB.getPNMSize(); }

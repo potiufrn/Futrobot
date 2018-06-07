@@ -48,25 +48,25 @@ void segmentacao (ImagemRGB &dest, uint8_t ref){
   }
 };
 
-// void detlinhas(ImagemRGB &dest){
-//   unsigned coef[240][320];
-//   for(unsigned i = 0; i<240; i++)
-//     for(unsigned j = 0; j<320; j++)
-//       coef[i][j] = 0;
-//   for(unsigned i = 120; i<360; i++)
-//     for(unsigned j = 160; j<480; j++){
-//       if(dest[i][j].r >= (uint8_t)80)
-//         coef[i-120][j-160] += 1;
-//   }
-//   ofstream f;
-//   f.open("coef.txt");
-//   for(unsigned i = 0; i<240; i++){
-//     for(unsigned j = 0; j<320; j++)
-//       f << coef[i][j] << " ";
-//     f<<"\n";
-//   }
-//   f.close();
-// };
+void detlinhas(ImagemRGB &dest){
+  unsigned coef[240][320];
+  for(unsigned i = 0; i<240; i++)
+    for(unsigned j = 0; j<320; j++)
+      coef[i][j] = 0;
+  for(unsigned i = 120; i<360; i++)
+    for(unsigned j = 160; j<480; j++){
+      if(dest[i][j].r >= (uint8_t)80)
+        coef[i-120][j-160] += 1;
+  }
+  ofstream f;
+  f.open("coef.txt");
+  for(unsigned i = 0; i<240; i++){
+    for(unsigned j = 0; j<320; j++)
+      f << coef[i][j] << " ";
+    f<<"\n";
+  }
+  f.close();
+};
 
 
 int main(){
@@ -77,8 +77,6 @@ int main(){
 
   while(true){
     cout << "q - Quit \nENTER - Capture "<<endl;
-    std::cout << "r - Alterar Referencia " << '\n';
-
     cin.get(key);
 
     if(key == 'q'){
@@ -105,12 +103,11 @@ int main(){
       cam.histogram(imrgb);
 
       std::cout << "Valor atual da ref " << ref << '\n';
-      segmentacao(imrgb, 60);
+      segmentacao(imrgb, 30);
       imrgb.save("RGB_seg.ppm");
       // detlinhas(imrgb);
       cout << "Captura time : " << end - start << endl;
       cout << "To RGB time  : " << end_2RGB - start_2RGB << endl;
-
     }
   };
 

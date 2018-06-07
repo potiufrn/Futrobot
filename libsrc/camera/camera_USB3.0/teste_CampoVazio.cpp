@@ -1,170 +1,42 @@
-// #include <time.h>
 #include <math.h> // sqrt
+#include <imagem.h>
 #include "camera.h"
 #include "../../../program/system.h"
 
-// using namespace std;
 
+class TesteCam:public Camera
+{
+  Imagem ImBruta;
+  Imagem imgMedia;
 
-
-class ImgAmostra{
-private:
-  ImagemGBRG img;
-  ImgAmostra *next;
-
-  ImgAmostra(const ImagemGBRG &I):img(I){
-    next = NULL;
-  }
-  friend class ListImgGBRG;
-};
-//Ideia:
-//Utilizar uma esturtura de dados do tipo FIFO
-//Para armazenar imagens e realizar o calculo da Media
-//Variancia e Desvio Padrao a medida que novas imagens forem adicionadas a esturtura
-//Estrutura escolhida foi uma lista duplamente encadeada
-class ListImgGBRG{
-  private:
-  ImgAmostra *first;
-  ImgAmostra *last;
-
-  ImagemGBRG imgMedia;
-  float **fMedia;
-  float **fVariancia;
-
-  float varianciaMax;
-
-  unsigned length;
-
-  void calcVariancia(){
-
-    if(length == 0)return;
-
-    ImgAmostra *iter = first;
-
-
-    for(unsigned l = 0; l < imgMedia.nlin(); l++)
-      for(unsigned c = 0; c < imgMedia.ncol(); c++)
-        fVariancia[l][c] = 0;
-
-    varianciaMax = 0;
-
-    while(iter != NULL){
-
-      for(unsigned l = 0; l < imgMedia.nlin(); l++)
-      for(unsigned c = 0; c < imgMedia.ncol(); c++){
-        float tmp  = (iter->img(l,c) - fMedia[l][c]);
-        fVariancia[l][c] = tmp*tmp;
-      }
-
-      iter = iter->next;
-    }
-
-    for(unsigned l = 0; l < imgMedia.nlin(); l++)
-      for(unsigned c = 0; c < imgMedia.ncol(); c++){
-        fVariancia[l][c] = fVariancia[l][c]/length;
-
-        varianciaMax = (fVariancia[l][c] > varianciaMax)?fVariancia[l][c]:varianciaMax;
-    }
-
-  }
- public:
-  ListImgGBRG():first(NULL),last(NULL),
-                length(0),imgMedia(0,0),fMedia(NULL),
-                fVariancia(NULL),varianciaMax(0){}
-  ~ListImgGBRG(){
-    if(fMedia != NULL){
-      for(unsigned l = 0; l < imgMedia.nlin();l++)
-        delete[] fMedia[l];
-      delete[] fMedia;
-    }
-    if(fVariancia != NULL){
-      for(unsigned l = 0; l < imgMedia.nlin();l++)
-        delete[] fVariancia[l];
-      delete[] fVariancia;
-    }
-    delete first;
-    delete last;
-  }
-  //Acesso ultimo elemento da fila
-  // ImgAmostra back()const{ return *last; }
-
-  //add no final da fila e recalcula a media
-  void push(const ImagemGBRG &I){
-    //primeiro push
-    if(first == NULL){
-      first = new ImgAmostra(I);
-      last = first;
-      imgMedia = I;
-
-      fMedia = new float*[I.nlin()];
-      for(unsigned l = 0; l < I.nlin();l++)
-        fMedia[l] = new float[I.ncol()];
-
-      for(unsigned l = 0; l < imgMedia.nlin(); l++)
-        for(unsigned c = 0; c < imgMedia.ncol(); c++)
-          fMedia[l][c] = I(l,c);
-
-      fVariancia = new float*[I.nlin()];
-      for(unsigned l = 0; l < I.nlin();l++)
-        fVariancia[l] = new float[I.ncol()];
-
-      for(unsigned l = 0; l < imgMedia.nlin(); l++)
-        for(unsigned c = 0; c < imgMedia.ncol(); c++)
-          fVariancia[l][c] = I(l,c);
-    }
-    else{
-      last->next = new ImgAmostra(I);
-      last = last->next;
-      //Recalculo da Imagem Media
-      for(unsigned l = 0; l < imgMedia.nlin(); l++)
-        for(unsigned c = 0; c < imgMedia.ncol(); c++)
-        {
-          fMedia[l][c] = (I(l,c) + fMedia[l][c])/2.0;
-          imgMedia(l,c) = fMedia[l][c];
-        }
-    }
-    length++;
-    calcVariancia();
-  }
-
-  ImgAmostra begin()const{ return *first;}
-
-  inline bool isEmpty() { return (length == 0)?true:false; }
-  inline unsigned size()const{ return length; }
-
-  const ImagemGBRG& getImgMedia()const{ return imgMedia; }
-  const float** getImgVariancia()const{ return (const float**)fVariancia; }
-
-  //Retorna o maior valor da Imagem de Desvios
-  inline float getDesvioPadrao()const { return std::sqrt(varianciaMax); }
-  //Retorna o maior valor da Imagem de Variancia
-  float getVariancia()const { return varianciaMax; }
-
-};
-
-class TesteCam:public Camera{
+  //Numero de amostras
+  unsigned N;
+  uint16_t *variancia;
+  double varianciaMax;
 public:
-  ListImgGBRG list;
 
-  TesteCam(unsigned index = 0):Camera(index),list(){this->capturando = true;}
-
-  inline bool capture(){ return Camera::captureimage(); }
+  TesteCam(unsigned index = 0):Camera(index),ImBruta(),imgMedia(),N(0){this->capturando = true;}
+  inline bool capture(){
+    bool retr = Camera::captureimage();
+    uint8_t pxFormat = Camera::getPxFormat();
+    unsigned length = Camera::getDataSize();
+    ImBruta.loadFromData(Camera::getDataImage(),length, pxFormat,Camera::getWidth(),Camera::getHeight());
+    return retr;
+  }
   inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
+
+  inline void  saveMed(const char* arq){ imgMedia.save(arq); }
+  inline float getVaciancia()const{ return varianciaMax; }
+  inline float getDesvioPadrao()const{ return sqrt(varianciaMax); }
+
   inline void toRGB(ImagemRGB &dest){ Camera::toRGB(dest); }
-
-  void push(){ list.push(ImBruta); };
-  inline void saveMed(const char* arq){ list.getImgMedia().save(arq); }
-  inline float getVaciancia()const{ return list.getVariancia(); }
-  inline float getDesvioPadrao()const{ return list.getDesvioPadrao(); }
-
-  void copyImg(ImagemGBRG &I){ I = ImBruta; }
 };
 
 
 int main(){
-  TesteCam cam(1);
-  ImagemRGB imrgb(0,0);
+  TesteCam cam(0);
+  // ImagemRGB imrgb(0,0);
   char key;
 
   double start = relogio();

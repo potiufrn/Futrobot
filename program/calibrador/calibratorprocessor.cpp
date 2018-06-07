@@ -15,7 +15,7 @@
 
 
 CalibratorProcessor::CalibratorProcessor() :
-  Camera(),
+  Camera(1),
   ImProcessada(),
   ImBruta(),
   modo(CALIBRATOR_IMAGEM_REAL),
@@ -41,7 +41,7 @@ CalibratorProcessor::CalibratorProcessor() :
 }
 
 CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
-  Camera(),
+  Camera(1),
   ImProcessada(),
   ImBruta(),
   modo(CALIBRATOR_IMAGEM_REAL),

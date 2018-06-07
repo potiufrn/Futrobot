@@ -269,7 +269,7 @@ class ImagemRGB
 
   inline unsigned getWidth() const{ return Ncol; }
   inline unsigned getHeight() const{ return Nlin; }
-  void toGray(){ atualizaImage; imgRGB.toGray(); }
+  void toGray();
 
   // Métodos de acesso aos dados de baixo nível
   // Cuidado ao usar! Nao altere os dados para onde os ponteiros apontam...
@@ -361,6 +361,7 @@ public:
 
   inline unsigned getWidth() const{ return width; }
   inline unsigned getHeight() const{ return height; }
+  inline unsigned getDataSize()const{ return length; }
 
   const void *getPNMData();
   inline int getPNMSize(){atualizaImage(); return imgRGB.getPNMSize(); }

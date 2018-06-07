@@ -298,10 +298,10 @@ bool Acquisition::configAcquisition(const char *str)
   cout << "\tConfigurando camera..."<<endl;
 
   //seta os parametros da camera
-  if(Camera::read("../../etc/paramCamera.val")){
-    printf("Error Loading Camera Parameters!\n");
-    return true;
-  };
+  // if(Camera::read("../../etc/paramCamera.val")){
+  //   printf("Error Loading Camera Parameters!\n");
+  //   return true;
+  // };
 
   //SetParameters(cameraParam);
   cout << "\tConfigurando calibracao..."<<endl;
@@ -469,16 +469,22 @@ bool Acquisition::configAcquisition(const char *str)
 }
 
 #ifndef _SO_SIMULADO_
+
+bool Acquisition::canBePainted(REG_COLOR colorID, unsigned u, unsigned v){
+  float H,P,G;
+  ImBruta.getHPG(v,u, H,P,G);
+  return (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID);
+}
+
 REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
 {
 // #define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(ImBruta[v][u]) == colorID)
-#define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID)
+
+// #define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID)
 
 
   static STACK s;
   REGION region;
-  float H,P,G;
-  ImBruta.getHPG(u,v, H, P, G);
 
   double su=0, sv=0, suu=0, svv=0, suv=0;
   int nPixel=0;
@@ -489,15 +495,14 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
 
   region.nPixel=0;
   region.colorID = colorID;
-  if ( !canBePainted(colorID,u,v) ) return region;
 
+  if ( !canBePainted(colorID,u,v) )return region;
   s.empty();
 
   if (!s.push(u,v)) {
     cerr << "Buffer estourou 1!\n";
     return region;
   }
-
 
   while(s.pop(u,v)) {
     v1 = v;
@@ -523,9 +528,7 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
           return region;
         }
         expanLeft = true;
-      }
-      else if(expanLeft && u>0 &&
-	      !canBePainted(colorID,u-1,v1)) {
+      }else if(expanLeft && u>0 && !canBePainted(colorID,u-1,v1)) {
         expanLeft = false;
       }
 
@@ -536,7 +539,7 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
         }
         expanRight = true;
       }
-      else if(expanRight && u<(ImBruta.getWidth()-1) &&
+    else if(expanRight && u<(ImBruta.getWidth()-1) &&
 	      !canBePainted(colorID,u+1,v1)) {
         expanRight = false;
       }
@@ -544,7 +547,6 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
     }
 
   }
-
   //testa se a regiao é uma linha vertical ou horizontal
   if((vMax-vMin) > LINE_THRESHOLD ||
      (uMax-uMin) > LINE_THRESHOLD)
@@ -779,7 +781,6 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
 
 
 
-
 bool Acquisition::processGameState()
 {
 
@@ -805,24 +806,8 @@ bool Acquisition::processGameState()
   int i;
   float H,P,G;
 
-
   //inicio da procura dos robos
-  //DESCOMENTAR APOS TESTES!!
 
-  //SingleShoot(ImBruta);
-  //FlushShoot(ImBruta);
-
-
-  //RETIRAR ISSO APÓS TESTES!!!!
-  //  ImBruta = new Imagem("Campo.png");
-  // cout << "Reseta variaveis" << endl;
-
-  //reinicia as variaveis
-  /*
-    for( v = 0; v < (int)ImBruta.getHeight() ; v++ )
-    for( u = 0; u < (int)ImBruta.getWidth() ; u++ )
-    analisedPixel.setValue(u,v,false);
-  */
   analisedPixel.setAllValues(false);
 
   for( i = 0; i < 3; i++){
@@ -839,22 +824,23 @@ bool Acquisition::processGameState()
   pos.ball.x() = POSITION_UNDEFINED;
   pos.ball.y() = POSITION_UNDEFINED;
 
-  //  cout << "\tOK" << endl;
-
   //  cout << "busca por regioes de cor" << endl;
   //PASSO 1: Busca por regiões amarelas e azuis
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
       ImBruta.getHPG(v,u,H,P,G);
       colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
-      //printColorName(colorID);
+
       // eliminar os pixels sem cor
       if( colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE ){
-      	region = seedFill(colorID,u,v);
+
+        region = seedFill(colorID,u,v);
+
       	if ( region.nPixel >= MIN_PIXELS ) {
       	  switch(colorID){
       	  case REG_COLOR_BLUE:
       	    if(nRegBlue < 3){
+
       	      regBlue[nRegBlue] = region;
       	      nRegBlue++;
       	    }else{
@@ -869,6 +855,7 @@ bool Acquisition::processGameState()
       	  break;
       	  case REG_COLOR_YELLOW:
       	    if(nRegYellow < 3){
+
       	      regYellow[nRegYellow] = region;
       	      nRegYellow++;
       	    }else{
@@ -882,7 +869,9 @@ bool Acquisition::processGameState()
       	    }
       	  break;
       	  case REG_COLOR_ORANGE:
+
       	    if(nRegOrange < 1){
+
       	      regOrange = region;
       	      nRegOrange++;
       	    }else{

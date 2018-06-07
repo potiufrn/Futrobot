@@ -8,8 +8,8 @@ using namespace std;
 
 class TesteCam:public Camera
 {
-  Imagem ImBruta;
 public:
+  Imagem ImBruta;
   TesteCam(unsigned index = 0):Camera(index),ImBruta(){this->capturando = true;}
   inline bool capture(){
     bool retr = Camera::captureimage();
@@ -66,7 +66,7 @@ int main(){
       cout << "Captura time : " << end - start << endl;
       cout << "Save time  : " << end_save - start_save << endl;
     }
-
+    
   };
   return 0;
 }

@@ -727,6 +727,7 @@ LinhaImagemRGB ImagemRGB::operator[](unsigned lin)
 {
   if (lin>=Nlin) {
     std::cerr << "Indice invalido da linha da imagem\n";
+
     exit(1);
   }
   return(LinhaImagemRGB(Ncol,img+Ncol*lin));
@@ -933,15 +934,16 @@ PxRGB Imagem::atGBRGtoRGB(unsigned lin, unsigned col){
         mediaG += Byte(i,j);
       }
     }
-  mediaB = mediaB/qtdB;
-  mediaG = mediaG/qtdG;
-  mediaR = mediaR/qtdR;
+  mediaB = (mediaB/qtdB);
+  mediaG = (mediaG/qtdG);
+  mediaR = (mediaR/qtdR);
   return PxRGB(mediaR,mediaG,mediaB);
 }
 PxRGB Imagem::atYUYVtoRGB(unsigned lin, unsigned col){
   //TODO reescrever este metodo para nao precisar converter a imagem
   //por completo
-  YUV422toRGB888();
+  // YUV422toRGB888();
+  atualizaImage();
   return imgRGB[lin][col];
 }
 void Imagem::getGBRGtoHPG(unsigned lin, unsigned col,
@@ -951,7 +953,7 @@ void Imagem::getGBRGtoHPG(unsigned lin, unsigned col,
 }
 void Imagem::getYUYVtoHPG(unsigned lin, unsigned col,
                           float &H, float &P, float &G){
-  //TODO alterar esse Metodos para nao precisar converter a imagem por completo
+  //TODO alterar esse Metodo para nao precisar converter a imagem por completo
   atualizaImage();
   imgRGB[lin][col].getHPG(H,P,G);
 }
@@ -1009,7 +1011,10 @@ const PxRGB* Imagem::getRawData(){
   return imgRGB.getRawData();
 }
 void Imagem::atualizaImage(){
+  //Teste se precisa atualizar
   if(imgData == NULL || !new_image)return;
+  //inicia as alteracoes para imgRGB corresponder
+  //a imgData
   if(imgRGB.getHeight() != height || imgRGB.getWidth() != width)
     imgRGB.resize(width,height);
   switch (pxFormat) {

@@ -116,7 +116,6 @@ public Camera
   inline unsigned getNumCores(){ return calibracaoParam.nCores; };
   inline void setOffsetU(unsigned u){ offset_u = u;}
   inline void setOffsetV(unsigned v){ offset_v = v;}
-
 };
 
 #endif

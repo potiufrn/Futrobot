@@ -60,6 +60,7 @@ private:
   bool saveNextImage;
   //FUNCTIONS
 #ifndef _SO_SIMULADO_
+  bool canBePainted(REG_COLOR colorID,unsigned u, unsigned v);
   REGION seedFill( REG_COLOR colorID, unsigned int u, unsigned int v);
   bool processGameState();
 #endif
