@@ -28,28 +28,51 @@ using namespace std;
 int main(){
   //TesteCam cam(1);
   struct v4l2_queryctrl queryctrl;
-  struct v4l2_capability cap;
-  int fd = open("/dev/video1", O_RDWR | O_NONBLOCK , 0);
+  // struct v4l2_capability cap;
+  // int fd = open("/dev/video0", O_RDWR | O_NONBLOCK , 0);
+  // CLEAR(cap);
 
-  #define GBRG V4L2_PIX_FMT_SGBRG8
-  #define YUV422 V4L2_PIX_FMT_YUYV
+  char* name;
+  std::string dev;
+  int fd;
+  bool alguma = false;
 
-  if (fd != -1)
-   {
-       struct v4l2_fmtdesc fmtdesc;
-       CLEAR(fmtdesc);
-       fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-       while (ioctl(fd,VIDIOC_ENUM_FMT,&fmtdesc) == 0)
-       {
-           printf("%s\n", fmtdesc.description);
-           if(fmtdesc.pixelformat == GBRG)
-             std::cout << "Suporta a GBRG" << '\n';
-           if(fmtdesc.pixelformat == YUV422)
-             std::cout << "Suporta a YUYV" << '\n';
-           fmtdesc.index++;
-       }
-   }
+  for(unsigned i = 0; i < 9; i++){
+    dev =  std::string("/dev/video") + std::string(new (char)(i+48));
+    name = (char*)dev.c_str();
 
-  close(fd);
+    fd = open(name,O_RDWR | O_NONBLOCK , 0);
+    if(fd == -1)continue;
+
+    alguma = true;
+
+    struct v4l2_capability cap;
+    CLEAR(cap);
+    ioctl(fd,VIDIOC_QUERYCAP,&cap);
+
+    std::cout << "index: "<< i <<" --> Nome: "<<cap.card << '\n';
+    close(fd);
+  }
+
+  // #define GBRG V4L2_PIX_FMT_SGBRG8
+  // #define YUV422 V4L2_PIX_FMT_YUYV
+  //
+  // if (fd != -1)
+  //  {
+  //      struct v4l2_fmtdesc fmtdesc;
+  //      CLEAR(fmtdesc);
+  //      fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  //      while (ioctl(fd,VIDIOC_ENUM_FMT,&fmtdesc) == 0)
+  //      {
+  //          printf("%s\n", fmtdesc.description);
+  //          if(fmtdesc.pixelformat == GBRG)
+  //            std::cout << "Suporta a GBRG" << '\n';
+  //          if(fmtdesc.pixelformat == YUV422)
+  //            std::cout << "Suporta a YUYV" << '\n';
+  //          fmtdesc.index++;
+  //      }
+  //  }
+
+  // close(fd);
   return 0;
 }

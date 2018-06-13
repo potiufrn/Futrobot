@@ -1,19 +1,17 @@
-#include <linux/videodev2.h> //struct
+#include <linux/videodev2.h> //struct v4l2 ...
 #include <fcntl.h>  // O_RDWR
-#include <unistd.h> //close() , select
+#include <unistd.h> //close()
 #include <sys/ioctl.h> //ioctl
 #include <sys/mman.h> // mmap
-//#include <sys/select.h> //select
 #include <stdint.h> //unt8_t
 #include <string.h>//memset, memcpy
 #include <fstream>
 
 #include <sys/time.h> //timevalue
-#include <sys/select.h> // select
+#include <sys/select.h> //select
 #include <sys/types.h>
 
 #include <iostream>
-
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
@@ -69,12 +67,13 @@ class Camera {
   struct buffer meuBuffer[NUM_BUFFERS];
 
   bool setControl(__u32 id, int v);
-  int getControl(__u32 id)const;
+  int  getControl(__u32 id)const;
   struct controler queryControl(__u32 id)const;
 
 protected:
   Camera(unsigned index = 0);
   Camera(const char* device);
+  // Camera();
    ~Camera();
 
    bool capturando;
@@ -99,6 +98,11 @@ protected:
  public:
    void run();
    void terminar();
+
+   // void getDevices();
+   // bool open(unsigned index);
+   // bool isOpen(){ return inicializado; }
+   // void close();
 
    //equivalente a v4l2-ctl --list-formats-ext
    //char* printVideoFormats()const; //falta fazer

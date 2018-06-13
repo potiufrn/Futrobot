@@ -831,16 +831,16 @@ size_t ImagemRGB::getRawSize()
 
 void Imagem::getHPG(unsigned lin,unsigned col,float &H,float &P,float &G){
   if(!new_image)return imgRGB[lin][col].getHPG(H,P,G);
+
   switch (pxFormat) {
     case GBRG:
       getGBRGtoHPG(lin,col, H, P, G);
     break;
     case YUYV:
-    // std::cout << "Convertendo de YUYV para RGB" << '\n';
       getYUYVtoHPG(lin, col, H, P, G);
     break;
     default:
-    // return imgRGB[lin][col].getHPG(H,P,G);
+    //Nao deveria chegar aqui
     std::cerr << "Imagem ERRO: formato invalido" << '\n';
     exit(1);
   }
@@ -868,8 +868,11 @@ void Imagem::loadFromData(const uint8_t* data,unsigned length, uint8_t pxFormat,
       exit(1);
   }
   new_image = true;
-  this->length  = length;
-  this->imgData = new uint8_t[length];
+  if(this->length != length){
+    this->length  = length;
+    if(this->imgData != NULL)delete[] this->imgData;
+    this->imgData = new uint8_t[length];
+  }
   this->width = WIDTH;
   this->height = HEIGHT;
   memcpy((uint8_t*)this->imgData, (uint8_t*)data, this->length);
@@ -911,54 +914,103 @@ void Imagem::copy(const Imagem &I){
 PxRGB Imagem::atGBRGtoRGB(unsigned lin, unsigned col){
 
   #define Byte(i,j) getByte(i*width + col)
+  #define fByte(i,j) byte2float(Byte(i,j))
 
   unsigned i,j;
   float mediaR = 0,mediaG = 0,mediaB = 0;
   unsigned qtdR = 0, qtdG = 0, qtdB = 0;
 
-  for(int i_offs = -1; i_offs < 1; i_offs++)
-    for(int j_offs = -1; j_offs < 1; j_offs++){
+  for(int i_offs = -1; i_offs <= 1; i_offs++)
+    for(int j_offs = -1; j_offs <= 1; j_offs++){
       i = lin + i_offs;
       j = col + j_offs;
-      if(i > this->height || j > this->width)//pula indix invalidos
+      if(i >= this->height || j >= this->width)//pula indix invalidos
         continue;
+      // std::cout << i <<' '<< j <<" pos: "<<i*width + j<<" Byte:  "<<Byte(i,j)/1.0 <<'\n';
+      // std::cout << i <<' '<< j <<" pos: "<<i*width + j <<" fbyte: "<<fByte(i,j)<< '\n';
 
       if(i%2 == 0 && j%2 != 0){//azul
         qtdB ++;
-        mediaB += Byte(i,j);
+        mediaB += fByte(i,j);
       }else if(i%2 != 0 && j%2 == 0){//vermelho
         qtdR ++;
-        mediaR += Byte(i,j);
+        mediaR += fByte(i,j);
       }else{//verde
         qtdG ++;
-        mediaG += Byte(i,j);
+        mediaG += fByte(i,j);
       }
     }
+
   mediaB = (mediaB/qtdB);
   mediaG = (mediaG/qtdG);
   mediaR = (mediaR/qtdR);
-  return PxRGB(mediaR,mediaG,mediaB);
+
+  uint8_t R = float2byte(mediaR);
+  uint8_t G = float2byte(mediaG);
+  uint8_t B = float2byte(mediaB);
+  // std::cout << "Pixel: " << PxRGB(R,G,B) << '\n';
+  // std::cout << "QtdR "<< qtdR  << '\n';
+  // std::cout << "QtdG " << qtdG << '\n';
+  // std::cout << "QtdB " << qtdB <<'\n';
+  return PxRGB(R,G,B);
 }
 PxRGB Imagem::atYUYVtoRGB(unsigned lin, unsigned col){
   //TODO reescrever este metodo para nao precisar converter a imagem
   //por completo
-  // YUV422toRGB888();
-  atualizaImage();
-  return imgRGB[lin][col];
+  // atualizaImage();
+  // return imgRGB[lin][col];
+  unsigned pos = lin*width + col;
+  unsigned Ya = 2*pos;
+  unsigned Ua, Va;
+  uint8_t Y, U, V;
+
+  if(pos >= width*height){
+    std::cerr << "Imagem ERRO: indice invalido da imagem" << '\n';
+    exit(1);
+  }
+
+  if( pos%2 == 0){
+    Ua = Ya + 1;
+    Va = Ya + 3;
+  }else{
+    Ua = Ya - 1;
+    Va = Ya + 1;
+  }
+
+  if(Ua >= length) Ua = Ua - 4;
+  if(Va >= length) Va = Va - 4;
+
+  Y = getByte(Ya);
+  U = getByte(Ua);
+  V = getByte(Va);
+  #define CLIP(x) ( (x) >= 0xFF ? 0xFF : ( (x) <= 0x00 ? 0x00 : (x) ) )
+
+  uint8_t R = CLIP((double)Y + 1.402*((double)V-128.0));
+  uint8_t G = CLIP((double)Y - 0.344*((double)U-128.0) - 0.714*((double)V-128.0));
+  uint8_t B = CLIP((double)Y + 1.772*((double)U-128.0));
+  return PxRGB(R,G,B);
 }
 void Imagem::getGBRGtoHPG(unsigned lin, unsigned col,
                           float &H, float &P, float &G)
 {
-  atRGB(lin,col).getHPG(H,P,G);
+  // if(new_image) atRGB(lin,col).getHPG(H,P,G);
+  if(new_image) atGBRGtoRGB(lin,col).getHPG(H,P,G);
+  else imgRGB[lin][col].getHPG(H,P,G);
 }
 void Imagem::getYUYVtoHPG(unsigned lin, unsigned col,
                           float &H, float &P, float &G){
-  //TODO alterar esse Metodo para nao precisar converter a imagem por completo
-  atualizaImage();
-  imgRGB[lin][col].getHPG(H,P,G);
+  // atualizaImage();
+  // imgRGB[lin][col].getHPG(H,P,G);
+  if(new_image) atYUYVtoRGB(lin,col).getHPG(H,P,G);
+  else imgRGB[lin][col].getHPG(H,P,G);
 }
 //Cria a ImagemRGB apartir de dados da imagem em YUYV
 void Imagem::YUV422toRGB888(){
+
+  // for(unsigned i = 0; i < height; i ++)
+  //    for(unsigned j = 0; j < width; j++){
+  //      imgRGB[i][j] = atYUYVtoRGB(i,j);
+  //    }
   int line, column;
   uint8_t *py, *pu, *pv;
   uint8_t *tmp = (uint8_t*)this->imgRGB.getRawData();

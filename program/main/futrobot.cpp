@@ -112,12 +112,11 @@ void Futrobot::management()
       cerr << "Erro na transmissao dos dados!\n";
     }
     myt_end_tra = relogio();
-     //Modulo de exportacao dos dados
-    if (gameState() != FINISH_STATE && exxport(ImBruta.getRawData())) {
-       finish();
-       cerr << "Erro na exportacao dos dados!\n";
-     }
-
+    //Modulo de exportacao dos dados
+    // if (gameState() != FINISH_STATE && exxport(ImBruta.getData())) {
+    //    finish();
+    //    cerr << "Erro na exportacao dos dados!\n";
+    // }
     myt_end_exp = relogio();
 
     t_start = myt_start;
@@ -253,7 +252,7 @@ void Futrobot::print_state() const
   printf("| Estrategia:  %f             | Transmissao: %f       |\n",
 	 t_end_str - t_end_loc,
 	 t_end_tra - t_end_con);
-  printf("| Exportacao:  %f             |\n",
+  printf("| Exportacao(NOT USED):  %f             |\n",
 	 t_end_exp - t_end_tra);
   printf("+--------+--------------------------+--------------------------+--------+\n");
 

@@ -20,22 +20,49 @@ int main()
   TesteCam cam;
   char key;
 
-  while(true){
-    cout << "q - Quit or ENTER - Capture\n";
-    cin.get(key);
-    if(key == 'q'){
-      cout << "Quit\n";
-      break;
-    }
-    if(key == '\n'){
-      double on = relogio();
-      cam.wait();
-      cam.capture();
-      double end = relogio();
-      cout << "Tempo de captura " << (end - on) << endl;
+  double start;
+  double end;
+  double max;
+  unsigned indice;
 
-      cam.save("CamSaveTeste.ppm");
+  start = relogio();
+  cam.wait();
+  cam.capture();
+  end = relogio();
+  std::cout << "Primeira cap " << end - start << '\n';
+
+  for(unsigned i = 0; i < 100; i++){
+    start = relogio();
+    cam.wait();
+    cam.capture();
+    end = relogio();
+
+    double delta = end - start;
+    if(i == 0)max = delta;
+    if(delta > max){
+      max = delta;
+      indice = i;
     }
-  };
+    // max = (delta > max)?delta:max;
+  }
+  std::cout << "Maior tempo de captura "<< max << "  cap_num: "<<indice<< '\n';
+
+  // while(true){
+  //   cout << "q - Quit or ENTER - Capture\n";
+  //   cin.get(key);
+  //   if(key == 'q'){
+  //     cout << "Quit\n";
+  //     break;
+  //   }
+  //   if(key == '\n'){
+  //     double on = relogio();
+  //     cam.wait();
+  //     cam.capture();
+  //     double end = relogio();
+  //     cout << "Tempo de captura " << (end - on) << endl;
+  //
+  //     cam.save("CamSaveTeste.ppm");
+  //   }
+  // };
   return 0;
 }

@@ -18,6 +18,7 @@ public:
     ImBruta.loadFromData(Camera::getDataImage(),length, pxFormat,Camera::getWidth(),Camera::getHeight());
     return retr;
   }
+  inline unsigned getSize(){ return getDataSize(); }
   inline bool wait(){return Camera::waitforimage(); }
   inline void save(const char* arq){ ImBruta.save(arq); }
   // inline void toRGB(ImagemRGB &dest){ Camera::toRGB(dest); }
@@ -45,7 +46,32 @@ int main(){
   // if(!cam.queryExposureAbs(qExpAbs) ) std::cout << "Camera nao possui o controles" << '\n';
   // else  std::cout << "Exposure(Absolute) min  - max " <<qExpAbs.min << ' ' <<qExpAbs.max << '\n';
   // if ( !cam.setExposureAbs( ExpAbs ) ) std::cout << "falha na alteracao do controle" << '\n';
-
+  // double start;
+  // double end;
+  // double max;
+  // unsigned indice;
+  //
+  // start = relogio();
+  // cam.wait();
+  // cam.capture();
+  // end = relogio();
+  // std::cout << "Primeira cap " << end - start << '\n';
+  //
+  // for(unsigned i = 0; i < 100; i++){
+  //   start = relogio();
+  //   cam.wait();
+  //   cam.capture();
+  //   end = relogio();
+  //
+  //   double delta = end - start;
+  //   if(i == 0)max = delta;
+  //   if(delta > max){
+  //     max = delta;
+  //     indice = i;
+  //   }
+  //   // max = (delta > max)?delta:max;
+  // }
+  // std::cout << "Maior tempo de captura "<< max << "  cap_num: "<<indice<< '\n';
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
     cin.get(key);
@@ -66,7 +92,6 @@ int main(){
       cout << "Captura time : " << end - start << endl;
       cout << "Save time  : " << end_save - start_save << endl;
     }
-    
   };
   return 0;
 }

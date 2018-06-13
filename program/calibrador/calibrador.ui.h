@@ -36,7 +36,8 @@ void calibrador::fileNew()
 void calibrador::fileOpen()
 {
     QString text;
-    Q3FileDialog* fd = new Q3FileDialog( this );
+    Q3FileDialog* fd = new Q3FileDialog(this);
+    fd->setDir("../../etc");
     fd->setMode( Q3FileDialog::ExistingFile );
     fd->show();
     if(fd->exec()==QDialog::Accepted){
@@ -67,6 +68,7 @@ void calibrador::fileSaveAs()
 {
     QString text;
     Q3FileDialog* fd = new Q3FileDialog( this );
+    fd->setDir("../../etc");
     fd->setMode( Q3FileDialog::AnyFile );
     fd->show();
     if(fd->exec()==QDialog::Accepted){
@@ -94,6 +96,7 @@ void calibrador::fileExit()
 void calibrador::cameraLoadParam(){
     QString text;
     Q3FileDialog* fd = new Q3FileDialog( this );
+    fd->setDir("../../etc");
     fd->setMode( Q3FileDialog::ExistingFile );
     fd->show();
     if(fd->exec()==QDialog::Accepted){
@@ -128,6 +131,7 @@ void calibrador::cameraSaveAsParam()
 {
     QString text;
     Q3FileDialog* fd = new Q3FileDialog( this );
+    fd->setDir("../../etc");
     fd->setMode( Q3FileDialog::AnyFile );
     fd->show();
     if(fd->exec()==QDialog::Accepted){
@@ -144,10 +148,21 @@ void calibrador::cameraSaveAsParam()
 void calibrador::init()
 {
     textLabel1_2_2_2_2_2_3 -> setText("Exposure Absolute");
+    textLabel1_2_2_2_2_2_4 -> setText("Gain");
+    textLabel1_2_2_2_2 -> setText("Hue");
     if (carregaInterface()){
     	cerr<<"Erro na leitura do arquivo de Interface"<<endl;
     	exit(1);
     }
+    lcdHGP_P->setSegmentStyle(QLCDNumber::Flat);
+    lcdHGP_G->setSegmentStyle(QLCDNumber::Flat);
+    lcdHGP_H->setSegmentStyle(QLCDNumber::Flat);
+
+    lcdHGP_H2->setSegmentStyle(QLCDNumber::Flat);
+    lcdHGP_P2->setSegmentStyle(QLCDNumber::Flat);
+    lcdHGP_G2->setSegmentStyle(QLCDNumber::Flat);
+
+
     //inicializa posição do mouse.
     MouseX = 0;
     MouseY = 0;
@@ -191,11 +206,8 @@ bool calibrador::carregaInterface(){
     return false;
 }
 
-
-
-void calibrador::destroy()
-{
-    delete Timer;
+void calibrador::destroy(){
+  delete Timer;
 }
 
 void calibrador::mouseMove( QPoint Point)

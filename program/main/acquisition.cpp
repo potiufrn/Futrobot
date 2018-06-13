@@ -298,10 +298,10 @@ bool Acquisition::configAcquisition(const char *str)
   cout << "\tConfigurando camera..."<<endl;
 
   //seta os parametros da camera
-  // if(Camera::read("../../etc/paramCamera.val")){
-  //   printf("Error Loading Camera Parameters!\n");
-  //   return true;
-  // };
+  if(Camera::read("../../etc/paramCamera.val")){
+    printf("Error Loading Camera Parameters!\n");
+    return true;
+  };
 
   //SetParameters(cameraParam);
   cout << "\tConfigurando calibracao..."<<endl;
