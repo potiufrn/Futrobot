@@ -72,6 +72,7 @@ int main(){
   //   // max = (delta > max)?delta:max;
   // }
   // std::cout << "Maior tempo de captura "<< max << "  cap_num: "<<indice<< '\n';
+
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
     cin.get(key);
@@ -91,6 +92,11 @@ int main(){
 
       cout << "Captura time : " << end - start << endl;
       cout << "Save time  : " << end_save - start_save << endl;
+      // float H,P,G;
+      // for(unsigned i = 0; i < 480; i ++)for(unsigned j = 0; j < 640; j++){
+      //   std::cout << i << '\t'<<j << '\n';
+      //   cam.ImBruta.getHPG(i,j,H,P,G);
+      // }
     }
   };
   return 0;

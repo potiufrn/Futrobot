@@ -912,9 +912,14 @@ void Imagem::copy(const Imagem &I){
 }
 
 PxRGB Imagem::atGBRGtoRGB(unsigned lin, unsigned col){
-
-  #define Byte(i,j) getByte(i*width + col)
+  //converte i,j em uma posicao no vetor unidimensinal
+  #define Byte(i,j) getByte((i)*width + (col))
   #define fByte(i,j) byte2float(Byte(i,j))
+  //modulo da diferenca:  |A - B|
+  #define Mod_dif(A,B) ((A>B)?A-B:B-A)
+  #define isBlue(x,y)  (x%2 == 0 && y%2 != 0)
+  #define isRed(x,y) (x%2 != 0 && y%2 == 0)
+
 
   unsigned i,j;
   float mediaR = 0,mediaG = 0,mediaB = 0;
@@ -926,32 +931,69 @@ PxRGB Imagem::atGBRGtoRGB(unsigned lin, unsigned col){
       j = col + j_offs;
       if(i >= this->height || j >= this->width)//pula indix invalidos
         continue;
-      // std::cout << i <<' '<< j <<" pos: "<<i*width + j<<" Byte:  "<<Byte(i,j)/1.0 <<'\n';
-      // std::cout << i <<' '<< j <<" pos: "<<i*width + j <<" fbyte: "<<fByte(i,j)<< '\n';
 
-      if(i%2 == 0 && j%2 != 0){//azul
+      if(isBlue(i,j)){//azul
         qtdB ++;
         mediaB += fByte(i,j);
-      }else if(i%2 != 0 && j%2 == 0){//vermelho
+      }
+      if(isRed(i,j) ){//vermelho
         qtdR ++;
         mediaR += fByte(i,j);
-      }else{//verde
+      }else{
         qtdG ++;
         mediaG += fByte(i,j);
       }
+
+      // if(i%2 == 0 && j%2 != 0){//azul
+      //   qtdB ++;
+      //   mediaB += fByte(i,j);
+      // }else if(i%2 != 0 && j%2 == 0){//vermelho
+      //   qtdR ++;
+      //   mediaR += fByte(i,j);
+      // }else{//verde
+      //   qtdG ++;
+      //   mediaG += fByte(i,j);
+      // }
     }
 
   mediaB = (mediaB/qtdB);
-  mediaG = (mediaG/qtdG);
   mediaR = (mediaR/qtdR);
 
   uint8_t R = float2byte(mediaR);
-  uint8_t G = float2byte(mediaG);
   uint8_t B = float2byte(mediaB);
-  // std::cout << "Pixel: " << PxRGB(R,G,B) << '\n';
-  // std::cout << "QtdR "<< qtdR  << '\n';
-  // std::cout << "QtdG " << qtdG << '\n';
-  // std::cout << "QtdB " << qtdB <<'\n';
+  uint8_t G;
+
+
+  //zona critica
+  if( (lin-2) >= height || (lin+2) >= height || (col-2) >= width || (col+2) >= width){
+    G = float2byte(mediaG/qtdG);
+  }else if( isBlue(lin,col) ){//azul
+
+    uint8_t dB_vertical = Mod_dif(Byte(lin-2,col),Byte(lin+2,col));
+    uint8_t dB_horizontal = Mod_dif(Byte(lin,col-2), Byte(lin,col+2));
+
+    if(dB_vertical < dB_horizontal)
+      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0;
+    else if (dB_vertical > dB_horizontal)
+      G = Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
+    else // ==
+      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0 + Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
+
+  }else if( isRed(lin,col) ){//vermelho
+
+    uint8_t dR_vertical   = Mod_dif(Byte(lin-2,col),Byte(lin+2,col));
+    uint8_t dR_horizontal = Mod_dif(Byte(lin,col-2), Byte(lin,col+2));
+
+    if(dR_vertical < dR_horizontal)
+      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0;
+    else if (dR_vertical > dR_horizontal)
+      G = Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
+    else // ==
+      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0 + Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
+  }else{//verde
+    G = Byte(lin,col);
+  }
+
   return PxRGB(R,G,B);
 }
 PxRGB Imagem::atYUYVtoRGB(unsigned lin, unsigned col){
