@@ -13,11 +13,9 @@
 // #define DEBAYER_METHOD DC1394_BAYER_METHOD_BILINEAR
 // #define VIDEO_MODE DC1394_VIDEO_MODE_640x480_MONO8
 
-
 CalibratorProcessor::CalibratorProcessor() :
-  Camera(1),
-  ImProcessada(),
-  ImBruta(),
+  Camera(),
+  ImProcessada(0,0),
   modo(CALIBRATOR_IMAGEM_REAL),
 
   nRetas(0),
@@ -41,9 +39,8 @@ CalibratorProcessor::CalibratorProcessor() :
 }
 
 CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
-  Camera(1),
-  ImProcessada(),
-  ImBruta(),
+  Camera(),
+  ImProcessada(0,0),
   modo(CALIBRATOR_IMAGEM_REAL),
 
   nRetas(0),
@@ -66,17 +63,6 @@ CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
   if(readFile(arquivo)){
     exit(1);
   }
-
-}
-
-void CalibratorProcessor::loadImage(){
-  uint8_t * data =  (uint8_t*)Camera::getDataImage();
-  unsigned length = Camera::getDataSize();
-  uint8_t pxFormat = Camera::getPxFormat();
-  unsigned largura = Camera::getWidth();
-  unsigned altura = Camera::getHeight();
-
-  ImBruta.loadFromData(data, length,  pxFormat, largura, altura);
 }
 
 CalibratorProcessor::~CalibratorProcessor(){
@@ -221,7 +207,7 @@ void CalibratorProcessor::resetHPG(){
 }
 
 bool CalibratorProcessor::loadImage(const char* arq){
-  return ImBruta.load(arq);
+  return ImProcessada.load(arq);
 }
 
 void CalibratorProcessor::saveImage(const char* arq){
@@ -295,8 +281,8 @@ bool CalibratorProcessor::processImage(){
       	     (calibracaoParam.pontosImagem[i].u() + jj - offset_u) < ImProcessada.getWidth() &&
       	     (calibracaoParam.pontosImagem[i].v() + kk - offset_v) >= 0 &&
       	     (calibracaoParam.pontosImagem[i].v() + kk - offset_v) < ImProcessada.getHeight()){
-      	    // ImProcessada[(int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v)][(int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)] = PxVermelho;
-            ImProcessada.atRGB((int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v), (int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)) = PxVermelho;
+      	    ImProcessada[(int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v)][(int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)] = PxVermelho;
+            // ImProcessada.atRGB((int)round(calibracaoParam.pontosImagem[i].v() + kk-offset_v), (int)round(calibracaoParam.pontosImagem[i].u() + jj - offset_u)) = PxVermelho;
       	  }
       	}
       }
@@ -316,8 +302,8 @@ bool CalibratorProcessor::processImage(){
       	v = (unsigned)round(calibracaoParam.pontosImagem[retas[i].p1].v() + (dV/dM)*j) -offset_v;
       	if(u < ImProcessada.getWidth()  &&
       	   v < ImProcessada.getHeight()) {
-      	  // ImProcessada[v][u] = PxVermelho;
-          ImProcessada.atRGB(v,u) = PxVermelho;
+      	  ImProcessada[v][u] = PxVermelho;
+          // ImProcessada.atRGB(v,u) = PxVermelho;
       	}
       }
     }
@@ -328,7 +314,9 @@ bool CalibratorProcessor::processImage(){
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
       	count = 0;
-        ImBruta.getHPG(i + offset_v, j + offset_u, H, P, G);
+        // ImBruta.getHPG(i + offset_v, j + offset_u, H, P, G);
+        // ImProcessada[i][j].getHPG(H,P,G);
+        ImBruta.atHPG(i,j,H,P,G);
       	if(modo ==   CALIBRATOR_COR_ETIQUETADA_SOFT)
       	    cor_pixel = calibracaoParam.getSoftColor(H,P,G);
       	else
@@ -337,15 +325,15 @@ bool CalibratorProcessor::processImage(){
       	if(cor_pixel >= 0) count++;
 
       	if(count == 0){
-      	  ImProcessada.atRGB(i,j) = PxCinza;
+          ImProcessada[i][j] = PxCinza;
       	}else if(count == 1){
       	  if(modo == CALIBRATOR_IMAGEM_ERROS){
-      	    ImProcessada.atRGB(i,j) = PxPreto;
+            ImProcessada[i][j] = PxPreto;
       	  }else{
-      	    ImProcessada.atRGB(i,j) = cores[cor_pixel];
+            ImProcessada[i][j] = cores[cor_pixel];
       	  }
       	}else{
-      	  ImProcessada.atRGB(i,j) = PxVermelho;
+          ImProcessada[i][j] = PxVermelho;
       	}
       }
     }
@@ -353,12 +341,12 @@ bool CalibratorProcessor::processImage(){
   case CALIBRATOR_COR_ATUAL:
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
-        ImBruta.getHPG(i,j,H,P,G);
+        ImBruta.atHPG(i,j,H,P,G);
       	cor_pixel = calibracaoParam.getHardColor(H,P,G);
       	if(cor_pixel == corAtual){
-      	  ImProcessada.atRGB(i,j) = ImBruta.atRGB(i+offset_v, j+offset_u);
+          ImProcessada[i][j] = ImBruta.atRGB(i + offset_v, j + offset_u);
       	}else{
-      	  ImProcessada.atRGB(i,j) = coresInversas[corAtual];
+          ImProcessada[i][j] = coresInversas[corAtual];
       	}
       }
     }
@@ -380,15 +368,14 @@ void CalibratorProcessor::getPxValor(int x, int y,
     setar na interface, é gerado um segmentation fault. Provavelmente
     devido ao acesso a mesma variavel por threads diferentes.
    */
+  // R = (int)round((ImProcessada.atRGB(y,x).r/255.0)*100.0);
+  // G1 = (int)round((ImProcessada.atRGB(y,x).g/255.0)*100.0);
+  // B = (int)round((ImProcessada.atRGB(y,x).b/255.0)*100.0);
   float myH,myP,myG;
-  R = (int)round((ImProcessada.atRGB(y,x).r/255.0)*100.0);
-  G1 = (int)round((ImProcessada.atRGB(y,x).g/255.0)*100.0);
-  B = (int)round((ImProcessada.atRGB(y,x).b/255.0)*100.0);
-  // R = (int)round((ImProcessada[y][x].r/255.0)*100.0);
-  // G1 = (int)round((ImProcessada[y][x].g/255.0)*100.0);
-  // B = (int)round((ImProcessada[y][x].b/255.0)*100.0);
-  // ImProcessada[y][x].getHPG(myH,myP,myG);
-  ImProcessada.getHPG(y, x, myH, myP, myG);
+  R = (int)round((ImProcessada[y][x].r/255.0)*100.0);
+  G1 = (int)round((ImProcessada[y][x].g/255.0)*100.0);
+  B = (int)round((ImProcessada[y][x].b/255.0)*100.0);
+  ImProcessada[y][x].getHPG(myH,myP,myG);
   H = (int)round((myH/M_PI)*180);
   P = (int)round(myP*100);
   G2 = (int)round(myG*100);

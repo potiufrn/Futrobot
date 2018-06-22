@@ -34,11 +34,7 @@ class CalibratorProcessor:
 public Camera
 {
  private:
-  // Imagem ImProcessada;
-  // Imagem ImBrutaRGB;
-  Imagem ImBruta;
-  Imagem ImProcessada;
-  // Imagem campoVazio;
+  ImagemRGB ImProcessada;
   //as variaveis que controlam o modo de funcionamento da classe
   MODOS_PROCESSAMENTO modo;
   unsigned nRetas, LarguraCaptura, AlturaCaptura;
@@ -57,7 +53,6 @@ public Camera
   unsigned offset_u,offset_v;
   bool true_color;
 
-  void loadImage();
  public:
   CalibratorProcessor();
   CalibratorProcessor(const char* arquivo);
@@ -99,12 +94,12 @@ public Camera
   bool loadImage(const char* arq);
   void saveImage(const char* arq);
   bool processImage();
-  inline const void *getPNMdata(){loadImage(); return ImProcessada.getPNMData(); };
-  inline int getPNMsize(){ loadImage();return ImProcessada.getPNMSize();};
-  inline int getImWidth(){  loadImage(); return ImProcessada.getWidth();};
-  inline int getImHeight(){ loadImage(); return ImProcessada.getHeight();};
-  inline int getCamWidth(){ loadImage(); return ImBruta.getWidth();};
-  inline int getCamHeight(){loadImage(); return ImBruta.getHeight();};
+  inline const void *getPNMdata(){return ImProcessada.getPNMData(); };
+  inline int getPNMsize(){ return ImProcessada.getPNMSize();};
+  inline int getImWidth(){ return ImProcessada.getWidth();};
+  inline int getImHeight(){return ImProcessada.getHeight();};
+  inline int getCamWidth(){ return Camera::getWidth();};
+  inline int getCamHeight(){return Camera::getHeight();};
   void getPxValor(int x, int y, int &R, int &G1, int &B, int &H, int &P, int &G2);
   int pontoSelecionado(int x,int y);
   void moverPonto(int ponto,int x,int y);

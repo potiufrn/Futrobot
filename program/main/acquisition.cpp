@@ -246,9 +246,8 @@ static double media_ang(double t1, double t2){
 Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
   FutData(team,side,mode)
 #ifndef _SO_SIMULADO_
-  ,Camera(1),
-  RDistortion(Width(),Height()),
-  ImBruta()
+  ,Camera(),
+  RDistortion(getWidth(),getHeight())
 #endif
 {
   id_pos = id_ant = 0;
@@ -296,6 +295,23 @@ bool Acquisition::configAcquisition(const char *str)
 #ifndef _SO_SIMULADO_
   unsigned i;
   cout << "\tConfigurando camera..."<<endl;
+
+  unsigned numDevices = 0;
+  unsigned index = 0;
+  do{
+    numDevices = Camera::listDevices(true);
+    if(numDevices == 0){
+      std::cerr << "\nWARNING: Nenhum Dispositivo de video conectado" << '\n';
+      exit(1);
+    }
+    std::cout << "\nInforme o index da Camera : " << '\n';
+    std::cin >> index;
+    std::cin.ignore(1,'\n');
+  }while(index >= numDevices);
+  if(Camera::Open(index) == false){
+    std::cerr << "Config. Acquisition ERRO: Falha ao abrir dispositivo" << '\n';
+    exit(1);
+  }
 
   //seta os parametros da camera
   if(Camera::read("../../etc/paramCamera.val")){
@@ -472,7 +488,7 @@ bool Acquisition::configAcquisition(const char *str)
 
 bool Acquisition::canBePainted(REG_COLOR colorID, unsigned u, unsigned v){
   float H,P,G;
-  ImBruta.getHPG(v,u, H,P,G);
+  ImBruta.atHPG(v,u, H,P,G);
   return (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID);
 }
 
@@ -638,7 +654,7 @@ bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
   for(ui = u-2; ui <= u+2; ui++) {
     for(vi = v-2; vi <= v+2; vi++) {
       if(ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight()){
-          ImBruta.getHPG(vi, ui, H, P, G);
+          ImBruta.atHPG(vi, ui, H, P, G);
       	  colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
       	if( colorID != REG_COLOR_YELLOW &&
       	    colorID != REG_COLOR_BLUE &&
@@ -828,7 +844,7 @@ bool Acquisition::processGameState()
   //PASSO 1: Busca por regiões amarelas e azuis
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
-      ImBruta.getHPG(v,u,H,P,G);
+      ImBruta.atHPG(v,u,H,P,G);
       colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
 
       // eliminar os pixels sem cor
@@ -1233,8 +1249,8 @@ bool Acquisition::processGameState()
     }
 
     cout << "Laranja " << regOrange << endl;
-
-    ImBruta.save("img_salva.ppm");
+    ImagemRGB(ImBruta).save("img_salva.ppm");
+    // ImBruta.save("img_salva.ppm");
     saveNextImage = false;
   }
 
@@ -1336,16 +1352,7 @@ bool Acquisition::acquisitionCapture(){
   //     return true;
   //   }
   // }
-  bool falha_captura = Camera::captureimage();
-  if(falha_captura)return falha_captura;
-  // ImBruta = Imagem((uint8_t*)Camera::getDataImage(), getWidth(), getHeight());
-  uint8_t * data =  (uint8_t*)Camera::getDataImage();
-  unsigned length = Camera::getDataSize();
-  uint8_t pxFormat = Camera::getPxFormat();
-  unsigned largura = Camera::getWidth();
-  unsigned altura = Camera::getHeight();
-  ImBruta.loadFromData(data, length,  pxFormat, largura, altura);;
-  return false;
+  return Camera::captureimage();
 #endif
   return false;
 }

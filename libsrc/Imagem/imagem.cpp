@@ -483,6 +483,15 @@ ImagemRGB::ImagemRGB(const ImagemRGB &I) :
   }
 }
 
+ImagemRGB::ImagemRGB(const ImagemByte &I){
+  Ncol = I.getWidth();
+  Nlin = I.getHeight();
+  create();
+  for(unsigned i = 0; i < I.getHeight(); i++)
+    for(unsigned j = 0; j < I.getWidth(); j++)
+      (*this)[i][j] = I.atRGB(i,j);
+}
+
 ImagemRGB::ImagemRGB(const char *arq)
 {
   Ncol=Nlin=0;
@@ -712,6 +721,16 @@ void ImagemRGB::operator=(const ImagemRGB &I){
   copy(I);
 }
 
+void ImagemRGB::operator=(const ImagemByte &I){
+    destruct();
+    this->Ncol = I.getWidth();
+    this->Nlin = I.getHeight();
+    create();
+    for(unsigned i = 0; i < Nlin; i ++)
+      for(unsigned j = 0; j < Ncol; j++)
+        (*this)[i][j] = I.atRGB(i,j);
+}
+
 #ifdef _IMAGEM_WITH_CHECK_ERROS_
 
 const LinhaImagemRGB ImagemRGB::operator[](unsigned lin) const
@@ -829,178 +848,181 @@ size_t ImagemRGB::getRawSize()
   return sizeof(PxRGB)*(Ncol*Nlin);
 }
 
-void Imagem::getHPG(unsigned lin,unsigned col,float &H,float &P,float &G){
-  if(!new_image)return imgRGB[lin][col].getHPG(H,P,G);
-
-  switch (pxFormat) {
-    case GBRG:
-      getGBRGtoHPG(lin,col, H, P, G);
-    break;
-    case YUYV:
-      getYUYVtoHPG(lin, col, H, P, G);
-    break;
-    default:
-    //Nao deveria chegar aqui
-    std::cerr << "Imagem ERRO: formato invalido" << '\n';
-    exit(1);
-  }
-}
-
-void Imagem::loadFromData(const uint8_t* data,unsigned length, uint8_t pxFormat,unsigned WIDTH,unsigned HEIGHT){
-  if(WIDTH == 0 || HEIGHT == 0){
+void ImagemByte::loadFromData(const uint8_t* data,unsigned length, PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT){
+  if(WIDTH == 0 || HEIGHT == 0 || length == 0){
     std::cerr << "Imagem ERRO: Dimensao invalida da imagem" << '\n';
     exit(1);
   }
-
-  imgRGB.resize(WIDTH,HEIGHT);
-  //data[0] eh um byte que identifica o formato do pixel
-  // 0 - GBRG
-  // 1 - YUYV
-  switch (pxFormat) {
-    case 0:
-      this->pxFormat = GBRG;
-    break;
-    case 1:
-      this->pxFormat = YUYV;
-    break;
-    default:
-      std::cerr << "Imagem ERRO: Falha na identificacao do formato de imagem" << '\n';
-      exit(1);
-  }
-  new_image = true;
-  if(this->length != length){
-    this->length  = length;
-    if(this->imgData != NULL)delete[] this->imgData;
-    this->imgData = new uint8_t[length];
-  }
-  this->width = WIDTH;
-  this->height = HEIGHT;
-  memcpy((uint8_t*)this->imgData, (uint8_t*)data, this->length);
+  this->pxFormat= PxFORMAT;
+  this->length  = length;
+  this->imgData = data;
+  this->width   = WIDTH;
+  this->height  = HEIGHT;
 }
-void Imagem::create(){
-  this->width = 0;
-  this->height = 0;
-  this->length = 0;
-  this->imgData = NULL;
-  this->new_image = false;
-}
-
-Imagem::~Imagem(){
-  this->height = 0;
-  this->width = 0;
-  this->length = 0;
-  this->new_image = false;
+void ImagemByte::create(){
+  this->width    = 0;
+  this->height   = 0;
+  this->length   = 0;
+  this->imgData  = NULL;
   this->pxFormat = UNDEF;
-  if(imgData != NULL)delete[] imgData;
-  imgData = NULL;
-}
-void Imagem::copy(const Imagem &I){
-  this->width     = I.width;
-  this->height    = I.height;
-  this->length    = I.length;
-  this->imgRGB    = I.imgRGB;
-  this->new_image = I.new_image;
-  this->pxFormat  = I.pxFormat;
-
-  if(this->imgData != NULL) delete[] imgData;
-  imgData = new uint8_t[I.length];
-
-  if(I.imgData != NULL && I.length != 0)
-    memcpy((uint8_t*)this->imgData, (uint8_t*)I.imgData, I.length);
-  else
-    this->imgData = NULL;
 }
 
-PxRGB Imagem::atGBRGtoRGB(unsigned lin, unsigned col){
-  //converte i,j em uma posicao no vetor unidimensinal
-  #define Byte(i,j) getByte((i)*width + (col))
-  #define fByte(i,j) byte2float(Byte(i,j))
-  //modulo da diferenca:  |A - B|
-  #define Mod_dif(A,B) ((A>B)?A-B:B-A)
-  #define isBlue(x,y)  (x%2 == 0 && y%2 != 0)
-  #define isRed(x,y) (x%2 != 0 && y%2 == 0)
+ImagemByte::~ImagemByte(){
+  this->height   = 0;
+  this->width    = 0;
+  this->length   = 0;
+  this->pxFormat = UNDEF;
+  this->imgData  = NULL;
+}
+void ImagemByte::copy(const ImagemByte &I){
+  this->width    = I.width;
+  this->height   = I.height;
+  this->length   = I.length;
+  this->pxFormat = I.pxFormat;
+  this->imgData  = I.imgData;
+}
 
+PxRGB ImagemByte::atGBRGtoRGB(unsigned lin, unsigned col)const{
+  //converte x,y em uma posicao no vetor unidimensinal
+  #define Byte(x,y)  atByte( (x)*width + (y))
+  #define PAR(x)      ((x)%2 == 0)
+  #define TOP()       (lin == 0)
+  #define BOTTOM()    (lin == height-1)
+  #define LEFT()      (col == 0)
+  #define RIGHT()     (col == width-1)
+  #define QUINA()     ((TOP() && LEFT()) || (TOP() && RIGHT()) || (BOTTOM() && LEFT()) || (BOTTOM() && RIGHT()))
+  #define isBlue()    (PAR(lin)  && !PAR(col))
+  #define isRed()     (!PAR(lin) && PAR(col))
+  #define isGreen()   (!isBlue() && !isRed())
 
-  unsigned i,j;
-  float mediaR = 0,mediaG = 0,mediaB = 0;
-  unsigned qtdR = 0, qtdG = 0, qtdB = 0;
+  uint8_t R,G,B;
 
-  for(int i_offs = -1; i_offs <= 1; i_offs++)
-    for(int j_offs = -1; j_offs <= 1; j_offs++){
-      i = lin + i_offs;
-      j = col + j_offs;
-      if(i >= this->height || j >= this->width)//pula indix invalidos
-        continue;
-
-      if(isBlue(i,j)){//azul
-        qtdB ++;
-        mediaB += fByte(i,j);
-      }
-      if(isRed(i,j) ){//vermelho
-        qtdR ++;
-        mediaR += fByte(i,j);
+  if (lin >= height || col >= width) {
+    std::cerr << "Imagem Erro: endereco invalida" << '\n';
+    exit(1);
+  }
+  //WARNING calculo da media, com truncamento para uint8_t
+  if( !TOP() && !BOTTOM() && !LEFT() && !RIGHT() ){
+    if(isGreen()){
+      if( PAR(lin) ){
+        R = Byte(lin-1,col)/2.0 + Byte(lin+1, col)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin,col-1)/2.0 + Byte(lin, col+1)/2.0;
       }else{
-        qtdG ++;
-        mediaG += fByte(i,j);
+        R = Byte(lin,col-1)/2.0 + Byte(lin, col+1)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin-1,col)/2.0 + Byte(lin+1, col)/2.0;
       }
-
-      // if(i%2 == 0 && j%2 != 0){//azul
-      //   qtdB ++;
-      //   mediaB += fByte(i,j);
-      // }else if(i%2 != 0 && j%2 == 0){//vermelho
-      //   qtdR ++;
-      //   mediaR += fByte(i,j);
-      // }else{//verde
-      //   qtdG ++;
-      //   mediaG += fByte(i,j);
-      // }
+      return PxRGB(R,G,B);
+    }else if(isBlue()){
+      R = Byte(lin-1,col-1)/4.0 + Byte(lin-1,col+1)/4.0 + Byte(lin+1,col-1)/4.0 + Byte(lin+1,col+1)/4.0;
+      G = Byte(lin-1,col)/4.0 + Byte(lin+1,col)/4.0 + Byte(lin,col-1)/4.0 + Byte(lin,col+1)/4.0;
+      B = Byte(lin,col);
+      return PxRGB(R,G,B);
+    }else{//RED
+      R = Byte(lin,col);
+      G = Byte(lin-1,col)/4.0 + Byte(lin+1,col)/4.0 + Byte(lin,col-1)/4.0 + Byte(lin,col+1)/4.0;
+      B = Byte(lin-1,col-1)/4.0 + Byte(lin-1,col+1)/4.0 + Byte(lin+1,col-1)/4.0 + Byte(lin+1,col+1)/4.0;
+      return PxRGB(R,G,B);
     }
-
-  mediaB = (mediaB/qtdB);
-  mediaR = (mediaR/qtdR);
-
-  uint8_t R = float2byte(mediaR);
-  uint8_t B = float2byte(mediaB);
-  uint8_t G;
-
-
-  //zona critica
-  if( (lin-2) >= height || (lin+2) >= height || (col-2) >= width || (col+2) >= width){
-    G = float2byte(mediaG/qtdG);
-  }else if( isBlue(lin,col) ){//azul
-
-    uint8_t dB_vertical = Mod_dif(Byte(lin-2,col),Byte(lin+2,col));
-    uint8_t dB_horizontal = Mod_dif(Byte(lin,col-2), Byte(lin,col+2));
-
-    if(dB_vertical < dB_horizontal)
-      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0;
-    else if (dB_vertical > dB_horizontal)
-      G = Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
-    else // ==
-      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0 + Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
-
-  }else if( isRed(lin,col) ){//vermelho
-
-    uint8_t dR_vertical   = Mod_dif(Byte(lin-2,col),Byte(lin+2,col));
-    uint8_t dR_horizontal = Mod_dif(Byte(lin,col-2), Byte(lin,col+2));
-
-    if(dR_vertical < dR_horizontal)
-      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0;
-    else if (dR_vertical > dR_horizontal)
-      G = Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
-    else // ==
-      G = Byte(lin+1,col)/2.0 + Byte(lin-1,col)/2.0 + Byte(lin,col+1)/2.0 + Byte(lin,col-1)/2.0;
-  }else{//verde
-    G = Byte(lin,col);
   }
 
-  return PxRGB(R,G,B);
+  //TODO Os pixels das quinas serao considerados pretos, para poupar processamento
+  if(QUINA())return PxRGB(0,0,0);
+  //topo sem as quinas (exclusivamente no topo)
+  //ha apenas G e B no topo
+  if(TOP()){
+    if(isGreen()){
+      R = Byte(lin+1, col);
+      G = Byte(lin,col);
+      B = Byte(lin,col-1)/2.0 + Byte(lin,col+1)/2.0;
+    }else{//blue
+      R = Byte(lin+1, col-1)/2.0 + Byte(lin+1,col+1)/2.0;
+      G = Byte(lin,col-1)/3.0 + Byte(lin,col+1)/3.0 + Byte(lin+1,col)/3.0;
+      B = Byte(lin,col);
+    }
+    return PxRGB(R,G,B);
+  }
+
+  if(BOTTOM()){
+    //linha G e B
+    if(PAR(lin)){
+      if(isBlue()){
+        R = Byte(lin-1,col-1)/2.0 + Byte(lin-1,col+1)/2.0;
+        G = Byte(lin,col-1)/3.0 + Byte(lin+1,col)/3.0 + Byte(lin,col-1)/3.0;
+        B = Byte(lin,col);
+      }else{//Green
+        R = Byte(lin-1,col);
+        G = Byte(lin,col);
+        B = Byte(lin,col-1)/2.0 + Byte(lin,col+1)/2.0;
+      }
+    }else{//linha impar (G e R)
+      if(isRed()){
+        R = Byte(lin,col);
+        G = Byte(lin,col-1)/3.0 + Byte(lin,col+1)/3.0 + Byte(lin-1,col)/3.0;
+        B = Byte(lin-1,col-1)/2.0 + Byte(lin-1,col+1)/2.0;
+      }else{//Green
+        R = Byte(lin,col-1)/2.0 + Byte(lin,col+1)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin-1,col);
+      }
+    }
+    return PxRGB(R,G,B);
+  }
+
+  if(LEFT()){
+    //coluna com G e R
+    if(PAR(col)){
+      if(isRed()){
+        R = Byte(lin,col);
+        G = Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0 + Byte(lin,col+1)/3.0;
+        B = Byte(lin-1,col+1)/2.0 + Byte(lin+1,col+1)/2.0;
+      }else{//Green
+        R = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin,col+1);
+      }
+    }else{// coluna com G e B
+      if(isBlue()){
+        R = Byte(lin-1,col+1)/2.0 + Byte(lin+1,col+1)/2.0;
+        G = Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0 + Byte(lin,col+1)/3.0;
+        B = Byte(lin,col);
+      }else{//Green
+        R = Byte(lin,col+1);
+        G = Byte(lin,col);
+        B = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+      }
+      return PxRGB(R,G,B);
+    }
+  }
+  if(RIGHT()){
+
+    if(PAR(col)){//coluna com G e R
+      if(isRed()){
+        R = Byte(lin,col);
+        G = Byte(lin,col-1)/3.0 + Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0;
+        B = Byte(lin-1,col-1)/2.0 + Byte(lin+1,col-1)/2.0;
+      }else{//Green
+        R = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin,col-1);
+      }
+    }else{//coluna com G e B
+      if(isBlue()){
+        R = Byte(lin-1,col-1)/2.0 + Byte(lin+1,col-1)/2.0;
+        G = Byte(lin,col-1)/3.0 + Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0;
+        B = Byte(lin,col);
+      }else{//Green
+        R = Byte(lin,col-1);
+        G = Byte(lin,col);
+        B = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+      }
+    }
+    return PxRGB(R,G,B);
+  }
+
 }
-PxRGB Imagem::atYUYVtoRGB(unsigned lin, unsigned col){
-  //TODO reescrever este metodo para nao precisar converter a imagem
-  //por completo
-  // atualizaImage();
-  // return imgRGB[lin][col];
+PxRGB ImagemByte::atYUYVtoRGB(unsigned lin, unsigned col)const{
   unsigned pos = lin*width + col;
   unsigned Ya = 2*pos;
   unsigned Ua, Va;
@@ -1022,9 +1044,9 @@ PxRGB Imagem::atYUYVtoRGB(unsigned lin, unsigned col){
   if(Ua >= length) Ua = Ua - 4;
   if(Va >= length) Va = Va - 4;
 
-  Y = getByte(Ya);
-  U = getByte(Ua);
-  V = getByte(Va);
+  Y = atByte(Ya);
+  U = atByte(Ua);
+  V = atByte(Va);
   #define CLIP(x) ( (x) >= 0xFF ? 0xFF : ( (x) <= 0x00 ? 0x00 : (x) ) )
 
   uint8_t R = CLIP((double)Y + 1.402*((double)V-128.0));
@@ -1032,99 +1054,28 @@ PxRGB Imagem::atYUYVtoRGB(unsigned lin, unsigned col){
   uint8_t B = CLIP((double)Y + 1.772*((double)U-128.0));
   return PxRGB(R,G,B);
 }
-void Imagem::getGBRGtoHPG(unsigned lin, unsigned col,
-                          float &H, float &P, float &G)
-{
-  // if(new_image) atRGB(lin,col).getHPG(H,P,G);
-  if(new_image) atGBRGtoRGB(lin,col).getHPG(H,P,G);
-  else imgRGB[lin][col].getHPG(H,P,G);
-}
-void Imagem::getYUYVtoHPG(unsigned lin, unsigned col,
-                          float &H, float &P, float &G){
-  // atualizaImage();
-  // imgRGB[lin][col].getHPG(H,P,G);
-  if(new_image) atYUYVtoRGB(lin,col).getHPG(H,P,G);
-  else imgRGB[lin][col].getHPG(H,P,G);
-}
-//Cria a ImagemRGB apartir de dados da imagem em YUYV
-void Imagem::YUV422toRGB888(){
-
-  // for(unsigned i = 0; i < height; i ++)
-  //    for(unsigned j = 0; j < width; j++){
-  //      imgRGB[i][j] = atYUYVtoRGB(i,j);
-  //    }
-  int line, column;
-  uint8_t *py, *pu, *pv;
-  uint8_t *tmp = (uint8_t*)this->imgRGB.getRawData();
-
-  /* In this format each four bytes is two pixels. Each four bytes is two Y's, a Cb and a Cr.
-     Each Y goes to one of the pixels, and the Cb and Cr belong to both pixels. */
-  py = this->imgData;
-  pu = this->imgData + 1;
-  pv = this->imgData + 3;
-
-  #define CLIP(x) ( (x) >= 0xFF ? 0xFF : ( (x) <= 0x00 ? 0x00 : (x) ) )
-
-  for (line = 0; line < this->height; ++line) {
-    for (column = 0; column < this->width; ++column) {
-      *tmp++ = CLIP((double)*py + 1.402*((double)*pv-128.0));
-      *tmp++ = CLIP((double)*py - 0.344*((double)*pu-128.0) - 0.714*((double)*pv-128.0));
-      *tmp++ = CLIP((double)*py + 1.772*((double)*pu-128.0));
-      // increase py every time
-      py += 2;
-      // increase pu,pv every second time
-      if ((column & 1) == 1) {
-        pu += 4;
-        pv += 4;
-      }
-    }
-  }
-}
-void Imagem::GBRGtoRGB(){
-  imgRGB.resize(getWidth(),getHeight());
-  for (unsigned i = 0; i < this->height; i++)for (unsigned j = 0; j < this->width; j++)
-    imgRGB[i][j] = atGBRGtoRGB(i, j);
-}
-uint8_t Imagem::getByte(unsigned pos)const{
-  if(pos >= this->length){
-    std::cerr << "Imagem ERRO: posicao invalida" << '\n';
+PxRGB ImagemByte::atRGB(unsigned lin,unsigned col)const{
+  if(imgData == NULL){
+    std::cerr << "Imagem ERRO: Imagem Vazia" << '\n';
     exit(1);
   }
-  return imgData[pos];
-}
-uint8_t &Imagem::getByte(unsigned pos){
-  if(pos >= this->length){
-    std::cerr << "Imagem ERRO: posicao invalida" << '\n';
-    exit(1);
-  }
-  return imgData[pos];
-}
 
-const PxRGB* Imagem::getRawData(){
-  atualizaImage();
-  return imgRGB.getRawData();
-}
-void Imagem::atualizaImage(){
-  //Teste se precisa atualizar
-  if(imgData == NULL || !new_image)return;
-  //inicia as alteracoes para imgRGB corresponder
-  //a imgData
-  if(imgRGB.getHeight() != height || imgRGB.getWidth() != width)
-    imgRGB.resize(width,height);
   switch (pxFormat) {
     case GBRG:
-    GBRGtoRGB();
+      return atGBRGtoRGB(lin,col);
     break;
     case YUYV:
-    YUV422toRGB888();
+      return atYUYVtoRGB(lin,col);
     break;
     default:
-    std::cerr << "Imagem ERRO: Formato invalido" << '\n';
+      std::cerr << "Imagem ERRO: Pixel Format Invalido" << '\n';
+      exit(1);
+  }
+}
+uint8_t ImagemByte::atByte(unsigned pos)const{
+  if(pos >= this->length){
+    std::cerr << "Imagem ERRO: posicao invalida" << '\n';
     exit(1);
   }
-  new_image = false;
-}
-const void* Imagem::getPNMData(){
-  atualizaImage();
-  return imgRGB.getPNMData();
+  return imgData[pos];
 }

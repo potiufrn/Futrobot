@@ -81,8 +81,6 @@ public:
   bool acquisition();
   void save_image();
   //  const PxRGB *exptimg () {return (ImBruta.getRawData());};
-  // Imagem ImBrutaRGB;
-  Imagem ImBruta;
 };
 
 #endif

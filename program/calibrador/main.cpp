@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 
-using namespace std;
+// using namespace std;
 
 //bool terminar = false;
 CalibratorProcessor X;
@@ -22,14 +22,14 @@ int main( int argc, char ** argv )
 {
 
     if(argc >2){
-    	cerr<<"Parametros invalidos!"<<endl;
-    	cerr<<"Use ./calibrador ou ./calibrador <arquivo_de_configuracao>"<<endl;
+    	std::cerr<<"Parametros invalidos!"<<'\n';
+    	std::cerr<<"Use ./calibrador ou ./calibrador <arquivo_de_configuracao>"<<'\n';
     	exit(1);
     }
 
     //CalibratorProcessor CP(a.argc() == 2? a.argv()[1] : NULL);
     if(X.readFile(argc == 2? argv[1] : "")){
-    	cerr<<"Erro abrindo arquivo de definicao do calibrador!"<<endl;
+    	std::cerr<<"Erro abrindo arquivo de definicao do calibrador!"<<'\n';
     	exit(1);
     }
 
@@ -38,6 +38,20 @@ int main( int argc, char ** argv )
 
      int res;
     pthread_t a_thread;
+    unsigned numDevices = 0;
+    unsigned index = 0;
+    do{
+      numDevices = X.listDevices();
+      if(numDevices == 0){
+        std::cerr << "\nWARNING: Nenhum Dispositivo de video conectado" << '\n';
+        return 1;
+      }
+      std::cout << "\nInforme um index valido da Camera : " << '\n';
+      std::cin >> index;
+      // std::cin.ignore(1,'\n');
+    }while(index >= numDevices);
+
+    X.Open(index);
 
     res = pthread_create(&a_thread, NULL, thread_camera, (void *)&X);
 

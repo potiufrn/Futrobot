@@ -9,69 +9,28 @@ using namespace std;
 class TesteCam:public Camera
 {
 public:
-  Imagem ImBruta;
-  TesteCam(unsigned index = 0):Camera(index),ImBruta(){this->capturando = true;}
-  inline bool capture(){
-    bool retr = Camera::captureimage();
-    uint8_t pxFormat = Camera::getPxFormat();
-    unsigned length = Camera::getDataSize();
-    ImBruta.loadFromData(Camera::getDataImage(),length, pxFormat,Camera::getWidth(),Camera::getHeight());
-    return retr;
-  }
-  inline unsigned getSize(){ return getDataSize(); }
+  TesteCam(){ this->capturando = true; }
+  TesteCam(unsigned index):Camera(index){this->capturando = true;}
+  inline void save(const char* arq) { ImagemRGB(ImBruta).save(arq);}
+  inline bool capture(){return Camera::captureimage();}
   inline bool wait(){return Camera::waitforimage(); }
-  inline void save(const char* arq){ ImBruta.save(arq); }
-  // inline void toRGB(ImagemRGB &dest){ Camera::toRGB(dest); }
+  inline bool Open(unsigned index){ Camera::Open(index); this->capturando = true; }
+  inline PxRGB  atRGB(unsigned lin, unsigned col){ return ImBruta.atRGB(lin,col); }
 };
 
 int main(){
+  TesteCam cam;
+  unsigned numDevices = 0;
   unsigned index = 0;
   char key;
 
-  std::cout << "Informe o index da Camera : " << '\n';
-  cin >> index;
-  TesteCam cam(index);
+  do{
+    numDevices = cam.listDevices();
+    std::cout << "\nInforme um index valido da Camera : " << '\n';
+    cin >> index;
+  }while(index >= numDevices);
+  cam.Open(index);
   cin.ignore(1,'\n');
-
-  // int gain = 77;
-  // int ExpAbs = 292;
-  //
-  // struct controler qGain;
-  // struct controler qExpAbs;
-  //
-  // if(!cam.queryGain(qGain) ) std::cout << "Camera nao possui o controles" << '\n';
-  // else std::cout << "Gain min - max " <<qGain.min << ' ' <<qGain.max << '\n';
-  // if ( !cam.setGain(gain) ) std::cout << "falha na alteracao dos controles" << '\n';
-  //
-  // if(!cam.queryExposureAbs(qExpAbs) ) std::cout << "Camera nao possui o controles" << '\n';
-  // else  std::cout << "Exposure(Absolute) min  - max " <<qExpAbs.min << ' ' <<qExpAbs.max << '\n';
-  // if ( !cam.setExposureAbs( ExpAbs ) ) std::cout << "falha na alteracao do controle" << '\n';
-  // double start;
-  // double end;
-  // double max;
-  // unsigned indice;
-  //
-  // start = relogio();
-  // cam.wait();
-  // cam.capture();
-  // end = relogio();
-  // std::cout << "Primeira cap " << end - start << '\n';
-  //
-  // for(unsigned i = 0; i < 100; i++){
-  //   start = relogio();
-  //   cam.wait();
-  //   cam.capture();
-  //   end = relogio();
-  //
-  //   double delta = end - start;
-  //   if(i == 0)max = delta;
-  //   if(delta > max){
-  //     max = delta;
-  //     indice = i;
-  //   }
-  //   // max = (delta > max)?delta:max;
-  // }
-  // std::cout << "Maior tempo de captura "<< max << "  cap_num: "<<indice<< '\n';
 
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
@@ -91,12 +50,13 @@ int main(){
       double end_save = relogio();
 
       cout << "Captura time : " << end - start << endl;
+
+      // unsigned lin,col;
+      // std::cout << "lin e col ? " << '\n';
+      // cin >> lin >> col;
+      // cout << cam.atRGB(lin,col) << endl;
+      // cin.ignore();
       cout << "Save time  : " << end_save - start_save << endl;
-      // float H,P,G;
-      // for(unsigned i = 0; i < 480; i ++)for(unsigned j = 0; j < 640; j++){
-      //   std::cout << i << '\t'<<j << '\n';
-      //   cam.ImBruta.getHPG(i,j,H,P,G);
-      // }
     }
   };
   return 0;

@@ -73,91 +73,106 @@ bool Camera::write(const char * arquivo) const{
   return false;
 }
 
-Camera::Camera (const char* device):
-  encerrar(false),
-  capturando(false),
-  inicializado(false),
-  imgData(NULL),
-  name(device)
-{
-  width = WIDTH;
-  height = HEIGHT;
-  fps = FPS;
-
-  this->Open();
-  this->Init();
-  this->Start();
-  inicializado = true;
-
-  imgData = new uint8_t[meuBuffer[0].length];
-}
-
 Camera::Camera (unsigned index):
   encerrar(false),
   capturando(false),
-  inicializado(false),
-  imgData(NULL)
+  isOpen(false),
+  ImBruta(WIDTH,HEIGHT)
 {
   width = WIDTH;
   height = HEIGHT;
   fps = FPS;
-
-  if(index > 9)errno_exit("Camera: device invalid index");
-
-  //name = concatenacao de: /dev/video + intToString(index)
-  std::string dev =  std::string("/dev/video") + std::string(new (char)(index+48));
-  name = (char*)dev.c_str();
-
-  this->Open();
-  this->Init();
-  this->Start();
-  inicializado = true;
-
-  imgData = new uint8_t[meuBuffer[0].length];
+  this->Open(index);
 }
 
-void Camera::Open() { // Rotina que serve para abrir dispositivo.
+bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
+  if(this->isOpen)this->Close();
+
+  if(index > 9){
+    std::cerr << "Camera Warning: index invalido" << '\n';
+    return false;
+    // errno_exit("Camera: device invalid index");
+  }
+  //name = concatenacao de: /dev/video + intToString(index)
+  std::string dev =  std::string("/dev/video") + std::string(new (char)(index+48),1);
+  const char* name = (char*)dev.c_str();
+
   struct stat st;
   if(-1==stat(name, &st)) {
     fprintf(stderr, "Cannot identify '%s' : %d, %s\n", name, errno, strerror(errno));
-    exit(1);
+    // exit(1);
+    return false;
   }
 
-  if(!S_ISCHR(st.st_mode)) {
+  if(!S_ISCHR(st.st_mode)){
     fprintf(stderr, "%s is no device\n", name);
-    exit(1);
+    // exit(1);
+    return false;
   }
   fd = open(name, O_RDWR | O_NONBLOCK , 0);
-  if(-1 == fd)
-    errno_exit("Camera ERRO: No Open");
+  if(-1 == fd){
+    // errno_exit("Camera ERRO: No Open");
+    std::cerr << "Camera Warning: No open" << '\n';
+    return false;
+  }
+
+  this->isOpen = true;
+  this->Init();
+  this->Start();
+  this->capturando = true;
+  this->encerrar = false;
+  return true;
 }
 
 void Camera::Close(){
+  this->isOpen     = false;
+  this->Stop();
+  this->pxFormat   = UNDEF;
+  this->encerrar   = true;
+  this->capturando = false;
   close(fd);
+  this->UnInit();
+}
+unsigned Camera::listDevices(bool printed)const{
+  const char* name;
+  std::string dev;
+  int fd_temp;
+  unsigned contDevices = 0;
+
+  for(unsigned i = 0; i < 9; i++){
+    dev =  std::string("/dev/video") + std::string(new (char)(i+48),1);
+    name = (const char*)dev.c_str();
+
+    fd_temp = open(name,O_RDWR | O_NONBLOCK , 0);
+    if(fd_temp == -1)continue;
+    contDevices++;
+    struct v4l2_capability cap;
+    CLEAR(cap);
+    ioctl(fd_temp,VIDIOC_QUERYCAP,&cap);
+    if(printed)
+      std::cout << "\nindex: "<< i <<" Nome: "<<cap.card << '\n';
+    close(fd_temp);
+  }
+  return contDevices;
 }
 
 void Camera::Init(){
   //formatar o dispotivo
-  #define GBRG 0
-  #define YUYV 1
-
-
   struct v4l2_fmtdesc fmtdesc;
   CLEAR(fmtdesc);
   fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   bool format_invalido = true;
   while (ioctl(fd,VIDIOC_ENUM_FMT,&fmtdesc) == 0)
   {
-      printf("%s\n", fmtdesc.description);
       if(fmtdesc.pixelformat == V4L2_PIX_FMT_SGBRG8){
         pxFormat = GBRG;
-        std::cout << "Suporta a GBRG" << '\n';
+        // std::cout << "Suporta a GBRG" << '\n';
         format_invalido = false;
         break;
       }
       if(fmtdesc.pixelformat == V4L2_PIX_FMT_YUYV){
         pxFormat = YUYV;
-        std::cout << "Suporta a YUYV" << '\n';
+        // std::cout << "Suporta a YUYV" << '\n';
         format_invalido = false;
         break;
       }
@@ -244,11 +259,13 @@ void Camera::UnInit() {
 
 void Camera::Start()
 {
+  if(!this->isOpen)return;
+
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
   errno_exit ("Camera ERRO: VIDIOC_STREAMON");
 
-  for(unsigned int i = 0; i < NUM_BUFFERS; i++) {
+  for(unsigned int i = 0; i < NUM_BUFFERS; i++){
     struct v4l2_buffer buf;
     CLEAR (buf);
 
@@ -263,6 +280,7 @@ void Camera::Start()
 
 void Camera::Stop()
 {
+  if(!isOpen)return;
   enum v4l2_buf_type type;
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMOFF, &type))
@@ -286,8 +304,7 @@ bool Camera::captureimage(){
        perror("Camera WARNING: Requesting new Frame");
        return true; //errno_exit ("VIDIOC_QBUF");
      }
-    // memcpy((uint8_t*)ImBruta.getRawData(),meuBuffer[buf.index].bytes,meuBuffer[buf.index].length);
-    memcpy((uint8_t*)imgData,meuBuffer[buf.index].bytes,meuBuffer[buf.index].length);
+    ImBruta.loadFromData(meuBuffer[buf.index].bytes, meuBuffer[buf.index].length, pxFormat, width, height);
   }
  return false;
 }
@@ -311,13 +328,14 @@ bool Camera::waitforimage(){
 
 void Camera::run()
 {
+  encerrar = false;
   while(!encerrar){
     waitforimage();
     captureimage();
   }
 }
 
-void Camera::terminar () {
+void Camera::terminar() {
   encerrar = true;
   UnInit();
   Stop();

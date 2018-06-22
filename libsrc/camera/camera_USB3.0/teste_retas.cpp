@@ -1,23 +1,25 @@
+#include <imagem.h>
+
 #include "camera.h"
 #include "../../../program/system.h"
-#include <fstream>
+
 
 using namespace std;
 
 class TesteCam:public Camera
 {
 public:
-  TesteCam(unsigned index = 0):Camera(index){this->capturando = true;}
-
-  inline bool capture(){ return Camera::captureimage(); }
+  TesteCam(){ this->capturando = true; }
+  TesteCam(unsigned index):Camera(index){this->capturando = true;}
+  inline void save(const char* arq) { ImagemRGB(ImBruta).save(arq);}
+  inline bool capture(){return Camera::captureimage();}
   inline bool wait(){return Camera::waitforimage(); }
-  inline void save(const char* arq){ ImBruta.save(arq); }
-  inline void toRGB(ImagemRGB &dest){ Camera::toRGB(dest); }
-  inline ImagemGBRG getImg()const{return ImBruta;}
-
+  inline bool Open(unsigned index){ Camera::Open(index); this->capturando = true; }
+  inline PxRGB  atRGB(unsigned lin, unsigned col){ return ImBruta.atRGB(lin,col); }
+  void toRGB( ImagemRGB &imgRGB) {imgRGB=ImBruta;}
   void histogram(ImagemRGB &dest){
-    unsigned histo[255];
-    for(unsigned i=0; i<255; i++)
+    unsigned histo[256];
+    for(unsigned i=0; i<=255; i++)
       histo[i] = 0;
 
     for(unsigned i = 120; i< 360; i++)for(unsigned j = 160; j < 480; j++)
@@ -25,7 +27,7 @@ public:
 
     ofstream histograma;
     histograma.open("grafico.txt");
-    for(unsigned i=0; i<255; i++){
+    for(unsigned i=0; i<=255; i++){
       histograma << histo[i]<< " ";
     }
     histograma.close();
@@ -70,10 +72,21 @@ void detlinhas(ImagemRGB &dest){
 
 
 int main(){
-  TesteCam cam(1);
-  ImagemRGB imrgb(0,0), segRGB(0,0);
+  TesteCam cam;
+  unsigned numDevices = 0;
+  unsigned index = 0;
+  ImagemRGB imrgb(0,0), segRGB(0,0), linha(100,100);
   char key;
   uint8_t ref = 124;
+
+  do{
+    numDevices = cam.listDevices();
+    std::cout << "\nInforme um index valido da Camera : " << '\n';
+    cin >> index;
+  }while(index >= numDevices);
+  cam.Open(index);
+  cin.ignore(1,'\n');
+
 
   while(true){
     cout << "q - Quit \nENTER - Capture "<<endl;
@@ -103,7 +116,7 @@ int main(){
       cam.histogram(imrgb);
 
       std::cout << "Valor atual da ref " << ref << '\n';
-      segmentacao(imrgb, 30);
+      segmentacao(imrgb, 58);
       imrgb.save("RGB_seg.ppm");
       // detlinhas(imrgb);
       cout << "Captura time : " << end - start << endl;
