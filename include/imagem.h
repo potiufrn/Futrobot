@@ -210,6 +210,56 @@ struct TCoord3
 
 
 
+
+enum PIXEL_FORMAT{
+  GBRG  = 0,
+  YUYV  = 1,
+  UNDEF = 42
+};
+
+class ImagemByte{
+private:
+  unsigned width,height;
+  const uint8_t* imgData;
+  unsigned length;//imgData length
+  // ImagemRGB imgRGB;
+  PIXEL_FORMAT pxFormat;
+
+  void copy(const ImagemByte &I);
+  void create();
+
+  PxRGB atGBRGtoRGB(unsigned lin, unsigned col)const;
+  PxRGB atYUYVtoRGB(unsigned lin, unsigned col)const;
+
+public:
+//data deve ser o retorno do metodo getDataImage de um objeto Camera
+//estrutura do data:  (byte*)(imagem no formato X)
+//byte do formato pode ser:
+// 0 - GBRG
+// 1 - YUYV 4:2:2
+  inline ImagemByte(const ImagemByte &I){copy(I);}
+  inline ImagemByte(unsigned larg,unsigned alt):width(larg),height(alt),
+                                                imgData(NULL),pxFormat(UNDEF),length(0){}
+  inline ImagemByte(){ create(); }
+  ~ImagemByte();
+
+  //data deve ser o retorno de Camera::getDataImage()
+  // void loadFromData(const struct CAMERA_DATA &data,unsigned  width, unsigned height);
+  void loadFromData(const uint8_t* data,unsigned length,PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT);
+  //WARNING i,j so serao iguais a lin e col, caso pxFormat for GBRG
+  //Retorna o byte na posicao i,j do vetor de dados da imagem,
+  //obs.: o significado do byte depende do formato do Pixel
+  uint8_t atByte(unsigned pos)const;
+  PxRGB atRGB(unsigned lin,unsigned col)const;
+  inline void atHPG(unsigned lin,unsigned col,float &H,float &P,float &G)const{ atRGB(lin,col).getHPG(H,P,G); }
+
+  inline void operator=(const ImagemByte &I){ copy(I); }
+
+  inline unsigned getWidth() const{ return width; }
+  inline unsigned getHeight() const{ return height; }
+  inline unsigned getLength()const{ return length; }
+};
+
 // A classe LinhaImagemRGB é definida apenas por razoes de
 // implementacao. É o dado de retorno do operator[] da classe
 // ImagemRGB: ele existe para que se possa implementar acesso a um
@@ -217,12 +267,12 @@ struct TCoord3
 // criar nenhum objeto desta classe, pois o construtor é private
 class LinhaImagemRGB
 {
- private:
+private:
   unsigned N;
   PxRGB *lin;
   inline LinhaImagemRGB(unsigned Num, PxRGB *Lin) {N=Num; lin=Lin;}
   friend class ImagemRGB;
- public:
+public:
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   const PxRGB operator[](unsigned col) const;
   PxRGB &operator[](unsigned col);
@@ -236,7 +286,7 @@ class LinhaImagemRGB
 // PBM)
 class ImagemRGB
 {
- private:
+private:
   unsigned Ncol,Nlin;
   PxRGB *img;
   void *ptPNM;
@@ -245,129 +295,45 @@ class ImagemRGB
   bool destruct();
   bool copy(const ImagemRGB &I);
   bool move(ImagemRGB &I);
- public:
+public:
 
   ImagemRGB(unsigned Larg, unsigned Alt);
   ImagemRGB(const ImagemRGB &I);
+  ImagemRGB(const ImagemByte &I);
+
+
   explicit ImagemRGB(const char *arq);
   ~ImagemRGB();
   bool resize(unsigned Larg, unsigned Alt, bool keepData=false);
   bool load(const char *arq);
   void operator=(const ImagemRGB &I);
+  void operator=(const ImagemByte &I);
+
   inline unsigned ncol() const {return Ncol;}
   inline unsigned nlin() const {return Nlin;}
+
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   const LinhaImagemRGB operator[](unsigned lin) const;
   LinhaImagemRGB operator[](unsigned lin);
   #else
   const LinhaImagemRGB operator[](unsigned lin) const {
     return(LinhaImagemRGB(Ncol,img+Ncol*lin)); }
-  LinhaImagemRGB operator[](unsigned lin) {
-    return(LinhaImagemRGB(Ncol,img+Ncol*lin)); }
-  #endif
-  void save(const char *arq, bool ascii=false) const;
+    LinhaImagemRGB operator[](unsigned lin) {
+      return(LinhaImagemRGB(Ncol,img+Ncol*lin)); }
+      #endif
+      void save(const char *arq, bool ascii=false) const;
 
-  inline unsigned getWidth() const{ return Ncol; }
-  inline unsigned getHeight() const{ return Nlin; }
-  void toGray();
+      inline unsigned getWidth() const{ return Ncol; }
+      inline unsigned getHeight() const{ return Nlin; }
+      void toGray();
 
-  // Métodos de acesso aos dados de baixo nível
-  // Cuidado ao usar! Nao altere os dados para onde os ponteiros apontam...
-  const void *getPNMData();
-  size_t getPNMSize();
-  const PxRGB *getRawData();
-  size_t getRawSize();
-};
-
-enum PIXEL_FORMAT{
-  GBRG  = 0,
-  YUYV  = 1,
-  UNDEF = 42
-};
-
-class Imagem{
-private:
-
-  unsigned width,height;
-  uint8_t *imgData;
-  unsigned length;//imgData length
-  //True caso imgRGB nao corresponda a imgData
-  //false caso contrario
-  bool new_image;
-
-  ImagemRGB imgRGB;
-  PIXEL_FORMAT pxFormat;
-
-  //Metodos de conversao para RGB
-  //YUYV to RGB
-  void YUV422toRGB888();
-  //GBRG to RGB
-  void GBRGtoRGB();
-
-  void copy(const Imagem &I);
-  void create();
-  void atualizaImage();
-
-  PxRGB atGBRGtoRGB(unsigned lin, unsigned col);
-  PxRGB atYUYVtoRGB(unsigned lin, unsigned col);
-
-  void getGBRGtoHPG(unsigned lin, unsigned col,
-                    float &H, float &P, float &G);
-  void getYUYVtoHPG(unsigned lin, unsigned col,
-                    float &H, float &P, float &G);
-public:
-//data deve ser o retorno do metodo getDataImage de um objeto Camera
-//estrutura do data:  (byte*)(imagem no formato X)
-//byte do formato pode ser:
-// 0 - GBRG
-// 1 - YUYV 4:2:2
-  inline Imagem(const Imagem &I):imgRGB(0,0){copy(I); }
-  inline Imagem(unsigned WIDTH, unsigned HEIGHT):imgRGB(0,0){ create(); imgRGB = ImagemRGB(WIDTH,HEIGHT); }
-  inline Imagem():imgRGB(0,0){ create(); }
-  ~Imagem();
-
-  //data deve ser o retorno de Camera::getDataImage()
-  // void loadFromData(const struct CAMERA_DATA &data,unsigned  width, unsigned height);
-  void loadFromData(const uint8_t* data,unsigned length,uint8_t pxFormat,unsigned WIDTH,unsigned HEIGHT);
-  inline bool load(const char* arq){ return imgRGB.load(arq); }
-  //WARNING i,j so serao iguais a lin e col, caso pxFormat for GBRG
-  //Retorna o byte na posicao i,j do vetor de dados da imagem,
-  //obs.: o significado do byte depende do formato do Pixel
-  uint8_t getByte(unsigned pos)const;
-  uint8_t &getByte(unsigned pos);
-
-  PxRGB &atRGB(unsigned lin,unsigned col){atualizaImage(); return imgRGB[lin][col]; }
-
-  void getHPG(unsigned lin,unsigned col,float &H,float &P,float &G);
-  //WARNING este metodo so altera imgRGB
-  void setHPG(unsigned lin,unsigned col,const float H,const float P,const float G){
-    atualizaImage();
-    imgRGB[lin][col].setHPG(H, P,G);
-  }
-
-  //WARNING este metodo so altera imgRGB
-  // inline void load(const char* arq){ imgRGB.load(arq); }
-  inline void save(const char*arq, bool ASCII = false){atualizaImage(); imgRGB.save(arq,ASCII); }
-  //converte a imagemRGB para escala de cinza
-  //WARNING este metodo so altera imgRGB
-  inline void toGray(){atualizaImage(); imgRGB.toGray();}
-  inline bool resize(unsigned WIDTH, unsigned HEIGHT){
-    bool resize_fail = imgRGB.resize(WIDTH,HEIGHT);
-    this->width = WIDTH;
-    this->height = HEIGHT;
-    return resize_fail;
-  }
-  inline void operator=(const Imagem &I){ copy(I); }
-
-  inline unsigned getWidth() const{ return width; }
-  inline unsigned getHeight() const{ return height; }
-  inline unsigned getDataSize()const{ return length; }
-
-  const void *getPNMData();
-  inline int getPNMSize(){atualizaImage(); return imgRGB.getPNMSize(); }
-  const PxRGB *getRawData();
-};
-
+      // Métodos de acesso aos dados de baixo nível
+      // Cuidado ao usar! Nao altere os dados para onde os ponteiros apontam...
+      const void *getPNMData();
+      size_t getPNMSize();
+      const PxRGB *getRawData();
+      size_t getRawSize();
+    };
 
 /* ==============================================================
    DISTORÇÃO RADIAL

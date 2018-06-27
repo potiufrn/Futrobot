@@ -5,13 +5,14 @@
 #include <sys/mman.h> // mmap
 #include <stdint.h> //unt8_t
 #include <string.h>//memset, memcpy
-#include <fstream>
+#include <fstream> //
 
-#include <sys/time.h> //timevalue
+// #include <sys/time.h> //timevalue
 #include <sys/select.h> //select
 #include <sys/types.h>
 
-#include <iostream>
+#include <iostream> //cerr
+#include <imagem.h>
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
@@ -23,7 +24,7 @@
 //WARNING o numero de buffer pode ser alterado
 //mas nao se sabe ate o momento a influencia desta alteracao
 //no desempenho da captura
-#define NUM_BUFFERS 1
+#define NUM_BUFFERS 4
 
 struct controler{
   bool enable;
@@ -41,29 +42,18 @@ struct buffer{
 class Camera {
  private:
   unsigned int width, height, fps;
-
-  //TODO utilidade da propriedade pixel_type
-  // servira como auxiliar para decodigicar a informacao
-  // vinda da camera (imgData)
-  // 0 - GBRG
-  // 1 - YUYV
-  uint8_t pxFormat;
-  uint8_t *imgData;
-
-  void Open();
-  void Close();
-
-  void Init();
-  void UnInit();
+  // auxiliar para decodigicar a informacao em ImagemByte
+  // GBRG ou YUYV
+  PIXEL_FORMAT pxFormat;
 
   void Start();
   void Stop();
-
+  void Init();
+  void UnInit();
   void init_mmap();
 
-   int fd;
-   const char *name;  //dev_name
-
+  bool isOpen;
+  int fd;
   struct buffer meuBuffer[NUM_BUFFERS];
 
   bool setControl(__u32 id, int v);
@@ -72,18 +62,16 @@ class Camera {
 
 protected:
   Camera(unsigned index = 0);
-  Camera(const char* device);
-  // Camera();
    ~Camera();
 
+   ImagemByte ImBruta;
    bool capturando;
-   bool inicializado;
    bool encerrar;
 
-   inline uint8_t getPxFormat()const{ return pxFormat; }
-   inline const uint8_t* getDataImage()const{ return imgData; }
-   const unsigned getDataSize()const{ return meuBuffer[0].length; }
-   // ImagemGBRG ImBruta;
+   // inline PIXEL_FORMAT getPxFormat()const{ return ImBruta.; }
+   // inline const uint8_t* getDataImage()const{ return meuBuffer[index_frame].bytes; }
+   // const unsigned getDataSize()const{ return meuBuffer[index_frame].length; }
+
    //Estes metodos retornam true em caso de saida indesejada
    //e false caso tudo ocorreu como esperado
    bool captureimage();
@@ -92,14 +80,15 @@ protected:
    inline unsigned getWidth()const {return width;};
    inline unsigned getHeight()const {return height;};
 
-   inline unsigned int Width() {return width;};
-   inline unsigned int Height() {return height;};
-
  public:
    void run();
    void terminar();
+   bool Open(unsigned index);
+   void Close();
 
-   // void getDevices();
+   //retorna o numero de dispositivos conectados
+   //e imprimi na tela o nome e o index de cada dispositivo
+   unsigned listDevices(bool printed = true)const;
    // bool open(unsigned index);
    // bool isOpen(){ return inicializado; }
    // void close();
@@ -109,7 +98,6 @@ protected:
 
    bool write(const char * arquivo) const;
    bool read(const char * arquivo);
-   //Falta fazer esses metodos abaixo
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
    bool queryBrightness(struct controler &ctrl)const;

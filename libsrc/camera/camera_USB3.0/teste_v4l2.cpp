@@ -53,26 +53,5 @@ int main(){
     std::cout << "index: "<< i <<" --> Nome: "<<cap.card << '\n';
     close(fd);
   }
-
-  // #define GBRG V4L2_PIX_FMT_SGBRG8
-  // #define YUV422 V4L2_PIX_FMT_YUYV
-  //
-  // if (fd != -1)
-  //  {
-  //      struct v4l2_fmtdesc fmtdesc;
-  //      CLEAR(fmtdesc);
-  //      fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  //      while (ioctl(fd,VIDIOC_ENUM_FMT,&fmtdesc) == 0)
-  //      {
-  //          printf("%s\n", fmtdesc.description);
-  //          if(fmtdesc.pixelformat == GBRG)
-  //            std::cout << "Suporta a GBRG" << '\n';
-  //          if(fmtdesc.pixelformat == YUV422)
-  //            std::cout << "Suporta a YUYV" << '\n';
-  //          fmtdesc.index++;
-  //      }
-  //  }
-
-  // close(fd);
   return 0;
 }
