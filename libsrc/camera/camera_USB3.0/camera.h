@@ -61,7 +61,8 @@ class Camera {
   struct controler queryControl(__u32 id)const;
 
 protected:
-  Camera(unsigned index = 0);
+  Camera();
+  Camera(unsigned index);
    ~Camera();
 
    ImagemByte ImBruta;
@@ -92,8 +93,12 @@ protected:
    //equivalente a v4l2-ctl --list-formats-ext
    //char* printVideoFormats()const; //falta fazer
 
+   //old vers
    bool write(const char * arquivo) const;
    bool read(const char * arquivo);
+
+   std::ostream& write(std::ostream &O) const;
+   bool read(std::istream &I);
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
    bool queryBrightness(struct controler &ctrl)const;

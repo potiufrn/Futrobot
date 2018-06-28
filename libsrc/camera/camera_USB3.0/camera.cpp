@@ -10,8 +10,6 @@ static void errno_exit (const char* s)
   std::cerr << s << '\n';
   exit (EXIT_FAILURE);
 }
-
-
 static int xioctl(int fd, int request, void *arg)
 {
   int r,itt=0;
@@ -53,7 +51,6 @@ bool Camera::read(const char * arquivo) {
 
   return false;
 }
-
 bool Camera::write(const char * arquivo) const{
   FILE *arq=fopen(arquivo,"w");
   if(arq == NULL){
@@ -72,7 +69,30 @@ bool Camera::write(const char * arquivo) const{
 
   return false;
 }
-
+std::ostream& Camera::write(std::ostream &O) const{
+  O << "Brightness: "<< getBrightness()<<'\n';
+  O << "Exposure: "  << getExposure()<<'\n';
+  O << "getExposure Absolute: "<< getExposureAbs()()<<'\n';
+  O << "Hue: "<< getHue()<<'\n';
+  O << "Saturation: "<< getSaturation()<<'\n';
+  O << "Gamma: "<< getGamma()<<'\n';
+  O << "Contrast: "<< getContrast()<<'\n';
+  O << "Sharpness: "<< getSharpness()<<'\n';
+  return O;
+}
+bool Camera::read(std::istream &I){
+  //falta fazer
+}
+Camera::Camera():
+  encerrar(true),
+  capturando(false),
+  isOpen(false),
+  ImBruta(WIDTH,HEIGHT)
+{
+  width = WIDTH;
+  height = HEIGHT;
+  fps = FPS;
+}
 Camera::Camera (unsigned index):
   encerrar(false),
   capturando(false),
@@ -84,7 +104,6 @@ Camera::Camera (unsigned index):
   fps = FPS;
   this->Open(index);
 }
-
 bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
   if(this->isOpen)this->Close();
 
@@ -123,7 +142,6 @@ bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
   this->encerrar = false;
   return true;
 }
-
 void Camera::Close(){
   this->isOpen     = false;
   this->Stop();
@@ -155,7 +173,6 @@ unsigned Camera::listDevices(bool printed)const{
   }
   return contDevices;
 }
-
 void Camera::Init(){
   //formatar o dispotivo
   struct v4l2_fmtdesc fmtdesc;
@@ -213,7 +230,6 @@ void Camera::Init(){
 
   init_mmap();
 }
-
 void Camera::init_mmap(){
   //Informando ao dispositivo sobre os buffers utilizados
   //Alocando buffer
@@ -249,16 +265,13 @@ void Camera::init_mmap(){
       errno_exit("Camera ERRO: Mmap");
   }
 }
-
 void Camera::UnInit() {
   for(unsigned int i = 0;i<1;i++){
      if(-1 == munmap (meuBuffer[i].bytes, meuBuffer[i].length))
 	errno_exit ("Camera ERRO: munmap");
   }
 }
-
-void Camera::Start()
-{
+void Camera::Start(){
   if(!this->isOpen)return;
 
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -277,9 +290,7 @@ void Camera::Start()
       errno_exit ("Camera ERRO: VIDIOC_QBUF");
   }
 }
-
-void Camera::Stop()
-{
+void Camera::Stop(){
   if(!isOpen)return;
   enum v4l2_buf_type type;
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -287,7 +298,6 @@ void Camera::Stop()
     errno_exit("Camera ERRO: Stop");
   capturando = false;
 }
-
 bool Camera::captureimage(){
 
   if (capturando){
@@ -308,7 +318,6 @@ bool Camera::captureimage(){
   }
  return false;
 }
-
 bool Camera::waitforimage(){
   fd_set fds;
   FD_ZERO(&fds);
@@ -325,26 +334,21 @@ bool Camera::waitforimage(){
 
   return false;
 }
-
-void Camera::run()
-{
+void Camera::run(){
   encerrar = false;
   while(!encerrar){
     waitforimage();
     captureimage();
   }
 }
-
 void Camera::terminar() {
   encerrar = true;
   UnInit();
   Stop();
 }
-
 Camera::~Camera(){
   terminar();
 }
-
 bool Camera::setControl(__u32 id,int v){
 
   struct v4l2_control control;
@@ -364,7 +368,6 @@ bool Camera::setControl(__u32 id,int v){
     std::cerr << "Camera WARNING: setControl, controle desabilitado" << '\n';
   return true;
 }
-
 int Camera::getControl(__u32 id)const{
   struct v4l2_control control;
   CLEAR(control);
@@ -377,7 +380,6 @@ int Camera::getControl(__u32 id)const{
     errno_exit("Camera ERRO: getControl\n");
   return control.value;
 }
-
 struct controler Camera::queryControl(__u32 id)const{
 
     struct v4l2_queryctrl queryctrl;
@@ -401,60 +403,48 @@ struct controler Camera::queryControl(__u32 id)const{
     ctrl.enable = true;
     return ctrl;
 }
-
 bool Camera::setBrightness(int v){
   // std::cout << "Brightness" << '\n';
   return setControl(V4L2_CID_BRIGHTNESS,v);
 }
-
 bool Camera::setConstrast(int v){
   // std::cout << "Contrast" << '\n';
   return setControl(V4L2_CID_CONTRAST,v);
 }
-
 bool Camera::setSaturation(int v){
   // std::cout << "Saturation" << '\n';
   return setControl(V4L2_CID_SATURATION,v);
 }
-
 bool Camera::setSharpness(int v){
   // std::cout << "Sharpness" << '\n';
   return setControl(V4L2_CID_SHARPNESS,v);
 }
-
 bool Camera::setGain(int v){
   // std::cout << "Gain" << '\n';
   return setControl(V4L2_CID_GAIN,v);
 }
-
 bool Camera::setExposure(int v){
   // std::cout << "Exposure" << '\n';
   return setControl(V4L2_CID_EXPOSURE,v);
 }
-
 bool Camera::setExposureAbs(int v){
   // std::cout << "Exposure Absolute" << '\n';
   return setControl(V4L2_CID_EXPOSURE_ABSOLUTE,v);
 }
-
 bool Camera::setHue(int v){
   // std::cout << "Hue" << '\n';
   return setControl(V4L2_CID_HUE,v);
 }
-
 bool Camera::setGamma(int v){
   // std::cout << "Gamma" << '\n';
   return setControl(V4L2_CID_GAMMA,v);
 }
-
 int Camera::getExposureAbs()const{
   return getControl(V4L2_CID_EXPOSURE_ABSOLUTE);
 }
-
 int Camera::getBrightness()const{
   return getControl(V4L2_CID_BRIGHTNESS);
 }
-
 int  Camera::getContrast()const{
   return getControl(V4L2_CID_CONTRAST);
 }
@@ -473,7 +463,6 @@ int  Camera::getGain()const{
 int  Camera::getExposure()const{
   return getControl(V4L2_CID_EXPOSURE);
 }
-
 int  Camera::getGamma()const{
   return getControl(V4L2_CID_GAMMA);
 }
@@ -493,9 +482,6 @@ bool Camera::queryContrast(struct controler &ctrl)const{
     return false;
   return true;
 }
-
-
-
 bool Camera::querySaturation(struct controler &ctrl)const{
   //V4L2_CID_SATURATION
   ctrl = queryControl(V4L2_CID_SATURATION);
@@ -504,7 +490,6 @@ bool Camera::querySaturation(struct controler &ctrl)const{
     return false;
   return true;
 }
-
 bool Camera::queryHue(struct controler &ctrl)const{
   //V4L2_CID_HUE
   ctrl = queryControl(V4L2_CID_HUE);
@@ -513,7 +498,6 @@ bool Camera::queryHue(struct controler &ctrl)const{
     return false;
   return true;
 }
-
 bool Camera::querySharpness(struct controler &ctrl)const{
   //V4L2_CID_SHARPNESS
   ctrl = queryControl(V4L2_CID_SHARPNESS);
@@ -522,7 +506,6 @@ bool Camera::querySharpness(struct controler &ctrl)const{
     return false;
   return true;
 }
-
 bool Camera::queryGain(struct controler &ctrl)const{
   //V4L2_CID_GAIN
   ctrl = queryControl(V4L2_CID_GAIN);
@@ -532,7 +515,6 @@ bool Camera::queryGain(struct controler &ctrl)const{
   return true;
 
 }
-
 bool Camera::queryExposure(struct controler &ctrl)const{
   //V4L2_CID_EXPOSURE
   ctrl = queryControl(V4L2_CID_EXPOSURE);
@@ -548,7 +530,6 @@ bool Camera::queryExposureAbs(struct controler &ctrl)const{
     return false;
   return true;
 }
-
 //V4L2_CID_GAMMA
 bool Camera::queryGamma(struct controler &ctrl)const{
   ctrl = queryControl(V4L2_CID_GAMMA);

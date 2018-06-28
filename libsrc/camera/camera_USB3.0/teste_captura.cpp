@@ -9,7 +9,7 @@ using namespace std;
 class TesteCam:public Camera
 {
 public:
-  TesteCam(){ this->capturando = true; }
+  TesteCam():Camera(){}
   TesteCam(unsigned index):Camera(index){this->capturando = true;}
   inline void save(const char* arq) { ImagemRGB(ImBruta).save(arq);}
   inline bool capture(){return Camera::captureimage();}
@@ -24,13 +24,26 @@ int main(){
   unsigned index = 0;
   char key;
 
-  do{
-    numDevices = cam.listDevices();
-    std::cout << "\nInforme um index valido da Camera : " << '\n';
-    cin >> index;
-  }while(index >= numDevices);
-  cam.Open(index);
-  cin.ignore(1,'\n');
+  do {
+    do{
+      numDevices = cam.listDevices();
+      std::cout << "\nInforme um index valido da Camera : " << '\n';
+      cin >> index;
+    }while(index >= numDevices);
+    cam.Open(index);
+    cin.ignore(1,'\n');
+
+    cam.wait();
+    cam.capture();
+    cam.wait();
+
+    cam.capture();
+    cam.save("ok.ppm");
+
+    cout << "q - Quit \n ENTER - escolher"<<endl;
+    cin.get(key);
+  } while(key != 'q');
+
 
   while(true){
     cout << "q - Quit \n ENTER - Capture "<<endl;
