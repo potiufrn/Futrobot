@@ -148,6 +148,110 @@ bool PARAMETROS_CALIBRACAO::write(const char* arquivo) const{
   return false;
 }
 
+bool PARAMETROS_CALIBRACAO::read(std::istream &I){
+  unsigned nPontosNotaveis_aux;
+  unsigned nCores_aux;
+  Coord2 *pontos_aux(NULL);
+  Coord2 *pontosReais_aux(NULL);
+  int limiarPInf_aux;
+  int limiarPSup_aux;
+  limitesHPG *limHPG_aux(NULL);
+
+  std::string str;
+  bool OK = true;
+
+  getline(I,str,':');
+  if(str != "Numero de Pontos")return true;
+  I >> nPontosNotaveis_aux;
+
+  pontos_aux = new Coord2[nPontosNotaveis_aux];
+  pontosReais_aux = new Coord2[nPontosNotaveis_aux];
+
+  getline(I,str,':');
+  if(str != "\nPontos Notaveis (MundoX, MundoY, ImagemX, ImagemY)")OK = false;
+
+  for(unsigned i = 0; i < nPontosNotaveis_aux; i++){
+    I >> pontosReais_aux[i].X;
+    I >> pontosReais_aux[i].Y;
+    I >> pontos_aux[i].X;
+    I >> pontos_aux[i].Y;
+  }
+
+  getline(I,str,':');
+  if(OK && str != "\nLimites de P Inferior e Superior")OK = false;
+  I >> limiarPInf_aux >> limiarPSup_aux;
+
+  getline(I,str,':');
+  if(OK && str != "\nNumero de Cores")OK = false;
+  I >> nCores_aux;
+
+  if(OK){
+    limHPG_aux = new limitesHPG[nCores_aux];
+    I.ignore(1,'\n');
+    getline(I,str,'\n');
+    if(OK && str != "Limites HPG das Cores")OK = false;
+    for(unsigned i = 0; i < nCores_aux && OK; i++){
+      I >> limHPG_aux[i].H.min >> limHPG_aux[i].H.max;
+      I >> limHPG_aux[i].P.min >> limHPG_aux[i].P.max;
+      I >> limHPG_aux[i].G.min >> limHPG_aux[i].G.max;
+    }
+  }
+
+  if(!OK) {
+    if (pontos_aux != NULL) delete[] pontos_aux;
+    if (pontosReais_aux != NULL) delete[] pontosReais_aux;
+    if (limHPG_aux != NULL) delete[] limHPG_aux;
+    return true;
+  }
+
+  nPontosNotaveis = nPontosNotaveis_aux;
+  nCores = nCores_aux;
+
+  pontosImagem = new Coord2[nPontosNotaveis];
+  pontosReais =  new Coord2[nPontosNotaveis];
+  for(unsigned i = 0; i < nPontosNotaveis_aux; i++){
+    pontosImagem[i] = pontos_aux[i];
+    pontosReais[i] = pontosReais_aux[i];
+  }
+  limiarPInf = limiarPInf_aux;
+  limiarPSup = limiarPSup_aux;
+
+  limHPG = new limitesHPG[nCores];
+  for(unsigned i = 0; i < nCores_aux; i++){
+    limHPG[i] = limHPG_aux[i];
+  }
+  if (pontos_aux != NULL) delete[] pontos_aux;
+  if (pontosReais_aux != NULL) delete[] pontosReais_aux;
+  if (limHPG_aux != NULL) delete[] limHPG_aux;
+  return false;
+}
+std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
+
+  O << "Numero de Pontos: " << nPontosNotaveis << '\n';
+  O << "Pontos Notaveis (MundoX, MundoY, ImagemX, ImagemY):\n";
+  for(unsigned i = 0; i < nPontosNotaveis; i++){
+    O << (int)pontosReais[i].x()*FATOR_CONVERSAO << ' '
+      << (int)(pontosReais[i].y()*FATOR_CONVERSAO) << ' '
+      << (int)pontosImagem[i].u()  << ' '
+      << (int)pontosImagem[i].v() << '\n';
+  }
+
+  O << "Limites de P Inferior e Superior:\n";
+  O << limiarPInf << ' ' << limiarPSup << '\n';
+  O << "Numero de Cores: "<< nCores << '\n';
+  O << "Limites HPG das Cores\n";
+
+  for(unsigned i = 0; i < nCores; i++){
+    O << limHPG[i].H.min << ' '
+      << limHPG[i].H.max << ' '
+      << limHPG[i].P.min << ' '
+      << limHPG[i].P.max << ' '
+      << limHPG[i].G.min << ' '
+      << limHPG[i].G.max << '\n';
+  }
+
+  return O;
+}
 //retorna a cor da qual o pixel do parametro percente. Usa somente os
 //limiares dos componentes HPG para definir a cor do pixel.
 int PARAMETROS_CALIBRACAO::getHardColor(

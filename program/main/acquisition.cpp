@@ -3,6 +3,7 @@
 #include <math.h>
 #include <iostream>
 #include <sys/time.h>
+#include <string.h>
 
 #include "acquisition.h"
 #include "../comunicacao.h"
@@ -294,10 +295,15 @@ bool Acquisition::configAcquisition(const char *str)
   }
 #ifndef _SO_SIMULADO_
   unsigned i;
-  cout << "\tConfigurando camera..."<<endl;
-
+  string key;
   unsigned numDevices = 0;
   unsigned index = 0;
+  std::ifstream I(str);
+
+  if(!I.is_open())return true;
+
+  cout << "\tConfigurando Camera..."<<endl;
+
   do{
     numDevices = Camera::listDevices(true);
     if(numDevices == 0){
@@ -310,21 +316,30 @@ bool Acquisition::configAcquisition(const char *str)
   }while(index >= numDevices);
   if(Camera::Open(index) == false){
     std::cerr << "Config. Acquisition ERRO: Falha ao abrir dispositivo" << '\n';
+    I.close();
     exit(1);
   }
 
   //seta os parametros da camera
-  if(Camera::read("../../etc/paramCamera.val")){
+  getline(I,key,'\n');
+  if(key != "Parametros da Camera"){
+    I.close();
+    return true;
+  }
+
+  if(Camera::read(I)){
     printf("Error Loading Camera Parameters!\n");
+    I.close();
     return true;
   };
 
+  I.ignore(1,'\n');
+  getline(I,key,'\n');
+  if(key != "Parametros de Calibracao")return true;
   //SetParameters(cameraParam);
   cout << "\tConfigurando calibracao..."<<endl;
 
-  //  PARAMETROS_CALIBRACAO calibracaoParam;
-
-  if(calibracaoParam.read(str)){
+  if(calibracaoParam.read(I)){
     printf("Error Loading Calibration Parameters!\n");
     return true;
   }

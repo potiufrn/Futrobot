@@ -174,17 +174,42 @@ bool CalibratorProcessor::loadCameraParam(const char* arquivo){
   return Camera::read(arquivo);
 }
 
-
-
 bool CalibratorProcessor::fileOpen(const char* text)
 {
-  return calibracaoParam.read(text);
+  std::ifstream I(text);
+  std::string str;
+
+  if(!I.is_open())return true;
+
+  getline(I,str,'\n');
+  if(str != "Parametros da Camera"){
+    I.close();
+    return true;
+  }
+  Camera::read(I);
+  I.ignore(1,'\n');
+
+  getline(I,str,'\n');
+  if(str != "Parametros de Calibracao"){
+    I.close();
+    return true;
+  }
+  calibracaoParam.read(I);
+  I.close();
+  return false;
 }
 
 
 bool CalibratorProcessor::fileSave(const char* arquivo)
 {
-  return calibracaoParam.write(arquivo);
+  std::ofstream O(arquivo);
+  if(!O.is_open())return true;
+  O << "Parametros da Camera\n";
+  Camera::write(O);
+  O << "\nParametros de Calibracao\n";
+  calibracaoParam.write(O);
+  O.close();
+  return false;
 }
 
 void CalibratorProcessor::resetPixelsNotaveis(){

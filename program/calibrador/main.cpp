@@ -10,7 +10,6 @@
 //bool terminar = false;
 CalibratorProcessor X;
 
-
 void *thread_camera(void *arg)
 {
   ((CalibratorProcessor*)arg)->run();

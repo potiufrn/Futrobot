@@ -24,7 +24,7 @@
 //WARNING o numero de buffer pode ser alterado
 //mas nao se sabe ate o momento a influencia desta alteracao
 //no desempenho da captura
-#define NUM_BUFFERS 4
+#define NUM_BUFFERS 1
 
 struct controler{
   bool enable;
@@ -61,7 +61,8 @@ class Camera {
   struct controler queryControl(__u32 id)const;
 
 protected:
-  Camera(unsigned index = 0);
+  Camera();
+  Camera(unsigned index);
    ~Camera();
 
    ImagemByte ImBruta;
@@ -89,15 +90,15 @@ protected:
    //retorna o numero de dispositivos conectados
    //e imprimi na tela o nome e o index de cada dispositivo
    unsigned listDevices(bool printed = true)const;
-   // bool open(unsigned index);
-   // bool isOpen(){ return inicializado; }
-   // void close();
-
    //equivalente a v4l2-ctl --list-formats-ext
    //char* printVideoFormats()const; //falta fazer
 
+   //old vers
    bool write(const char * arquivo) const;
    bool read(const char * arquivo);
+
+   std::ostream& write(std::ostream &O) const;
+   bool read(std::istream &I);
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
    bool queryBrightness(struct controler &ctrl)const;
