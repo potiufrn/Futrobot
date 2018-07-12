@@ -35,21 +35,22 @@ void calibrador::fileNew()
 
 void calibrador::fileOpen()
 {
-    QString text;
-    Q3FileDialog* fd = new Q3FileDialog(this);
-    fd->setDir("../../etc");
-    fd->setMode( Q3FileDialog::ExistingFile );
-    fd->show();
-    if(fd->exec()==QDialog::Accepted){
-	text=fd->selectedFile();
-	if( !text.isEmpty() && !X.fileOpen(text)){
-	    arquivo = text;
-	    atualizarLimitesP();
-	    atualizarLimitesHGP(comboCores->currentItem());
-	}else{
-	    //insira seu pop-up aki
-	}
-    }
+  QString text;
+  Q3FileDialog* fd = new Q3FileDialog(this);
+  fd->setDir("../../etc");
+  fd->setMode( Q3FileDialog::ExistingFile );
+  fd->show();
+  if(fd->exec()==QDialog::Accepted){
+    text = fd->selectedFile();
+    if( !text.isEmpty() && !X.fileOpen(text)){
+        arquivo = text;
+        atualizarCameraParam();
+        atualizarLimitesP();
+        atualizarLimitesHGP(comboCores->currentItem());
+	     }else{
+	    //insira seu pop-up de erro aki
+	   }
+  }
 }
 
 
@@ -229,27 +230,37 @@ void calibrador::mouseMove( QPoint Point)
 
 void calibrador::mousePress( QPoint Point)
 {
+  if(telaAtual == 0){
     MouseX = Point.x();
     MouseY = Point.y();
     int selec = X.pontoSelecionado(Point.x(),Point.y());
     if(selec != -1){
-	ponto_selecionado = selec;
-	ponto_dragged = true;
-	X.moverPonto(ponto_selecionado,MouseX,MouseY);
-	novosLimites = true;
+      ponto_selecionado = selec;
+      ponto_dragged = true;
+      X.moverPonto(ponto_selecionado,MouseX,MouseY);
+      novosLimites = true;
     }
+  }else if(telaAtual == 2){
+    MouseX = Point.x();
+    MouseY = Point.y();
+
+    X.getPxValor(MouseX, MouseY, R, G1, B, H, P, G2);
+
+    X.setHmin(comboCores->currentItem(), H-20);
+    X.setHmax(comboCores->currentItem(), H+20);
+    atualizarLimitesHGP(comboCores->currentItem());
+  }
 }
 
 
 void calibrador::mouseRelease(QPoint Point)
 {
-    if(ponto_dragged){
-	X.moverPonto(ponto_selecionado,Point.x(),Point.y());
-	ponto_selecionado = -1;
-	ponto_dragged = false;
-	novosLimites = true;
-	//desenharCampo();
-    }
+  if(ponto_dragged){
+    X.moverPonto(ponto_selecionado,Point.x(),Point.y());
+    ponto_selecionado = -1;
+    ponto_dragged = false;
+    novosLimites = true;
+  }
 }
 
 void calibrador::imageOpen()
@@ -373,7 +384,6 @@ void calibrador::spinLimiarPInfValueChanged( int valor )
     }
 }
 
-
 void calibrador::sliderLimiarPSupValueChanged( int valor )
 {
     if(valor != spinLimiarPSup->value() ){
@@ -388,15 +398,13 @@ void calibrador::sliderLimiarPSupValueChanged( int valor )
 
 void calibrador::spinLimiarPSupValueChanged( int valor )
 {
-    if(valor != sliderLimiarPSup->value() ){
-	if(valor <= spinLimiarPInf->value() ){
-	    spinLimiarPInf->setValue(valor-1);
-	}
-	sliderLimiarPSup->setValue(valor);
-	X.setPsup(valor);
-//	novosParametros = true;
-	//novosLimites = true;
-    }
+  if(valor != sliderLimiarPSup->value() ){
+  	if(valor <= spinLimiarPInf->value() ){
+  	    spinLimiarPInf->setValue(valor-1);
+  	}
+    sliderLimiarPSup->setValue(valor);
+    X.setPsup(valor);
+  }
 }
 
 
@@ -754,20 +762,14 @@ void calibrador::novosParametrosCamera(){
 
 void calibrador::processarImagem()
 {
-//    static Imagem mimimi("imagem_clara.ppm");
-    if(telaAtual == 0 || checkShooting->isChecked() || novosLimites){
-	X.processImage();
-	pixmap_label1->loadFromData((uchar*)X.getPNMdata(),
-				    X.getPNMsize(),"PPM");
+  if(telaAtual == 0 || checkShooting->isChecked() || novosLimites){
+  	X.processImage();
+  	pixmap_label1->loadFromData((uchar*)X.getPNMdata(),
+    X.getPNMsize(),"PPM");
 
-	pixmap_label1->redesenhe();
-	novosLimites = false;
-    }
-
-/*    pixmap_label1->loadFromData((uchar*)mimimi.getPNMData(),
-				mimimi.getPNMSize(),"PPM");
-    pixmap_label1->redesenhe();
-*/
+  	pixmap_label1->redesenhe();
+  	novosLimites = false;
+  }
 }
 
 
@@ -817,15 +819,10 @@ void calibrador::setarModo()
 
 }
 
-
-
-
 void calibrador::ShootingChanged( bool value )
 {
     X.modoCaptura(value);
 }
-
-
 
 
 void calibrador::redesenharImagem()
@@ -836,6 +833,14 @@ void calibrador::redesenharImagem()
 void calibrador::atualizarParametrosCamera()
 {
     novosParametros = true;
+    // spinHue->setValue(X.getHue());
+    // spinGain->setValue(X.getGain());
+    // spinGamma->setValue(X.getGamma());
+    // spinShutter->setValue(X.getExposureAbs());
+    // spinExposure->setValue(X.getExposure());
+    // spinContrast->setValue(X.getContrast());
+    // spinBrightness->setValue(X.getBrightness());
+    // spinSaturation->setValue(X.getSaturation());
 }
 
 

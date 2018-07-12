@@ -848,7 +848,7 @@ size_t ImagemRGB::getRawSize()
   return sizeof(PxRGB)*(Ncol*Nlin);
 }
 
-void ImagemByte::loadFromData(const uint8_t* data,unsigned length, PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT){
+void ImagemByte::loadFromData(uint8_t* data,unsigned length, PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT){
   if(WIDTH == 0 || HEIGHT == 0 || length == 0){
     std::cerr << "Imagem ERRO: Dimensao invalida da imagem" << '\n';
     exit(1);
@@ -858,6 +858,7 @@ void ImagemByte::loadFromData(const uint8_t* data,unsigned length, PIXEL_FORMAT 
   this->imgData = data;
   this->width   = WIDTH;
   this->height  = HEIGHT;
+  this->cop = false;
 }
 void ImagemByte::create(){
   this->width    = 0;
@@ -865,6 +866,7 @@ void ImagemByte::create(){
   this->length   = 0;
   this->imgData  = NULL;
   this->pxFormat = UNDEF;
+  this->cop      = false;
 }
 
 ImagemByte::~ImagemByte(){
@@ -872,14 +874,18 @@ ImagemByte::~ImagemByte(){
   this->width    = 0;
   this->length   = 0;
   this->pxFormat = UNDEF;
-  this->imgData  = NULL;
+  if(cop)delete[] this->imgData;
+  else this->imgData  = NULL;
 }
 void ImagemByte::copy(const ImagemByte &I){
   this->width    = I.width;
   this->height   = I.height;
   this->length   = I.length;
   this->pxFormat = I.pxFormat;
-  this->imgData  = I.imgData;
+  // this->imgData  = I.imgData;
+  this->imgData = new uint8_t[I.length];
+  memcpy(this->imgData,I.imgData, this->length);
+  cop = true;
 }
 
 PxRGB ImagemByte::atGBRGtoRGB(unsigned lin, unsigned col)const{
@@ -1024,8 +1030,8 @@ PxRGB ImagemByte::atGBRGtoRGB(unsigned lin, unsigned col)const{
 }
 PxRGB ImagemByte::atYUYVtoRGB(unsigned lin, unsigned col)const{
   unsigned pos = lin*width + col;
-  unsigned Ya = 2*pos;
-  unsigned Ua, Va;
+  unsigned Yaddr = 2*pos;
+  unsigned Uaddr, Vaddr;
   uint8_t Y, U, V;
 
   if(pos >= width*height){
@@ -1034,19 +1040,19 @@ PxRGB ImagemByte::atYUYVtoRGB(unsigned lin, unsigned col)const{
   }
 
   if( pos%2 == 0){
-    Ua = Ya + 1;
-    Va = Ya + 3;
+    Uaddr = Yaddr + 1;
+    Vaddr = Yaddr + 3;
   }else{
-    Ua = Ya - 1;
-    Va = Ya + 1;
+    Uaddr = Yaddr - 1;
+    Vaddr = Yaddr + 1;
   }
 
-  if(Ua >= length) Ua = Ua - 4;
-  if(Va >= length) Va = Va - 4;
+  if(Uaddr >= length) Uaddr = Uaddr - 4;
+  if(Vaddr >= length) Vaddr = Vaddr - 4;
 
-  Y = atByte(Ya);
-  U = atByte(Ua);
-  V = atByte(Va);
+  Y = atByte(Yaddr);
+  U = atByte(Uaddr);
+  V = atByte(Vaddr);
   #define CLIP(x) ( (x) >= 0xFF ? 0xFF : ( (x) <= 0x00 ? 0x00 : (x) ) )
 
   uint8_t R = CLIP((double)Y + 1.402*((double)V-128.0));
@@ -1071,6 +1077,15 @@ PxRGB ImagemByte::atRGB(unsigned lin,unsigned col)const{
       std::cerr << "Imagem ERRO: Pixel Format Invalido" << '\n';
       exit(1);
   }
+}
+uint8_t ImagemByte::atByte(unsigned lin, unsigned col)const{
+  if (lin >= height || col >= width) {
+    std::cerr << "Imagem Erro: endereco invalida" << '\n';
+    exit(1);
+  }
+  unsigned pos = lin*width + col;
+  pos = (pxFormat == GBRG)?pos:2*pos;
+  return imgData[pos];
 }
 uint8_t ImagemByte::atByte(unsigned pos)const{
   if(pos >= this->length){

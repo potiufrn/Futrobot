@@ -13,6 +13,8 @@ makelibsrc:	clean
 makeprograms:
 	cd program && ${MAKE}	clean
 	cd program && ${MAKE}
+	cd calibrador	&& ${MAKE}	clean && ${MAKE}	install
+	cd main && ${MAKE}	clean && ${MAKE}	install
 
 .PHONY: clean realclean
 

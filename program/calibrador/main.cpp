@@ -47,8 +47,8 @@ int main( int argc, char ** argv )
       }
       std::cout << "\nInforme um index valido da Camera : " << '\n';
       std::cin >> index;
-      // std::cin.ignore(1,'\n');
     }while(index >= numDevices);
+    std::cin.ignore(1,'\n');
 
     X.Open(index);
 

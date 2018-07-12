@@ -175,6 +175,9 @@ bool PARAMETROS_CALIBRACAO::read(std::istream &I){
     I >> pontosReais_aux[i].Y;
     I >> pontos_aux[i].X;
     I >> pontos_aux[i].Y;
+
+    pontosReais_aux[i].X = pontosReais_aux[i].x()/FATOR_CONVERSAO;
+  	pontosReais_aux[i].Y = pontosReais_aux[i].y()/FATOR_CONVERSAO;
   }
 
   getline(I,str,':');
@@ -230,7 +233,7 @@ std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
   O << "Numero de Pontos: " << nPontosNotaveis << '\n';
   O << "Pontos Notaveis (MundoX, MundoY, ImagemX, ImagemY):\n";
   for(unsigned i = 0; i < nPontosNotaveis; i++){
-    O << (int)pontosReais[i].x()*FATOR_CONVERSAO << ' '
+    O << (int)(pontosReais[i].x()*FATOR_CONVERSAO) << ' '
       << (int)(pontosReais[i].y()*FATOR_CONVERSAO) << ' '
       << (int)pontosImagem[i].u()  << ' '
       << (int)pontosImagem[i].v() << '\n';

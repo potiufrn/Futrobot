@@ -24,7 +24,8 @@ struct limitesHPG {
 };
 
 struct PARAMETROS_CALIBRACAO {
-  //ImagemByte campoVazio;
+  // ImagemByte campoVazio;
+  // uint8_t desvioPadrao;
 
   unsigned nPontosNotaveis;
   unsigned nCores;
@@ -40,6 +41,8 @@ struct PARAMETROS_CALIBRACAO {
 
   bool read(std::istream &I);
   std::ostream &write(std::ostream &O)const;
+
+  // bool difData(uint8_t byte, unsigned pos);
 
   int getSoftColor(const float H,const float P, const float G) const;
   int getHardColor(const float H,const float P, const float G) const;

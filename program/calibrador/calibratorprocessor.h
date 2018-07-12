@@ -61,7 +61,7 @@ public Camera
 
   inline void setMode(MODOS_PROCESSAMENTO m){modo = m;}
   inline void setColor(int cor){corAtual = cor;}
-  int getColor();
+  inline int getColor(){ return corAtual; }
   bool fileOpen(const char* text);
   bool fileSave(const char* text);
   bool loadCameraParam(const char* arquivo);

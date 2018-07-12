@@ -251,9 +251,6 @@ bool CalibratorProcessor::processImage(){
   static PxRGB PxCinza(127,127,127);
 
 
-  // Camera::toRGB(ImBruta);
-
-
   switch(modo){
   case CALIBRATOR_IMAGEM_REAL:
     // for(i = 0; i < ImProcessada.getHeight(); i++){

@@ -58,7 +58,6 @@ class PxRGB
   // Impressao
   friend std::ostream& operator<<(std::ostream& os, const PxRGB &);
 };
-
 // Gera um pixel a partir de um valor de crominancia e dos valores das
 // componentes de cor máxima e mínima
 const PxRGB H2PxRGB(float H, uint8_t bmax=255, uint8_t bmin=0);
@@ -217,20 +216,29 @@ enum PIXEL_FORMAT{
   UNDEF = 42
 };
 
+// class PxByte{
+// private:
+//   //ordem dos bytes YUV : YUV
+//   //   //ordem dos bytes GBRG:
+//   uint8_t *bytes;
+//   unsigned length;
+// public:
+//   friend class ImagemByte;
+// }
+
 class ImagemByte{
 private:
   unsigned width,height;
-  const uint8_t* imgData;
+  uint8_t* imgData;
   unsigned length;//imgData length
-  // ImagemRGB imgRGB;
   PIXEL_FORMAT pxFormat;
 
+  bool cop;
   void copy(const ImagemByte &I);
   void create();
 
   PxRGB atGBRGtoRGB(unsigned lin, unsigned col)const;
   PxRGB atYUYVtoRGB(unsigned lin, unsigned col)const;
-
 public:
 //data deve ser o retorno do metodo getDataImage de um objeto Camera
 //estrutura do data:  (byte*)(imagem no formato X)
@@ -238,18 +246,19 @@ public:
 // 0 - GBRG
 // 1 - YUYV 4:2:2
   inline ImagemByte(const ImagemByte &I){copy(I);}
-  inline ImagemByte(unsigned larg,unsigned alt):width(larg),height(alt),
+  inline ImagemByte(unsigned larg,unsigned alt):width(larg),height(alt),cop(false),
                                                 imgData(NULL),pxFormat(UNDEF),length(0){}
   inline ImagemByte(){ create(); }
   ~ImagemByte();
 
-  //data deve ser o retorno de Camera::getDataImage()
-  // void loadFromData(const struct CAMERA_DATA &data,unsigned  width, unsigned height);
-  void loadFromData(const uint8_t* data,unsigned length,PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT);
+  void loadFromData(uint8_t* data,unsigned length,PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT);
   //WARNING i,j so serao iguais a lin e col, caso pxFormat for GBRG
   //Retorna o byte na posicao i,j do vetor de dados da imagem,
   //obs.: o significado do byte depende do formato do Pixel
   uint8_t atByte(unsigned pos)const;
+  uint8_t &atByte(unsigned pos){ return imgData[pos]; }
+  uint8_t atByte(unsigned lin, unsigned col)const;
+
   PxRGB atRGB(unsigned lin,unsigned col)const;
   inline void atHPG(unsigned lin,unsigned col,float &H,float &P,float &G)const{ atRGB(lin,col).getHPG(H,P,G); }
 
