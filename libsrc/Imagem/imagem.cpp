@@ -483,7 +483,7 @@ ImagemRGB::ImagemRGB(const ImagemRGB &I) :
   }
 }
 
-ImagemRGB::ImagemRGB(const ImagemByte &I){
+ImagemRGB::ImagemRGB(const ImagemBruta &I){
   Ncol = I.getWidth();
   Nlin = I.getHeight();
   create();
@@ -721,7 +721,7 @@ void ImagemRGB::operator=(const ImagemRGB &I){
   copy(I);
 }
 
-void ImagemRGB::operator=(const ImagemByte &I){
+void ImagemRGB::operator=(const ImagemBruta &I){
     destruct();
     this->Ncol = I.getWidth();
     this->Nlin = I.getHeight();
@@ -848,7 +848,7 @@ size_t ImagemRGB::getRawSize()
   return sizeof(PxRGB)*(Ncol*Nlin);
 }
 
-void ImagemByte::loadFromData(uint8_t* data,unsigned length, PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT){
+void ImagemBruta::loadFromData(uint8_t* data,unsigned length, PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT){
   if(WIDTH == 0 || HEIGHT == 0 || length == 0){
     std::cerr << "Imagem ERRO: Dimensao invalida da imagem" << '\n';
     exit(1);
@@ -860,7 +860,7 @@ void ImagemByte::loadFromData(uint8_t* data,unsigned length, PIXEL_FORMAT PxFORM
   this->height  = HEIGHT;
   this->cop = false;
 }
-void ImagemByte::create(){
+void ImagemBruta::create(){
   this->width    = 0;
   this->height   = 0;
   this->length   = 0;
@@ -868,27 +868,29 @@ void ImagemByte::create(){
   this->pxFormat = UNDEF;
   this->cop      = false;
 }
-
-ImagemByte::~ImagemByte(){
+void ImagemBruta::destruct(){
   this->height   = 0;
   this->width    = 0;
   this->length   = 0;
   this->pxFormat = UNDEF;
-  if(cop)delete[] this->imgData;
-  else this->imgData  = NULL;
+  if(cop && this->imgData != NULL)delete[] this->imgData;
+  if(cop)this->imgData  = NULL;
+  this->cop = false;
 }
-void ImagemByte::copy(const ImagemByte &I){
+
+ImagemBruta::~ImagemBruta(){
+  destruct();
+}
+void ImagemBruta::copy(const ImagemBruta &I){
   this->width    = I.width;
   this->height   = I.height;
   this->length   = I.length;
   this->pxFormat = I.pxFormat;
-  // this->imgData  = I.imgData;
-  this->imgData = new uint8_t[I.length];
+  this->imgData = new uint8_t[this->length];
   memcpy(this->imgData,I.imgData, this->length);
-  cop = true;
+  this->cop = true;
 }
-
-PxRGB ImagemByte::atGBRGtoRGB(unsigned lin, unsigned col)const{
+PxRGB ImagemBruta::atGBRGtoRGB(unsigned lin, unsigned col)const{
   //converte x,y em uma posicao no vetor unidimensinal
   #define Byte(x,y)  atByte( (x)*width + (y))
   #define PAR(x)      ((x)%2 == 0)
@@ -1028,7 +1030,7 @@ PxRGB ImagemByte::atGBRGtoRGB(unsigned lin, unsigned col)const{
   }
 
 }
-PxRGB ImagemByte::atYUYVtoRGB(unsigned lin, unsigned col)const{
+PxRGB ImagemBruta::atYUYVtoRGB(unsigned lin, unsigned col)const{
   unsigned pos = lin*width + col;
   unsigned Yaddr = 2*pos;
   unsigned Uaddr, Vaddr;
@@ -1060,7 +1062,7 @@ PxRGB ImagemByte::atYUYVtoRGB(unsigned lin, unsigned col)const{
   uint8_t B = CLIP((double)Y + 1.772*((double)U-128.0));
   return PxRGB(R,G,B);
 }
-PxRGB ImagemByte::atRGB(unsigned lin,unsigned col)const{
+PxRGB ImagemBruta::atRGB(unsigned lin,unsigned col)const{
   if(imgData == NULL){
     std::cerr << "Imagem ERRO: Imagem Vazia" << '\n';
     exit(1);
@@ -1078,7 +1080,7 @@ PxRGB ImagemByte::atRGB(unsigned lin,unsigned col)const{
       exit(1);
   }
 }
-uint8_t ImagemByte::atByte(unsigned lin, unsigned col)const{
+uint8_t ImagemBruta::getByte(unsigned lin, unsigned col)const{
   if (lin >= height || col >= width) {
     std::cerr << "Imagem Erro: endereco invalida" << '\n';
     exit(1);
@@ -1087,10 +1089,99 @@ uint8_t ImagemByte::atByte(unsigned lin, unsigned col)const{
   pos = (pxFormat == GBRG)?pos:2*pos;
   return imgData[pos];
 }
-uint8_t ImagemByte::atByte(unsigned pos)const{
+uint8_t ImagemBruta::atByte(unsigned pos)const{
   if(pos >= this->length){
     std::cerr << "Imagem ERRO: posicao invalida" << '\n';
+    // return 0;
     exit(1);
   }
   return imgData[pos];
+}
+uint8_t &ImagemBruta::atByte(unsigned pos){
+  static uint8_t tmp = 0;
+  // if(!cop){
+  //   std::cerr << "Imagem WARNING: tentativa de escrever no buffer" << '\n';
+  //   return tmp;
+  // }
+  if(pos >= this->length){
+    std::cerr << "Imagem ERRO: posicao invalida" << '\n';
+    exit(1);
+    // return tmp;
+  }
+  return imgData[pos];
+}
+
+void ImagemBruta::copyTo(ImagemBruta &dest)const{
+  dest.destruct();
+  dest.copy(*this);
+}
+
+void ImagemBruta::write(const char* arquivo)const{
+  std::ofstream out(arquivo);
+  if(!out.is_open())return;
+  write(out);
+  out.close();
+}
+bool ImagemBruta::read(const char* arquivo){
+  std::ifstream in(arquivo);
+  if(!in.is_open())return false;
+  bool r = read(in);
+  in.close();
+  return r;
+}
+void ImagemBruta::write(std::ofstream &O)const{
+  if(imgData == NULL)return;
+  O << "length "<<length<<'\n';
+  O << "width "<< width << " height " << height << '\n';
+  O << "PIXEL_FORMAT "<< (int)pxFormat <<'\n';
+  for(unsigned i = 0; i < length; i++)
+    O << imgData[i];
+}
+bool ImagemBruta::read(std::ifstream &I){
+  std::string str;
+  unsigned tmp_length;
+  unsigned tmp_width,tmp_height;
+  unsigned tmp_pxFormat;
+  uint8_t *tmp_imgData;
+
+  getline(I,str,' ');
+  if(str != "length")return false;
+  I >> tmp_length;
+
+  I.ignore(1,'\n');
+  getline(I,str,' ');
+  if(str != "width")return false;
+  I >> tmp_width;
+
+  I.ignore(1,' ');
+  getline(I,str,' ');
+  if(str != "height")return false;
+  I >> tmp_height;
+
+  I.ignore(1,'\n');
+  getline(I,str,' ');
+  if(str != "PIXEL_FORMAT")return false;
+  I >> tmp_pxFormat;
+
+  tmp_imgData = new uint8_t[tmp_length];
+  char tmp;
+  I.ignore(1,'\n');
+  for(unsigned i = 0; i < tmp_length; i++){
+    I.get(tmp);
+    tmp_imgData[i] = tmp;
+  }
+
+  if(imgData != NULL && cop == true)delete[] imgData;
+
+  this->length  = tmp_length;
+  this->width   = tmp_width;
+  this->height  = tmp_height;
+  this->pxFormat= (PIXEL_FORMAT)tmp_pxFormat;
+  this->cop     = true;
+
+  imgData = new uint8_t[length];
+  memcpy(imgData, tmp_imgData, length);
+
+  delete[] tmp_imgData;
+  return true;
 }

@@ -58,7 +58,6 @@ class PxRGB
   // Impressao
   friend std::ostream& operator<<(std::ostream& os, const PxRGB &);
 };
-
 // Gera um pixel a partir de um valor de crominancia e dos valores das
 // componentes de cor máxima e mínima
 const PxRGB H2PxRGB(float H, uint8_t bmax=255, uint8_t bmin=0);
@@ -207,9 +206,11 @@ struct TCoord3
 /* ==============================================================
    IMAGENS
    ============================================================== */
-
-
-
+//Case GBRG: px1 = G or B or R
+//Case YUYV: px1 = Y e px2 = U or V
+struct PxByte{
+  uint8_t px1,px2;
+};
 
 enum PIXEL_FORMAT{
   GBRG  = 0,
@@ -217,47 +218,57 @@ enum PIXEL_FORMAT{
   UNDEF = 42
 };
 
-class ImagemByte{
+class ImagemBruta{
 private:
   unsigned width,height;
-  const uint8_t* imgData;
   unsigned length;//imgData length
-  // ImagemRGB imgRGB;
   PIXEL_FORMAT pxFormat;
+  uint8_t* imgData;
 
-  void copy(const ImagemByte &I);
+  bool cop;//auxiliar, para nao tentar desalocar a imagem do buffer da camera
+
+  void copy(const ImagemBruta &I);
+  void destruct();
   void create();
 
   PxRGB atGBRGtoRGB(unsigned lin, unsigned col)const;
   PxRGB atYUYVtoRGB(unsigned lin, unsigned col)const;
-
 public:
-//data deve ser o retorno do metodo getDataImage de um objeto Camera
-//estrutura do data:  (byte*)(imagem no formato X)
-//byte do formato pode ser:
-// 0 - GBRG
-// 1 - YUYV 4:2:2
-  inline ImagemByte(const ImagemByte &I){copy(I);}
-  inline ImagemByte(unsigned larg,unsigned alt):width(larg),height(alt),
+  // inline ImagemBruta(const ImagemBruta &I){ copy(I);}
+  ImagemBruta(const ImagemBruta &I) = delete;
+  inline ImagemBruta(unsigned larg,unsigned alt):width(larg),height(alt),cop(false),
                                                 imgData(NULL),pxFormat(UNDEF),length(0){}
-  inline ImagemByte(){ create(); }
-  ~ImagemByte();
+  inline ImagemBruta(){ create(); }
+  ~ImagemBruta();
 
-  //data deve ser o retorno de Camera::getDataImage()
-  // void loadFromData(const struct CAMERA_DATA &data,unsigned  width, unsigned height);
-  void loadFromData(const uint8_t* data,unsigned length,PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT);
+  void copyTo(ImagemBruta &dest)const;
+
+  void loadFromData(uint8_t* data,unsigned length,PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT);
   //WARNING i,j so serao iguais a lin e col, caso pxFormat for GBRG
   //Retorna o byte na posicao i,j do vetor de dados da imagem,
-  //obs.: o significado do byte depende do formato do Pixel
+  //obs.: o significado do byte depende do formato do pixel
+  // inline uint8_t operator[](unsigned pos) { return imgData[pos]; }
   uint8_t atByte(unsigned pos)const;
+  uint8_t &atByte(unsigned pos);
+  uint8_t getByte(unsigned lin, unsigned col)const;
+
   PxRGB atRGB(unsigned lin,unsigned col)const;
   inline void atHPG(unsigned lin,unsigned col,float &H,float &P,float &G)const{ atRGB(lin,col).getHPG(H,P,G); }
 
-  inline void operator=(const ImagemByte &I){ copy(I); }
+  // inline void operator=(const ImagemBruta &I) = delete;
+  void operator=(ImagemBruta I) = delete;
 
   inline unsigned getWidth() const{ return width; }
   inline unsigned getHeight() const{ return height; }
   inline unsigned getLength()const{ return length; }
+
+  inline PIXEL_FORMAT getPxFormat(){ return pxFormat;}
+
+  void write(const char* arquivo)const;
+  bool read(const char* arquivo);
+
+  void write(std::ofstream &O)const;
+  bool read(std::ifstream &I);
 };
 
 // A classe LinhaImagemRGB é definida apenas por razoes de
@@ -299,7 +310,7 @@ public:
 
   ImagemRGB(unsigned Larg, unsigned Alt);
   ImagemRGB(const ImagemRGB &I);
-  ImagemRGB(const ImagemByte &I);
+  ImagemRGB(const ImagemBruta &I);
 
 
   explicit ImagemRGB(const char *arq);
@@ -307,7 +318,7 @@ public:
   bool resize(unsigned Larg, unsigned Alt, bool keepData=false);
   bool load(const char *arq);
   void operator=(const ImagemRGB &I);
-  void operator=(const ImagemByte &I);
+  void operator=(const ImagemBruta &I);
 
   inline unsigned ncol() const {return Ncol;}
   inline unsigned nlin() const {return Nlin;}

@@ -657,6 +657,7 @@ bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam, double angCorrecao,
 bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
 				   double angCorrecao,int &index,
 				   POS_ROBO &teamPose){
+  #define IS_VALID(i,j) ( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false
   int u,v,ui,vi;
   REG_COLOR colorID;
   REGION region;
@@ -666,56 +667,73 @@ bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
 		 + RADIUS*cos(regTeam.orientation+angBusca));
   v = (int)round(regTeam.center.v()
 		 - RADIUS*sin(regTeam.orientation+angBusca));
-  for(ui = u-2; ui <= u+2; ui++) {
-    for(vi = v-2; vi <= v+2; vi++) {
+  int r;
+  unsigned qtdDiff;
+
+  for(ui = u-2; ui <= u+2; ui++)
+    for(vi = v-2; vi <= v+2; vi++){
       if(ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight()){
+        //WARNING usando info do campo vazio
+        r = calibracaoParam.isDiff(vi,ui,ImBruta.getByte(vi,ui));
+        qtdDiff = 0;
+        if(r == IS_UNDEF){
+          if(IS_VALID(vi-1,ui-1))
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.getByte(vi-1,ui-1)) == 1)?1:0;
+          if(IS_VALID(vi-1,ui+1))
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.getByte(vi-1,ui+1)) == 1)?1:0;
+          if(IS_VALID(vi+1,ui+1))
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.getByte(vi+1,ui+1)) == 1)?1:0;
+          if(IS_VALID(vi+1,ui-1))
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.getByte(vi+1,ui-1)) == 1)?1:0;
+        }
+        if(r == IS_OBJECT || qtdDiff > 2){
           ImBruta.atHPG(vi, ui, H, P, G);
-      	  colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
-      	if( colorID != REG_COLOR_YELLOW &&
-      	    colorID != REG_COLOR_BLUE &&
-      	    colorID != REG_COLOR_ORANGE &&
-      	    colorID != REG_COLOR_BLACK &&
-      	    colorID != REG_COLOR_WHITE &&
-      	    colorID != REG_COLOR_UNDEFINED) {
-      	  region = seedFill(colorID,ui,vi);
-      	  if ( region.nPixel >= MIN_PIXELS ) {
-      	    switch(region.colorID){
-      	    case REG_COLOR_CIAN:
-      	      index = 0;
-      	      break;
-      	    case REG_COLOR_PINK:
-      	      index = 1;
-      	      break;
-      	    case REG_COLOR_GREEN:
-      	      index = 2;
-      	      break;
-      	    default:
-      	      index = -1;
-      	      break;
-      	    }
-      	    if(index != -1){
-      	      regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
-      	      region.center = (RDistortion.corrigir(region.center))/Homography;
+          colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
+          if( colorID != REG_COLOR_YELLOW &&
+            colorID != REG_COLOR_BLUE &&
+            colorID != REG_COLOR_ORANGE &&
+            colorID != REG_COLOR_BLACK &&
+            colorID != REG_COLOR_WHITE &&
+            colorID != REG_COLOR_UNDEFINED){
+              region = seedFill(colorID,ui,vi);
+              if( region.nPixel >= MIN_PIXELS ) {
+                switch(region.colorID){
+                  case REG_COLOR_CIAN:
+                  index = 0;
+                  break;
+                  case REG_COLOR_PINK:
+                  index = 1;
+                  break;
+                  case REG_COLOR_GREEN:
+                  index = 2;
+                  break;
+                  default:
+                  index = -1;
+                  break;
+                }
+                if(index != -1){
+                  regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
+                  region.center = (RDistortion.corrigir(region.center))/Homography;
 
 
-      	      teamPose.x() = regTeam.center.x();
-      	      teamPose.y() = regTeam.center.y();
-      	      double theta1 = ang_equiv(regTeam.orientation + angCorrecao);
-      	      double theta2 = ang_equiv(arc_tang((region.center.y() -
-      						  regTeam.center.y()),
-      						 (region.center.x() -
-      						  regTeam.center.x()))
-      					-M_PI_4);
+                  teamPose.x() = regTeam.center.x();
+                  teamPose.y() = regTeam.center.y();
+                  double theta1 = ang_equiv(regTeam.orientation + angCorrecao);
+                  double theta2 = ang_equiv(arc_tang((region.center.y() -
+                  regTeam.center.y()),
+                  (region.center.x() -
+                  regTeam.center.x()))
+                  -M_PI_4);
 
-
-       	      teamPose.theta() = media_ang(theta1,theta2);
-      	      return false;
-      	    }
-      	  }
-      	}
+                  teamPose.theta() = media_ang(theta1,theta2);
+                  return false;
+                }
+              }
+            }
+        }
       }
     }
-  }
+
   return true;
 }
 
@@ -804,7 +822,6 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //     teamPose.theta() = ang_equiv(teamPose.theta() + corrTheta);
 
 
-
   return false; //sem erro
   //   }
   //   return true; //com erro
@@ -859,6 +876,7 @@ bool Acquisition::processGameState()
   //PASSO 1: Busca por regiões amarelas e azuis
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
+      //WARNING falta usar a imagem do campo vazio aqui
       ImBruta.atHPG(v,u,H,P,G);
       colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
 

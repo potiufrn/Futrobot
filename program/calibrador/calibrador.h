@@ -8,7 +8,7 @@
 
 #ifndef CALIBRADOR_H
 #define CALIBRADOR_H
-
+#include <qmessagebox.h>
 #include <qvariant.h>
 #include <qpixmap.h>
 #include <qmainwindow.h>

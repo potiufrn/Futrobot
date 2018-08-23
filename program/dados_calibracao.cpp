@@ -10,7 +10,11 @@ PARAMETROS_CALIBRACAO::PARAMETROS_CALIBRACAO() :
   pontosReais(NULL),
   limiarPInf(0),
   limiarPSup(100),
-  limHPG(NULL)
+  limHPG(NULL),
+  campoVazio(),
+  desvioPadrao(NULL),
+  const_Field(0),
+  const_Object(0)
 {
 
 }
@@ -19,6 +23,35 @@ PARAMETROS_CALIBRACAO::~PARAMETROS_CALIBRACAO(){
   delete[] pontosImagem;
   delete[] pontosReais;
   delete[] limHPG;
+  if(desvioPadrao != NULL)delete[] desvioPadrao;
+}
+
+bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, uint8_t byte){
+  #define IN_RANGE(inf, sup, value) ((value) <= (sup) && (value) >= (inf))?true:false
+
+  uint8_t infLimit = campoVazio.getByte(i,j) - const_Field*desvioPadrao[POS(i,j)];
+  uint8_t supLimit = campoVazio.getByte(i,j) + const_Field*desvioPadrao[POS(i,j)];
+
+  return IN_RANGE(infLimit, supLimit, byte);
+}
+bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte){
+  #define OUT_RANGE(inf, sup, value) ((value) > (sup) || (value) < (inf))?true:false
+
+  uint8_t infLimit = campoVazio.getByte(i,j) - const_Object*desvioPadrao[POS(i,j)];
+  uint8_t supLimit = campoVazio.getByte(i,j) + const_Object*desvioPadrao[POS(i,j)];
+
+  return OUT_RANGE(infLimit, supLimit, byte);
+}
+
+int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte){
+  //eh campo
+  if(isField(i,j,byte))
+    return 0;
+  //eh objeto
+  if(isObject(i,j,byte))
+    return 1;
+  //incerteza
+  return -1;
 }
 
 bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
@@ -115,10 +148,14 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
   if (pontos_aux != NULL) delete[] pontos_aux;
   if (pontosReais_aux != NULL) delete[] pontosReais_aux;
   if (limHPG_aux != NULL) delete[] limHPG_aux;
+
+
+
+
   return false;
 }
-
 bool PARAMETROS_CALIBRACAO::write(const char* arquivo) const{
+
   FILE *arq=fopen(arquivo,"w");
   if(arq == NULL) return true;
 
@@ -147,7 +184,6 @@ bool PARAMETROS_CALIBRACAO::write(const char* arquivo) const{
   fclose(arq);
   return false;
 }
-
 bool PARAMETROS_CALIBRACAO::read(std::istream &I){
   unsigned nPontosNotaveis_aux;
   unsigned nCores_aux;
@@ -207,6 +243,34 @@ bool PARAMETROS_CALIBRACAO::read(std::istream &I){
     return true;
   }
 
+  //leitura dos dados do campo Vazio
+  I.ignore(1,'\n');
+  getline(I,str,'\n');
+  if(str != "Constantes Objeto e Campo")return true;
+  I >> const_Object >> const_Field;
+
+  if(campoVazio.read("../.campoVazio") == false)return true;//falha na leitura da imagem do campo vazio
+    //leitura da matriz de desvio padrao
+  ifstream desvio("../.desvioPadrao");
+  unsigned length;
+
+  if(desvio.is_open() == false)return true;
+  getline(desvio,str,':');
+  desvio >> length;
+  if(desvioPadrao != NULL)delete[] desvioPadrao;
+  desvioPadrao = new uint8_t[length];
+
+  I.ignore(1,'\n');
+
+  char tmp;
+  for(unsigned i = 0; i < length; i ++){
+    desvio.get(tmp);
+    desvioPadrao[i] = tmp;
+  }
+  if(str != "Length")return true;
+
+  desvio.close();
+  //fim da leitura dos dados do campo vazio
   nPontosNotaveis = nPontosNotaveis_aux;
   nCores = nCores_aux;
 
@@ -226,6 +290,9 @@ bool PARAMETROS_CALIBRACAO::read(std::istream &I){
   if (pontos_aux != NULL) delete[] pontos_aux;
   if (pontosReais_aux != NULL) delete[] pontosReais_aux;
   if (limHPG_aux != NULL) delete[] limHPG_aux;
+
+
+
   return false;
 }
 std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
@@ -252,6 +319,17 @@ std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
       << limHPG[i].G.min << ' '
       << limHPG[i].G.max << '\n';
   }
+  // dados referentes ao campo Vazio.
+  campoVazio.write("../.campoVazio");
+  ofstream desvio("../.desvioPadrao");
+  unsigned length = campoVazio.getLength();
+  desvio << "Length: "<<length<<'\n';
+  for(unsigned i = 0; i < campoVazio.getLength(); i++)
+    desvio << desvioPadrao[i];
+  desvio.close();
+
+  O << "Constantes Objeto e Campo"<< '\n';
+  O << const_Object <<'\t'<< const_Field;
 
   return O;
 }
@@ -291,7 +369,6 @@ int PARAMETROS_CALIBRACAO::getHardColor(
   return -1;
 
 }
-
 //metodo para pegar o rotulo baseado nas componentes do pixel. Usa o
 //calculo da distancia caso o pixel nao se encontre dentro do limiar
 //das componentes.

@@ -326,7 +326,7 @@ void Camera::UnInit() {
 }
 void Camera::Start(){
   if(!this->isOpen)return;
-
+  this->encerrar = false;
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
   errno_exit ("Camera ERRO: VIDIOC_STREAMON");
@@ -388,7 +388,7 @@ bool Camera::waitforimage(){
   return false;
 }
 void Camera::run(){
-  encerrar = false;
+  // encerrar = false;
   while(!encerrar){
     waitforimage();
     captureimage();

@@ -42,7 +42,7 @@ struct buffer{
 class Camera {
  private:
   unsigned int width, height, fps;
-  // auxiliar para decodigicar a informacao em ImagemByte
+  // auxiliar para decodigicar a informacao em ImagemBruta
   // GBRG ou YUYV
   PIXEL_FORMAT pxFormat;
 
@@ -65,7 +65,7 @@ protected:
   Camera(unsigned index);
    ~Camera();
 
-   ImagemByte ImBruta;
+   ImagemBruta ImBruta;
    bool capturando;
    bool encerrar;
 

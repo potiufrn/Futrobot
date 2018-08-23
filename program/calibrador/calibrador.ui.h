@@ -12,12 +12,12 @@
 
 #define SPIN_MIN_VALUE 0
 #define SPIN_MAX_VALUE 100
+#define NUM_AMOSTRAS 100 //amostrar para calcular a média do campo vazio
 //#define LARGURA_EXIBICAO 640
 //#define ALTURA_EXIBICAO 480
 //#define METADE_LARGURA_EXIBICAO 320
 //#define METADE_ALTURA_EXIBICAO 240
-
-typedef double *pdouble;
+#include <qmessagebox.h>
 
 using namespace std;
 
@@ -163,10 +163,39 @@ void calibrador::init()
     lcdHGP_P2->setSegmentStyle(QLCDNumber::Flat);
     lcdHGP_G2->setSegmentStyle(QLCDNumber::Flat);
 
-
+    checkExibirImagemProcessada->setText("View field average");
+    checkExibirImagemProcessada->setEnabled(false);
+    pushAvancarTela1->setText("Next(falta a imagem Media)");
+    pushAvancarTela1->setEnabled(false);
+    checkShooting->setChecked(true);
     //inicializa posição do mouse.
     MouseX = 0;
     MouseY = 0;
+
+    //WARNING apagar daqui
+    labelLimiarPInf->setText("Const Field");
+    labelLimiarPSup->setText("Const Object");
+    sliderLimiarPInf->setMaxValue(10);
+    sliderLimiarPInf->setMinValue(1);
+    sliderLimiarPSup->setMaxValue(10);
+    sliderLimiarPSup->setMinValue(1);
+
+    spinLimiarPInf->setMaxValue(10);
+    spinLimiarPInf->setMinValue(1);
+
+    spinLimiarPSup->setMaxValue(10);
+    spinLimiarPSup->setMinValue(1);
+
+    sliderLimiarPSup->setValue(X.getConstObject());//usado para alterar const object
+    sliderLimiarPInf->setValue(X.getConstField());
+
+    X.setPinf(0);
+    X.setPsup(100);
+
+    // std::cerr << "const object: "<<X.getConstObject() << '\n';
+    // std::cerr << "const Field: "<<X.getConstField() << '\n';
+
+    //TODO ate aqui
 
     //exibe a tela de calibracao de pontos.
     mostrarTela0();
@@ -230,7 +259,10 @@ void calibrador::mouseMove( QPoint Point)
 
 void calibrador::mousePress( QPoint Point)
 {
-  if(telaAtual == 0){
+  // if(telaAtual == 1){
+  //   std::cerr << (int)X.getByte(Point.y(), Point.x()) << '\n';
+  // }
+  if(telaAtual == 1 && checkExibirGrade->isChecked()){
     MouseX = Point.x();
     MouseY = Point.y();
     int selec = X.pontoSelecionado(Point.x(),Point.y());
@@ -361,14 +393,15 @@ void calibrador::atualizarDisplays()
 
 void calibrador::sliderLimiarPInfValueChanged( int valor )
 {
-    if(valor != spinLimiarPInf->value() ){
-	if(valor >= sliderLimiarPSup->value() ){
-	    sliderLimiarPSup->setValue(valor+1);
-	}
-	spinLimiarPInf->setValue(valor);
-	X.setPinf(valor);
-	//novosLimites = true;
-    }
+  if(valor != spinLimiarPInf->value() ){
+  	if(valor >= sliderLimiarPSup->value() )
+  	    sliderLimiarPSup->setValue(valor+1);
+  	spinLimiarPInf->setValue(valor);
+  	// X.setPinf(valor);
+    
+    X.setConstField(valor);
+  	//novosLimites = true;
+  }
 }
 
 void calibrador::spinLimiarPInfValueChanged( int valor )
@@ -378,7 +411,9 @@ void calibrador::spinLimiarPInfValueChanged( int valor )
 	    spinLimiarPSup->setValue(valor+1);
 	}
 	sliderLimiarPInf->setValue(valor);
-	X.setPinf(valor);
+	// X.setPinf(valor);
+
+  X.setConstField(valor);
 	//spinLimiarPSup->setMinValue(valor);
 	//novosLimites = true;
     }
@@ -391,7 +426,7 @@ void calibrador::sliderLimiarPSupValueChanged( int valor )
 	    sliderLimiarPInf->setValue(valor-1);
 	}
 	spinLimiarPSup->setValue(valor);
-	X.setPsup(valor);
+	X.setConstObject(valor);
 	//novosLimites = true;
     }
 }
@@ -403,7 +438,7 @@ void calibrador::spinLimiarPSupValueChanged( int valor )
   	    spinLimiarPInf->setValue(valor-1);
   	}
     sliderLimiarPSup->setValue(valor);
-    X.setPsup(valor);
+    X.setConstObject(valor);
   }
 }
 
@@ -740,7 +775,36 @@ void calibrador::mostrarTela1()
 {
     widgetStack1->raiseWidget(tela1);
     telaAtual = 1;
-    //novosLimites = true;
+    QString infoText;
+    QMessageBox msgBox;
+
+    if(!X.campoVazioCapturado()){
+      infoText = QString("Operacao obrigatoria, certifique-se de que o programa ira capturar a imagem do campo vazio.\n \n\\
+      Deseja realizar a captura ?");
+    }else{
+      infoText = QString("Deseja realizar uma nova captura do campo Vazio ?");
+      // setarModo();
+      // return;
+    }
+
+
+    msgBox.setText("Captura do Campo Vazio");
+    msgBox.setInformativeText(infoText);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    int ret = msgBox.exec();
+
+    if(ret == QMessageBox::Yes){
+      X.calImgMedia(NUM_AMOSTRAS);
+      QMessageBox msg;
+      msg.setText("Captura da imagem media realizada");
+      msg.exec();
+
+      pushAvancarTela1->setEnabled(true);
+      pushAvancarTela1->setText("Next");
+      checkExibirImagemProcessada->setEnabled(true);
+    }
+
     setarModo();
 }
 

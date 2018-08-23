@@ -23,7 +23,7 @@ camera.o: camera.h camera.cpp
 .PHONY: clean realclean install
 
 clean:
-	-rm -f *.o *~ *.bak	*.ppm
+	-rm -f *.o *~ *.bak	*.ppm	*.IB
 
 realclean: clean
 	-rm -f libcamera.a

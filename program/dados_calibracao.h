@@ -23,9 +23,21 @@ struct limitesHPG {
   limites H,P,G;
 };
 
-struct PARAMETROS_CALIBRACAO {
-  // ImagemByte campoVazio;
-  // uint8_t desvioPadrao;
+enum{
+  IS_FIELD = 0,
+  IS_OBJECT = 1,
+  IS_UNDEF = -1
+};
+
+struct PARAMETROS_CALIBRACAO{
+  //WARNING Apenas enquanto nao cria a classe/struct pixel_bruto
+  #define CONST (campoVazio.getPxFormat() == GBRG)?1:2 //supondo apenas os formatos GBRG e YUV422
+  #define POS(i,j) CONST*((i)*campoVazio.getWidth() + (j))
+
+  uint8_t *desvioPadrao;
+  ImagemBruta campoVazio;
+  float const_Field;
+  float const_Object;
 
   unsigned nPontosNotaveis;
   unsigned nCores;
@@ -34,6 +46,7 @@ struct PARAMETROS_CALIBRACAO {
   int limiarPInf;
   int limiarPSup;
   limitesHPG *limHPG;
+
   PARAMETROS_CALIBRACAO();
   ~PARAMETROS_CALIBRACAO();
   bool read(const char* arquivo);
@@ -42,7 +55,9 @@ struct PARAMETROS_CALIBRACAO {
   bool read(std::istream &I);
   std::ostream &write(std::ostream &O)const;
 
-  // bool difData(uint8_t byte, unsigned pos);
+  bool isObject(unsigned i, unsigned j, uint8_t byte);
+  bool isField(unsigned i, unsigned j, uint8_t byte);
+  int isDiff(unsigned i, unsigned j, uint8_t byte);
 
   int getSoftColor(const float H,const float P, const float G) const;
   int getHardColor(const float H,const float P, const float G) const;
