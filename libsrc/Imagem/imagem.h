@@ -263,6 +263,7 @@ public:
   inline unsigned getLength()const{ return length; }
 
   inline PIXEL_FORMAT getPxFormat(){ return pxFormat;}
+  inline const ImagemBruta* getRawData(){ return this; }
 
   void write(const char* arquivo)const;
   bool read(const char* arquivo);

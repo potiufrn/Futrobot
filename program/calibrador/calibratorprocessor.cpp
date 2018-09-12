@@ -208,6 +208,7 @@ bool CalibratorProcessor::fileOpen(const char* text)
 
 bool CalibratorProcessor::fileSave(const char* arquivo)
 {
+  if(!campoVazio_capturado)return true;
   std::ofstream O(arquivo);
   if(!O.is_open())return true;
   O << "Parametros da Camera\n";

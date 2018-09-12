@@ -159,7 +159,6 @@ bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
   if(index > 9){
     std::cerr << "Camera Warning: index invalido" << '\n';
     return false;
-    // errno_exit("Camera: device invalid index");
   }
 
   std::string dev =  std::string("/dev/video") + std::string(new (char)(index+48),1);
@@ -168,18 +167,15 @@ bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
   struct stat st;
   if(-1==stat(name, &st)) {
     fprintf(stderr, "Cannot identify '%s' : %d, %s\n", name, errno, strerror(errno));
-    // exit(1);
     return false;
   }
 
   if(!S_ISCHR(st.st_mode)){
     fprintf(stderr, "%s is no device\n", name);
-    // exit(1);
     return false;
   }
   fd = open(name, O_RDWR | O_NONBLOCK , 0);
   if(-1 == fd){
-    // errno_exit("Camera ERRO: No Open");
     std::cerr << "Camera Warning: No open" << '\n';
     return false;
   }
@@ -388,7 +384,6 @@ bool Camera::waitforimage(){
   return false;
 }
 void Camera::run(){
-  // encerrar = false;
   while(!encerrar){
     waitforimage();
     captureimage();
@@ -481,15 +476,15 @@ bool Camera::setExposure(int v){
   return setControl(V4L2_CID_EXPOSURE,v);
 }
 bool Camera::setExposureAbs(int v){
-  // std::cout << "Exposure Absolute" << '\n';
+
   return setControl(V4L2_CID_EXPOSURE_ABSOLUTE,v);
 }
 bool Camera::setHue(int v){
-  // std::cout << "Hue" << '\n';
+
   return setControl(V4L2_CID_HUE,v);
 }
 bool Camera::setGamma(int v){
-  // std::cout << "Gamma" << '\n';
+  
   return setControl(V4L2_CID_GAMMA,v);
 }
 int Camera::getExposureAbs()const{

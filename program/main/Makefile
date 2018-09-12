@@ -14,7 +14,7 @@ LDLIBS = -lcamera -limagem -lotim -lmatrix -lpthread -lssocket -lbluetoothAction
 #LDLIBS = -lmatrix -lpthread -lssocket
 
 FILES = futdata.o acquisition.o localization.o strategy.o obstacles.o	\
-control.o transmission.o futrobot.o main.o export.o
+control.o transmission.o export.o futrobot.o main.o
 
 all: main
 
@@ -37,6 +37,8 @@ transmission.o: transmission.h transmission.cpp
 futdata.o: futdata.h futdata.cpp
 
 futrobot.o: futrobot.h futrobot.cpp
+
+export.o:	export.h	export.cpp
 
 ##### SPECIAL TARGETS ######
 
