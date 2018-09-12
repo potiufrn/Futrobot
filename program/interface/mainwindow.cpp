@@ -354,15 +354,12 @@ void MainWindow::setUpdate(){
 
     //PxRGB * ptemp= &(pass.imagem[0][0]);
     //frame->setimg(ptemp);
-    if (imagem->isChecked()) {
+    if (imagem->isChecked()){
         frame->setimg((const PxRGB *) pass.imagem);
     }
     frame->repaint();
-
 }
 
 void MainWindow::cleanFutRobot(){
     killTimer(datatable_timerID);
 }
-
-

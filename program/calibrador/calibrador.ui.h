@@ -32,7 +32,6 @@ void calibrador::fileNew()
     arquivo = QString::null;
 }
 
-
 void calibrador::fileOpen()
 {
   QString text;
@@ -57,16 +56,22 @@ void calibrador::fileOpen()
 
 void calibrador::fileSave()
 {
+
+
     if(arquivo.isEmpty()){
 	fileSaveAs();
     }else if(X.fileSave(arquivo)){
-	//insira seu pop-up de erro aki
+      QMessageBox::warning(this,
+                          tr(""),
+                          tr("Nem todos os parametros foram configurados"));
     }
 }
 
 
 void calibrador::fileSaveAs()
 {
+
+
     QString text;
     Q3FileDialog* fd = new Q3FileDialog( this );
     fd->setDir("../../etc");
@@ -88,7 +93,7 @@ void calibrador::fileSaveAs()
 void calibrador::fileExit()
 {
     //TODO: Exibir pop-up aqui, caso os parametros nao estejam salvos ainda.
-    //terminar = true;
+
     fileSaveAs();
     X.terminar();
     close();
@@ -114,8 +119,6 @@ void calibrador::cameraLoadParam(){
 
 void calibrador::cameraNew()
 {
-    // X.resetCameraParam();
-    // atualizarCameraParam();
     arquivo_cameraParam = QString::null;
 }
 
@@ -259,9 +262,6 @@ void calibrador::mouseMove( QPoint Point)
 
 void calibrador::mousePress( QPoint Point)
 {
-  // if(telaAtual == 1){
-  //   std::cerr << (int)X.getByte(Point.y(), Point.x()) << '\n';
-  // }
   if(telaAtual == 1 && checkExibirGrade->isChecked()){
     MouseX = Point.x();
     MouseY = Point.y();
@@ -353,42 +353,6 @@ void calibrador::atualizarDisplays()
     lcdHGP_H2->display(H);
     lcdHGP_P2->display(P);
     lcdHGP_G2->display(G2);
-
-
-    /*
-    QRgb ponto;
-    if(checkExibirImagemProcessada->isChecked() ){
-	ponto = imagem_processada.pixel(MouseX,MouseY);
-    }else{
-	ponto = imagem.pixel(MouseX,MouseY);
-    }
-
-    lcdRGB_R->display((int)round((qRed(ponto)/255.0)*100));
-    lcdRGB_G->display((int)round((qGreen(ponto)/255.0)*100));
-    lcdRGB_B->display((int)round((qBlue(ponto)/255.0)*100));
-    pixel=PxRGB(qRed(ponto),qGreen(ponto),qBlue(ponto));
-
-//	pixel.set( ((double)qRed(ponto))/255.0,
-//		   ((double)qGreen(ponto))/255.0,
-//		   ((double)qBlue(ponto))/255.0 );
-
-    pixel.getHPG(H, P_, G_);
-    if(isnan(H)){
-	lcdHGP_H->display(999);
-    }
-    else{
-	lcdHGP_H->display((int)round(H*100.0));
-    }
-    lcdHGP_P->display((int)round(P_*100.0));
-    if(isnan(G_)){
-	lcdHGP_G->display(999);
-    }
-    else{
-	lcdHGP_G->display((int)round(G_*100.0));
-    }
-    lcdX->display(MouseX);
-    lcdY->display(MouseY);
-   */
 }
 
 void calibrador::sliderLimiarPInfValueChanged( int valor )
@@ -398,7 +362,7 @@ void calibrador::sliderLimiarPInfValueChanged( int valor )
   	    sliderLimiarPSup->setValue(valor+1);
   	spinLimiarPInf->setValue(valor);
   	// X.setPinf(valor);
-    
+
     X.setConstField(valor);
   	//novosLimites = true;
   }

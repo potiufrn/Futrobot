@@ -507,13 +507,7 @@ bool Acquisition::canBePainted(REG_COLOR colorID, unsigned u, unsigned v){
   return (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID);
 }
 
-REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
-{
-// #define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(ImBruta[v][u]) == colorID)
-
-// #define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID)
-
-
+REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v){
   static STACK s;
   REGION region;
 
@@ -657,6 +651,7 @@ bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam, double angCorrecao,
 bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
 				   double angCorrecao,int &index,
 				   POS_ROBO &teamPose){
+  //Macro para testar se uma coordenada, na imagem, eh valida.
   #define IS_VALID(i,j) ( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false
   int u,v,ui,vi;
   REG_COLOR colorID;
@@ -673,20 +668,27 @@ bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
   for(ui = u-2; ui <= u+2; ui++)
     for(vi = v-2; vi <= v+2; vi++){
       if(ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight()){
-        //WARNING usando info do campo vazio
-        r = calibracaoParam.isDiff(vi,ui,ImBruta.getByte(vi,ui));
+        //WARNING usando informacoes do campo vazio
+        r = calibracaoParam.isDiff(vi,ui,ImBruta.getByte(vi,ui));//compara o byte com o do campo vazio.
         qtdDiff = 0;
+        //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
+        //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
         if(r == IS_UNDEF){
           if(IS_VALID(vi-1,ui-1))
-            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.getByte(vi-1,ui-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.getByte(vi-1,ui-1)) == IS_OBJECT)?1:0;
           if(IS_VALID(vi-1,ui+1))
-            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.getByte(vi-1,ui+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.getByte(vi-1,ui+1)) == IS_OBJECT)?1:0;
           if(IS_VALID(vi+1,ui+1))
-            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.getByte(vi+1,ui+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.getByte(vi+1,ui+1)) == IS_OBJECT)?1:0;
           if(IS_VALID(vi+1,ui-1))
-            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.getByte(vi+1,ui-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.getByte(vi+1,ui-1)) == IS_OBJECT)?1:0;
         }
+        //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
+        //dos robos ou da bola.
         if(r == IS_OBJECT || qtdDiff > 2){
+          //No trecho seguinte de codigo, eh feito a identificacao da cor,
+          //e um seedFill para determinar a regiao a que este pixel pertence,
+          //para entao calcular o centro deste objeto como sua orientacao.
           ImBruta.atHPG(vi, ui, H, P, G);
           colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
           if( colorID != REG_COLOR_YELLOW &&
@@ -827,8 +829,6 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //   return true; //com erro
 }
 
-
-
 bool Acquisition::processGameState()
 {
 
@@ -850,6 +850,8 @@ bool Acquisition::processGameState()
 
   REGION region, region_aux;
   REG_COLOR colorID;
+  int r;
+  unsigned qtdDiff;
   int u,v;
   int i;
   float H,P,G;
@@ -876,71 +878,89 @@ bool Acquisition::processGameState()
   //PASSO 1: Busca por regiões amarelas e azuis
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
-      //WARNING falta usar a imagem do campo vazio aqui
-      ImBruta.atHPG(v,u,H,P,G);
-      colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
+      //WARNING usando informacoes do campo vazio
+      r = calibracaoParam.isDiff(v,u,ImBruta.getByte(v,u));//compara o byte com o do campo vazio.
+      qtdDiff = 0;
+      //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
+      //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
+      if(r == IS_UNDEF){
+        if(IS_VALID(v-1,u-1))
+          qtdDiff += (calibracaoParam.isDiff(v-1,u-1,ImBruta.getByte(v-1,u-1)) == IS_OBJECT)?1:0;
+        if(IS_VALID(v-1,u+1))
+          qtdDiff += (calibracaoParam.isDiff(v-1,u+1,ImBruta.getByte(v-1,u+1)) == IS_OBJECT)?1:0;
+        if(IS_VALID(v+1,u+1))
+          qtdDiff += (calibracaoParam.isDiff(v+1,u+1,ImBruta.getByte(v+1,u+1)) == IS_OBJECT)?1:0;
+        if(IS_VALID(v+1,u-1))
+          qtdDiff += (calibracaoParam.isDiff(v+1,u-1,ImBruta.getByte(v+1,u-1)) == IS_OBJECT)?1:0;
+      }
+      //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
+      //dos robos ou da bola.
+      if(r == IS_OBJECT || qtdDiff > 2){
+        ImBruta.atHPG(v,u,H,P,G);
+        colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
 
-      // eliminar os pixels sem cor
-      if( colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE ){
+        // eliminar os pixels sem cor
+        if( colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE ){
 
-        region = seedFill(colorID,u,v);
+          region = seedFill(colorID,u,v);
 
-      	if ( region.nPixel >= MIN_PIXELS ) {
-      	  switch(colorID){
-      	  case REG_COLOR_BLUE:
-      	    if(nRegBlue < 3){
+          if ( region.nPixel >= MIN_PIXELS ) {
+            switch(colorID){
+              case REG_COLOR_BLUE:
+              if(nRegBlue < 3){
 
-      	      regBlue[nRegBlue] = region;
-      	      nRegBlue++;
-      	    }else{
-      	      for(i = 0; i < 3; i++){
-            		if(region.nPixel > regBlue[i].nPixel){
-            		  region_aux = regBlue[i];
-            		  regBlue[i] = region;
-            		  region = region_aux;
-            		}
-      	      }
-      	    }
-      	  break;
-      	  case REG_COLOR_YELLOW:
-      	    if(nRegYellow < 3){
+                regBlue[nRegBlue] = region;
+                nRegBlue++;
+              }else{
+                for(i = 0; i < 3; i++){
+                  if(region.nPixel > regBlue[i].nPixel){
+                    region_aux = regBlue[i];
+                    regBlue[i] = region;
+                    region = region_aux;
+                  }
+                }
+              }
+              break;
+              case REG_COLOR_YELLOW:
+              if(nRegYellow < 3){
 
-      	      regYellow[nRegYellow] = region;
-      	      nRegYellow++;
-      	    }else{
-      	      for(i = 0; i < 3; i++){
-            		if(region.nPixel > regYellow[i].nPixel){
-            		  region_aux = regYellow[i];
-            		  regYellow[i] = region;
-            		  region = region_aux;
-            		}
-      	      }
-      	    }
-      	  break;
-      	  case REG_COLOR_ORANGE:
+                regYellow[nRegYellow] = region;
+                nRegYellow++;
+              }else{
+                for(i = 0; i < 3; i++){
+                  if(region.nPixel > regYellow[i].nPixel){
+                    region_aux = regYellow[i];
+                    regYellow[i] = region;
+                    region = region_aux;
+                  }
+                }
+              }
+              break;
+              case REG_COLOR_ORANGE:
 
-      	    if(nRegOrange < 1){
+              if(nRegOrange < 1){
 
-      	      regOrange = region;
-      	      nRegOrange++;
-      	    }else{
-          		if(region.nPixel > regOrange.nPixel){
-          		  regOrange = region;
-      	      }
-      	    }
-      	    break;
-      	  default:
-      	    cerr<<"Nao deveria chegar aqui 1!";
-      	    return true;
-      	    break;
-      	  }
-      	}
+                regOrange = region;
+                nRegOrange++;
+              }else{
+                if(region.nPixel > regOrange.nPixel){
+                  regOrange = region;
+                }
+              }
+              break;
+              default:
+              cerr<<"Nao deveria chegar aqui 1!";
+              return true;
+              break;
+            }
+          }
+
+      }
       }
     }
   }
 
   //PASSO 2: Calcula a pose dos meus robos
-
   REG_COLOR  mycolor = ((myTeam() == YELLOW_TEAM)? REG_COLOR_YELLOW : REG_COLOR_BLUE);
   POS_ROBO teamPose;
   int index = 0;
