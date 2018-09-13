@@ -102,8 +102,8 @@ Export::~Export (){
    shmctl (smeid, IPC_RMID, 0);
 }
 
-// bool Export::exxport(const ImagemBruta * imgData)
-bool Export::exxport(const PxRGB *data)
+// bool Export::exxport(const PxRGB *data)
+bool Export::exxport()
 {
 
   //INICIO REGIAO CRITICA
@@ -190,12 +190,7 @@ bool Export::exxport(const PxRGB *data)
    pt->game = gameState();
    pt->ret_game = gameState();
 
-  memcpy((void*) pt->imagem, (void *) data, sizeof(PxRGB)*640*480);
-  // std::cerr << "Copiando imagem Bruta..." << '\n';
-  // pt->imgBruta.resize();
-  // memcpy((ImagemBruta*)pt->imgBruta, (ImagemBruta*)imgData, sizeof(ImagemBruta));
-  // std::cerr << "Copia bem sucedida" << '\n';
-  // ImagemRGB(*pt->imgBruta).save("TesteMemcpy.png");
+  // memcpy((void*) pt->imagem, (void *) data, sizeof(PxRGB)*640*480);  
 
   //IDENTIFICACAO DO QUADRO
      pt->id = count;

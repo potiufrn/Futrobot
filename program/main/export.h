@@ -105,8 +105,9 @@ public virtual FutData{
  public:
   Export(TEAM team, SIDE side, GAME_MODE mode);
   ~Export();
-  // bool exxport(const ImagemBruta *imgData);
-  bool exxport(const PxRGB *data);
+
+  // bool exxport(const PxRGB *data);
+  bool exxport();
   // bool metodo() {return true;};
   void initialize();
 };

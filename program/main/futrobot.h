@@ -26,8 +26,8 @@ class Futrobot
   public virtual FutData
 {
   pthread_t thr_ger;
-  pthread_t thr_export;
-  bool export_ready;
+  // pthread_t thr_export;
+  // bool export_ready;
 
   double t_start, t_end_cap, t_end_acq,
     t_end_loc, t_end_str, t_end_obs,

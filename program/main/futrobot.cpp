@@ -5,32 +5,32 @@
 
 using namespace std;
 
-inline void* exxport2(void *x){
-  ImagemRGB img(0,0);
-  unsigned qtd = 0;
-  while( ((Futrobot*)x)->gameState() != FINISH_STATE){
-
-    if( ((Futrobot*)x)->export_ready ){
-      qtd++;
-      // std::cerr << "Copiando imagem" << '\n';
-      ((Futrobot*)x)->export_ready = false;
-      img = ((Futrobot*)x)->ImBruta;
-      ((Futrobot*)x)->exxport((const PxRGB*)img.getRawData());
-      if(qtd == 10){
-
-        img.save("imgExport.ppm");
-      }
-
-    }
-  }
-  pthread_exit(NULL);
-}
+// inline void* exxport2(void *x){
+//   ImagemRGB img(0,0);
+//   unsigned qtd = 0;
+//   while( ((Futrobot*)x)->gameState() != FINISH_STATE){
+//
+//     if( ((Futrobot*)x)->export_ready ){
+//       qtd++;
+//       // std::cerr << "Copiando imagem" << '\n';
+//       ((Futrobot*)x)->export_ready = false;
+//       img = ((Futrobot*)x)->ImBruta;
+//       ((Futrobot*)x)->exxport((const PxRGB*)img.getRawData());
+//       if(qtd == 10){
+//
+//         img.save("imgExport.ppm");
+//       }
+//
+//     }
+//   }
+//   pthread_exit(NULL);
+// }
 
 inline void* management2( void *x )
 {
   ((Futrobot*)x)->management();
   cout << "Saiu do management2." << endl;
-  pthread_exit(NULL);
+
 }
 
 Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
@@ -41,8 +41,8 @@ Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
    Obstacles(team,side,gameMode),
    Control(team,side,gameMode),
    Transmission(team,side,gameMode),
-   Export(team,side,gameMode),
-   export_ready(false)
+   Export(team,side,gameMode)
+   // ,export_ready(false)
 {
   t_start = t_end_acq = t_end_loc = t_end_str = t_end_obs =
     t_end_con = t_end_tra = t_end_exp = 0.0;
@@ -55,14 +55,14 @@ bool Futrobot::start_management()
   // start_transmission();
 #endif
   if(pthread_create(&thr_ger, NULL, management2, (void*)this)) return true;
-  if(pthread_create(&thr_export, NULL, exxport2, (void*)this)) return true;
+  // if(pthread_create(&thr_export, NULL, exxport2, (void*)this)) return true;
   return false;
 }
 
 bool Futrobot::finish_management()
 {
   pthread_join(thr_ger,NULL);
-  pthread_join(thr_export,NULL);
+  // pthread_join(thr_export,NULL);
   return(false);
 }
 
@@ -129,8 +129,8 @@ void Futrobot::management()
     }
     myt_end_con = relogio();
 
-    //habilita a exportacao de dados
-    export_ready = true;
+
+    // export_ready = true;
     // Informa as tensoes para os robos.
     if (gameState() != FINISH_STATE && transmission()) {
       finish();
@@ -138,14 +138,15 @@ void Futrobot::management()
     }
     myt_end_tra = relogio();
     // Modulo de exportacao dos dados
-    // if (gameState() != FINISH_STATE && exxport((ImagemBruta*)ImBruta.getRawData()) ){
-    //    finish();
-    //    cerr << "Erro na exportacao dos dados!\n";
-    // }
+
     // if (gameState() != FINISH_STATE && exxport( (PxRGB*)ImagemRGB(ImBruta).getRawData()) ) {
     //    finish();
     //    cerr << "Erro na exportacao dos dados!\n";
     // }
+    if (gameState() != FINISH_STATE && exxport() ) {
+       finish();
+       cerr << "Erro na exportacao dos dados!\n";
+    }
 
 
     myt_end_exp = relogio();

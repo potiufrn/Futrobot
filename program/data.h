@@ -225,7 +225,7 @@ struct PACKAGEDAT {
   bool block0, block1, block2;
 
   //Imagem
-  PxRGB imagem[IMAGE_WIDTH][IMAGE_HEIGHT];
+  // PxRGB imagem[IMAGE_WIDTH][IMAGE_HEIGHT];
   // ImagemBruta *imgBruta;
 
 
