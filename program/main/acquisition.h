@@ -28,7 +28,7 @@ enum REG_COLOR {
 };
 
 struct REGION{
-  Coord2 center; 
+  Coord2 center;
   double orientation;
   bool symetric;
   REG_COLOR colorID;
@@ -42,27 +42,27 @@ struct REGION{
 /*   bool symetric; */
 /* }; */
 
-class Acquisition : 
+class Acquisition :
   public virtual FutData
 #ifndef _SO_SIMULADO_
-  , protected Camera    
+  , protected Camera
 #endif
 {
 private:
 #ifndef _SO_SIMULADO_
-  // ImagemRGB image;
+  // Imagem image;
   Homografia Homography;
   DistRadial RDistortion;
   unsigned int MinU, MaxU, MinV, MaxV;
   PARAMETROS_CALIBRACAO calibracaoParam;
-
 #endif
   IDQUADRO id_ant;
   bool saveNextImage;
   //FUNCTIONS
 #ifndef _SO_SIMULADO_
+  bool canBePainted(REG_COLOR colorID,unsigned u, unsigned v);
   REGION seedFill( REG_COLOR colorID, unsigned int u, unsigned int v);
-  bool processGameState();  
+  bool processGameState();
 #endif
   bool readGameState();
   bool calculaMinhaPose(REGION regTeam, double angBusca,
@@ -71,7 +71,6 @@ private:
 				  int &index, POS_ROBO &teamPose);
   bool calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
 			     double corrX, double corrY, double corrTheta);
-
 
 public:
   Acquisition( TEAM team, SIDE side, GAME_MODE mode);
@@ -85,4 +84,3 @@ public:
 };
 
 #endif
-

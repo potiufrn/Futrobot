@@ -5,6 +5,9 @@
 #include <matrix.h>
 #include <imagem.h>
 
+#include <fstream>
+#include <string.h>
+
 #define FATOR_CONVERSAO 100000.0
 
 struct RETA {
@@ -17,10 +20,13 @@ struct limites {
 };
 
 struct limitesHPG {
-  limites H,P,G;    
+  limites H,P,G;
 };
 
 struct PARAMETROS_CALIBRACAO {
+  // ImagemByte campoVazio;
+  // uint8_t desvioPadrao;
+
   unsigned nPontosNotaveis;
   unsigned nCores;
   Coord2 *pontosImagem;
@@ -32,9 +38,14 @@ struct PARAMETROS_CALIBRACAO {
   ~PARAMETROS_CALIBRACAO();
   bool read(const char* arquivo);
   bool write(const char* arquivo) const;
-  int getSoftColor(const PxRGB &p) const;
-  int getHardColor(const PxRGB &p) const;
 
+  bool read(std::istream &I);
+  std::ostream &write(std::ostream &O)const;
+
+  // bool difData(uint8_t byte, unsigned pos);
+
+  int getSoftColor(const float H,const float P, const float G) const;
+  int getHardColor(const float H,const float P, const float G) const;
 };
 
 #endif

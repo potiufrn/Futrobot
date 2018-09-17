@@ -1,0 +1,7 @@
+*.cam 
+*.val
+*.cal
+*.ppm
+*.o
+*.a
+*.txt

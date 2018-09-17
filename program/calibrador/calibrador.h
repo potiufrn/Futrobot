@@ -40,11 +40,13 @@ class QSpinBox;
 class QPushButton;
 class QComboBox;
 
+
 class calibrador : public QMainWindow
 {
     Q_OBJECT
 
 public:
+
   calibrador( QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = Qt::WType_TopLevel );
     ~calibrador();
 
@@ -129,6 +131,11 @@ public:
     QSlider* sliderGain;
     QSlider* sliderSaturation;
     QSlider* sliderHue;
+
+    QLabel*  labelExposure;
+    QSlider* sliderExposure;
+    QSpinBox* spinExposure;
+
     QSpinBox* spinShutter;
     QSpinBox* spinSaturation;
     QSpinBox* spinBrightness;
@@ -180,6 +187,8 @@ public slots:
     virtual void spinLimiarPSupValueChanged( int valor );
     virtual void BrightnessValueChanged( int valor );
     virtual void ExposureValueChanged( int valor );
+    // virtual void ExposureAbsValueChanged( int valor );
+
     virtual void HueValueChanged( int valor );
     virtual void SaturationValueChanged( int valor );
     virtual void GammaValueChanged( int valor );

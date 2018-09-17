@@ -16,9 +16,8 @@ class pixmap_label : public QLabel{
     pixmap_label(QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0);
     ~pixmap_label() {}
     void redesenhe();
-    inline void loadFromData( const uchar * buf, uint len, const char * format)
-    {
-	PxMap.loadFromData(buf,len,format);
+    inline void loadFromData( const uchar * buf, uint len, const char * format){
+	     PxMap.loadFromData(buf,len,format);
     }
   signals:
     void mouseMoved(QPoint);

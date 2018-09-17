@@ -1,11 +1,12 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> //memcpy, memmove,strlen
 #include <stdint.h>
+
+#include <fstream>
 #include "imagem.h"
 
-using namespace std;
 
 // Converte um byte de 0 a 255 para um float na faixa 0.0 a 1.0
 inline float byte2float(uint8_t b){
@@ -135,13 +136,13 @@ void PxRGB::setHSL(float H, float S, float L)
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   if (fora_da_faixa_0a1(S) ||
       fora_da_faixa_0a1(L)) {
-    cerr << "componente fora da faixa\n";
+    std::cerr << "componente fora da faixa\n";
     r=g=b=0;
     return;
   }
   #endif
   uint8_t bmax,bmin;
-  if (L<=0.5) {
+  if (L <= 0.5) {
     bmax = float2byte(L*(1.0+S));
     bmin = float2byte(L*(1.0-S));
   }
@@ -187,7 +188,7 @@ void PxRGB::setHSV(float H, float S, float V)
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   if (fora_da_faixa_0a1(S) ||
       fora_da_faixa_0a1(V)) {
-    cerr << "componente fora da faixa\n";
+    std::cerr << "componente fora da faixa\n";
     r=g=b=0;
     return;
   }
@@ -225,7 +226,7 @@ void PxRGB::setHPG(float H, float P, float G)
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   if (fora_da_faixa_0a1(P) ||
       fora_da_faixa_0a1(G)) {
-    cerr << "componente fora da faixa\n";
+    std::cerr << "componente fora da faixa\n";
     r=g=b=0;
     return;
   }
@@ -262,13 +263,13 @@ void setMinP(float P)
 {
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   if (fora_da_faixa_0a1(P)) {
-    cerr << "componente fora da faixa\n";
+    std::cerr << "componente fora da faixa\n";
     return;
   }
   #endif
   uint8_t Pb(float2byte(P));
   if (Pb >= PxRGB::maxPb) {
-    cerr << "minP maior que maxP\n";
+    std::cerr << "minP maior que maxP\n";
     return;
   }
   PxRGB::minPb = Pb;
@@ -279,13 +280,13 @@ void setMaxP(float P)
 {
   #ifdef _IMAGEM_WITH_CHECK_ERROS_
   if (fora_da_faixa_0a1(P)) {
-    cerr << "componente fora da faixa\n";
+    std::cerr << "componente fora da faixa\n";
     return;
   }
   #endif
   uint8_t Pb(float2byte(P));
   if (Pb <= PxRGB::minPb) {
-    cerr << "maxP menor que minP\n";
+    std::cerr << "maxP menor que minP\n";
     return;
   }
   PxRGB::maxPb = Pb;
@@ -311,7 +312,7 @@ void PxRGB::limitP(void)
   }
 }
 
-ostream& operator<<(ostream& os, const PxRGB &P)
+std::ostream& operator<<(std::ostream& os, const PxRGB &P)
 {
   os << (unsigned short)P.r << "," << (unsigned short)P.g << ","
      << (unsigned short)P.b;
@@ -325,8 +326,8 @@ ostream& operator<<(ostream& os, const PxRGB &P)
 // Definicao de PxYUV a partir de um PxRGB
 PxYUV::PxYUV(const PxRGB &P)
 {
-  float Y = limita_faixa((+0.299*P.r  
-			   +0.587*P.g  
+  float Y = limita_faixa((+0.299*P.r
+			   +0.587*P.g
 			   +0.114*P.b)/255.0);
   // Na realidade, eh U+0.5
   float U = limita_faixa(0.5+(-0.168736*P.r
@@ -360,7 +361,7 @@ void PxYUV::setYUV(float Y, float U, float V)
       fora_da_faixa_0a1(V+0.5) ||
       fora_da_faixa_0a1(Y+1.402*V) ||    // R
       fora_da_faixa_0a1(Y+1.772*U)) {    // B
-    cerr << "componente fora da faixa\n";
+    std::cerr << "componente fora da faixa\n";
     y=u=v=128;
     return;
   }
@@ -378,7 +379,7 @@ void PxYUV::getYUV(float &Y, float &U, float &V) const
   V = limita_faixa(byte2float(v,240,16))-0.5;
 }
 
-ostream& operator<<(ostream& os, const PxYUV &P)
+std::ostream& operator<<(std::ostream& os, const PxYUV &P)
 {
   os << (unsigned short)P.y << "," << (unsigned short)P.u << ","
      << (unsigned short)P.v;
@@ -393,7 +394,7 @@ ostream& operator<<(ostream& os, const PxYUV &P)
 const PxRGB LinhaImagemRGB::operator[](unsigned col) const
 {
   if (col>=N) {
-    cerr << "Indice invalido da coluna da imagem\n";
+    std::cerr << "Indice invalido da coluna da imagem\n";
     exit(1);
   }
   return(lin[col]);
@@ -402,7 +403,7 @@ const PxRGB LinhaImagemRGB::operator[](unsigned col) const
 PxRGB &LinhaImagemRGB::operator[](unsigned col)
 {
   if (col>=N) {
-    cerr << "Indice invalido da coluna da imagem\n";
+    std::cerr << "Indice invalido da coluna da imagem\n";
     exit(1);
   }
   return(lin[col]);
@@ -415,8 +416,8 @@ void ImagemRGB::geraCabecalho()
 {
   if (sprintf((char *)ptPNM,"P6\n%4u %4u\n255\n",
 	      Ncol,Nlin) != TAMANHO_CABECALHO) {
-    cerr << "TAMANHO_CABECALHO incorreto\n";
-    cerr << "O programa precisa ser refeito!\n";
+    std::cerr << "TAMANHO_CABECALHO incorreto\n";
+    std::cerr << "O programa precisa ser refeito!\n";
     exit(1);
   }
 }
@@ -425,7 +426,7 @@ bool ImagemRGB::create()
 {
   ptPNM = malloc(sizeof(PxRGB)*(Ncol*Nlin)+TAMANHO_CABECALHO);
   if (ptPNM==NULL) {
-    cerr << "Erro na alocacao de memoria!\n";
+    std::cerr << "Erro na alocacao de memoria!\n";
     Ncol=Nlin=0;
     ptPNM = img = NULL;
     return false;
@@ -482,24 +483,33 @@ ImagemRGB::ImagemRGB(const ImagemRGB &I) :
   }
 }
 
+ImagemRGB::ImagemRGB(const ImagemByte &I){
+  Ncol = I.getWidth();
+  Nlin = I.getHeight();
+  create();
+  for(unsigned i = 0; i < I.getHeight(); i++)
+    for(unsigned j = 0; j < I.getWidth(); j++)
+      (*this)[i][j] = I.atRGB(i,j);
+}
+
 ImagemRGB::ImagemRGB(const char *arq)
 {
   Ncol=Nlin=0;
   ptPNM = img = NULL;
   FILE *f = fopen(arq, "r");
   if (f==NULL) {
-    cerr << "Impossivel abrir arquivo para ler imagem\n";
+    std::cerr << "Impossivel abrir arquivo para ler imagem\n";
     return;
   }
 
   // Leitura das caracteristicas da imagem
   unsigned tipo;
   if (fscanf(f,"P%u", &tipo) != 1) {
-    cerr << "Erro na leitura do cabecalho do arquivo\n";
+    std::cerr << "Erro na leitura do cabecalho do arquivo\n";
     return;
   }
   if (tipo<=0 || tipo>6) {
-    cerr << "Tipo de imagem nao reconhecido\n";
+    std::cerr << "Tipo de imagem nao reconhecido\n";
     return;
   }
   fscanf(f," #%*[^\n]"); // Elimina eventuais linhas de comentário
@@ -507,11 +517,11 @@ ImagemRGB::ImagemRGB(const char *arq)
   fscanf(f," #%*[^\n]"); // Elimina eventuais linhas de comentário
   unsigned nl,nc;
   if (fscanf(f,"%u %u", &nc,&nl) != 2) {
-    cerr << "Erro na leitura das dimensoes da imagem\n";
+    std::cerr << "Erro na leitura das dimensoes da imagem\n";
     return;
   }
   if (nc==0 || nl==0) {
-    cerr << "Arquivo contem imagem de dimensao nula\n";
+    std::cerr << "Arquivo contem imagem de dimensao nula\n";
     return;
   }
   fscanf(f," #%*[^\n]"); // Elimina eventuais linhas de comentário
@@ -523,15 +533,15 @@ ImagemRGB::ImagemRGB(const char *arq)
   }
   else {
     if (fscanf(f,"%u", &valmax) != 1) {
-      cerr << "Erro na leitura do valor maximo do pixel\n";
+      std::cerr << "Erro na leitura do valor maximo do pixel\n";
       return;
     }
     if (valmax<=0 || valmax>=65536) {
-      cerr << "Valor maximo do pixel invalido: " << valmax << endl;
+      std::cerr << "Valor maximo do pixel invalido: " << valmax << std::endl;
       return;
     }
   }
-      
+
   // Alocacao da imagem
   Ncol = nc;
   Nlin = nl;
@@ -550,7 +560,7 @@ ImagemRGB::ImagemRGB(const char *arq)
       case 1:
 	// Imagem preta e branca, em ASCII
 	if (fscanf(f,"%hu",&ub)!=1) {
-	  cerr << "Erro na leitura do pixel ("
+	  std::cerr << "Erro na leitura do pixel ("
 	       << v << "," << u << ")\n";
 	  return;
 	}
@@ -560,12 +570,12 @@ ImagemRGB::ImagemRGB(const char *arq)
       case 2:
 	// Imagem cinza, em ASCII
 	if (fscanf(f,"%hu",&ug)!=1) {
-	  cerr << "Erro na leitura do pixel ("
+	  std::cerr << "Erro na leitura do pixel ("
 	       << v << "," << u << ")\n";
 	  return;
 	}
 	if (ug>valmax) {
-	  cerr << "Valor do pixel (" << v << "," << u 
+	  std::cerr << "Valor do pixel (" << v << "," << u
 	       << ") acima do maximo " << valmax << ": ("
 	       << ug << ")\n";
 	  return;
@@ -576,12 +586,12 @@ ImagemRGB::ImagemRGB(const char *arq)
       case 3:
 	// Imagem colorida, em ASCII
 	if (fscanf(f,"%hu %hu %hu",&ur,&ug,&ub)!=3) {
-	  cerr << "Erro na leitura do pixel ("
+	  std::cerr << "Erro na leitura do pixel ("
 	       << v << "," << u << ")\n";
 	  return;
 	}
 	if (ur>valmax || ug>valmax || ub>valmax) {
-	  cerr << "Valor do pixel (" << v << "," << u 
+	  std::cerr << "Valor do pixel (" << v << "," << u
 	       << ") acima do maximo " << valmax << ": ("
 	       << ur << "," << ug << "," << ub << ")\n";
 	  return;
@@ -590,11 +600,12 @@ ImagemRGB::ImagemRGB(const char *arq)
 	bg = float2byte(float(ug)/valmax);
 	bb = float2byte(float(ub)/valmax);
 	img[u+Ncol*v]=PxRGB(br,bg,bb);
+
 	break;
       case 4:
 	// Imagem preta e branca, em bits
 	if (fscanf(f,"%c",&bg)!=1) {
-	  cerr << "Erro na leitura do pixel ("
+	  std::cerr << "Erro na leitura do pixel ("
 	       << v << "," << u << ")\n";
 	  return;
 	}
@@ -610,7 +621,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	// Imagem cinza, em uint8_ts
 	if (valmax <= 255) {
 	  if (fscanf(f,"%c",&bg) != 1) {
-	    cerr << "Erro na leitura do pixel ("
+	    std::cerr << "Erro na leitura do pixel ("
 		 << v << "," << u << ")\n";
 	    return;
 	  }
@@ -619,7 +630,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	}
 	else {
 	  if (fscanf(f,"%2c",(uint8_t*)(&ug)) != 1) {
-	    cerr << "Erro na leitura do pixel ("
+	    std::cerr << "Erro na leitura do pixel ("
 		 << v << "," << u << ")\n";
 	    return;
 	  }
@@ -631,7 +642,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	// Imagem colorida, em uint8_ts
 	if (valmax <= 255) {
 	  if (fscanf(f,"%c%c%c",&br,&bg,&bb)!=3) {
-	    cerr << "Erro na leitura do pixel ("
+	    std::cerr << "Erro na leitura do pixel ("
 		 << v << "," << u << ")\n";
 	    return;
 	  }
@@ -643,7 +654,7 @@ ImagemRGB::ImagemRGB(const char *arq)
 	else {
 	  if (fscanf(f,"%2c%2c%2c",
 		     (uint8_t*)(&ur),(uint8_t*)(&ug),(uint8_t*)(&ub)) != 3) {
-	    cerr << "Erro na leitura do pixel ("
+	    std::cerr << "Erro na leitura do pixel ("
 		 << v << "," << u << ")\n";
 	    return;
 	  }
@@ -666,8 +677,9 @@ ImagemRGB::~ImagemRGB()
 
 bool ImagemRGB::resize(unsigned Larg, unsigned Alt, bool keepData)
 {
+
   if (Larg==0 || Alt==0) {
-    cerr << "Dimensao nula para imagem\n";
+    std::cerr << "Dimensao nula para imagem\n";
     return false;
   }
   if (Larg!=Ncol || Alt!=Nlin) {
@@ -676,11 +688,11 @@ bool ImagemRGB::resize(unsigned Larg, unsigned Alt, bool keepData)
       return false;
     }
     if (keepData) {
-      for (unsigned i=0; i<min(Nlin,Alt); i++) {
-	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*min(Ncol,Larg));
+      for (unsigned i=0; i<std::min(Nlin,Alt); i++) {
+      	memcpy(prov.img+Larg*i,img+Ncol*i,sizeof(PxRGB)*std::min(Ncol,Larg));
       }
     }
-    destruct(); 
+    destruct();
     move(prov);
   }
   return true;
@@ -692,14 +704,13 @@ bool ImagemRGB::load(const char *arq)
   if (prov.ptPNM==NULL) {
     return false;
   }
-  destruct(); 
+  destruct();
   move(prov);
   return true;
 }
 
-void ImagemRGB::operator=(const ImagemRGB &I)
-{
-  if (Ncol!=I.Ncol || Nlin!=I.Nlin) {
+void ImagemRGB::operator=(const ImagemRGB &I){
+  if (Ncol != I.Ncol || Nlin != I.Nlin) {
     destruct();
     Ncol=I.Ncol;
     Nlin=I.Nlin;
@@ -710,11 +721,22 @@ void ImagemRGB::operator=(const ImagemRGB &I)
   copy(I);
 }
 
+void ImagemRGB::operator=(const ImagemByte &I){
+    destruct();
+    this->Ncol = I.getWidth();
+    this->Nlin = I.getHeight();
+    create();
+    for(unsigned i = 0; i < Nlin; i ++)
+      for(unsigned j = 0; j < Ncol; j++)
+        (*this)[i][j] = I.atRGB(i,j);
+}
+
 #ifdef _IMAGEM_WITH_CHECK_ERROS_
+
 const LinhaImagemRGB ImagemRGB::operator[](unsigned lin) const
 {
   if (lin>=Nlin) {
-    cerr << "Indice invalido da linha da imagem\n";
+    std::cerr << "Indice invalido da linha da imagem\n";
     exit(1);
   }
   return(LinhaImagemRGB(Ncol,img+Ncol*lin));
@@ -723,7 +745,8 @@ const LinhaImagemRGB ImagemRGB::operator[](unsigned lin) const
 LinhaImagemRGB ImagemRGB::operator[](unsigned lin)
 {
   if (lin>=Nlin) {
-    cerr << "Indice invalido da linha da imagem\n";
+    std::cerr << "Indice invalido da linha da imagem\n";
+
     exit(1);
   }
   return(LinhaImagemRGB(Ncol,img+Ncol*lin));
@@ -732,9 +755,10 @@ LinhaImagemRGB ImagemRGB::operator[](unsigned lin)
 
 void ImagemRGB::save(const char *arq, bool ascii) const
 {
+
   FILE *f = fopen(arq, "w");
   if (f==NULL) {
-    cerr << "Impossivel abrir arquivo para salvar imagem\n";
+    std::cerr << "Impossivel abrir arquivo para salvar imagem\n";
     return;
   }
 
@@ -744,7 +768,7 @@ void ImagemRGB::save(const char *arq, bool ascii) const
     for (unsigned i=0; i<sizeof(PxRGB)*(Ncol*Nlin)+TAMANHO_CABECALHO; i++) {
       c = *(((char*)ptPNM)+i);
       if (fprintf(f,"%c",c) < 0) {
-	cerr << "Erro na escrita do uint8_t ("
+	std::cerr << "Erro na escrita do uint8_t ("
 	     << i << ")\n";
 	return;
       }
@@ -753,19 +777,19 @@ void ImagemRGB::save(const char *arq, bool ascii) const
   else {
     // Imagem colorida, em ASCII
     if (fprintf(f,"P3\n") < 0) {
-      cerr << "Erro na escrita do cabecalho do arquivo\n";
+      std::cerr << "Erro na escrita do cabecalho do arquivo\n";
       return;
     }
     if (fprintf(f,"%u %u\n", Ncol,Nlin) < 0) {
-      cerr << "Erro na escrita das dimensoes da imagem\n";
+      std::cerr << "Erro na escrita das dimensoes da imagem\n";
       return;
     }
     // valmax
     if (fprintf(f,"255\n") < 0) {
-      cerr << "Erro na escrita do valor maximo do pixel\n";
+      std::cerr << "Erro na escrita do valor maximo do pixel\n";
       return;
     }
-      
+
     // Escrita dos pixels
     int nby,nbylinha=0;
     for (unsigned v=0; v<Nlin; v++) {
@@ -782,7 +806,7 @@ void ImagemRGB::save(const char *arq, bool ascii) const
 	  nbylinha += nby;
 	}
 	else {
-	  cerr << "Erro na escrita do pixel ("
+	  std::cerr << "Erro na escrita do pixel ("
 	       << v << "," << u << ")\n";
 	  return;
 	}
@@ -791,6 +815,16 @@ void ImagemRGB::save(const char *arq, bool ascii) const
   }
   fclose(f);
   return;
+}
+
+void ImagemRGB::toGray()
+{
+  for(unsigned i =0; i<nlin(); i++)
+  for(unsigned j= 0; j<ncol(); j++){
+    (*this)[i][j].r = ((float)((*this)[i][j].r) + (float)((*this)[i][j].g) + (float)((*this)[i][j].b))/3.0;
+    (*this)[i][j].g = ((float)((*this)[i][j].r) + (float)((*this)[i][j].g) + (float)((*this)[i][j].b))/3.0;
+    (*this)[i][j].b = ((float)((*this)[i][j].r) + (float)((*this)[i][j].g) + (float)((*this)[i][j].b))/3.0;
+  }
 }
 
 // Métodos de acesso aos dados de baixo nível
@@ -812,4 +846,251 @@ size_t ImagemRGB::getPNMSize()
 size_t ImagemRGB::getRawSize()
 {
   return sizeof(PxRGB)*(Ncol*Nlin);
+}
+
+void ImagemByte::loadFromData(uint8_t* data,unsigned length, PIXEL_FORMAT PxFORMAT,unsigned WIDTH,unsigned HEIGHT){
+  if(WIDTH == 0 || HEIGHT == 0 || length == 0){
+    std::cerr << "Imagem ERRO: Dimensao invalida da imagem" << '\n';
+    exit(1);
+  }
+  this->pxFormat= PxFORMAT;
+  this->length  = length;
+  this->imgData = data;
+  this->width   = WIDTH;
+  this->height  = HEIGHT;
+  this->cop = false;
+}
+void ImagemByte::create(){
+  this->width    = 0;
+  this->height   = 0;
+  this->length   = 0;
+  this->imgData  = NULL;
+  this->pxFormat = UNDEF;
+  this->cop      = false;
+}
+
+ImagemByte::~ImagemByte(){
+  this->height   = 0;
+  this->width    = 0;
+  this->length   = 0;
+  this->pxFormat = UNDEF;
+  if(cop)delete[] this->imgData;
+  else this->imgData  = NULL;
+}
+void ImagemByte::copy(const ImagemByte &I){
+  this->width    = I.width;
+  this->height   = I.height;
+  this->length   = I.length;
+  this->pxFormat = I.pxFormat;
+  // this->imgData  = I.imgData;
+  this->imgData = new uint8_t[I.length];
+  memcpy(this->imgData,I.imgData, this->length);
+  cop = true;
+}
+
+PxRGB ImagemByte::atGBRGtoRGB(unsigned lin, unsigned col)const{
+  //converte x,y em uma posicao no vetor unidimensinal
+  #define Byte(x,y)  atByte( (x)*width + (y))
+  #define PAR(x)      ((x)%2 == 0)
+  #define TOP()       (lin == 0)
+  #define BOTTOM()    (lin == height-1)
+  #define LEFT()      (col == 0)
+  #define RIGHT()     (col == width-1)
+  #define QUINA()     ((TOP() && LEFT()) || (TOP() && RIGHT()) || (BOTTOM() && LEFT()) || (BOTTOM() && RIGHT()))
+  #define isBlue()    (PAR(lin)  && !PAR(col))
+  #define isRed()     (!PAR(lin) && PAR(col))
+  #define isGreen()   (!isBlue() && !isRed())
+
+  uint8_t R,G,B;
+
+  if (lin >= height || col >= width) {
+    std::cerr << "Imagem Erro: endereco invalida" << '\n';
+    exit(1);
+  }
+  //WARNING calculo da media, com truncamento para uint8_t
+  if( !TOP() && !BOTTOM() && !LEFT() && !RIGHT() ){
+    if(isGreen()){
+      if( PAR(lin) ){
+        R = Byte(lin-1,col)/2.0 + Byte(lin+1, col)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin,col-1)/2.0 + Byte(lin, col+1)/2.0;
+      }else{
+        R = Byte(lin,col-1)/2.0 + Byte(lin, col+1)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin-1,col)/2.0 + Byte(lin+1, col)/2.0;
+      }
+      return PxRGB(R,G,B);
+    }else if(isBlue()){
+      R = Byte(lin-1,col-1)/4.0 + Byte(lin-1,col+1)/4.0 + Byte(lin+1,col-1)/4.0 + Byte(lin+1,col+1)/4.0;
+      G = Byte(lin-1,col)/4.0 + Byte(lin+1,col)/4.0 + Byte(lin,col-1)/4.0 + Byte(lin,col+1)/4.0;
+      B = Byte(lin,col);
+      return PxRGB(R,G,B);
+    }else{//RED
+      R = Byte(lin,col);
+      G = Byte(lin-1,col)/4.0 + Byte(lin+1,col)/4.0 + Byte(lin,col-1)/4.0 + Byte(lin,col+1)/4.0;
+      B = Byte(lin-1,col-1)/4.0 + Byte(lin-1,col+1)/4.0 + Byte(lin+1,col-1)/4.0 + Byte(lin+1,col+1)/4.0;
+      return PxRGB(R,G,B);
+    }
+  }
+
+  //TODO Os pixels das quinas serao considerados pretos, para poupar processamento
+  if(QUINA())return PxRGB(0,0,0);
+  //topo sem as quinas (exclusivamente no topo)
+  //ha apenas G e B no topo
+  if(TOP()){
+    if(isGreen()){
+      R = Byte(lin+1, col);
+      G = Byte(lin,col);
+      B = Byte(lin,col-1)/2.0 + Byte(lin,col+1)/2.0;
+    }else{//blue
+      R = Byte(lin+1, col-1)/2.0 + Byte(lin+1,col+1)/2.0;
+      G = Byte(lin,col-1)/3.0 + Byte(lin,col+1)/3.0 + Byte(lin+1,col)/3.0;
+      B = Byte(lin,col);
+    }
+    return PxRGB(R,G,B);
+  }
+
+  if(BOTTOM()){
+    //linha G e B
+    if(PAR(lin)){
+      if(isBlue()){
+        R = Byte(lin-1,col-1)/2.0 + Byte(lin-1,col+1)/2.0;
+        G = Byte(lin,col-1)/3.0 + Byte(lin+1,col)/3.0 + Byte(lin,col-1)/3.0;
+        B = Byte(lin,col);
+      }else{//Green
+        R = Byte(lin-1,col);
+        G = Byte(lin,col);
+        B = Byte(lin,col-1)/2.0 + Byte(lin,col+1)/2.0;
+      }
+    }else{//linha impar (G e R)
+      if(isRed()){
+        R = Byte(lin,col);
+        G = Byte(lin,col-1)/3.0 + Byte(lin,col+1)/3.0 + Byte(lin-1,col)/3.0;
+        B = Byte(lin-1,col-1)/2.0 + Byte(lin-1,col+1)/2.0;
+      }else{//Green
+        R = Byte(lin,col-1)/2.0 + Byte(lin,col+1)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin-1,col);
+      }
+    }
+    return PxRGB(R,G,B);
+  }
+
+  if(LEFT()){
+    //coluna com G e R
+    if(PAR(col)){
+      if(isRed()){
+        R = Byte(lin,col);
+        G = Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0 + Byte(lin,col+1)/3.0;
+        B = Byte(lin-1,col+1)/2.0 + Byte(lin+1,col+1)/2.0;
+      }else{//Green
+        R = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin,col+1);
+      }
+    }else{// coluna com G e B
+      if(isBlue()){
+        R = Byte(lin-1,col+1)/2.0 + Byte(lin+1,col+1)/2.0;
+        G = Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0 + Byte(lin,col+1)/3.0;
+        B = Byte(lin,col);
+      }else{//Green
+        R = Byte(lin,col+1);
+        G = Byte(lin,col);
+        B = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+      }
+      return PxRGB(R,G,B);
+    }
+  }
+  if(RIGHT()){
+
+    if(PAR(col)){//coluna com G e R
+      if(isRed()){
+        R = Byte(lin,col);
+        G = Byte(lin,col-1)/3.0 + Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0;
+        B = Byte(lin-1,col-1)/2.0 + Byte(lin+1,col-1)/2.0;
+      }else{//Green
+        R = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+        G = Byte(lin,col);
+        B = Byte(lin,col-1);
+      }
+    }else{//coluna com G e B
+      if(isBlue()){
+        R = Byte(lin-1,col-1)/2.0 + Byte(lin+1,col-1)/2.0;
+        G = Byte(lin,col-1)/3.0 + Byte(lin-1,col)/3.0 + Byte(lin+1,col)/3.0;
+        B = Byte(lin,col);
+      }else{//Green
+        R = Byte(lin,col-1);
+        G = Byte(lin,col);
+        B = Byte(lin-1,col)/2.0 + Byte(lin+1,col)/2.0;
+      }
+    }
+    return PxRGB(R,G,B);
+  }
+
+}
+PxRGB ImagemByte::atYUYVtoRGB(unsigned lin, unsigned col)const{
+  unsigned pos = lin*width + col;
+  unsigned Yaddr = 2*pos;
+  unsigned Uaddr, Vaddr;
+  uint8_t Y, U, V;
+
+  if(pos >= width*height){
+    std::cerr << "Imagem ERRO: indice invalido da imagem" << '\n';
+    exit(1);
+  }
+
+  if( pos%2 == 0){
+    Uaddr = Yaddr + 1;
+    Vaddr = Yaddr + 3;
+  }else{
+    Uaddr = Yaddr - 1;
+    Vaddr = Yaddr + 1;
+  }
+
+  if(Uaddr >= length) Uaddr = Uaddr - 4;
+  if(Vaddr >= length) Vaddr = Vaddr - 4;
+
+  Y = atByte(Yaddr);
+  U = atByte(Uaddr);
+  V = atByte(Vaddr);
+  #define CLIP(x) ( (x) >= 0xFF ? 0xFF : ( (x) <= 0x00 ? 0x00 : (x) ) )
+
+  uint8_t R = CLIP((double)Y + 1.402*((double)V-128.0));
+  uint8_t G = CLIP((double)Y - 0.344*((double)U-128.0) - 0.714*((double)V-128.0));
+  uint8_t B = CLIP((double)Y + 1.772*((double)U-128.0));
+  return PxRGB(R,G,B);
+}
+PxRGB ImagemByte::atRGB(unsigned lin,unsigned col)const{
+  if(imgData == NULL){
+    std::cerr << "Imagem ERRO: Imagem Vazia" << '\n';
+    exit(1);
+  }
+
+  switch (pxFormat) {
+    case GBRG:
+      return atGBRGtoRGB(lin,col);
+    break;
+    case YUYV:
+      return atYUYVtoRGB(lin,col);
+    break;
+    default:
+      std::cerr << "Imagem ERRO: Pixel Format Invalido" << '\n';
+      exit(1);
+  }
+}
+uint8_t ImagemByte::atByte(unsigned lin, unsigned col)const{
+  if (lin >= height || col >= width) {
+    std::cerr << "Imagem Erro: endereco invalida" << '\n';
+    exit(1);
+  }
+  unsigned pos = lin*width + col;
+  pos = (pxFormat == GBRG)?pos:2*pos;
+  return imgData[pos];
+}
+uint8_t ImagemByte::atByte(unsigned pos)const{
+  if(pos >= this->length){
+    std::cerr << "Imagem ERRO: posicao invalida" << '\n';
+    exit(1);
+  }
+  return imgData[pos];
 }
