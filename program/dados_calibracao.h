@@ -34,8 +34,19 @@ struct PARAMETROS_CALIBRACAO{
   #define CONST (campoVazio.getPxFormat() == GBRG)?1:2 //supondo apenas os formatos GBRG e YUV422
   #define POS(i,j) CONST*((i)*campoVazio.getWidth() + (j))
 
+
+  //Vetor que armazena o desvio padrao de cada byte da imagem
+  //o calculo eh realizado no calibradorprocessor.
+  //WARNING: falta analisar se esse vetor pode ser substituido por um
+  //unico desvio representativo.
   uint8_t *desvioPadrao;
+  //imagem de dados brutos que contem a imagem media
+  //do campo sem objetos(apenas campo).
   ImagemBruta campoVazio;
+  //variaveis para controlar os intervalores(quantidade de desvios) em que
+  //os bytes(pixel_bruto) podem ser considerados
+  //campo e objeto, respectivamente.
+  //Esses valores sao ajustados no calibrador(via sliders)
   float const_Field;
   float const_Object;
 
@@ -55,9 +66,14 @@ struct PARAMETROS_CALIBRACAO{
   bool read(std::istream &I);
   std::ostream &write(std::ostream &O)const;
 
-  bool isObject(unsigned i, unsigned j, uint8_t byte);
-  bool isField(unsigned i, unsigned j, uint8_t byte);
-  int isDiff(unsigned i, unsigned j, uint8_t byte);
+  // bool isObject(unsigned i, unsigned j, uint8_t byte);
+  // bool isField(unsigned i, unsigned j, uint8_t byte);
+  // int isDiff(unsigned i, unsigned j, uint8_t byte);
+
+  bool isObject(unsigned i, unsigned j, PxBruto px);
+  bool isField(unsigned i, unsigned j, PxBruto px);
+  int isDiff(unsigned i, unsigned j, PxBruto px);
+
 
   int getSoftColor(const float H,const float P, const float G) const;
   int getHardColor(const float H,const float P, const float G) const;

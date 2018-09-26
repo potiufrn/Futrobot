@@ -344,7 +344,7 @@ bool CalibratorProcessor::processImage(){
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
         ImBruta.atHPG(i,j,H,P,G);
-        r = calibracaoParam.isDiff(i,j, ImBruta.getByte(i,j));
+        r = calibracaoParam.isDiff(i,j, ImBruta.atByte(i,j));
         qtdDiff = 0;
 
       	if(modo ==   CALIBRATOR_COR_ETIQUETADA_SOFT)
@@ -357,13 +357,13 @@ bool CalibratorProcessor::processImage(){
           ImProcessada[i][j] = PxPreto;
         else{//incerteza
           if(IS_VALID(i-1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.getByte(i-1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.atByte(i-1,j-1)) == 1)?1:0;
           if(IS_VALID(i-1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.getByte(i-1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.atByte(i-1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.getByte(i+1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.atByte(i+1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.getByte(i+1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.atByte(i+1,j-1)) == 1)?1:0;
 
           if(qtdDiff > 2)
             ImProcessada[i][j] = cores[cor_pixel];
@@ -379,7 +379,7 @@ bool CalibratorProcessor::processImage(){
 
     for(i = 0; i < ImProcessada.getHeight(); i++)
       for(j = 0; j < ImProcessada.getWidth(); j++){
-        r = calibracaoParam.isDiff(i,j,ImBruta.getByte(i,j));
+        r = calibracaoParam.isDiff(i,j,ImBruta.atByte(i,j));
         qtdDiff = 0;
         if(r == 1)//nao eh campo
           ImProcessada[i][j] = PxBranco;
@@ -387,13 +387,13 @@ bool CalibratorProcessor::processImage(){
           ImProcessada[i][j] = PxPreto;
         else{//
           if(IS_VALID(i-1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.getByte(i-1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.atByte(i-1,j-1)) == 1)?1:0;
           if(IS_VALID(i-1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.getByte(i-1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.atByte(i-1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.getByte(i+1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.atByte(i+1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.getByte(i+1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.atByte(i+1,j-1)) == 1)?1:0;
 
           if(qtdDiff > 2)
             ImProcessada[i][j] = PxBranco;
@@ -408,7 +408,7 @@ bool CalibratorProcessor::processImage(){
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
 
-        // if(calibracaoParam.isDiff(i,j,ImBruta.getByte(i,j)) == true ){
+        // if(calibracaoParam.isDiff(i,j,ImBruta.atByte(i,j)) == true ){
           ImBruta.atHPG(i,j,H,P,G);
           cor_pixel = calibracaoParam.getHardColor(H,P,G);
           if(cor_pixel == corAtual){

@@ -25,30 +25,62 @@ PARAMETROS_CALIBRACAO::~PARAMETROS_CALIBRACAO(){
   delete[] limHPG;
   if(desvioPadrao != NULL)delete[] desvioPadrao;
 }
-
-bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, uint8_t byte){
+//Funcao auxiliar para isDiff, esta funcao verifica se um PxBruto
+//na posicao i,j pode ser considerado campo, em caso afirmativo retorna true
+//ou falso para o caso contrario.
+//Eh verificado se o px esta contido no intervalo media + k1*desvio, se sim,
+//eh considerado parte do campo
+// bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, uint8_t byte)
+bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
+{
+  //Macro para: dado os limites inferior, superior e um valor, retorna true
+  //caso o valor esteja contido dentro desse intervalo
   #define IN_RANGE(inf, sup, value) ((value) <= (sup) && (value) >= (inf))?true:false
 
-  uint8_t infLimit = campoVazio.getByte(i,j) - const_Field*desvioPadrao[POS(i,j)];
-  uint8_t supLimit = campoVazio.getByte(i,j) + const_Field*desvioPadrao[POS(i,j)];
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao[POS(i,j)];
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao[POS(i,j)];
+  if(campoVazio.getPxFormat() == YUYV){
+    uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Field*desvioPadrao[POS(i,j) + 1];
+    uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Field*desvioPadrao[POS(i,j) + 1];
+    return IN_RANGE(infLimit_b1, supLimit_b1, px.b1) && IN_RANGE(infLimit_b2, supLimit_b2, px.b2);
+  }
 
-  return IN_RANGE(infLimit, supLimit, byte);
+  return IN_RANGE(infLimit_b1, supLimit_b1, px.b1);
 }
-bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte){
+//Funcao auxiliar para isDiff, esta funcao verifica se um PxBruto
+//na posicao i,j pode ser considerado objeto(nao campo), em caso afirmativo retorna true
+//ou falso para o caso contrario.
+//Eh verificado se o px esta fora do intervalo media + k2*desvio, se sim,
+//eh considerado parte como nao pertencente ao campo
+// bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte)
+bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
+{
+  //dado um limite superior e inferior e um valor, retorna true caso esse valor esteja fora
+  //do intervalo estabelecido por esses limites
   #define OUT_RANGE(inf, sup, value) ((value) > (sup) || (value) < (inf))?true:false
 
-  uint8_t infLimit = campoVazio.getByte(i,j) - const_Object*desvioPadrao[POS(i,j)];
-  uint8_t supLimit = campoVazio.getByte(i,j) + const_Object*desvioPadrao[POS(i,j)];
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao[POS(i,j)];
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao[POS(i,j)];
 
-  return OUT_RANGE(infLimit, supLimit, byte);
+  if(campoVazio.getPxFormat() == YUYV){
+    uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Object*desvioPadrao[POS(i,j) + 1];
+    uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Object*desvioPadrao[POS(i,j) + 1];
+    return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1) && OUT_RANGE(infLimit_b2, supLimit_b2, px.b2);
+  }
+
+  return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1);
 }
 
-int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte){
+//Funcao que verifica se um PxBruto px da posicao i,j eh campo(0), objeto(1) e em caso de
+//inderteminacao retorna -1 (caso em que o px de false para campo e false para objeto) 
+// int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte)
+int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, PxBruto px)
+{
   //eh campo
-  if(isField(i,j,byte))
+  if(isField(i,j,px))
     return 0;
   //eh objeto
-  if(isObject(i,j,byte))
+  if(isObject(i,j,px))
     return 1;
   //incerteza
   return -1;
@@ -87,8 +119,8 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
 		      &pontos_aux[i].X,
 		      &pontos_aux[i].Y) != 4){ OK = false; }
       else{
-	pontosReais_aux[i].X = pontosReais_aux[i].x()/FATOR_CONVERSAO;
-	pontosReais_aux[i].Y = pontosReais_aux[i].y()/FATOR_CONVERSAO;
+        	pontosReais_aux[i].X = pontosReais_aux[i].x()/FATOR_CONVERSAO;
+        	pontosReais_aux[i].Y = pontosReais_aux[i].y()/FATOR_CONVERSAO;
       }
     }
 

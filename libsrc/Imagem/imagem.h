@@ -206,16 +206,26 @@ struct TCoord3
 /* ==============================================================
    IMAGENS
    ============================================================== */
-//Case GBRG: px1 = G or B or R
-//Case YUYV: px1 = Y e px2 = U or V
-struct PxByte{
-  uint8_t px1,px2;
-};
 
 enum PIXEL_FORMAT{
   GBRG  = 0,
   YUYV  = 1,
   UNDEF = 42
+};
+
+//estrutura auxiliar para podermos trabalhar com
+//o formato GBRG e YUYV de forma simultanea
+//essa estrutura foi pensada para contornar a diferenca
+//entre os tamanhos dos vetores de bytes que representam a Imagem
+//Bruta, para a mesma resolução de imagem.
+//A YUYV possui duas vezes o tamanho do GBRG para a mesma resolução
+
+struct PxBruto{
+  //para  GBRG => b1 = byte, da posicao i,j (coordenada na imagem RGB)
+  //para  YUYV => b1 = Y, b2 = U ou V, da posicao i,j (coordenada na imagem RGB)
+  uint8_t b1;
+  uint8_t b2;
+  // PIXEL_FORMAT pxType;
 };
 
 class ImagemBruta{
@@ -250,7 +260,9 @@ public:
   // inline uint8_t operator[](unsigned pos) { return imgData[pos]; }
   uint8_t atByte(unsigned pos)const;
   uint8_t &atByte(unsigned pos);
-  uint8_t getByte(unsigned lin, unsigned col)const;
+  // uint8_t atByte(unsigned lin, unsigned col)const;
+  PxBruto atByte(unsigned lin, unsigned col)const;
+
 
   PxRGB atRGB(unsigned lin,unsigned col)const;
   inline void atHPG(unsigned lin,unsigned col,float &H,float &P,float &G)const{ atRGB(lin,col).getHPG(H,P,G); }
@@ -263,7 +275,7 @@ public:
   inline unsigned getLength()const{ return length; }
 
   inline PIXEL_FORMAT getPxFormat(){ return pxFormat;}
-  inline const ImagemBruta* getRawData(){ return this; }
+  // inline const ImagemBruta* getRawData(){ return this; }
 
   void write(const char* arquivo)const;
   bool read(const char* arquivo);
