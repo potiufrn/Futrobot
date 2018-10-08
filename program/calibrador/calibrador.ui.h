@@ -178,16 +178,16 @@ void calibrador::init()
     //WARNING apagar daqui
     labelLimiarPInf->setText("Const Field");
     labelLimiarPSup->setText("Const Object");
-    sliderLimiarPInf->setMaxValue(10);
-    sliderLimiarPInf->setMinValue(1);
-    sliderLimiarPSup->setMaxValue(10);
-    sliderLimiarPSup->setMinValue(1);
+    sliderLimiarPInf->setMaxValue(100);
+    sliderLimiarPInf->setMinValue(0);
+    sliderLimiarPSup->setMaxValue(100);
+    sliderLimiarPSup->setMinValue(0);
 
-    spinLimiarPInf->setMaxValue(10);
-    spinLimiarPInf->setMinValue(1);
+    spinLimiarPInf->setMaxValue(100);
+    spinLimiarPInf->setMinValue(0);
 
-    spinLimiarPSup->setMaxValue(10);
-    spinLimiarPSup->setMinValue(1);
+    spinLimiarPSup->setMaxValue(100);
+    spinLimiarPSup->setMinValue(0);
 
     sliderLimiarPSup->setValue(X.getConstObject());//usado para alterar const object
     sliderLimiarPInf->setValue(X.getConstField());
@@ -220,16 +220,14 @@ void calibrador::init()
     connect( Timer, SIGNAL(timeout()), this, SLOT(processarImagem()) );
     //connect( Timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
     Timer->start(200,false);
-
-
 }
 
 bool calibrador::carregaInterface(){
 
     QString ColorName;
     for(unsigned i=0; i < X.getNumCores(); i++){
-	ColorName = X.getNomeCor(i);
-	comboCores->insertItem(ColorName);
+    	ColorName = X.getNomeCor(i);
+    	comboCores->insertItem(ColorName);
    }
     sliderUOffset->setMaxValue(X.getCamWidth() - (pixmap_label1->size()).width());
     sliderVOffset->setMaxValue(X.getCamHeight() - (pixmap_label1->size()).height());
@@ -720,8 +718,11 @@ void calibrador::atualizarCameraParam(){
 
 void calibrador::atualizarLimitesP()
 {
-    spinLimiarPInf->setValue(X.getPinf());
-    spinLimiarPSup->setValue(X.getPsup());
+    // spinLimiarPInf->setValue(X.getPinf());
+    // spinLimiarPSup->setValue(X.getPsup());
+    spinLimiarPInf->setValue(X.getConstField());
+    spinLimiarPSup->setValue(X.getConstObject());
+
 }
 
 
@@ -763,7 +764,9 @@ void calibrador::mostrarTela1()
       QMessageBox msg;
       msg.setText("Captura da imagem media realizada");
       msg.exec();
+    }
 
+    if(X.campoVazioCapturado()){
       pushAvancarTela1->setEnabled(true);
       pushAvancarTela1->setText("Next");
       checkExibirImagemProcessada->setEnabled(true);

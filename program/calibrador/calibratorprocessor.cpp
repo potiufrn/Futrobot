@@ -4,6 +4,9 @@
 #include <cmath>
 #include <cstring>
 
+// Apenas para teste
+#include <fstream>
+
 #define RAIO_SELECIONADO 5.0
 // #define NUM_BUFFERS 4
 // //#define NUM_BUFFERS 10
@@ -202,6 +205,9 @@ bool CalibratorProcessor::fileOpen(const char* text)
   }
   if (calibracaoParam.read(I))return true;
   I.close();
+
+  campoVazio_capturado = true;
+
   return false;
 }
 
@@ -248,13 +254,14 @@ void CalibratorProcessor::saveImage(const char* arq){
 
 
 bool CalibratorProcessor::processImage(){
-  #define IS_VALID(i,j) ( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false
+  #define IS_VALID(i,j) (( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false)
   unsigned int i,j;
   int count=0, cor_pixel=0;
   float H, P, G;
   int r;
   unsigned qtdDiff;
-
+  ImagemBruta tmp(calibracaoParam.campoVazio.getWidth(),calibracaoParam.campoVazio.getHeight());
+  calibracaoParam.campoVazio.copyTo(tmp);
   //Cores padroes a serem usadas no processamento
   static PxRGB PxPreto(0,0,0);
   static PxRGB PxVermelho(255,0,0);
@@ -325,6 +332,7 @@ bool CalibratorProcessor::processImage(){
       }
     }
     break;
+  //sem campo vazio
   case CALIBRATOR_COR_ETIQUETADA:
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
@@ -338,7 +346,7 @@ bool CalibratorProcessor::processImage(){
       }
     }
   break;
-
+  //com campo vazio
   case CALIBRATOR_COR_ETIQUETADA_SOFT:
 
     for(i = 0; i < ImProcessada.getHeight(); i++){
@@ -399,27 +407,75 @@ bool CalibratorProcessor::processImage(){
             ImProcessada[i][j] = PxBranco;
           else
             ImProcessada[i][j] = PxPreto;
+
+            // Area de teste
+            // ImProcessada[240-60-1][320-80-1] = PxRGB(255,0,0);
+            // ImProcessada[240-60][320-80] = PxRGB(255,0,0);
+            // ImProcessada[240-60+1][320-80+1] = PxRGB(255,0,0);
+            //
+            // ImProcessada[240+50-1][320+50-1] = PxRGB(255,0,0);
+            // ImProcessada[240+50][320+50] = PxRGB(255,0,0);
+            // ImProcessada[240+50+1][320+50+1] = PxRGB(255,0,0);
+            //
+            // std::ofstream desvios_arq("desvios.teste");
+            // std::ofstream medias_arq("medias.teste");
+            // std::ofstream resultados_arq("resultados.teste");
+            // std::ofstream imagem_y_arq("imagem_GBRG.teste");
+            // std::cout << "Constantes" << '\n';
+            // std::cout << "Const object:\t"<<calibracaoParam.const_Object << '\n';
+            // std::cout << "Const Field:\t"<<calibracaoParam.const_Field << '\n';
+            //
+            // for(unsigned i = 240-50; i < 240+50; i++){
+            //   for(unsigned j = 320-50; j < 320+50; j++){
+            //     desvios_arq << (int)calibracaoParam.desvioPadrao[2*(i*ImBruta.getWidth() + j)] << ' ';
+            //     medias_arq << (int)calibracaoParam.campoVazio.atByte(i,j).b1 << ' ';
+            //     resultados_arq << calibracaoParam.isDiff(i,j, ImBruta.atByte(i,j)) << ' ';
+            //     imagem_y_arq << (int)ImBruta.atByte(i,j).b1 << ' ';
+            //   }
+            //   desvios_arq << '\n';
+            //   medias_arq << '\n';
+            //   resultados_arq << '\n';
+            //   imagem_y_arq << '\n';
+            // }
+            // desvios_arq.close();
+            // medias_arq.close();
+            // resultados_arq.close();
+            // imagem_y_arq.close();
+            //
+            // ImProcessada[240-50][320-50] = PxRGB(255,0,0);
+            // ImProcessada[240+50][320+50] = PxRGB(255,0,0);
+            // ImProcessada.save("imagem_teste.ppm");
+            //
+            // exit(1);
+            // FIM DA AREA DE TESTE
         }
 
       }
     break;
   case CALIBRATOR_COR_ATUAL:
 
+    // for(unsigned i = 0; i < calibracaoParam.campoVazio.getLength(); i++)
+    //   tmp.atByte(i) = calibracaoParam.desvioPadrao[i];
+    // ImProcessada = tmp;
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
-
-        // if(calibracaoParam.isDiff(i,j,ImBruta.atByte(i,j)) == true ){
           ImBruta.atHPG(i,j,H,P,G);
           cor_pixel = calibracaoParam.getHardColor(H,P,G);
           if(cor_pixel == corAtual){
             ImProcessada[i][j] = ImBruta.atRGB(i + offset_v, j + offset_u);
           }else{
-            ImProcessada[i][j] = coresInversas[corAtual];
+            // ImProcessada[i][j] = coresInversas[corAtual];
+            ImProcessada[i][j] = PxPreto;
           }
 
-        // }else{
-        //   ImProcessada[i][j] = coresInversas[corAtual];
-        // }
+          // ImBruta.atHPG(i,j,H,P,G);
+          // if(  calibracaoParam.isColor(H,P,G,corAtual) ){
+          //   ImProcessada[i][j] = ImBruta.atRGB(i, j);
+          // }else{
+          //   ImProcessada[i][j] = PxPreto;
+          // }
+
+
       }
     }
     break;
@@ -488,21 +544,20 @@ void CalibratorProcessor::moverPonto(int ponto,int u,int v){
 }
 
 void CalibratorProcessor::calImgMedia(unsigned numAmostras){
-
   //essas duas linhas param a captura em paralelo
   // this->calculating = true;
   // Camera::encerrar = true;
 
   unsigned length = 0;
-  uint32_t *sum2;
-  uint32_t *sum1;
+  uint64_t *sum2;
+  uint64_t *sum1;
 
   unsigned width = ImBruta.getWidth();
   unsigned height= ImBruta.getHeight();
   length= ImBruta.getLength();
 
-  sum1  = new uint32_t[length];
-  sum2  = new uint32_t[length];
+  sum1  = new uint64_t[length];
+  sum2  = new uint64_t[length];
 
   waitforimage();
 
@@ -526,16 +581,16 @@ void CalibratorProcessor::calImgMedia(unsigned numAmostras){
     for(unsigned pos = 0; pos < length; pos++){
       byte = ImBruta.atByte(pos);
       sum1[pos] += byte;
-      sum2[pos] += round(byte*byte);
+      sum2[pos] += ceil(byte*byte);
     }
   }
 
   double var;
 
   for(unsigned pos = 0; pos < length; pos++){
-    calibracaoParam.campoVazio.atByte(pos) = round(sum1[pos]/numAmostras);
-    var = (sum2[pos] - (1.0/numAmostras)*sum1[pos]*sum1[pos])/(numAmostras-1.0);
-    calibracaoParam.desvioPadrao[pos] = round(sqrt(var));
+    calibracaoParam.campoVazio.atByte(pos) = ceil(sum1[pos]/numAmostras);
+    var = (sum2[pos] - (1.0/numAmostras)*(double)sum1[pos]*sum1[pos])/(numAmostras-1.0);
+    calibracaoParam.desvioPadrao[pos] = ceil(sqrt(var));
   }
   campoVazio_capturado = true;
   calibracaoParam.const_Field = 1.0;
@@ -546,6 +601,6 @@ void CalibratorProcessor::calImgMedia(unsigned numAmostras){
 
   // captureimage();
   //retomada da captura em paralelo
-  Camera::encerrar = false;
-  this->calculating = false;
+  // Camera::encerrar = false;
+  // this->calculating = false;
 }

@@ -29,9 +29,23 @@ enum{
   IS_UNDEF = -1
 };
 
+namespace cores{
+  //associado diretamente aos indices do vetor de cores.
+  enum{
+    LARANJA = 0,
+    AZUL = 1,
+    AMARELO = 2,
+    CIANO = 3,
+    ROSA = 4,
+    VERDE = 5,
+    PRETO = 6,
+    BRANCO = 7
+  };
+}
+
 struct PARAMETROS_CALIBRACAO{
   //WARNING Apenas enquanto nao cria a classe/struct pixel_bruto
-  #define CONST (campoVazio.getPxFormat() == GBRG)?1:2 //supondo apenas os formatos GBRG e YUV422
+  #define CONST ((campoVazio.getPxFormat() == GBRG)?1:2) //supondo apenas os formatos GBRG e YUV422
   #define POS(i,j) CONST*((i)*campoVazio.getWidth() + (j))
 
 
@@ -74,7 +88,7 @@ struct PARAMETROS_CALIBRACAO{
   bool isField(unsigned i, unsigned j, PxBruto px);
   int isDiff(unsigned i, unsigned j, PxBruto px);
 
-
+  bool isColor(const float H,const float P, const float G, int color) const;
   int getSoftColor(const float H,const float P, const float G) const;
   int getHardColor(const float H,const float P, const float G) const;
 };

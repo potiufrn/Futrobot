@@ -225,7 +225,6 @@ struct PxBruto{
   //para  YUYV => b1 = Y, b2 = U ou V, da posicao i,j (coordenada na imagem RGB)
   uint8_t b1;
   uint8_t b2;
-  // PIXEL_FORMAT pxType;
 };
 
 class ImagemBruta{

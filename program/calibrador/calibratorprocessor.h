@@ -81,8 +81,8 @@ public Camera
     // setMaxP(calibracaoParam.limiarPSup/100.0);
   }
 
-  inline void setConstObject(float value){ calibracaoParam.const_Object = value; }
-  inline void setConstField(float value){ calibracaoParam.const_Field = value; }
+  inline void setConstObject(float value){ calibracaoParam.const_Object = value/10.0; }
+  inline void setConstField(float value){ calibracaoParam.const_Field = value/10.0; }
 
   inline limitesHPG getLimHPG(int i){return calibracaoParam.limHPG[i];}
   inline void setHmin(int i, int valor){calibracaoParam.limHPG[i].H.min = valor;};

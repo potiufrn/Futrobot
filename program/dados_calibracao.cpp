@@ -35,15 +35,15 @@ bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
 {
   //Macro para: dado os limites inferior, superior e um valor, retorna true
   //caso o valor esteja contido dentro desse intervalo
-  #define IN_RANGE(inf, sup, value) ((value) <= (sup) && (value) >= (inf))?true:false
+  #define IN_RANGE(inf, sup, value) (((value) <= (sup) && (value) >= (inf))?true:false)
 
   uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao[POS(i,j)];
   uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao[POS(i,j)];
-  if(campoVazio.getPxFormat() == YUYV){
-    uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Field*desvioPadrao[POS(i,j) + 1];
-    uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Field*desvioPadrao[POS(i,j) + 1];
-    return IN_RANGE(infLimit_b1, supLimit_b1, px.b1) && IN_RANGE(infLimit_b2, supLimit_b2, px.b2);
-  }
+  // if(campoVazio.getPxFormat() == YUYV){
+  //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Field*desvioPadrao[POS(i,j) + 1];
+  //   uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Field*desvioPadrao[POS(i,j) + 1];
+  //   return IN_RANGE(infLimit_b1, supLimit_b1, px.b1) && IN_RANGE(infLimit_b2, supLimit_b2, px.b2);
+  // }
 
   return IN_RANGE(infLimit_b1, supLimit_b1, px.b1);
 }
@@ -55,24 +55,24 @@ bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
 // bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte)
 bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
 {
-  //dado um limite superior e inferior e um valor, retorna true caso esse valor esteja fora
+  //dado os limite superior e inferior e um valor, retorna true caso esse valor esteja fora
   //do intervalo estabelecido por esses limites
-  #define OUT_RANGE(inf, sup, value) ((value) > (sup) || (value) < (inf))?true:false
+  #define OUT_RANGE(inf, sup, value) (((value) > (sup) || (value) < (inf))?true:false)
 
   uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao[POS(i,j)];
   uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao[POS(i,j)];
 
-  if(campoVazio.getPxFormat() == YUYV){
-    uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Object*desvioPadrao[POS(i,j) + 1];
-    uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Object*desvioPadrao[POS(i,j) + 1];
-    return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1) && OUT_RANGE(infLimit_b2, supLimit_b2, px.b2);
-  }
+  // if(campoVazio.getPxFormat() == YUYV){
+  //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Object*desvioPadrao[POS(i,j) + 1];
+  //   uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Object*desvioPadrao[POS(i,j) + 1];
+  //   return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1) && OUT_RANGE(infLimit_b2, supLimit_b2, px.b2);
+  // }
 
   return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1);
 }
 
 //Funcao que verifica se um PxBruto px da posicao i,j eh campo(0), objeto(1) e em caso de
-//inderteminacao retorna -1 (caso em que o px de false para campo e false para objeto) 
+//inderteminacao retorna -1 (caso em que o px de false para campo e false para objeto)
 // int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte)
 int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, PxBruto px)
 {
@@ -365,6 +365,28 @@ std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
 
   return O;
 }
+
+bool PARAMETROS_CALIBRACAO::isColor(const float H,const float P, const float G, int color) const{
+  bool H_OK = true;
+
+  int iH = (int)round((H/M_PI)*180.0),
+      iP = (int)round(P*100.0),
+      iG = (int)round(G*100.0);
+
+  //Caso em que Hmin <= Hmax
+  if( limHPG[color].H.min <= limHPG[color].H.max )
+    H_OK  =  (iH >= limHPG[color].H.min && iH <= limHPG[color].H.max);//testa se esta dentro da faixa
+  else//Caso em que Hmin > Hmax
+    H_OK  =  (iH >= limHPG[color].H.min || iH <= limHPG[color].H.max);
+
+  if(H_OK &&
+     iP >= limHPG[color].P.min && iP <= limHPG[color].P.max &&
+     iG >= limHPG[color].G.min && iG <= limHPG[color].G.max){
+    return true;
+  }
+  return false;
+}
+
 //retorna a cor da qual o pixel do parametro percente. Usa somente os
 //limiares dos componentes HPG para definir a cor do pixel.
 int PARAMETROS_CALIBRACAO::getHardColor(
@@ -401,6 +423,7 @@ int PARAMETROS_CALIBRACAO::getHardColor(
   return -1;
 
 }
+
 //metodo para pegar o rotulo baseado nas componentes do pixel. Usa o
 //calculo da distancia caso o pixel nao se encontre dentro do limiar
 //das componentes.
