@@ -63,6 +63,7 @@ struct PARAMETROS_CALIBRACAO{
   float const_Field;
   float const_Object;
 
+
   unsigned nPontosNotaveis;
   unsigned nCores;
   Coord2 *pontosImagem;
@@ -79,13 +80,13 @@ struct PARAMETROS_CALIBRACAO{
   bool read(std::istream &I);
   std::ostream &write(std::ostream &O)const;
 
-  // bool isObject(unsigned i, unsigned j, uint8_t byte);
-  // bool isField(unsigned i, unsigned j, uint8_t byte);
-  // int isDiff(unsigned i, unsigned j, uint8_t byte);
+  bool isObject(unsigned i, unsigned j, uint8_t byte);
+  bool isField(unsigned i, unsigned j, uint8_t byte);
+  int isDiff(unsigned i, unsigned j, uint8_t byte);
 
-  bool isObject(unsigned i, unsigned j, PxBruto px);
-  bool isField(unsigned i, unsigned j, PxBruto px);
-  int isDiff(unsigned i, unsigned j, PxBruto px);
+  // bool isObject(unsigned i, unsigned j, PxBruto px);
+  // bool isField(unsigned i, unsigned j, PxBruto px);
+  // int isDiff(unsigned i, unsigned j, PxBruto px);
 
   bool isColor(const float H,const float P, const float G, int color) const;
   int getSoftColor(const float H,const float P, const float G) const;

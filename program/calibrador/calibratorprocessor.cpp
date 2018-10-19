@@ -38,7 +38,7 @@ CalibratorProcessor::CalibratorProcessor() :
   offset_v(0),
   true_color(false),
   campoVazio_capturado(false),
-  calculating(false)
+  // calculating(false)
 {
   //nada
 }
@@ -65,7 +65,7 @@ CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
   offset_v(0),
   true_color(false),
   campoVazio_capturado(false),
-  calculating(false)
+  // calculating(false)
 {
   calibracaoParam.limiarPSup = 100;
   calibracaoParam.limiarPInf = 0;

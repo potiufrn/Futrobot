@@ -720,10 +720,10 @@ void calibrador::atualizarCameraParam(){
 
 void calibrador::atualizarLimitesP()
 {
-    // spinLimiarPInf->setValue(X.getPinf());
-    // spinLimiarPSup->setValue(X.getPsup());
-    spinLimiarPInf->setValue(X.getConstField());
-    spinLimiarPSup->setValue(X.getConstObject());
+    spinLimiarPInf->setValue(X.getPinf());
+    spinLimiarPSup->setValue(X.getPsup());
+    // spinLimiarPInf->setValue(X.getConstField());
+    // spinLimiarPSup->setValue(X.getConstObject());
 
 }
 

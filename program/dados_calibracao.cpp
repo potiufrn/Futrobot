@@ -31,8 +31,8 @@ PARAMETROS_CALIBRACAO::~PARAMETROS_CALIBRACAO(){
 //ou falso para o caso contrario.
 //Eh verificado se o px esta contido no intervalo media + k1*desvio, se sim,
 //eh considerado parte do campo
-// bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, uint8_t byte)
-bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
+// bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
+bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, uint8_t byte)
 {
   //Macro para: dado os limites inferior, superior e um valor, retorna true
   //caso o valor esteja contido dentro desse intervalo
@@ -40,23 +40,20 @@ bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
 
   // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao[POS(i,j)];
   // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao[POS(i,j)];
-  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao.atByte(i,j).b1;
-  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao.atByte(i,j).b1;
-  // if(campoVazio.getPxFormat() == YUYV){
-  //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Field*desvioPadrao[POS(i,j) + 1];
-  //   uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Field*desvioPadrao[POS(i,j) + 1];
-  //   return IN_RANGE(infLimit_b1, supLimit_b1, px.b1) && IN_RANGE(infLimit_b2, supLimit_b2, px.b2);
-  // }
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao.atByte(i,j).b1;
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao.atByte(i,j).b1;
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j) - const_Field*desvioPadrao.atByte(i,j);
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j) + const_Field*desvioPadrao.atByte(i,j);
 
-  return IN_RANGE(infLimit_b1, supLimit_b1, px.b1);
+  return IN_RANGE(infLimit_b1, supLimit_b1, byte);
 }
 //Funcao auxiliar para isDiff, esta funcao verifica se um PxBruto
 //na posicao i,j pode ser considerado objeto(nao campo), em caso afirmativo retorna true
 //ou falso para o caso contrario.
 //Eh verificado se o px esta fora do intervalo media + k2*desvio, se sim,
 //eh considerado parte como nao pertencente ao campo
-// bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte)
-bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
+// bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
+bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte)
 {
   //dado os limite superior e inferior e um valor, retorna true caso esse valor esteja fora
   //do intervalo estabelecido por esses limites
@@ -64,8 +61,10 @@ bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
 
   // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao[POS(i,j)];
   // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao[POS(i,j)];
-  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao.atByte(i,j).b1;
-  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao.atByte(i,j).b1;
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao.atByte(i,j).b1;
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao.atByte(i,j).b1;
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j) - const_Object*desvioPadrao.atByte(i,j);
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j) + const_Object*desvioPadrao.atByte(i,j);
 
   // if(campoVazio.getPxFormat() == YUYV){
   //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Object*desvioPadrao[POS(i,j) + 1];
@@ -73,19 +72,19 @@ bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
   //   return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1) && OUT_RANGE(infLimit_b2, supLimit_b2, px.b2);
   // }
 
-  return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1);
+  return OUT_RANGE(infLimit_b1, supLimit_b1, byte);
 }
 
 //Funcao que verifica se um PxBruto px da posicao i,j eh campo(0), objeto(1) e em caso de
 //inderteminacao retorna -1 (caso em que o px de false para campo e false para objeto)
-// int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte)
-int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, PxBruto px)
+// int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, PxBruto px)
+int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte)
 {
   //eh campo
-  if(isField(i,j,px))
+  if(isField(i,j, byte))
     return 0;
   //eh objeto
-  if(isObject(i,j,px))
+  if(isObject(i,j, byte))
     return 1;
   //incerteza
   return -1;

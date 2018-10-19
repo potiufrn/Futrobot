@@ -52,7 +52,7 @@ public Camera
   unsigned offset_u,offset_v;
   bool true_color;
   bool campoVazio_capturado;
-  bool calculating;
+  // bool calculating; //flag sinalizando que o Calibrator esta realizando um calculo de campo medio
  public:
   CalibratorProcessor();
   CalibratorProcessor(const char* arquivo);

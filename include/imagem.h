@@ -259,8 +259,8 @@ public:
   // inline uint8_t operator[](unsigned pos) { return imgData[pos]; }
   uint8_t atByte(unsigned pos)const;
   uint8_t &atByte(unsigned pos);
-  // uint8_t atByte(unsigned lin, unsigned col)const;
-  PxBruto atByte(unsigned lin, unsigned col)const;
+  uint8_t atByte(unsigned lin, unsigned col)const;
+  // PxBruto atByte(unsigned lin, unsigned col)const;
 
 
   PxRGB atRGB(unsigned lin,unsigned col)const;
