@@ -51,9 +51,8 @@ struct PARAMETROS_CALIBRACAO{
 
   //Vetor que armazena o desvio padrao de cada byte da imagem
   //o calculo eh realizado no calibradorprocessor.
-  //WARNING: falta analisar se esse vetor pode ser substituido por um
-  //unico desvio representativo.
-  uint8_t *desvioPadrao;
+  // uint8_t *desvioPadrao;
+  ImagemBruta desvioPadrao;
   //imagem de dados brutos que contem a imagem media
   //do campo sem objetos(apenas campo).
   ImagemBruta campoVazio;

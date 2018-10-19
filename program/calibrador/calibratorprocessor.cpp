@@ -260,8 +260,7 @@ bool CalibratorProcessor::processImage(){
   float H, P, G;
   int r;
   unsigned qtdDiff;
-  ImagemBruta tmp(calibracaoParam.campoVazio.getWidth(),calibracaoParam.campoVazio.getHeight());
-  calibracaoParam.campoVazio.copyTo(tmp);
+
   //Cores padroes a serem usadas no processamento
   static PxRGB PxPreto(0,0,0);
   static PxRGB PxVermelho(255,0,0);
@@ -285,7 +284,7 @@ bool CalibratorProcessor::processImage(){
   case CALIBRATOR_LIMITES_P_E_PONTOS:
   case CALIBRATOR_LIMITES_P:
     //TODO gera a imagem processada com os limites min e max de P
-    //WARNING este modo nao esta completo, por isso apenas esta apenas
+    //WARNING este modo nao esta completo, por isso apenas esta
     //processando a imagem Real
     if(campoVazio_capturado)
       ImProcessada = calibracaoParam.campoVazio;
@@ -454,9 +453,6 @@ bool CalibratorProcessor::processImage(){
     break;
   case CALIBRATOR_COR_ATUAL:
 
-    // for(unsigned i = 0; i < calibracaoParam.campoVazio.getLength(); i++)
-    //   tmp.atByte(i) = calibracaoParam.desvioPadrao[i];
-    // ImProcessada = tmp;
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
           ImBruta.atHPG(i,j,H,P,G);
@@ -542,11 +538,12 @@ void CalibratorProcessor::moverPonto(int ponto,int u,int v){
   calibracaoParam.pontosImagem[ponto].u() = (double)(u+offset_u);
   calibracaoParam.pontosImagem[ponto].v() = (double)(v+offset_v);
 }
-
+//Calcula a imagem media e a imagem de desvios padroes
+//com um numero numAmostras(default = 100).
+//WARNING lembrar que cada amostra (captura) leva aproximadamente 30ms
+//TODO a chamada deste metodo presupoe que a camera esta realizando capturas
+//de forma paralela
 void CalibratorProcessor::calImgMedia(unsigned numAmostras){
-  //essas duas linhas param a captura em paralelo
-  // this->calculating = true;
-  // Camera::encerrar = true;
 
   unsigned length = 0;
   uint64_t *sum2;
@@ -561,23 +558,24 @@ void CalibratorProcessor::calImgMedia(unsigned numAmostras){
 
   waitforimage();
 
-  if(calibracaoParam.desvioPadrao != NULL)
-    delete[] calibracaoParam.desvioPadrao;
-  calibracaoParam.desvioPadrao = new uint8_t[length];
+  // if(calibracaoParam.desvioPadrao != NULL)
+  //   delete[] calibracaoParam.desvioPadrao;
+  // calibracaoParam.desvioPadrao = new uint8_t[length];
 
+  //copia para formatar as imagens de Desvio e Media para
+  //a mesma config. de dimensões e formato da camera que esta sendo trabalhada
+  ImBruta.copyTo(calibracaoParam.desvioPadrao);
   ImBruta.copyTo(calibracaoParam.campoVazio);
 
   for(unsigned pos = 0; pos < length; pos++){
     sum1[pos] = 0;
     sum2[pos] = 0;
-    calibracaoParam.desvioPadrao[pos] = 0;
   }
 
   uint8_t byte;
-  // captureimage();
+
   for(unsigned i = 0; i < numAmostras; i++){
-    waitforimage();
-    // captureimage();
+    waitforimage();//Aguarda por uma nova captura
     for(unsigned pos = 0; pos < length; pos++){
       byte = ImBruta.atByte(pos);
       sum1[pos] += byte;
@@ -590,17 +588,17 @@ void CalibratorProcessor::calImgMedia(unsigned numAmostras){
   for(unsigned pos = 0; pos < length; pos++){
     calibracaoParam.campoVazio.atByte(pos) = ceil(sum1[pos]/numAmostras);
     var = (sum2[pos] - (1.0/numAmostras)*(double)sum1[pos]*sum1[pos])/(numAmostras-1.0);
-    calibracaoParam.desvioPadrao[pos] = ceil(sqrt(var));
+    // calibracaoParam.desvioPadrao[pos] = ceil(sqrt(var));
+    calibracaoParam.desvioPadrao.atByte(pos) = ceil(sqrt(var));
   }
-  campoVazio_capturado = true;
-  calibracaoParam.const_Field = 1.0;
-  calibracaoParam.const_Object= 3.0;
 
   delete[] sum1;
   delete[] sum2;
+  calibracaoParam.const_Field = 1.0;
+  calibracaoParam.const_Object= 3.0;
 
-  // captureimage();
-  //retomada da captura em paralelo
-  // Camera::encerrar = false;
-  // this->calculating = false;
+  // TODO Ajuste das dos intervalos que delimitem o que eh considerado campo
+  // ...
+
+  campoVazio_capturado = true;
 }

@@ -12,7 +12,8 @@ PARAMETROS_CALIBRACAO::PARAMETROS_CALIBRACAO() :
   limiarPSup(100),
   limHPG(NULL),
   campoVazio(),
-  desvioPadrao(NULL),
+  desvioPadrao(),
+  // desvioPadrao(NULL), //WARNING antes de usar desvioPadrao como ImagemBruta
   const_Field(0),
   const_Object(0)
 {
@@ -23,7 +24,7 @@ PARAMETROS_CALIBRACAO::~PARAMETROS_CALIBRACAO(){
   delete[] pontosImagem;
   delete[] pontosReais;
   delete[] limHPG;
-  if(desvioPadrao != NULL)delete[] desvioPadrao;
+  // if(desvioPadrao != NULL)delete[] desvioPadrao; //WARNING antes de usar desvioPadrao como ImagemBruta
 }
 //Funcao auxiliar para isDiff, esta funcao verifica se um PxBruto
 //na posicao i,j pode ser considerado campo, em caso afirmativo retorna true
@@ -37,8 +38,10 @@ bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
   //caso o valor esteja contido dentro desse intervalo
   #define IN_RANGE(inf, sup, value) (((value) <= (sup) && (value) >= (inf))?true:false)
 
-  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao[POS(i,j)];
-  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao[POS(i,j)];
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao[POS(i,j)];
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao[POS(i,j)];
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao.atByte(i,j).b1;
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao.atByte(i,j).b1;
   // if(campoVazio.getPxFormat() == YUYV){
   //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Field*desvioPadrao[POS(i,j) + 1];
   //   uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Field*desvioPadrao[POS(i,j) + 1];
@@ -59,8 +62,10 @@ bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
   //do intervalo estabelecido por esses limites
   #define OUT_RANGE(inf, sup, value) (((value) > (sup) || (value) < (inf))?true:false)
 
-  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao[POS(i,j)];
-  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao[POS(i,j)];
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao[POS(i,j)];
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao[POS(i,j)];
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao.atByte(i,j).b1;
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao.atByte(i,j).b1;
 
   // if(campoVazio.getPxFormat() == YUYV){
   //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Object*desvioPadrao[POS(i,j) + 1];
@@ -283,25 +288,27 @@ bool PARAMETROS_CALIBRACAO::read(std::istream &I){
 
   if(campoVazio.read("../.campoVazio") == false)return true;//falha na leitura da imagem do campo vazio
     //leitura da matriz de desvio padrao
-  ifstream desvio("../.desvioPadrao");
-  unsigned length;
-
-  if(desvio.is_open() == false)return true;
-  getline(desvio,str,':');
-  desvio >> length;
-  if(desvioPadrao != NULL)delete[] desvioPadrao;
-  desvioPadrao = new uint8_t[length];
-
-  I.ignore(1,'\n');
-
-  char tmp;
-  for(unsigned i = 0; i < length; i ++){
-    desvio.get(tmp);
-    desvioPadrao[i] = tmp;
-  }
-  if(str != "Length")return true;
-
-  desvio.close();
+  if(desvioPadrao.read("../.desvioPadrao") == false)return true;//falha na leitura da imagem de desvios
+  // WARNING codigo antes de usar o desvioPadrao como ImagemBruta
+  // ifstream desvio("../.desvioPadrao");
+  // unsigned length;
+  //
+  // if(desvio.is_open() == false)return true;
+  // getline(desvio,str,':');
+  // desvio >> length;
+  // if(desvioPadrao != NULL)delete[] desvioPadrao;
+  // desvioPadrao = new uint8_t[length];
+  //
+  // I.ignore(1,'\n');
+  //
+  // char tmp;
+  // for(unsigned i = 0; i < length; i ++){
+  //   desvio.get(tmp);
+  //   desvioPadrao[i] = tmp;
+  // }
+  // if(str != "Length")return true;
+  //
+  // desvio.close();
   //fim da leitura dos dados do campo vazio
   nPontosNotaveis = nPontosNotaveis_aux;
   nCores = nCores_aux;
@@ -351,14 +358,16 @@ std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
       << limHPG[i].G.min << ' '
       << limHPG[i].G.max << '\n';
   }
-  // dados referentes ao campo Vazio.
   campoVazio.write("../.campoVazio");
-  ofstream desvio("../.desvioPadrao");
-  unsigned length = campoVazio.getLength();
-  desvio << "Length: "<<length<<'\n';
-  for(unsigned i = 0; i < campoVazio.getLength(); i++)
-    desvio << desvioPadrao[i];
-  desvio.close();
+  // dados referentes ao campo Vazio.
+  desvioPadrao.write("../.desvioPadrao");
+  //WARNING antes de altear desvioPadrao para ser uma ImagemBruta
+  // ofstream desvio("../.desvioPadrao");
+  // unsigned length = campoVazio.getLength();
+  // desvio << "Length: "<<length<<'\n';
+  // for(unsigned i = 0; i < campoVazio.getLength(); i++)
+  //   desvio << desvioPadrao[i];
+  // desvio.close();
 
   O << "Constantes Objeto e Campo"<< '\n';
   O << const_Object <<'\t'<< const_Field;
