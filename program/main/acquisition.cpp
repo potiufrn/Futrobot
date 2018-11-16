@@ -669,19 +669,19 @@ bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
     for(vi = v-2; vi <= v+2; vi++){
       if(ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight()){
         //WARNING usando informacoes do campo vazio
-        r = calibracaoParam.isDiff(vi,ui,ImBruta.getByte(vi,ui));//compara o byte com o do campo vazio.
+        r = calibracaoParam.isDiff(vi,ui,ImBruta.atByte(vi,ui));//compara o byte com o do campo vazio.
         qtdDiff = 0;
         //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
         //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
         if(r == IS_UNDEF){
           if(IS_VALID(vi-1,ui-1))
-            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.getByte(vi-1,ui-1)) == IS_OBJECT)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.atByte(vi-1,ui-1)) == IS_OBJECT)?1:0;
           if(IS_VALID(vi-1,ui+1))
-            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.getByte(vi-1,ui+1)) == IS_OBJECT)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.atByte(vi-1,ui+1)) == IS_OBJECT)?1:0;
           if(IS_VALID(vi+1,ui+1))
-            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.getByte(vi+1,ui+1)) == IS_OBJECT)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.atByte(vi+1,ui+1)) == IS_OBJECT)?1:0;
           if(IS_VALID(vi+1,ui-1))
-            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.getByte(vi+1,ui-1)) == IS_OBJECT)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.atByte(vi+1,ui-1)) == IS_OBJECT)?1:0;
         }
         //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
         //dos robos ou da bola.
@@ -879,19 +879,19 @@ bool Acquisition::processGameState()
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
       //WARNING usando informacoes do campo vazio
-      r = calibracaoParam.isDiff(v,u,ImBruta.getByte(v,u));//compara o byte com o do campo vazio.
+      r = calibracaoParam.isDiff(v,u,ImBruta.atByte(v,u));//compara o byte com o do campo vazio.
       qtdDiff = 0;
       //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
       //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
       if(r == IS_UNDEF){
         if(IS_VALID(v-1,u-1))
-          qtdDiff += (calibracaoParam.isDiff(v-1,u-1,ImBruta.getByte(v-1,u-1)) == IS_OBJECT)?1:0;
+          qtdDiff += (calibracaoParam.isDiff(v-1,u-1,ImBruta.atByte(v-1,u-1)) == IS_OBJECT)?1:0;
         if(IS_VALID(v-1,u+1))
-          qtdDiff += (calibracaoParam.isDiff(v-1,u+1,ImBruta.getByte(v-1,u+1)) == IS_OBJECT)?1:0;
+          qtdDiff += (calibracaoParam.isDiff(v-1,u+1,ImBruta.atByte(v-1,u+1)) == IS_OBJECT)?1:0;
         if(IS_VALID(v+1,u+1))
-          qtdDiff += (calibracaoParam.isDiff(v+1,u+1,ImBruta.getByte(v+1,u+1)) == IS_OBJECT)?1:0;
+          qtdDiff += (calibracaoParam.isDiff(v+1,u+1,ImBruta.atByte(v+1,u+1)) == IS_OBJECT)?1:0;
         if(IS_VALID(v+1,u-1))
-          qtdDiff += (calibracaoParam.isDiff(v+1,u-1,ImBruta.getByte(v+1,u-1)) == IS_OBJECT)?1:0;
+          qtdDiff += (calibracaoParam.isDiff(v+1,u-1,ImBruta.atByte(v+1,u-1)) == IS_OBJECT)?1:0;
       }
       //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
       //dos robos ou da bola.

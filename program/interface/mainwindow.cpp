@@ -355,7 +355,7 @@ void MainWindow::setUpdate(){
     //PxRGB * ptemp= &(pass.imagem[0][0]);
     //frame->setimg(ptemp);
     if (imagem->isChecked()){
-        frame->setimg((const PxRGB *) pass.imagem);
+        // frame->setimg((const PxRGB *) pass.imagem);
     }
     frame->repaint();
 }

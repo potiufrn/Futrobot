@@ -413,7 +413,7 @@ bool Camera::setControl(__u32 id,int v){
     //V4L2_CID_HUE_AUTO = false(0) ; desabilita auto HUE
     //V4L2_CID_AUTOGAIN = false(0); ...
     //V4L2_CID_AUTO_WHITE_BALANC = false(0)
-    std::cerr << "Camera WARNING: setControl, controle desabilitado" << '\n';
+    // std::cerr << "Camera WARNING: setControl, controle desabilitado" << '\n';
   return true;
 }
 int Camera::getControl(__u32 id)const{
@@ -484,7 +484,7 @@ bool Camera::setHue(int v){
   return setControl(V4L2_CID_HUE,v);
 }
 bool Camera::setGamma(int v){
-  
+
   return setControl(V4L2_CID_GAMMA,v);
 }
 int Camera::getExposureAbs()const{

@@ -52,7 +52,7 @@ public Camera
   unsigned offset_u,offset_v;
   bool true_color;
   bool campoVazio_capturado;
-  bool calculating;
+  // bool calculating; //flag sinalizando que o Calibrator esta realizando um calculo de campo medio
  public:
   CalibratorProcessor();
   CalibratorProcessor(const char* arquivo);
@@ -81,8 +81,8 @@ public Camera
     // setMaxP(calibracaoParam.limiarPSup/100.0);
   }
 
-  inline void setConstObject(float value){ calibracaoParam.const_Object = value; }
-  inline void setConstField(float value){ calibracaoParam.const_Field = value; }
+  inline void setConstObject(float value){ calibracaoParam.const_Object = value/10.0; }
+  inline void setConstField(float value){ calibracaoParam.const_Field = value/10.0; }
 
   inline limitesHPG getLimHPG(int i){return calibracaoParam.limHPG[i];}
   inline void setHmin(int i, int valor){calibracaoParam.limHPG[i].H.min = valor;};
@@ -101,7 +101,7 @@ public Camera
   void calImgMedia(unsigned num);
   inline bool campoVazioCapturado(){return campoVazio_capturado;}
 
-  inline bool isCalculating(){ return calculating; }
+  // inline bool isCalculating(){ return calculating; }
 
   bool loadImage(const char* arq);
   void saveImage(const char* arq);

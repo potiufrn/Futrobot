@@ -13,7 +13,7 @@ private:
   POS_ROBO ref_desc[3];
 
   double t;
-  
+
   double yalin[3], ypos_fut[3], thetapos_fut[3], dang_desc[3], dlin_desc[3];
 
   //predicados para os adversarios
@@ -22,20 +22,20 @@ private:
   double dist_meu[3], dist_adv[3];
 
   // predicados para os meus robos
-  //a principio os booleanos dos jogadores tem uso especifico, mas mesmo assim foram criados para os tres jogadores 
+  //a principio os booleanos dos jogadores tem uso especifico, mas mesmo assim foram criados para os tres jogadores
 
   bool meu_lado_area[3], meu_atras_gol[3];;
 
   bool meu_na_area[3];
 
-  bool meu_na_frente_bola[3], 
-     meu_posicionado_descolar[3], meu_furou[3], meu_frente_area[3], 
+  bool meu_na_frente_bola[3],
+     meu_posicionado_descolar[3], meu_furou[3], meu_frente_area[3],
      meu_alinhado_chutar[3], meu_bem_alinhado_chutar[3], bola_frente_y_do_meu[3],
      meu_posicionado_isolar[3],
      meu_alinhado_isolar[3], meu_bem_alinhado_isolar[3];
 
   // Analise da situacao da bola
-  bool bola_parada, bola_no_ataque, bola_minha_area_lateral;
+  bool bola_parada, bola_no_ataque, bola_area_lateral;
 
   // Soh um desses predicados pode ser true ao mesmo tempo
   bool bola_dentro_gol, bola_area_defesa, bola_frente_area, bola_lado_area,
@@ -59,7 +59,7 @@ private:
   //void preenchimento();
 
   int estado_penalty;
- private: 
+ private:
   //bool setint (FUNCTION f, const char * binario, ACTION resp, bool silence);
   //bool full_table (FUNCTION f);
   void analisa_jogadores();
@@ -72,7 +72,7 @@ private:
   void escolhe_funcoes();
   void acao_goleiro(int id);
   void acao_goleiro_play(int id);
-  void acao_com_bola(int id); 
+  void acao_com_bola(int id);
   void acao_com_bola_play(int id);
   void acao_sem_bola(int id);
   void calcula_referencias(int id);

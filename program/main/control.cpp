@@ -30,7 +30,7 @@ void PID::anti_windup() {
  // Isso deve ser porque o anti_windup não estava sendo efetivo
  // Vamos modificar para ao invés de parar de crescer o efeito integral, vamos zerar
  // I_ant = I_ant2;         // Suspende a Integração
-  I_ant = I_ant2 = 0.0;   // Zera a parte Integral   
+  I_ant = I_ant2 = 0.0;   // Zera a parte Integral
 }
 
 void PID::reset() {
@@ -107,13 +107,21 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   //################################################################
 
   // Controle Poti
-  double klin = 1.3;//1.3;
-  double tilin= 1E+10;//1E+10;
-  double tdlin = 0.08;//0.08;
+  // double klin = 1.3;//1.3;
+  // double tilin= 1E+10;//1E+10;
+  // double tdlin = 0.08;//0.08;
+  //
+  // double kang = 0.05;//0.08
+  // double tiang = 1.5;//1.5
+  // double tdang = 0.07;//0.07;
 
-  double kang = 0.05;//0.08
-  double tiang = 1.5;//1.5
-  double tdang = 0.07;//0.07;
+  double klin = 0.8;
+  double tilin= 10000.0;//10000;
+  double tdlin = 0.0;//0.0;
+
+  double kang = 0.04;
+  double tiang = 4.0;//4.0
+  double tdang = 0.0;//0.0;
 
   /*
 	double klin = 0.9;

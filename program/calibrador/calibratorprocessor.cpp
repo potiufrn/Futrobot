@@ -4,6 +4,9 @@
 #include <cmath>
 #include <cstring>
 
+// Apenas para teste
+#include <fstream>
+
 #define RAIO_SELECIONADO 5.0
 // #define NUM_BUFFERS 4
 // //#define NUM_BUFFERS 10
@@ -34,8 +37,8 @@ CalibratorProcessor::CalibratorProcessor() :
   offset_u(0),
   offset_v(0),
   true_color(false),
-  campoVazio_capturado(false),
-  calculating(false)
+  // calculating(false),
+  campoVazio_capturado(false)
 {
   //nada
 }
@@ -61,8 +64,8 @@ CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
   offset_u(0),
   offset_v(0),
   true_color(false),
-  campoVazio_capturado(false),
-  calculating(false)
+  // calculating(false),
+  campoVazio_capturado(false)
 {
   calibracaoParam.limiarPSup = 100;
   calibracaoParam.limiarPInf = 0;
@@ -202,6 +205,9 @@ bool CalibratorProcessor::fileOpen(const char* text)
   }
   if (calibracaoParam.read(I))return true;
   I.close();
+
+  campoVazio_capturado = true;
+
   return false;
 }
 
@@ -248,7 +254,7 @@ void CalibratorProcessor::saveImage(const char* arq){
 
 
 bool CalibratorProcessor::processImage(){
-  #define IS_VALID(i,j) ( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false
+  #define IS_VALID(i,j) (( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false)
   unsigned int i,j;
   int count=0, cor_pixel=0;
   float H, P, G;
@@ -265,12 +271,6 @@ bool CalibratorProcessor::processImage(){
   case CALIBRATOR_IMAGEM_REAL:
     //TODO a ideia deste modo eh utilizar os sliders da GUI para selecionar a
     // regiao da imagem que sera processada, ou seja, um corte da imagem via software
-    // for(i = 0; i < ImProcessada.getHeight(); i++){
-    //   for(j = 0; j < ImProcessada.getWidth(); j++){
-    //     // ImProcessada[i][j] = ImBruta[offset_v + i][offset_u + j];
-    //     ImProcessada.atRGB(i,j) = ImBruta.atRGB(offset_v + i, offset_u + j);
-    //   }
-    // }
     //WARNING esse modo esta incompleto, pois nao esta habilitado a
     //funcao de corte da imagem
     ImProcessada = ImBruta;
@@ -278,7 +278,7 @@ bool CalibratorProcessor::processImage(){
   case CALIBRATOR_LIMITES_P_E_PONTOS:
   case CALIBRATOR_LIMITES_P:
     //TODO gera a imagem processada com os limites min e max de P
-    //WARNING este modo nao esta completo, por isso apenas esta apenas
+    //WARNING este modo nao esta completo, por isso apenas esta
     //processando a imagem Real
     if(campoVazio_capturado)
       ImProcessada = calibracaoParam.campoVazio;
@@ -287,7 +287,6 @@ bool CalibratorProcessor::processImage(){
     break;
   case CALIBRATOR_PONTOS:
     //desenha os pontos
-    // ImProcessada = ImBruta;
     if(campoVazio_capturado)
       ImProcessada = calibracaoParam.campoVazio;
     else
@@ -325,6 +324,7 @@ bool CalibratorProcessor::processImage(){
       }
     }
     break;
+  //sem campo vazio
   case CALIBRATOR_COR_ETIQUETADA:
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
@@ -338,13 +338,13 @@ bool CalibratorProcessor::processImage(){
       }
     }
   break;
-
+  //com campo vazio
   case CALIBRATOR_COR_ETIQUETADA_SOFT:
 
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
         ImBruta.atHPG(i,j,H,P,G);
-        r = calibracaoParam.isDiff(i,j, ImBruta.getByte(i,j));
+        r = calibracaoParam.isDiff(i,j, ImBruta.atByte(i,j));
         qtdDiff = 0;
 
       	if(modo ==   CALIBRATOR_COR_ETIQUETADA_SOFT)
@@ -357,13 +357,13 @@ bool CalibratorProcessor::processImage(){
           ImProcessada[i][j] = PxPreto;
         else{//incerteza
           if(IS_VALID(i-1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.getByte(i-1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.atByte(i-1,j-1)) == 1)?1:0;
           if(IS_VALID(i-1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.getByte(i-1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.atByte(i-1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.getByte(i+1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.atByte(i+1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.getByte(i+1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.atByte(i+1,j-1)) == 1)?1:0;
 
           if(qtdDiff > 2)
             ImProcessada[i][j] = cores[cor_pixel];
@@ -379,7 +379,7 @@ bool CalibratorProcessor::processImage(){
 
     for(i = 0; i < ImProcessada.getHeight(); i++)
       for(j = 0; j < ImProcessada.getWidth(); j++){
-        r = calibracaoParam.isDiff(i,j,ImBruta.getByte(i,j));
+        r = calibracaoParam.isDiff(i,j,ImBruta.atByte(i,j));
         qtdDiff = 0;
         if(r == 1)//nao eh campo
           ImProcessada[i][j] = PxBranco;
@@ -387,13 +387,13 @@ bool CalibratorProcessor::processImage(){
           ImProcessada[i][j] = PxPreto;
         else{//
           if(IS_VALID(i-1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.getByte(i-1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j-1,ImBruta.atByte(i-1,j-1)) == 1)?1:0;
           if(IS_VALID(i-1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.getByte(i-1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i-1,j+1,ImBruta.atByte(i-1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j+1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.getByte(i+1,j+1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j+1,ImBruta.atByte(i+1,j+1)) == 1)?1:0;
           if(IS_VALID(i+1,j-1))
-            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.getByte(i+1,j-1)) == 1)?1:0;
+            qtdDiff += (calibracaoParam.isDiff(i+1,j-1,ImBruta.atByte(i+1,j-1)) == 1)?1:0;
 
           if(qtdDiff > 2)
             ImProcessada[i][j] = PxBranco;
@@ -407,19 +407,15 @@ bool CalibratorProcessor::processImage(){
 
     for(i = 0; i < ImProcessada.getHeight(); i++){
       for(j = 0; j < ImProcessada.getWidth(); j++){
-
-        // if(calibracaoParam.isDiff(i,j,ImBruta.getByte(i,j)) == true ){
           ImBruta.atHPG(i,j,H,P,G);
           cor_pixel = calibracaoParam.getHardColor(H,P,G);
           if(cor_pixel == corAtual){
             ImProcessada[i][j] = ImBruta.atRGB(i + offset_v, j + offset_u);
           }else{
             ImProcessada[i][j] = coresInversas[corAtual];
+            // ImProcessada[i][j] = PxPreto;
           }
 
-        // }else{
-        //   ImProcessada[i][j] = coresInversas[corAtual];
-        // }
       }
     }
     break;
@@ -434,15 +430,7 @@ bool CalibratorProcessor::processImage(){
 void CalibratorProcessor::getPxValor(int x, int y,
 				     int &R, int &G1, int &B,
 				     int &H, int &P, int &G2){
-  /*O PROBLEMA ESTA AQUI!
 
-    Por algum motivo ao acessar a ImProcessada para ler os valores e
-    setar na interface, é gerado um segmentation fault. Provavelmente
-    devido ao acesso a mesma variavel por threads diferentes.
-   */
-  // R = (int)round((ImProcessada.atRGB(y,x).r/255.0)*100.0);
-  // G1 = (int)round((ImProcessada.atRGB(y,x).g/255.0)*100.0);
-  // B = (int)round((ImProcessada.atRGB(y,x).b/255.0)*100.0);
   float myH,myP,myG;
   R = (int)round((ImProcessada[y][x].r/255.0)*100.0);
   G1 = (int)round((ImProcessada[y][x].g/255.0)*100.0);
@@ -486,66 +474,63 @@ void CalibratorProcessor::moverPonto(int ponto,int u,int v){
   calibracaoParam.pontosImagem[ponto].u() = (double)(u+offset_u);
   calibracaoParam.pontosImagem[ponto].v() = (double)(v+offset_v);
 }
-
+//Calcula a imagem media e a imagem de desvios padroes
+//com um numero numAmostras(default = 100).
+//WARNING lembrar que cada amostra (captura) leva aproximadamente 30ms
+//TODO a chamada deste metodo presupoe que a camera esta realizando capturas
+//de forma paralela
 void CalibratorProcessor::calImgMedia(unsigned numAmostras){
 
-  //essas duas linhas param a captura em paralelo
-  // this->calculating = true;
-  // Camera::encerrar = true;
-
   unsigned length = 0;
-  uint32_t *sum2;
-  uint32_t *sum1;
+  uint64_t *sum2;
+  uint64_t *sum1;
 
   unsigned width = ImBruta.getWidth();
   unsigned height= ImBruta.getHeight();
   length= ImBruta.getLength();
 
-  sum1  = new uint32_t[length];
-  sum2  = new uint32_t[length];
+  sum1  = new uint64_t[length];
+  sum2  = new uint64_t[length];
 
   waitforimage();
 
-  if(calibracaoParam.desvioPadrao != NULL)
-    delete[] calibracaoParam.desvioPadrao;
-  calibracaoParam.desvioPadrao = new uint8_t[length];
 
+  //copia para formatar as imagens de Desvio e Media para
+  //a mesma config. de dimensões e formato da camera que esta sendo trabalhada
+  ImBruta.copyTo(calibracaoParam.desvioPadrao);
   ImBruta.copyTo(calibracaoParam.campoVazio);
 
   for(unsigned pos = 0; pos < length; pos++){
     sum1[pos] = 0;
     sum2[pos] = 0;
-    calibracaoParam.desvioPadrao[pos] = 0;
   }
 
   uint8_t byte;
-  // captureimage();
+
   for(unsigned i = 0; i < numAmostras; i++){
-    waitforimage();
-    // captureimage();
+    waitforimage();//Aguarda por uma nova captura
     for(unsigned pos = 0; pos < length; pos++){
       byte = ImBruta.atByte(pos);
       sum1[pos] += byte;
-      sum2[pos] += round(byte*byte);
+      sum2[pos] += ceil(byte*byte);
     }
   }
 
   double var;
 
   for(unsigned pos = 0; pos < length; pos++){
-    calibracaoParam.campoVazio.atByte(pos) = round(sum1[pos]/numAmostras);
-    var = (sum2[pos] - (1.0/numAmostras)*sum1[pos]*sum1[pos])/(numAmostras-1.0);
-    calibracaoParam.desvioPadrao[pos] = round(sqrt(var));
+    calibracaoParam.campoVazio.atByte(pos) = ceil(sum1[pos]/numAmostras);
+    var = (sum2[pos] - (1.0/numAmostras)*(double)sum1[pos]*sum1[pos])/(numAmostras-1.0);
+    calibracaoParam.desvioPadrao.atByte(pos) = ceil(sqrt(var));
   }
-  campoVazio_capturado = true;
-  calibracaoParam.const_Field = 1.0;
-  calibracaoParam.const_Object= 3.0;
 
   delete[] sum1;
   delete[] sum2;
+  calibracaoParam.const_Field = 1.0;
+  calibracaoParam.const_Object= 3.0;
 
-  // captureimage();
-  //retomada da captura em paralelo
-  Camera::encerrar = false;
-  this->calculating = false;
+  // TODO Ajuste das dos intervalos que delimitem o que eh considerado campo
+  // ...
+
+  campoVazio_capturado = true;
 }

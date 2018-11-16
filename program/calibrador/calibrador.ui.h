@@ -176,24 +176,24 @@ void calibrador::init()
     MouseY = 0;
 
     //WARNING apagar daqui
-    labelLimiarPInf->setText("Const Field");
-    labelLimiarPSup->setText("Const Object");
-    sliderLimiarPInf->setMaxValue(10);
-    sliderLimiarPInf->setMinValue(1);
-    sliderLimiarPSup->setMaxValue(10);
-    sliderLimiarPSup->setMinValue(1);
+    // labelLimiarPInf->setText("Const Field");
+    // labelLimiarPSup->setText("Const Object");
+    // sliderLimiarPInf->setMaxValue(100);
+    // sliderLimiarPInf->setMinValue(0);
+    // sliderLimiarPSup->setMaxValue(100);
+    // sliderLimiarPSup->setMinValue(0);
 
-    spinLimiarPInf->setMaxValue(10);
-    spinLimiarPInf->setMinValue(1);
+    // spinLimiarPInf->setMaxValue(100);
+    // spinLimiarPInf->setMinValue(0);
+    //
+    // spinLimiarPSup->setMaxValue(100);
+    // spinLimiarPSup->setMinValue(0);
 
-    spinLimiarPSup->setMaxValue(10);
-    spinLimiarPSup->setMinValue(1);
+    // sliderLimiarPSup->setValue(X.getConstObject());//usado para alterar const object
+    // sliderLimiarPInf->setValue(X.getConstField());
 
-    sliderLimiarPSup->setValue(X.getConstObject());//usado para alterar const object
-    sliderLimiarPInf->setValue(X.getConstField());
-
-    X.setPinf(0);
-    X.setPsup(100);
+    // X.setPinf(0);
+    // X.setPsup(100);
 
     // std::cerr << "const object: "<<X.getConstObject() << '\n';
     // std::cerr << "const Field: "<<X.getConstField() << '\n';
@@ -220,16 +220,14 @@ void calibrador::init()
     connect( Timer, SIGNAL(timeout()), this, SLOT(processarImagem()) );
     //connect( Timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
     Timer->start(200,false);
-
-
 }
 
 bool calibrador::carregaInterface(){
 
     QString ColorName;
     for(unsigned i=0; i < X.getNumCores(); i++){
-	ColorName = X.getNomeCor(i);
-	comboCores->insertItem(ColorName);
+    	ColorName = X.getNomeCor(i);
+    	comboCores->insertItem(ColorName);
    }
     sliderUOffset->setMaxValue(X.getCamWidth() - (pixmap_label1->size()).width());
     sliderVOffset->setMaxValue(X.getCamHeight() - (pixmap_label1->size()).height());
@@ -361,9 +359,9 @@ void calibrador::sliderLimiarPInfValueChanged( int valor )
   	if(valor >= sliderLimiarPSup->value() )
   	    sliderLimiarPSup->setValue(valor+1);
   	spinLimiarPInf->setValue(valor);
-  	// X.setPinf(valor);
+  	X.setPinf(valor);
 
-    X.setConstField(valor);
+    // X.setConstField(valor);
   	//novosLimites = true;
   }
 }
@@ -375,9 +373,9 @@ void calibrador::spinLimiarPInfValueChanged( int valor )
 	    spinLimiarPSup->setValue(valor+1);
 	}
 	sliderLimiarPInf->setValue(valor);
-	// X.setPinf(valor);
+	X.setPinf(valor);
 
-  X.setConstField(valor);
+  // X.setConstField(valor);
 	//spinLimiarPSup->setMinValue(valor);
 	//novosLimites = true;
     }
@@ -390,7 +388,8 @@ void calibrador::sliderLimiarPSupValueChanged( int valor )
 	    sliderLimiarPInf->setValue(valor-1);
 	}
 	spinLimiarPSup->setValue(valor);
-	X.setConstObject(valor);
+	// X.setConstObject(valor);
+  X.setPsup(valor);
 	//novosLimites = true;
     }
 }
@@ -402,7 +401,8 @@ void calibrador::spinLimiarPSupValueChanged( int valor )
   	    spinLimiarPInf->setValue(valor-1);
   	}
     sliderLimiarPSup->setValue(valor);
-    X.setConstObject(valor);
+    // X.setConstObject(valor);
+    X.setPsup(valor);
   }
 }
 
@@ -600,8 +600,8 @@ void calibrador::PMaxValueChanged(int valor)
 	//novosLimites = true;
     }
     if(valor != sliderHGP_Pmax->value() ){
-	sliderHGP_Pmax->setValue(valor);
-	X.setPmax(comboCores->currentItem(),valor);
+  	sliderHGP_Pmax->setValue(valor);
+  	X.setPmax(comboCores->currentItem(),valor);
 	//novosLimites = true;
     }
 }
@@ -722,6 +722,9 @@ void calibrador::atualizarLimitesP()
 {
     spinLimiarPInf->setValue(X.getPinf());
     spinLimiarPSup->setValue(X.getPsup());
+    // spinLimiarPInf->setValue(X.getConstField());
+    // spinLimiarPSup->setValue(X.getConstObject());
+
 }
 
 
@@ -763,7 +766,9 @@ void calibrador::mostrarTela1()
       QMessageBox msg;
       msg.setText("Captura da imagem media realizada");
       msg.exec();
+    }
 
+    if(X.campoVazioCapturado()){
       pushAvancarTela1->setEnabled(true);
       pushAvancarTela1->setText("Next");
       checkExibirImagemProcessada->setEnabled(true);

@@ -1080,14 +1080,22 @@ PxRGB ImagemBruta::atRGB(unsigned lin,unsigned col)const{
       exit(1);
   }
 }
-uint8_t ImagemBruta::getByte(unsigned lin, unsigned col)const{
+// PxBruto ImagemBruta::atByte(unsigned lin, unsigned col)const
+uint8_t ImagemBruta::atByte(unsigned lin, unsigned col)const
+{
   if (lin >= height || col >= width) {
     std::cerr << "Imagem Erro: endereco invalida" << '\n';
     exit(1);
   }
   unsigned pos = lin*width + col;
   pos = (pxFormat == GBRG)?pos:2*pos;
-  return imgData[pos];
+  return  imgData[pos];
+  // PxBruto pxTemp;
+  // pxTemp.b1 = imgData[pos];
+  //  //byte2 contem o mesmo valor de b1 caso pxFormat == GBRG
+  //  //e caso seja YUYV, o b2 ira conter o valor de U ou de V
+  // pxTemp.b2 = (pxFormat == GBRG)?imgData[pos]:imgData[pos+1];
+  // return pxTemp;
 }
 uint8_t ImagemBruta::atByte(unsigned pos)const{
   if(pos >= this->length){
