@@ -220,12 +220,12 @@ enum PIXEL_FORMAT{
 //Bruta, para a mesma resolução de imagem.
 //A YUYV possui duas vezes o tamanho do GBRG para a mesma resolução
 
-struct PxBruto{
-  //para  GBRG => b1 = byte, da posicao i,j (coordenada na imagem RGB)
-  //para  YUYV => b1 = Y, b2 = U ou V, da posicao i,j (coordenada na imagem RGB)
-  uint8_t b1;
-  uint8_t b2;
-};
+// struct PxBruto{
+//   //para  GBRG => b1 = byte, da posicao i,j (coordenada na imagem RGB)
+//   //para  YUYV => b1 = Y, b2 = U ou V, da posicao i,j (coordenada na imagem RGB)
+//   uint8_t b1;
+//   uint8_t b2;
+// };
 
 class ImagemBruta{
 private:

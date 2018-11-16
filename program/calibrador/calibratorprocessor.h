@@ -101,7 +101,7 @@ public Camera
   void calImgMedia(unsigned num);
   inline bool campoVazioCapturado(){return campoVazio_capturado;}
 
-  inline bool isCalculating(){ return calculating; }
+  // inline bool isCalculating(){ return calculating; }
 
   bool loadImage(const char* arq);
   void saveImage(const char* arq);

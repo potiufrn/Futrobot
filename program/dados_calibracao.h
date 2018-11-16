@@ -62,6 +62,7 @@ struct PARAMETROS_CALIBRACAO{
   //Esses valores sao ajustados no calibrador(via sliders)
   float const_Field;
   float const_Object;
+  // float numDesvios; //Numeros de desvios padroes para se considerar campo
 
 
   unsigned nPontosNotaveis;

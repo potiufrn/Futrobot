@@ -37,8 +37,8 @@ CalibratorProcessor::CalibratorProcessor() :
   offset_u(0),
   offset_v(0),
   true_color(false),
-  campoVazio_capturado(false),
-  // calculating(false)
+  // calculating(false),
+  campoVazio_capturado(false)
 {
   //nada
 }
@@ -64,8 +64,8 @@ CalibratorProcessor::CalibratorProcessor(const char* arquivo) :
   offset_u(0),
   offset_v(0),
   true_color(false),
-  campoVazio_capturado(false),
-  // calculating(false)
+  // calculating(false),
+  campoVazio_capturado(false)
 {
   calibracaoParam.limiarPSup = 100;
   calibracaoParam.limiarPInf = 0;
@@ -271,12 +271,6 @@ bool CalibratorProcessor::processImage(){
   case CALIBRATOR_IMAGEM_REAL:
     //TODO a ideia deste modo eh utilizar os sliders da GUI para selecionar a
     // regiao da imagem que sera processada, ou seja, um corte da imagem via software
-    // for(i = 0; i < ImProcessada.getHeight(); i++){
-    //   for(j = 0; j < ImProcessada.getWidth(); j++){
-    //     // ImProcessada[i][j] = ImBruta[offset_v + i][offset_u + j];
-    //     ImProcessada.atRGB(i,j) = ImBruta.atRGB(offset_v + i, offset_u + j);
-    //   }
-    // }
     //WARNING esse modo esta incompleto, pois nao esta habilitado a
     //funcao de corte da imagem
     ImProcessada = ImBruta;
@@ -293,7 +287,6 @@ bool CalibratorProcessor::processImage(){
     break;
   case CALIBRATOR_PONTOS:
     //desenha os pontos
-    // ImProcessada = ImBruta;
     if(campoVazio_capturado)
       ImProcessada = calibracaoParam.campoVazio;
     else
@@ -406,47 +399,6 @@ bool CalibratorProcessor::processImage(){
             ImProcessada[i][j] = PxBranco;
           else
             ImProcessada[i][j] = PxPreto;
-
-            // Area de teste
-            // ImProcessada[240-60-1][320-80-1] = PxRGB(255,0,0);
-            // ImProcessada[240-60][320-80] = PxRGB(255,0,0);
-            // ImProcessada[240-60+1][320-80+1] = PxRGB(255,0,0);
-            //
-            // ImProcessada[240+50-1][320+50-1] = PxRGB(255,0,0);
-            // ImProcessada[240+50][320+50] = PxRGB(255,0,0);
-            // ImProcessada[240+50+1][320+50+1] = PxRGB(255,0,0);
-            //
-            // std::ofstream desvios_arq("desvios.teste");
-            // std::ofstream medias_arq("medias.teste");
-            // std::ofstream resultados_arq("resultados.teste");
-            // std::ofstream imagem_y_arq("imagem_GBRG.teste");
-            // std::cout << "Constantes" << '\n';
-            // std::cout << "Const object:\t"<<calibracaoParam.const_Object << '\n';
-            // std::cout << "Const Field:\t"<<calibracaoParam.const_Field << '\n';
-            //
-            // for(unsigned i = 240-50; i < 240+50; i++){
-            //   for(unsigned j = 320-50; j < 320+50; j++){
-            //     desvios_arq << (int)calibracaoParam.desvioPadrao[2*(i*ImBruta.getWidth() + j)] << ' ';
-            //     medias_arq << (int)calibracaoParam.campoVazio.atByte(i,j).b1 << ' ';
-            //     resultados_arq << calibracaoParam.isDiff(i,j, ImBruta.atByte(i,j)) << ' ';
-            //     imagem_y_arq << (int)ImBruta.atByte(i,j).b1 << ' ';
-            //   }
-            //   desvios_arq << '\n';
-            //   medias_arq << '\n';
-            //   resultados_arq << '\n';
-            //   imagem_y_arq << '\n';
-            // }
-            // desvios_arq.close();
-            // medias_arq.close();
-            // resultados_arq.close();
-            // imagem_y_arq.close();
-            //
-            // ImProcessada[240-50][320-50] = PxRGB(255,0,0);
-            // ImProcessada[240+50][320+50] = PxRGB(255,0,0);
-            // ImProcessada.save("imagem_teste.ppm");
-            //
-            // exit(1);
-            // FIM DA AREA DE TESTE
         }
 
       }
@@ -460,17 +412,9 @@ bool CalibratorProcessor::processImage(){
           if(cor_pixel == corAtual){
             ImProcessada[i][j] = ImBruta.atRGB(i + offset_v, j + offset_u);
           }else{
-            // ImProcessada[i][j] = coresInversas[corAtual];
-            ImProcessada[i][j] = PxPreto;
+            ImProcessada[i][j] = coresInversas[corAtual];
+            // ImProcessada[i][j] = PxPreto;
           }
-
-          // ImBruta.atHPG(i,j,H,P,G);
-          // if(  calibracaoParam.isColor(H,P,G,corAtual) ){
-          //   ImProcessada[i][j] = ImBruta.atRGB(i, j);
-          // }else{
-          //   ImProcessada[i][j] = PxPreto;
-          // }
-
 
       }
     }
@@ -486,15 +430,7 @@ bool CalibratorProcessor::processImage(){
 void CalibratorProcessor::getPxValor(int x, int y,
 				     int &R, int &G1, int &B,
 				     int &H, int &P, int &G2){
-  /*O PROBLEMA ESTA AQUI!
 
-    Por algum motivo ao acessar a ImProcessada para ler os valores e
-    setar na interface, é gerado um segmentation fault. Provavelmente
-    devido ao acesso a mesma variavel por threads diferentes.
-   */
-  // R = (int)round((ImProcessada.atRGB(y,x).r/255.0)*100.0);
-  // G1 = (int)round((ImProcessada.atRGB(y,x).g/255.0)*100.0);
-  // B = (int)round((ImProcessada.atRGB(y,x).b/255.0)*100.0);
   float myH,myP,myG;
   R = (int)round((ImProcessada[y][x].r/255.0)*100.0);
   G1 = (int)round((ImProcessada[y][x].g/255.0)*100.0);
@@ -558,9 +494,6 @@ void CalibratorProcessor::calImgMedia(unsigned numAmostras){
 
   waitforimage();
 
-  // if(calibracaoParam.desvioPadrao != NULL)
-  //   delete[] calibracaoParam.desvioPadrao;
-  // calibracaoParam.desvioPadrao = new uint8_t[length];
 
   //copia para formatar as imagens de Desvio e Media para
   //a mesma config. de dimensões e formato da camera que esta sendo trabalhada
@@ -588,7 +521,6 @@ void CalibratorProcessor::calImgMedia(unsigned numAmostras){
   for(unsigned pos = 0; pos < length; pos++){
     calibracaoParam.campoVazio.atByte(pos) = ceil(sum1[pos]/numAmostras);
     var = (sum2[pos] - (1.0/numAmostras)*(double)sum1[pos]*sum1[pos])/(numAmostras-1.0);
-    // calibracaoParam.desvioPadrao[pos] = ceil(sqrt(var));
     calibracaoParam.desvioPadrao.atByte(pos) = ceil(sqrt(var));
   }
 
