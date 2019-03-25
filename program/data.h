@@ -68,17 +68,6 @@ struct CONFIG {
   POS_BOLA ball;
   POS_BOLA future_ball;
   VELOCITY vel_ball;
-  /*
-  inline bool ballUndef() const {
-    return(ball.x() == POSITION_UNDEFINED || ball.y() == POSITION_UNDEFINED);
-  }
-  inline bool meUndef(unsigned i) const {
-    return(me[i].x() == POSITION_UNDEFINED || me[i].y() == POSITION_UNDEFINED);
-  }
-  inline bool opUndef(unsigned i) const {
-    return(op[i].x() == POSITION_UNDEFINED || op[i].y() == POSITION_UNDEFINED);
-  }
-  */
 };
 
 // Posições de referência
@@ -104,10 +93,14 @@ struct TPWM_WHEEL{
   }
 };
 
+
 struct PWM_ROBOTS {
   TPWM_WHEEL me;
 };
 
+/**
+ * Variaveis necessarias para a simulacao
+ */
 enum GAME_STATE {
   FINISH_STATE,   //0
   PAUSE_STATE,    //1
@@ -119,13 +112,17 @@ enum GAME_STATE {
   CELEBRATION_STATE,     //7
   PLAY_STATE //8
 };
-
 //Variaveis necessarias para a simulacao
 
-// O contador de quadros (para sincronizacao)
+
+/**
+ * O contador de quadros (para sincronizacao)
+ */
 typedef long unsigned IDQUADRO;
 
-//Dado utilizado para comunicacao com o simulador
+/**
+ * Dado utilizado para comunicacao com o simulador
+ */
 struct POSICAO {
   TPOS_ROBO azul;
   TPOS_ROBO amrl;
@@ -230,7 +227,6 @@ struct PACKAGEDAT {
 
 
   GAME_STATE game;
-  //  SIDE ret_side;
 
   /*sentido interface -> FutRobot*/
   //Vantagem
