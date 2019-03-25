@@ -1026,181 +1026,7 @@ bool Acquisition::processGameState()
   }
 
 
-
   //############################################################
-
-
-
-
-
-
-  // //  cout << "\tOK" << endl;
-
-  // double ang = 0.0;
-  // int index = 0;
-  // double dist, min_dist;
-
-  // //cout << "Procura por auxiliares para os rotulos azuis." << endl;
-  // //Procura por auxiliares para os rotulos azuis.
-  // for(i = 0; i < nRegBlue; i++) {
-  //   regAuxBlue[i].colorID = REG_COLOR_UNDEFINED;
-  //   min_dist = MAX_RADIUS*10;
-  //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
-  //     u = (int)round(regBlue[i].center.u() + RADIUS*cos(ang));
-  //     v = (int)round(regBlue[i].center.v() + RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.getWidth() &&
-  // 	 v >= 0 && v < (int)ImBruta.getHeight()){
-
-  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBruta[v][u]);
-  // 	//ImBruta[v][u].setRGB(1.0,1.0,1.0);
-
-  // 	if( colorID != REG_COLOR_YELLOW &&
-  // 	    colorID != REG_COLOR_BLUE &&
-  // 	    colorID != REG_COLOR_ORANGE &&
-  // 	    colorID != REG_COLOR_BLACK &&
-  // 	    colorID != REG_COLOR_WHITE &&
-  // 	    colorID != REG_COLOR_UNDEFINED){
-  // 	  region = seedFill(colorID,u,v);
-  // 	  if ( region.nPixel >= MIN_PIXELS ){
-  // 	    dist = euclid(regBlue[i].center - region.center);
-  // 	    if(dist < min_dist){
-  // 	      regAuxBlue[i] = region;
-  // 	      min_dist = dist;
-  // 	    }
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
-  // //  cout << "\tOK" << endl;
-
-
-  // //  cout << "Procura por auxiliares para os rotulos amarelos." << endl;
-  // //Procura por auxiliares para os rotulos amarelos.
-  // for(i = 0; i < nRegYellow; i++){
-  //   regAuxYellow[i].colorID = REG_COLOR_UNDEFINED;
-  //   min_dist = MAX_RADIUS*10;
-  //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
-  //     u = (int)round(regYellow[i].center.u())
-  // 	+ (int)round(RADIUS*cos(ang));
-  //     v = (int)round(regYellow[i].center.v())
-  // 	+ (int)round(RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.getWidth() &&
-  // 	 v >= 0 && v < (int)ImBruta.getHeight()){
-
-  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBruta[v][u]);
-
-  // 	if( colorID != REG_COLOR_YELLOW &&
-  // 	    colorID != REG_COLOR_BLUE &&
-  // 	    colorID != REG_COLOR_ORANGE &&
-  // 	    colorID != REG_COLOR_BLACK &&
-  // 	    colorID != REG_COLOR_WHITE &&
-  // 	    colorID != REG_COLOR_UNDEFINED) {
-  // 	  region = seedFill(colorID,u,v);
-  // 	  if ( region.nPixel >= MIN_PIXELS ) {
-  // 	    dist = euclid(regYellow[i].center - region.center);
-  // 	    if(dist < min_dist){
-  // 	      regAuxYellow[i] = region;
-  // 	      min_dist = dist;
-  // 	    }
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
-  // //  cout << "\tOK" << endl;
-
-  // for(i = 0; i < nRegBlue; i++){
-  //   switch(regAuxBlue[i].colorID){
-  //   case REG_COLOR_CIAN:
-  //     index = 0;
-  //     break;
-  //   case REG_COLOR_PINK:
-  //     index = 1;
-  //     break;
-  //   case REG_COLOR_GREEN:
-  //     index = 2;
-  //     break;
-  //   default:
-  //     //cerr<<"Nao encontrou cor auxiliar valida para um rotulo azul!\n";
-  //     index = -1;
-  //     break;
-  //   }
-  //   if(index >= 0 && index <=2){
-  //     regBlue[i].center = (RDistortion.corrigir(regBlue[i].center))/Homography;
-  //     if(isnan(regBlue[i].center.x()) ||
-  // 	 isnan(regBlue[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-  //     regAuxBlue[i].center = (RDistortion.corrigir(regAuxBlue[i].center))/Homography;
-  //     if(isnan(regAuxBlue[i].center.x()) ||
-  // 	 isnan(regAuxBlue[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-  //     if(isnan(regBlue[i].center.x()) ||
-  // 	 isnan(regBlue[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!!"<<endl;
-  //     }
-
-  //     blueTeam[index].x() = (regBlue[i].center.x() +
-  // 			     regAuxBlue[i].center.x())/2.0;
-  //     blueTeam[index].y() = (regBlue[i].center.y() +
-  // 			     regAuxBlue[i].center.y())/2.0;
-  //     blueTeam[index].theta() = arc_tang( (regBlue[i].center.y() -
-  // 					   regAuxBlue[i].center.y()),
-  // 					  (regBlue[i].center.x() -
-  // 					   regAuxBlue[i].center.x()) );
-  //   }
-  // }
-
-  // for(i = 0; i < nRegYellow; i++){
-  //   switch(regAuxYellow[i].colorID){
-  //   case REG_COLOR_CIAN:
-  //     index = 0;
-  //     break;
-  //   case REG_COLOR_PINK:
-  //     index = 1;
-  //     break;
-  //   case REG_COLOR_GREEN:
-  //     index = 2;
-  //     break;
-  //   default:
-  //     index = -1;
-  //     //cerr<<"Nao encontrou cor auxiliar valida para um rotulo amarelo!\n";
-  //     break;
-  //   }
-  //   if(index >= 0 && index <=2){
-  //     regYellow[i].center = (RDistortion.corrigir(regYellow[i].center))/Homography;
-  //     if(isnan(regYellow[i].center.x()) ||
-  // 	 isnan(regYellow[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-  //     regAuxYellow[i].center = (RDistortion.corrigir(regAuxYellow[i].center))/Homography;
-  //     if(isnan(regAuxYellow[i].center.x()) ||
-  // 	 isnan(regAuxYellow[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-
-  //     yellowTeam[index].x() = (regYellow[i].center.x() +
-  // 			       regAuxYellow[i].center.x())/2.0;
-  //     yellowTeam[index].y() = (regYellow[i].center.y() +
-  // 			       regAuxYellow[i].center.y())/2.0;
-  //     yellowTeam[index].theta() = arc_tang( (regYellow[i].center.y() -
-  // 					     regAuxYellow[i].center.y()),
-  // 					    (regYellow[i].center.x() -
-  // 					     regAuxYellow[i].center.x()) );
-  //   }
-  // }
-
-  //  cout << "Calcula centro da bola" << endl;
   if(nRegOrange > 0) {
     regOrange.center = (RDistortion.corrigir(regOrange.center))/Homography;
     if(isnan(regOrange.center.x()) ||
@@ -1214,69 +1040,6 @@ bool Acquisition::processGameState()
 
   }
 
-  //  cout << "\tOK" << endl;
-  //  cout << "Atribui valores as variaveis de FutData" << endl;
-
-  // if(myTeam() == BLUE_TEAM){
-  //   for(i = 0; i < 3; i++){
-  //     pos.me[i] = blueTeam[i];
-  //     pos.op[i] = yellowTeam[i];
-  //   }
-  // }else{
-  //   for(i = 0; i < 3; i++){
-  //     pos.me[i] = yellowTeam[i];
-  //     pos.op[i] = blueTeam[i];
-  //   }
-  // }
-
-  //   if(pos.me[0].x() == POSITION_UNDEFINED ||
-  //      pos.me[1].x() == POSITION_UNDEFINED ||
-  //      pos.me[2].x() == POSITION_UNDEFINED){
-  //     saveNextImage = true;
-  //   }
-
-  //for(int i = 0; i < 3; i++){
-  //    cout << "X["<<i<<"]"<<"= "<<pos.me[i].x()<<endl;
-  //  cout << "Y["<<i<<"]"<<"= "<<pos.me[i].y()<<endl;
-  //  cout << "Th["<<i<<"]"<<"= "<<pos.me[i].theta()<<endl;
-  //}
-  //cout << "\tOK" << endl;
-  /*
-    cout << "Regioes auxiliares encontradas:\n";
-    cout << "Ciano: "<< nRegCian << endl;
-    cout << "Rosa: "<< nRegPink << endl;
-    cout << "Verde: "<< nRegGreen << endl;
-
-    cout << "\tFinalizando processGameState..." << endl;
-  */
-
-  /*
-    if(nRegBlue != 3 || nRegYellow != 3 || nRegOrange != 1 ||
-    nRegCian != 2 || nRegPink != 2 || nRegGreen != 2){
-    cout << "Azul: "<< nRegBlue << endl;
-    cout << "Amarelo: "<< nRegYellow << endl;
-    cout << "Orange: "<< nRegOrange << endl;
-    cout << "Ciano: "<< nRegCian << endl;
-    cout << "Rosa: "<< nRegPink << endl;
-    cout << "Verde: "<< nRegGreen << endl;
-    cout << "numQuadros: "<< numQuadros << endl;
-    image.save("acquisition_error.pnm");
-    return true;
-    }
-  */
-
-  /*
-      numQuadros++;
-      if(numQuadros >= 200){
-      for(int i=0;i<200;i++){
-      for(int j=0;j<7;j++){
-      cout <<"["<<i<<","<<j<<"]"<<":\t"<<tempos[i][j].tv_sec<<"\t"<<tempos[i][j].tv_usec<<endl;
-      }
-      cout<<endl;
-      }
-      return true;
-      }
-  */
 
   if(saveNextImage){
     cout << "Regioes encontradas:\n";
@@ -1303,7 +1066,6 @@ bool Acquisition::processGameState()
 
     cout << "Laranja " << regOrange << endl;
     ImagemRGB(ImBruta).save("img_salva.ppm");
-    // ImBruta.save("img_salva.ppm");
     saveNextImage = false;
   }
 
@@ -1369,7 +1131,7 @@ bool Acquisition::readGameState()
     printf("Nao ha o que imprimir no modo simulado.\n");
     saveNextImage = false;
   }
-
+  
   return false;
 }
 

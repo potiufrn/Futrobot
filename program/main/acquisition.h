@@ -12,6 +12,7 @@
 #include "../dados_calibracao.h"
 #endif
 
+
 enum REG_COLOR {
   REG_COLOR_ORANGE =0,
   REG_COLOR_BLUE   =1,
@@ -35,13 +36,13 @@ struct REGION{
   int nPixel;
 };
 
-/* struct WIDEREGION{ */
-/*   Coord3 pose;  */
-/*   REG_COLOR colorID; */
-/*   int nPixel; */
-/*   bool symetric; */
-/* }; */
-
+/**
+ * [canBePainted description]
+ * @param  colorID [description]
+ * @param  u       [description]
+ * @param  v       [description]
+ * @return         [description]
+ */
 class Acquisition :
   public virtual FutData
 #ifndef _SO_SIMULADO_
@@ -50,7 +51,6 @@ class Acquisition :
 {
 private:
 #ifndef _SO_SIMULADO_
-  // Imagem image;
   Homografia Homography;
   DistRadial RDistortion;
   unsigned int MinU, MaxU, MinV, MaxV;
@@ -64,23 +64,79 @@ private:
   REGION seedFill( REG_COLOR colorID, unsigned int u, unsigned int v);
   bool processGameState();
 #endif
+  /*************************************************************************************
+   * Interpeta o estado atual do jogo apartir da leitura via socket                    *
+   * @return [true em caso de erro]                                                    *
+   *************************************************************************************/
   bool readGameState();
+  /**
+   * [calculaMinhaPose description]
+   * @param  regTeam     [description]
+   * @param  angBusca    [description]
+   * @param  angCorrecao [description]
+   * @param  index       [description]
+   * @param  teamPose    [description]
+   * @return             [description]
+   */
   bool calculaMinhaPose(REGION regTeam, double angBusca,
 			double angCorrecao,int &index, POS_ROBO &teamPose);
+  /**
+   * [calculaMinhaPoseAproximada description]
+   * @param  regTeam     [description]
+   * @param  angCorrecao [description]
+   * @param  index       [description]
+   * @param  teamPose    [description]
+   * @return             [description]
+   */
   bool calculaMinhaPoseAproximada(REGION regTeam,double angCorrecao,
 				  int &index, POS_ROBO &teamPose);
+  /**
+   * [calculaPoseAdv description]
+   * @param  regTeam   [description]
+   * @param  index     [description]
+   * @param  teamPose  [description]
+   * @param  corrX     [description]
+   * @param  corrY     [description]
+   * @param  corrTheta [description]
+   * @return           [description]
+   */
   bool calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
 			     double corrX, double corrY, double corrTheta);
 
 public:
+  /**
+   * [Acquisition description]
+   * @param team [description]
+   * @param side [description]
+   * @param mode [description]
+   */
   Acquisition( TEAM team, SIDE side, GAME_MODE mode);
   ~Acquisition();
+  /**
+   * [configAcquisition description]
+   * @param  str [description]
+   * @return     [description]
+   */
   bool configAcquisition(const char *str);
+  /**
+   * [acquisitionWait description]
+   * @return [description]
+   */
   bool acquisitionWait();
+  /**
+   * [acquisitionCapture description]
+   * @return [description]
+   */
   bool acquisitionCapture();
+  /**
+   * [acquisition description]
+   * @return [description]
+   */
   bool acquisition();
+  /**
+   * [save_image description]
+   */
   void save_image();
-  //  const PxRGB *exptimg () {return (ImBruta.getRawData());};
 };
 
 #endif
