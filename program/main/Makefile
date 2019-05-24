@@ -3,7 +3,7 @@ BASEDIR = ../..
 
 CC = g++
 CXX = g++
-CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include 
+CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 
@@ -14,7 +14,7 @@ LDLIBS = -lcamera -limagem -lotim -lmatrix -lpthread -lssocket -lbluetoothAction
 #LDLIBS = -lmatrix -lpthread -lssocket
 
 FILES = futdata.o acquisition.o localization.o strategy.o obstacles.o	\
-control.o transmission.o futrobot.o main.o export.o
+control.o transmission.o export.o futrobot.o main.o
 
 all: main
 
@@ -38,14 +38,14 @@ futdata.o: futdata.h futdata.cpp
 
 futrobot.o: futrobot.h futrobot.cpp
 
+export.o:	export.h	export.cpp
+
 ##### SPECIAL TARGETS ######
 
-.PHONY: clean realclean 
+.PHONY: clean realclean
 
 clean:
-	-rm -f *.o *~ 
+	-rm -f *.o *~
 
 realclean: clean
 	-rm -f main
-
-

@@ -50,7 +50,7 @@ class Acquisition :
 {
 private:
 #ifndef _SO_SIMULADO_
-  // ImagemRGB image;
+  // Imagem image;
   Homografia Homography;
   DistRadial RDistortion;
   unsigned int MinU, MaxU, MinV, MaxV;

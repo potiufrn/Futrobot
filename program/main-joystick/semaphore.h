@@ -30,7 +30,7 @@ struct sembuf {
   short sem_op;
   short sem_flg;
 };
-*/  
+*/
 
 class Semaphore {
   int semid;
@@ -48,21 +48,21 @@ public virtual FutData{
  private:
   Semaphore sem;
   // Semaphore * sem_exp;
-  ImagemRGB * img_exp;
+  Imagem * img_exp;
   PACKAGEDAT * pac_exp;
 
   bool config;
 
-  ImagemRGB * src_img;
+  Imagem * src_img;
   PAPEIS * src_pap;
   double * tempor[9];
   PACKAGEDAT pac;
  protected:
-  bool getpointers (ImagemRGB * ptimg, PAPEIS * ptpap);
+  bool getpointers (Imagem * ptimg, PAPEIS * ptpap);
   bool getempt(double *a, double *b, double *c, double *d, double *e,
 		       double *f, double *g, double *h, double *i);
  public:
-  bool configexport (PACKAGEDAT * p, ImagemRGB * i);
+  bool configexport (PACKAGEDAT * p, Imagem * i);
   Export(TEAM team, SIDE side, GAME_MODE mode);
   ~Export();
   bool exxport();

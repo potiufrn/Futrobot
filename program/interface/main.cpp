@@ -11,7 +11,7 @@ using namespace::std;
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+    
     int idTeam;// idSide;
     //idTeam e side receberam valores que indicam cor do time e lado do jogo
     //        idTeam         idSide

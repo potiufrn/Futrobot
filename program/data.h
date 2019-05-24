@@ -68,17 +68,6 @@ struct CONFIG {
   POS_BOLA ball;
   POS_BOLA future_ball;
   VELOCITY vel_ball;
-  /*
-  inline bool ballUndef() const {
-    return(ball.x() == POSITION_UNDEFINED || ball.y() == POSITION_UNDEFINED);
-  }
-  inline bool meUndef(unsigned i) const {
-    return(me[i].x() == POSITION_UNDEFINED || me[i].y() == POSITION_UNDEFINED);
-  }
-  inline bool opUndef(unsigned i) const {
-    return(op[i].x() == POSITION_UNDEFINED || op[i].y() == POSITION_UNDEFINED);
-  }
-  */
 };
 
 // Posições de referência
@@ -104,10 +93,14 @@ struct TPWM_WHEEL{
   }
 };
 
+
 struct PWM_ROBOTS {
   TPWM_WHEEL me;
 };
 
+/**
+ * Variaveis necessarias para a simulacao
+ */
 enum GAME_STATE {
   FINISH_STATE,   //0
   PAUSE_STATE,    //1
@@ -119,13 +112,17 @@ enum GAME_STATE {
   CELEBRATION_STATE,     //7
   PLAY_STATE //8
 };
-
 //Variaveis necessarias para a simulacao
 
-// O contador de quadros (para sincronizacao)
+
+/**
+ * O contador de quadros (para sincronizacao)
+ */
 typedef long unsigned IDQUADRO;
 
-//Dado utilizado para comunicacao com o simulador
+/**
+ * Dado utilizado para comunicacao com o simulador
+ */
 struct POSICAO {
   TPOS_ROBO azul;
   TPOS_ROBO amrl;
@@ -172,18 +169,18 @@ enum ACTION {
   // As acoes que servem para goleiro e com_bola
   ISOLAR_BOLA=21, LADO_AREA=22, IR_BOLA=23, POS_PENALTY1=24, POS_PENALTY2=25,
   // As acoes do goleiro
-  G_DEFENDER=101, G_CENTRO_GOL=102, 
+  G_DEFENDER=101, G_CENTRO_GOL=102,
   // As acoes do jogador com bola
   A_IR_MARCA=201, A_FREE_BALL=202, A_BOLA_CENTRO=203,
   A_DESCOLAR=204, A_POSICIONAR_PARA_DESCOLAR=205,
-  A_POSICIONAR_FRENTE_AREA=206, 
+  A_POSICIONAR_FRENTE_AREA=206,
   A_CONTORNAR=208, A_CONTORNAR_POR_DENTRO=209,
   A_ALINHAR_GOL=210, A_ALINHAR_SEM_ORIENTACAO=211, A_CHUTAR_GOL=212,
   // As acoes do jogador sem bola
   D_NAO_ATRAPALHAR=301,
   // As acoes impossiveis
   IMPOSSIVEL=-1, NAO_DEFINIDO=0
-  
+
 };
 
 struct ROLE_JOGADOR {
@@ -214,21 +211,22 @@ struct REFS {
 /* //ESTRUTURA utilizada na exportacao de dados para interface */
 struct PACKAGEDAT {
   /* sentido FutRobot -> interface */
-  SIDE side; 
-  TEAM team; 
+  SIDE side;
+  TEAM team;
   IDQUADRO id;//FALTA Este
   POSITION pos;
   VELOCITY vel_ball;
   ROLES roles;
-  REFS ref;  
-  PWM_ROBOTS pwm; 
+  REFS ref;
+  PWM_ROBOTS pwm;
   bool block0, block1, block2;
 
-    //Imagem
-  PxRGB imagem[IMAGE_WIDTH][IMAGE_HEIGHT];
- 
+  //Imagem
+  // PxRGB imagem[IMAGE_WIDTH][IMAGE_HEIGHT];
+  // ImagemBruta *imgBruta;
+
+
   GAME_STATE game;
-  //  SIDE ret_side;
 
   /*sentido interface -> FutRobot*/
   //Vantagem

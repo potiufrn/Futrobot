@@ -1,0 +1,10 @@
+*.cam
+*.val
+*.cal
+*.ppm
+*.o
+*.a
+*.txt
+html
+latex
+Doxyfile

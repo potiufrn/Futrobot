@@ -46,12 +46,8 @@ make
 ```
 
 Após essas etapas, você pode fazer a `calibração` do campo com seus objetos ou fazer um jogo. 
-Caso opte em calibração, deve-se verificar se a câmera a ser usada está referenciada corretamente no código do sistema. Caso não, ir em `libsrc/camera/camera.cpp` e substituir na linha 
-```C++
-name= "/dev/video1";  
+Caso opte em calibração, deve-se verificar se a câmera a ser usada está referenciada corretamente.
 ```
-o 1 pela referência adequada: 0, 1, 2... 
-
 ### Calibração e Jogo
 
 Para fazer a calibração, basta executar em `program/calibrador`
@@ -65,5 +61,4 @@ Para fazer um jogo, basta executar em `program/main`
 ```
 ./main
 ```
-
 > Divirta-se!!

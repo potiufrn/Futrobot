@@ -26,8 +26,11 @@ class Futrobot
   public virtual FutData
 {
   pthread_t thr_ger;
-  double t_start, t_end_cap, t_end_acq, 
-    t_end_loc, t_end_str, t_end_obs, 
+  // pthread_t thr_export;
+  // bool export_ready;
+
+  double t_start, t_end_cap, t_end_acq,
+    t_end_loc, t_end_str, t_end_obs,
     t_end_con, t_end_tra, t_end_exp;
 
  public:
@@ -45,8 +48,7 @@ class Futrobot
   //myTeam() -> em futdata.h
   //mySide() -> em futdata.h
   //gameState() -> em futdata.h
-  
-  
+
   //metodos de modificação
   inline void setRef(const REFERENCES &newRef){ FutData::ref = newRef; };
   //setTeam() -> em futdata.h
@@ -56,6 +58,7 @@ class Futrobot
 
   // private:
   //  bool exportdat();
+  friend void* exxport2(void *x);
 };
 
 #endif

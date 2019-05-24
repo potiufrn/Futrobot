@@ -25,7 +25,7 @@ Animacao::Animacao(int n_my_team, QWidget *parent)
     flag_bal_fut(false),
     my_team(n_my_team),
     RDistortion(IMAGE_WIDTH, IMAGE_HEIGHT)
-{ 
+{
     PixPorMet = min((EXB_IMAGE_WIDTH-2*EXB_IMAGE_BORDER)/(FIELD_WIDTH+2*GOAL_WIDTH),
                     (EXB_IMAGE_HEIGHT-2*EXB_IMAGE_BORDER)/(FIELD_HEIGHT));
 
@@ -811,4 +811,3 @@ CoordI2 Animacao::mundo2img(Coord2 P){
     temp.v = (int) round (-PixPorMet*P.y())+centerImg.v;
     return temp;
 }
-

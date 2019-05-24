@@ -1,11 +1,11 @@
 BASEDIR = ..
 
-CC = g++ 
-CXX = g++ 
+CC = g++
+CXX = g++
 CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -L ${BASEDIR}/lib
-LDLIBS = 
+LDLIBS =
 
 PROGRAMS = system.o dados_calibracao.o functions.o
 
@@ -28,10 +28,10 @@ makecalibrador: makeprogram
 makeinterface: makeprogram makemain
 	cd interface && ${MAKE}
 
-makesimple: 
+makesimple:
 	cd simple && ${MAKE}
 
-makesimpleold: 
+makesimpleold:
 	cd simple && ${MAKE} old
 
 system.o: system.h system.cpp
@@ -42,20 +42,18 @@ dados_calibracao.o: dados_calibracao.h dados_calibracao.cpp
 
 ##### SPECIAL TARGETS ######
 
-.PHONY: clean cleanall 
+.PHONY: clean cleanall
 
 clean:
-	-rm -f *.o *~ 
+	-rm -f *.o *~
 	cd main && ${MAKE} clean
 	cd calibrador && ${MAKE} clean
 	cd interface && ${MAKE} clean
 	cd simple && ${MAKE} clean
 
-cleanall: clean
-	cd main && ${MAKE} cleanall
+realclean: clean
+	cd main && ${MAKE} realclean
+	cd calibrador && rm -f calibrador
 	cd calibrador && ${MAKE} clean
 	cd interface && ${MAKE} clean
-	cd simple && ${MAKE} cleanall
-
-
-
+	cd simple && ${MAKE} realclean

@@ -10,15 +10,84 @@ PARAMETROS_CALIBRACAO::PARAMETROS_CALIBRACAO() :
   pontosReais(NULL),
   limiarPInf(0),
   limiarPSup(100),
-  limHPG(NULL)
+  limHPG(NULL),
+  campoVazio(),
+  desvioPadrao(),
+  // desvioPadrao(NULL), //WARNING antes de usar desvioPadrao como ImagemBruta
+  const_Field(0),
+  const_Object(0)
 {
-  
+
 }
 
 PARAMETROS_CALIBRACAO::~PARAMETROS_CALIBRACAO(){
   delete[] pontosImagem;
   delete[] pontosReais;
   delete[] limHPG;
+  // if(desvioPadrao != NULL)delete[] desvioPadrao; //WARNING antes de usar desvioPadrao como ImagemBruta
+}
+//Funcao auxiliar para isDiff, esta funcao verifica se um PxBruto
+//na posicao i,j pode ser considerado campo, em caso afirmativo retorna true
+//ou falso para o caso contrario.
+//Eh verificado se o px esta contido no intervalo media + k1*desvio, se sim,
+//eh considerado parte do campo
+// bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, PxBruto px)
+bool PARAMETROS_CALIBRACAO::isField(unsigned i, unsigned j, uint8_t byte)
+{
+  //Macro para: dado os limites inferior, superior e um valor, retorna true
+  //caso o valor esteja contido dentro desse intervalo
+  #define IN_RANGE(inf, sup, value) (((value) <= (sup) && (value) >= (inf))?true:false)
+
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao[POS(i,j)];
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao[POS(i,j)];
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Field*desvioPadrao.atByte(i,j).b1;
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Field*desvioPadrao.atByte(i,j).b1;
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j) - const_Field*desvioPadrao.atByte(i,j);
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j) + const_Field*desvioPadrao.atByte(i,j);
+
+  return IN_RANGE(infLimit_b1, supLimit_b1, byte);
+}
+//Funcao auxiliar para isDiff, esta funcao verifica se um PxBruto
+//na posicao i,j pode ser considerado objeto(nao campo), em caso afirmativo retorna true
+//ou falso para o caso contrario.
+//Eh verificado se o px esta fora do intervalo media + k2*desvio, se sim,
+//eh considerado parte como nao pertencente ao campo
+// bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, PxBruto px)
+bool PARAMETROS_CALIBRACAO::isObject(unsigned i, unsigned j, uint8_t byte)
+{
+  //dado os limite superior e inferior e um valor, retorna true caso esse valor esteja fora
+  //do intervalo estabelecido por esses limites
+  #define OUT_RANGE(inf, sup, value) (((value) > (sup) || (value) < (inf))?true:false)
+
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao[POS(i,j)];
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao[POS(i,j)];
+  // uint8_t infLimit_b1 = campoVazio.atByte(i,j).b1 - const_Object*desvioPadrao.atByte(i,j).b1;
+  // uint8_t supLimit_b1 = campoVazio.atByte(i,j).b1 + const_Object*desvioPadrao.atByte(i,j).b1;
+  uint8_t infLimit_b1 = campoVazio.atByte(i,j) - const_Object*desvioPadrao.atByte(i,j);
+  uint8_t supLimit_b1 = campoVazio.atByte(i,j) + const_Object*desvioPadrao.atByte(i,j);
+
+  // if(campoVazio.getPxFormat() == YUYV){
+  //   uint8_t infLimit_b2 = campoVazio.atByte(i,j).b2 - const_Object*desvioPadrao[POS(i,j) + 1];
+  //   uint8_t supLimit_b2 = campoVazio.atByte(i,j).b2 + const_Object*desvioPadrao[POS(i,j) + 1];
+  //   return OUT_RANGE(infLimit_b1, supLimit_b1, px.b1) && OUT_RANGE(infLimit_b2, supLimit_b2, px.b2);
+  // }
+
+  return OUT_RANGE(infLimit_b1, supLimit_b1, byte);
+}
+
+//Funcao que verifica se um PxBruto px da posicao i,j eh campo(0), objeto(1) e em caso de
+//inderteminacao retorna -1 (caso em que o px de false para campo e false para objeto)
+// int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, PxBruto px)
+int PARAMETROS_CALIBRACAO::isDiff(unsigned i, unsigned j, uint8_t byte)
+{
+  //eh campo
+  if(isField(i,j, byte))
+    return 0;
+  //eh objeto
+  if(isObject(i,j, byte))
+    return 1;
+  //incerteza
+  return -1;
 }
 
 bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
@@ -43,7 +112,7 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
   else {
     pontos_aux = new Coord2[nPontosNotaveis_aux];
     pontosReais_aux = new Coord2[nPontosNotaveis_aux];
-    
+
     if(fscanf(arq,"Pontos Notaveis (MundoX, MundoY, ImagemX, ImagemY):\n") != 0 ) {
       OK = false;
     }
@@ -54,11 +123,11 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
 		      &pontos_aux[i].X,
 		      &pontos_aux[i].Y) != 4){ OK = false; }
       else{
-	pontosReais_aux[i].X = pontosReais_aux[i].x()/FATOR_CONVERSAO;
-	pontosReais_aux[i].Y = pontosReais_aux[i].y()/FATOR_CONVERSAO;
+        	pontosReais_aux[i].X = pontosReais_aux[i].x()/FATOR_CONVERSAO;
+        	pontosReais_aux[i].Y = pontosReais_aux[i].y()/FATOR_CONVERSAO;
       }
     }
-  
+
 
     if(OK && fscanf(arq,"Limites de P Inferior e Superior:\n") != 0 ){ OK = false; }
     if(OK && fscanf(arq,"%d %d\n",&limiarPInf_aux,&limiarPSup_aux) != 2 ){ OK = false; }
@@ -80,7 +149,7 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
     }
   }
   fclose(arq);
-  
+
   if(!OK) {
     if (pontos_aux != NULL) delete[] pontos_aux;
     if (pontosReais_aux != NULL) delete[] pontosReais_aux;
@@ -91,9 +160,9 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
   nPontosNotaveis = nPontosNotaveis_aux;
   nCores = nCores_aux;
   /*
-    if(pontosImagem != NULL) 
+    if(pontosImagem != NULL)
     delete pontosImagem;
-    if(pontosReais != NULL) 
+    if(pontosReais != NULL)
     delete pontosReais;
   */
   pontosImagem = new Coord2[nPontosNotaveis];
@@ -115,13 +184,17 @@ bool PARAMETROS_CALIBRACAO::read(const char* arquivo)
   if (pontos_aux != NULL) delete[] pontos_aux;
   if (pontosReais_aux != NULL) delete[] pontosReais_aux;
   if (limHPG_aux != NULL) delete[] limHPG_aux;
+
+
+
+
   return false;
 }
-
 bool PARAMETROS_CALIBRACAO::write(const char* arquivo) const{
-  FILE *arq=fopen(arquivo,"w"); 
+
+  FILE *arq=fopen(arquivo,"w");
   if(arq == NULL) return true;
-  
+
   fprintf(arq,"Numero de Pontos: %d\n",nPontosNotaveis);
   fprintf(arq,"Pontos Notaveis (MundoX, MundoY, ImagemX, ImagemY):\n");
   for(unsigned i = 0; i < nPontosNotaveis; i++){
@@ -137,41 +210,218 @@ bool PARAMETROS_CALIBRACAO::write(const char* arquivo) const{
   fprintf(arq,"Limites HPG das Cores\n");
   for(unsigned i = 0; i < nCores; i++){
     fprintf(arq,"%d %d %d %d %d %d\n",
-	    limHPG[i].H.min,		    
-	    limHPG[i].H.max,		    
-	    limHPG[i].P.min,		    
-	    limHPG[i].P.max,		    
-	    limHPG[i].G.min,		    
+	    limHPG[i].H.min,
+	    limHPG[i].H.max,
+	    limHPG[i].P.min,
+	    limHPG[i].P.max,
+	    limHPG[i].G.min,
 	    limHPG[i].G.max);
   }
   fclose(arq);
   return false;
 }
+bool PARAMETROS_CALIBRACAO::read(std::istream &I){
+  unsigned nPontosNotaveis_aux;
+  unsigned nCores_aux;
+  Coord2 *pontos_aux(NULL);
+  Coord2 *pontosReais_aux(NULL);
+  int limiarPInf_aux;
+  int limiarPSup_aux;
+  limitesHPG *limHPG_aux(NULL);
+
+  std::string str;
+  bool OK = true;
+
+  getline(I,str,':');
+  if(str != "Numero de Pontos")return true;
+  I >> nPontosNotaveis_aux;
+
+  pontos_aux = new Coord2[nPontosNotaveis_aux];
+  pontosReais_aux = new Coord2[nPontosNotaveis_aux];
+
+  getline(I,str,':');
+  if(str != "\nPontos Notaveis (MundoX, MundoY, ImagemX, ImagemY)")OK = false;
+
+  for(unsigned i = 0; i < nPontosNotaveis_aux; i++){
+    I >> pontosReais_aux[i].X;
+    I >> pontosReais_aux[i].Y;
+    I >> pontos_aux[i].X;
+    I >> pontos_aux[i].Y;
+
+    pontosReais_aux[i].X = pontosReais_aux[i].x()/FATOR_CONVERSAO;
+  	pontosReais_aux[i].Y = pontosReais_aux[i].y()/FATOR_CONVERSAO;
+  }
+
+  getline(I,str,':');
+  if(OK && str != "\nLimites de P Inferior e Superior")OK = false;
+  I >> limiarPInf_aux >> limiarPSup_aux;
+
+  getline(I,str,':');
+  if(OK && str != "\nNumero de Cores")OK = false;
+  I >> nCores_aux;
+
+  if(OK){
+    limHPG_aux = new limitesHPG[nCores_aux];
+    I.ignore(1,'\n');
+    getline(I,str,'\n');
+    if(OK && str != "Limites HPG das Cores")OK = false;
+    for(unsigned i = 0; i < nCores_aux && OK; i++){
+      I >> limHPG_aux[i].H.min >> limHPG_aux[i].H.max;
+      I >> limHPG_aux[i].P.min >> limHPG_aux[i].P.max;
+      I >> limHPG_aux[i].G.min >> limHPG_aux[i].G.max;
+    }
+  }
+
+  if(!OK) {
+    if (pontos_aux != NULL) delete[] pontos_aux;
+    if (pontosReais_aux != NULL) delete[] pontosReais_aux;
+    if (limHPG_aux != NULL) delete[] limHPG_aux;
+    return true;
+  }
+
+  //leitura dos dados do campo Vazio
+  I.ignore(1,'\n');
+  getline(I,str,'\n');
+  if(str != "Constantes Objeto e Campo")return true;
+  I >> const_Object >> const_Field;
+
+  if(campoVazio.read("../.campoVazio") == false)return true;//falha na leitura da imagem do campo vazio
+    //leitura da matriz de desvio padrao
+  if(desvioPadrao.read("../.desvioPadrao") == false)return true;//falha na leitura da imagem de desvios
+  // WARNING codigo antes de usar o desvioPadrao como ImagemBruta
+  // ifstream desvio("../.desvioPadrao");
+  // unsigned length;
+  //
+  // if(desvio.is_open() == false)return true;
+  // getline(desvio,str,':');
+  // desvio >> length;
+  // if(desvioPadrao != NULL)delete[] desvioPadrao;
+  // desvioPadrao = new uint8_t[length];
+  //
+  // I.ignore(1,'\n');
+  //
+  // char tmp;
+  // for(unsigned i = 0; i < length; i ++){
+  //   desvio.get(tmp);
+  //   desvioPadrao[i] = tmp;
+  // }
+  // if(str != "Length")return true;
+  //
+  // desvio.close();
+  //fim da leitura dos dados do campo vazio
+  nPontosNotaveis = nPontosNotaveis_aux;
+  nCores = nCores_aux;
+
+  pontosImagem = new Coord2[nPontosNotaveis];
+  pontosReais =  new Coord2[nPontosNotaveis];
+  for(unsigned i = 0; i < nPontosNotaveis_aux; i++){
+    pontosImagem[i] = pontos_aux[i];
+    pontosReais[i] = pontosReais_aux[i];
+  }
+  limiarPInf = limiarPInf_aux;
+  limiarPSup = limiarPSup_aux;
+
+  limHPG = new limitesHPG[nCores];
+  for(unsigned i = 0; i < nCores_aux; i++){
+    limHPG[i] = limHPG_aux[i];
+  }
+  if (pontos_aux != NULL) delete[] pontos_aux;
+  if (pontosReais_aux != NULL) delete[] pontosReais_aux;
+  if (limHPG_aux != NULL) delete[] limHPG_aux;
+
+
+
+  return false;
+}
+std::ostream &PARAMETROS_CALIBRACAO::write(std::ostream &O)const{
+
+  O << "Numero de Pontos: " << nPontosNotaveis << '\n';
+  O << "Pontos Notaveis (MundoX, MundoY, ImagemX, ImagemY):\n";
+  for(unsigned i = 0; i < nPontosNotaveis; i++){
+    O << (int)(pontosReais[i].x()*FATOR_CONVERSAO) << ' '
+      << (int)(pontosReais[i].y()*FATOR_CONVERSAO) << ' '
+      << (int)pontosImagem[i].u()  << ' '
+      << (int)pontosImagem[i].v() << '\n';
+  }
+
+  O << "Limites de P Inferior e Superior:\n";
+  O << limiarPInf << ' ' << limiarPSup << '\n';
+  O << "Numero de Cores: "<< nCores << '\n';
+  O << "Limites HPG das Cores\n";
+
+  for(unsigned i = 0; i < nCores; i++){
+    O << limHPG[i].H.min << ' '
+      << limHPG[i].H.max << ' '
+      << limHPG[i].P.min << ' '
+      << limHPG[i].P.max << ' '
+      << limHPG[i].G.min << ' '
+      << limHPG[i].G.max << '\n';
+  }
+  campoVazio.write("../.campoVazio");
+  // dados referentes ao campo Vazio.
+  desvioPadrao.write("../.desvioPadrao");
+  //WARNING antes de altear desvioPadrao para ser uma ImagemBruta
+  // ofstream desvio("../.desvioPadrao");
+  // unsigned length = campoVazio.getLength();
+  // desvio << "Length: "<<length<<'\n';
+  // for(unsigned i = 0; i < campoVazio.getLength(); i++)
+  //   desvio << desvioPadrao[i];
+  // desvio.close();
+
+  O << "Constantes Objeto e Campo"<< '\n';
+  O << const_Object <<'\t'<< const_Field;
+
+  return O;
+}
+
+bool PARAMETROS_CALIBRACAO::isColor(const float H,const float P, const float G, int color) const{
+  bool H_OK = true;
+
+  int iH = (int)round((H/M_PI)*180.0),
+      iP = (int)round(P*100.0),
+      iG = (int)round(G*100.0);
+
+  //Caso em que Hmin <= Hmax
+  if( limHPG[color].H.min <= limHPG[color].H.max )
+    H_OK  =  (iH >= limHPG[color].H.min && iH <= limHPG[color].H.max);//testa se esta dentro da faixa
+  else//Caso em que Hmin > Hmax
+    H_OK  =  (iH >= limHPG[color].H.min || iH <= limHPG[color].H.max);
+
+  if(H_OK &&
+     iP >= limHPG[color].P.min && iP <= limHPG[color].P.max &&
+     iG >= limHPG[color].G.min && iG <= limHPG[color].G.max){
+    return true;
+  }
+  return false;
+}
 
 //retorna a cor da qual o pixel do parametro percente. Usa somente os
 //limiares dos componentes HPG para definir a cor do pixel.
-int PARAMETROS_CALIBRACAO::getHardColor(const PxRGB &p) const
+int PARAMETROS_CALIBRACAO::getHardColor(
+  const float H,
+  const float P,
+  const float G) const
 {
   bool H_OK;
-  float H,P,G;
-  p.getHPG(H,P,G);
+  // float H,P,G;
+  // p.getHPG(H,P,G);
 
   int iH = (int)round((H/M_PI)*180.0),
     iP = (int)round(P*100.0),
     iG = (int)round(G*100.0);
 
   for( unsigned k = 0; k < nCores; k++){
-    H_OK = false;	
+    H_OK = false;
     if( limHPG[k].H.min <= limHPG[k].H.max ){
       if(iH >= limHPG[k].H.min && iH <= limHPG[k].H.max){
-	H_OK = true;
+	       H_OK = true;
       }
     }else{
       if(iH >= limHPG[k].H.min || iH <= limHPG[k].H.max){
-	H_OK = true;
+	       H_OK = true;
       }
     }
-		    
+
     if(H_OK &&
        iP >= limHPG[k].P.min && iP <= limHPG[k].P.max &&
        iG >= limHPG[k].G.min && iG <= limHPG[k].G.max){
@@ -185,22 +435,25 @@ int PARAMETROS_CALIBRACAO::getHardColor(const PxRGB &p) const
 //metodo para pegar o rotulo baseado nas componentes do pixel. Usa o
 //calculo da distancia caso o pixel nao se encontre dentro do limiar
 //das componentes.
-int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
+int PARAMETROS_CALIBRACAO::getSoftColor(
+  const float H,
+  const float P,
+  const float G) const
 {
 
-  int min_ID = getHardColor(p);
+  int min_ID = getHardColor(H,P,G);
   if(min_ID != -1)
     return min_ID;
-  
+
   bool H_OK;
-  float H,P,G;
-  p.getHPG(H,P,G);
+  // float H,P,G;
+  // p.getHPG(H,P,G);
   float distH, fHmin, fHmax, fHmean, fHstd;
   float meanP, stdP, distP;
   float meanG, stdG, distG;
 
   float dist;
-  float min_dist = 400.0; // min_dist inicial > sqrt(360*360 + 100*100 + 100*100); 
+  float min_dist = 400.0; // min_dist inicial > sqrt(360*360 + 100*100 + 100*100);
 
   int iH = (int)round((H/M_PI)*180.0),
     iP=(int)round(P*100.0),
@@ -211,13 +464,13 @@ int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
     //testa se o H esta dentro dos limiares
     if( limHPG[k].H.min <= limHPG[k].H.max ){
       if(iH >= limHPG[k].H.min && iH <= limHPG[k].H.max){
-	H_OK = true;
-	distH = 0;
+      	H_OK = true;
+      	distH = 0;
       }
     }else{
       if(iH >= limHPG[k].H.min || iH <= limHPG[k].H.max){
-	H_OK = true;
-	distH = 0;
+      	H_OK = true;
+      	distH = 0;
       }
     }
     //se o H estiver fora dos limiares, ja calcula a distH
@@ -235,15 +488,15 @@ int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
       distP = 0;
     }else{
       if(limHPG[k].P.min < limHPG[k].P.max){
-	meanP = (limHPG[k].P.min + limHPG[k].P.max)/2;
-	stdP = limHPG[k].P.max - meanP;
-	if(iP > limHPG[k].P.max){
-	  distP = (iP - limHPG[k].P.max)/stdP;
-	}else if(iP < limHPG[k].P.min){
-	  distP = (limHPG[k].P.min - iP)/stdP;
-	}
+      	meanP = (limHPG[k].P.min + limHPG[k].P.max)/2;
+      	stdP = limHPG[k].P.max - meanP;
+    	   if(iP > limHPG[k].P.max){
+    	      distP = (iP - limHPG[k].P.max)/stdP;
+    	   }else if(iP < limHPG[k].P.min){
+    	      distP = (limHPG[k].P.min - iP)/stdP;
+    	   }
       }else{
-	distP = 100;
+      	distP = 100;
       }
     }
 
@@ -251,20 +504,20 @@ int PARAMETROS_CALIBRACAO::getSoftColor(const PxRGB &p) const
       distG = 0;
     }else{
       if(limHPG[k].G.min < limHPG[k].G.max){
-	meanG = (limHPG[k].G.min + limHPG[k].G.max)/2;
-	stdG = limHPG[k].G.max - meanG;
-	if(iG > limHPG[k].G.max){
-	  distG = (iG - limHPG[k].G.max)/stdG;
-	}else if(iG < limHPG[k].G.min){
-	  distG = (limHPG[k].G.min - iG)/stdG;
-	}
+      	meanG = (limHPG[k].G.min + limHPG[k].G.max)/2;
+      	stdG = limHPG[k].G.max - meanG;
+      	if(iG > limHPG[k].G.max){
+      	  distG = (iG - limHPG[k].G.max)/stdG;
+      	}else if(iG < limHPG[k].G.min){
+      	  distG = (limHPG[k].G.min - iG)/stdG;
+      	}
       }else{
-	distG = 100;
+      	distG = 100;
       }
     }
     //calcula a distancia geral
     dist = sqrt(distH*distH + distP*distP + distG*distG);
-    
+
     //verifica se a distancia está abaixo do threshold de 1 desvio
     //padrao e se a distancia para a cor é menor do que a menor
     //distancia encontrada

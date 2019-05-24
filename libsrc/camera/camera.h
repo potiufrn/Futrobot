@@ -1,197 +1,170 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <linux/videodev2.h> //struct v4l2 ...
+#include <fcntl.h>  // O_RDWR
+#include <unistd.h> //close()
+#include <sys/ioctl.h> //ioctl
+#include <sys/mman.h> // mmap
+#include <stdint.h> //unt8_t
+#include <string.h>//memset, memcpy
+#include <fstream> //
 
-#include <getopt.h>             /* getopt_long() */
-
-#include <fcntl.h>              /* low-level i/o */
-#include <unistd.h>
-#include <errno.h>
-#include <malloc.h>
-#include <sys/stat.h>
+// #include <sys/time.h> //timevalue
+#include <sys/select.h> //select
 #include <sys/types.h>
-#include <sys/time.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
 
-#include <asm/types.h>          /* for videodev2.h */
-
-#include <linux/videodev2.h>
+#include <iostream> //cerr
+#include <imagem.h>
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+//Default
+#define WIDTH 640
+#define HEIGHT 480
+#define FPS 30
 
-#include <stdio.h>
-#include <pthread.h>
-#include <imagem.h>
-#include <stdlib.h>
+//WARNING o numero de buffer pode ser alterado
+//mas nao se sabe ate o momento, quais vantagens isso traz
+//por isso eh mantida como 1
+#define NUM_BUFFERS 1
 
-#ifndef CAMERA_H_
-#define CAMERA_H_
+//Estrutura para auxiliar o controle dos controladores do dispositivo
+//como brilho, ganho, exposicao...
 
-#define NUM_BUFFERS 4
-//#define NUM_BUFFERS 30
-//#define NUM_BUFFERS 10
-#define ISO_SPEED DC1394_ISO_SPEED_400
-#define FRAME_RATE_FUT DC1394_FRAMERATE_30
-#define FRAME_RATE_MIX DC1394_FRAMERATE_15
-//#define DEBAYER_METHOD DC1394_BAYER_METHOD_NEAREST
-#define DEBAYER_METHOD DC1394_BAYER_METHOD_BILINEAR
-#define VIDEO_MODE_FUT DC1394_VIDEO_MODE_640x480_MONO8
-#define VIDEO_MODE_MIX DC1394_VIDEO_MODE_1280x960_MONO8
-#define BAYER_FILTER DC1394_COLOR_FILTER_GBRG
-
-#define IMAGE_FILE_NAME "ImageRGB.ppm"
-
-
-struct PARAMETROS_CAMERA {
-  int brightness,hue,saturation,contrast, whiteness,sharpness, exposure,gamma,shutter,gain;
-  bool read(const char * arquivo);
-  bool write(const char * arquivo) const;
+struct controler{
+  bool enable;//flag que indica se o controle esta habilitado
+  __u8 name[32];//nome do controle
+  int min,max;//valores maximos e minimos
+  int default_value;
 };
 
-struct buffer {
-        void *                  start;
-        size_t                  length;
+struct buffer{
+  uint8_t *bytes;
+  unsigned length;
 };
 
-
- enum CAMERA_T{
-  CAM_FUTROBOT,
-  CAM_MIXREAL,
-  CAM_FUTMIX
-};
-
-/*
-static void errno_exit (const char * s)
-{
-        fprintf (stderr, "%s error %d, %s\n",
-                 s, errno, strerror (errno));
-
-        exit (EXIT_FAILURE);
-}
-
-static int xioctl(int fd, int request, void *arg)
-{
-        int r,itt=0;
-
-        do {
-		r = ioctl (fd, request, arg);
-		itt++;
-	}
-        while ((-1 == r) && (EINTR == errno) && (itt<100));
-
-        return r;
-}
-*/
-
+//Classe para realizar o controle de dispositivos de imagem, com formatos YUV:422 ou GBRG 8bits,
+//foi utilizado a API Video for Linux 2 (V4L2), essa API possui uma documentação completa e pode ser
+//encontrada em https://linuxtv.org/downloads/v4l-dvb-apis/uapi/v4l/v4l2.html.
+//A classe foi pensada para ser usada por heranca.
+//Para habilitar a captura faz-se necessario alterar o valor da flag "capturando", para true,
+//a classe tambem possui outra flag de controle, a "encerrar", que habilita ou desabilita
+//a rotina de captura (metodo "run").
+//
 class Camera {
  private:
-  /* void setparameters (dc1394camera_t * pcamera, PARAMETROS_CAMERA cameraparam); //chamar dentro da thread */
-  /* uint tempo_captura;//usar dentro da thread */
-  /* bool capturar;//inibi ponteiro receber nova imagem */
-  /* bool novocamparam; */
-  /* ImageRGB  Imbruta;  */
-  /* PARAMETROS_CAMERA params; */
-  //********************************************
-  // Modificado por Filipe
-  //dc1394camera_t * camera;
-  //dc1394video_modes_t modos;
-//********************************************  
-  
- // CameraUSB * camera;
   unsigned int width, height, fps;
-  
-  
- FILE* imagefile;
-
-  void Open();
-  void Close();
-
-  void Init();
-  void UnInit();
+  // auxiliar para decodigicar a informacao em ImagemBruta
+  // GBRG ou YUYV
+  PIXEL_FORMAT pxFormat;
 
   void Start();
   void Stop();
-
+  void Init();
+  void UnInit();
   void init_mmap();
-    
-  void YUV422toRGB888(int width_, int height_, uint8_t *src_, uint8_t *dst_);
-  
-  bool initialised;
-  
-   int fd;
-   const char *name;  //dev_name
-   
 
- // unsigned char *data;
+  bool isOpen;
+  int fd;
+  struct buffer meuBuffer[NUM_BUFFERS];//buffer que contem os dados da imagem.
+  //funcoes auxiliares para controlar os parametros da camera
+  bool setControl(__u32 id, int v);
+  int  getControl(__u32 id)const;
+  struct controler queryControl(__u32 id)const;
 
-  
-  
-  //unsigned char* src;
-  //unsigned char* dst;
-   
-  //buffer *buffers;
-  typedef uint8_t* ptr_uint8;
-  ptr_uint8 meuBuffer[NUM_BUFFERS];
-  size_t meuBufferLength[NUM_BUFFERS];
-  //int n_buffers;
-
-  int mb, Mb, db,me,Me,de,mw,Mw,dw, mc, Mc, dc, ms, Ms, ds, mh, Mh, dh, msh, Msh, dsh;
-  bool ha;
-   
- protected:
-  Camera(CAMERA_T cam);
+protected:
+  Camera();
+  Camera(unsigned index);
    ~Camera();
-   CAMERA_T tipoCam;
-   bool ajusteparam(PARAMETROS_CAMERA cameraparam);
-   bool encerrar;
-   bool capturando;
-   ImagemRGB ImBruta;
 
-   bool waitforimage();
+   ImagemBruta ImBruta;
+   //flags para controlar o modo stream e habilitar ou desabilitar a captura
+   bool capturando;
+   bool encerrar;
+
+   // inline PIXEL_FORMAT getPxFormat()const{ return ImBruta.; }
+   // inline const uint8_t* getDataImage()const{ return meuBuffer[index_frame].bytes; }
+   // const unsigned getDataSize()const{ return meuBuffer[index_frame].length; }
+
+
+   //WARNING O metodo captureimage(), faz um novo "pedido de imagem",ao passo que o waitforimage()
+   //aguarda para poder retirar uma imagem pronta(que ja se encontra no buffer) e a deixa acessivel
+   //para usuario (sera a que aparecera na ImBruta).
+   //WARNING Para se realizar uma captura eh preciso primeiro fazer um captureimage() e em
+   //seguida fazer um waitforimage(), porem por questoes de desempenho, esta classe faz um captureimage()
+   //logo em sua inicializacao, ou seja, basta o usuario fazer um waitforimage() para ter acesso a essa
+   //captura e voltar a ordem "normal" de pedido de imagem (capture depois wait).
+   //Estes metodos retornam true em caso de saida indesejada
+   //e false caso tudo ocorreu como esperado
    bool captureimage();
-   // bool capturetcimage(); // <- True color
-   
-   inline unsigned int Width() {return width;};
-   inline unsigned int Height() {return height;};
-   bool start_transmission();
+   bool waitforimage();
+
+   inline unsigned getWidth()const {return width;};
+   inline unsigned getHeight()const {return height;};
 
  public:
-   
-   void run ();
-   void terminar ();
-   void printvideoformats();
-   
-   void StopCam();
+   void run();
+   void terminar();
+   //metodo que pode ser chamado a qualquer momento, abre um dispositovo
+   //pelo seu index. Cada camera conectada ao computador
+   //possui um endereco em /dev/videoX, onde este "X" eh o index.
+   //para visualizar a lista de todos os dispositivos conectados
+   //basta chamar o metodo listDevices().
+   bool Open(unsigned index);
+   void Close();
 
-  int minBrightness();
-  int maxBrightness();
-  int defaultBrightness();
-  int minContrast();
-  int maxContrast();
-  int defaultContrast();
-  int minSaturation();
-  int maxSaturation();
-  int defaultSaturation();
-  int minHue();
-  int maxHue();
-  int defaultHue();
-  bool isHueAuto();
-  int minSharpness();
-  int maxSharpness();
-  int defaultSharpness();
+   //retorna o numero de dispositivos conectados
+   //e imprimi na tela o nome e o index de cada dispositivo
+   //caso nao queira que seja impresso no terminal a lista,
+   //passe "false" como parametro.
+   unsigned listDevices(bool printed = true)const;
+   //equivalente a v4l2-ctl --list-formats-ext
+   //char* printVideoFormats()const; //falta fazer
 
-  int setBrightness(int v);
-  int setExposure(int v);
-  int setContrast(int v);
-  int setSaturation(int v);
-  int setHue(int v);
-  int setHueAuto(bool v);
-  int setSharpness(int v);
-  int setWhiteness(int v);
+   //old vers
+   bool write(const char * arquivo) const;
+   bool read(const char * arquivo);
+
+   std::ostream& write(std::ostream &O) const;
+   bool read(std::istream &I);
+   //Os metodos abaixo Retornam false caso o controler nao exista (get)
+   //para o dispositivo ou ocorra falha na setagem dos parados
+   
+   bool queryBrightness(struct controler &ctrl)const;
+   int  getBrightness()const;
+   bool setBrightness(int v);
+
+   bool queryContrast(struct controler &ctrl)const;
+   int  getContrast()const;
+   bool setConstrast(int v);
+
+   bool querySaturation(struct controler &ctrl)const;
+   int  getSaturation()const;
+   bool setSaturation(int v);
+
+   //V4L2_CID_GAMMA
+   bool queryGamma(struct controler &ctrl)const;
+   int  getGamma()const;
+   bool setGamma(int v);
+
+   bool queryHue(struct controler &ctrl)const;
+   int  getHue()const;
+   bool setHue(int v);
+
+   bool querySharpness(struct controler &ctrl)const;
+   int  getSharpness()const;
+   bool setSharpness(int v);
+
+   bool queryGain(struct controler &ctrl)const;
+   int  getGain()const;
+   bool setGain(int v);
+
+   bool queryExposureAbs(struct controler &ctrl)const;
+   int  getExposureAbs()const;
+   bool setExposureAbs(int v);
+
+   bool queryExposure(struct controler &ctrl)const;
+   int  getExposure()const;
+   bool setExposure(int v);
+
+   //WARNING este metodo nao funcionou como esperado
+   bool queryMinBuffer(struct controler &ctrl)const;
 };
-
-
-#endif 
