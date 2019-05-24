@@ -19,7 +19,7 @@
 
 // Nao foi possivel incluir definicoes de acquisition.cpp
 //entao foi definido aqui
-//#define IMAGE_WIDTH 640 
+//#define IMAGE_WIDTH 640
 //#define IMAGE_HEIGHT 480
 
 
@@ -33,7 +33,7 @@
 /* }; */
 
 
-//tipos necessarios para operacao com semaforo 
+//tipos necessarios para operacao com semaforo
 
 union semnum {
   int val;
@@ -46,7 +46,7 @@ struct sembuf {
   short sem_op;
   short sem_flg;
 };
-*/  
+*/
 
 class Semaphore {
   int semid;
@@ -67,7 +67,7 @@ class Sharedmem {
   int smeid;
   bool readonly;
   bool ready;
-  
+
 
  public:
   Sharedmem (key_t key, size_t bytes, bool rdonly, unsigned int perm);
@@ -87,7 +87,7 @@ class Sharedmem {
 
 /*********************************************************/
 /*Classe para exportacao de imagem e dados para interface*/
-/*********************************************************/            
+/*********************************************************/
 class Export:
 public virtual FutData{
  private:
@@ -105,9 +105,11 @@ public virtual FutData{
  public:
   Export(TEAM team, SIDE side, GAME_MODE mode);
   ~Export();
-  bool exxport(const PxRGB * data);
+
+  // bool exxport(const PxRGB *data);
+  bool exxport();
   // bool metodo() {return true;};
-  void initialize(); 
+  void initialize();
 };
 
 

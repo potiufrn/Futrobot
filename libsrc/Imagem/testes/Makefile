@@ -8,7 +8,7 @@ CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 LDLIBS = -lotim -lmatrix
 
-PROGRAMAS = #teste_imagem	#teste_HPG teste_YUV teste_tempo
+PROGRAMAS = teste_imagem	#teste_HPG teste_YUV teste_tempo
 
 all: ${PROGRAMAS}
 

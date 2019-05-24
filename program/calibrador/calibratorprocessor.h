@@ -29,7 +29,6 @@ enum MODOS_PROCESSAMENTO{
 };
 
 
-
 class CalibratorProcessor:
 public Camera
 {
@@ -52,7 +51,8 @@ public Camera
   int corAtual;
   unsigned offset_u,offset_v;
   bool true_color;
-
+  bool campoVazio_capturado;
+  // bool calculating; //flag sinalizando que o Calibrator esta realizando um calculo de campo medio
  public:
   CalibratorProcessor();
   CalibratorProcessor(const char* arquivo);
@@ -68,14 +68,22 @@ public Camera
   bool saveCameraParam(const char* arquivo);
   inline int getPinf(){return calibracaoParam.limiarPInf;}
   inline int getPsup(){return calibracaoParam.limiarPSup;}
+  inline float getConstObject(){return calibracaoParam.const_Object;}
+  inline float getConstField(){return calibracaoParam.const_Field;}
+  //WARNING este metodo foi alterado temporariamente
   inline void setPinf(int Pinf){
     calibracaoParam.limiarPInf = Pinf;
-    setMinP(calibracaoParam.limiarPInf/100.0);
+    // setMinP(calibracaoParam.limiarPInf/100.0);
   }
+  //WARNING este metodo foi alterado temporariamente
   inline void setPsup(int Psup){
     calibracaoParam.limiarPSup = Psup;
-    setMaxP(calibracaoParam.limiarPSup/100.0);
+    // setMaxP(calibracaoParam.limiarPSup/100.0);
   }
+
+  inline void setConstObject(float value){ calibracaoParam.const_Object = value/10.0; }
+  inline void setConstField(float value){ calibracaoParam.const_Field = value/10.0; }
+
   inline limitesHPG getLimHPG(int i){return calibracaoParam.limHPG[i];}
   inline void setHmin(int i, int valor){calibracaoParam.limHPG[i].H.min = valor;};
   inline void setHmax(int i, int valor){calibracaoParam.limHPG[i].H.max = valor;};
@@ -90,6 +98,10 @@ public Camera
 
   void resetHPG();
   void resetPixelsNotaveis();
+  void calImgMedia(unsigned num);
+  inline bool campoVazioCapturado(){return campoVazio_capturado;}
+
+  // inline bool isCalculating(){ return calculating; }
 
   bool loadImage(const char* arq);
   void saveImage(const char* arq);

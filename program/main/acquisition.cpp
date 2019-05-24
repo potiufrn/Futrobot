@@ -183,38 +183,6 @@ static BinaryMap analisedPixel(IMAGE_WIDTH,IMAGE_HEIGHT);
 //static HPG_LIMITS colorLimit[NUM_COLORS];
 
 
-//FUNCOES ESTATICAS GLOBAIS
-//***********************************************************
-/*
-  static REG_COLOR getColor(PxRGB pixel){
-  int i;
-  bool ok = true;
-  float H, G, P;
-
-  pixel.getHPG(H,P,G);
-  for(i = 0;i < NUM_COLORS; i++){
-  ok = false;
-  if(colorLimit[i].hMin <= colorLimit[i].hMax){
-  if(H >= colorLimit[i].hMin && H <= colorLimit[i].hMax)
-  ok = true ;
-  }else{
-  if(H >= colorLimit[i].hMin || H <= colorLimit[i].hMax)
-  ok = true ;
-  }
-  if(ok &&
-  G >= colorLimit[i].gMin && G <= colorLimit[i].gMax &&
-  P >= colorLimit[i].pMin && P <= colorLimit[i].pMax){
-  return (REG_COLOR)i;
-  }else if(G < 0.0 || G > 1.0 ||
-  P < 0.0 || P > 1.0){
-  cerr<<"PARAMETROS INVALIDOS!!"<<endl;
-  printf("G -> %E\n",G);
-  printf("P -> %E\n",P);
-  }
-  }
-  return REG_COLOR_UNDEFINED;
-  }
-*/
 static std::ostream& operator<<(std::ostream& os, REGION &r){
   os << r.center << " C-> " << r.colorID << " N-> " << r.nPixel;
   return os;
@@ -232,15 +200,6 @@ static double media_ang(double t1, double t2){
 
   return ang_equiv((t1 + t2)/2.0);
 }
-
-
-//Funcions used by seedfill
-//***********************************************************
-//static inline double euclideanDistance(COORD2 c1, COORD2 c2 )
-//{ return sqrt( (c1.u() - c2.u())*(c1.u() - c2.u()) +
-//	       (c1.v() - c2.v())*(c1.v() - c2.v()) ); }
-//
-//***********************************************************
 
 #endif
 
@@ -261,17 +220,6 @@ Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
   MaxV = 0;
   capturando = true;
 
-  /*
-    for(int i = 0; i < NUM_COLORS; i++){
-
-    colorLimit[i].hMin = 0.0;
-    colorLimit[i].hMax = 1.0;
-    colorLimit[i].gMin = 0.0;
-    colorLimit[i].gMax = 1.0;
-    colorLimit[i].pMin = 0.0;
-    colorLimit[i].pMax = 1.0;
-    }
-  */
 #endif
 }
 
@@ -507,13 +455,7 @@ bool Acquisition::canBePainted(REG_COLOR colorID, unsigned u, unsigned v){
   return (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID);
 }
 
-REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
-{
-// #define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(ImBruta[v][u]) == colorID)
-
-// #define canBePainted( colorID, u, v) (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID)
-
-
+REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v){
   static STACK s;
   REGION region;
 
@@ -657,6 +599,8 @@ bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam, double angCorrecao,
 bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
 				   double angCorrecao,int &index,
 				   POS_ROBO &teamPose){
+  //Macro para testar se uma coordenada, na imagem, eh valida.
+  #define IS_VALID(i,j) ( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false
   int u,v,ui,vi;
   REG_COLOR colorID;
   REGION region;
@@ -666,56 +610,80 @@ bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
 		 + RADIUS*cos(regTeam.orientation+angBusca));
   v = (int)round(regTeam.center.v()
 		 - RADIUS*sin(regTeam.orientation+angBusca));
-  for(ui = u-2; ui <= u+2; ui++) {
-    for(vi = v-2; vi <= v+2; vi++) {
+  int r;
+  unsigned qtdDiff;
+
+  for(ui = u-2; ui <= u+2; ui++)
+    for(vi = v-2; vi <= v+2; vi++){
       if(ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight()){
+        //WARNING usando informacoes do campo vazio
+        r = calibracaoParam.isDiff(vi,ui,ImBruta.atByte(vi,ui));//compara o byte com o do campo vazio.
+        qtdDiff = 0;
+        //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
+        //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
+        if(r == IS_UNDEF){
+          if(IS_VALID(vi-1,ui-1))
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.atByte(vi-1,ui-1)) == IS_OBJECT)?1:0;
+          if(IS_VALID(vi-1,ui+1))
+            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.atByte(vi-1,ui+1)) == IS_OBJECT)?1:0;
+          if(IS_VALID(vi+1,ui+1))
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.atByte(vi+1,ui+1)) == IS_OBJECT)?1:0;
+          if(IS_VALID(vi+1,ui-1))
+            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.atByte(vi+1,ui-1)) == IS_OBJECT)?1:0;
+        }
+        //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
+        //dos robos ou da bola.
+        if(r == IS_OBJECT || qtdDiff > 2){
+          //No trecho seguinte de codigo, eh feito a identificacao da cor,
+          //e um seedFill para determinar a regiao a que este pixel pertence,
+          //para entao calcular o centro deste objeto como sua orientacao.
           ImBruta.atHPG(vi, ui, H, P, G);
-      	  colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
-      	if( colorID != REG_COLOR_YELLOW &&
-      	    colorID != REG_COLOR_BLUE &&
-      	    colorID != REG_COLOR_ORANGE &&
-      	    colorID != REG_COLOR_BLACK &&
-      	    colorID != REG_COLOR_WHITE &&
-      	    colorID != REG_COLOR_UNDEFINED) {
-      	  region = seedFill(colorID,ui,vi);
-      	  if ( region.nPixel >= MIN_PIXELS ) {
-      	    switch(region.colorID){
-      	    case REG_COLOR_CIAN:
-      	      index = 0;
-      	      break;
-      	    case REG_COLOR_PINK:
-      	      index = 1;
-      	      break;
-      	    case REG_COLOR_GREEN:
-      	      index = 2;
-      	      break;
-      	    default:
-      	      index = -1;
-      	      break;
-      	    }
-      	    if(index != -1){
-      	      regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
-      	      region.center = (RDistortion.corrigir(region.center))/Homography;
+          colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
+          if( colorID != REG_COLOR_YELLOW &&
+            colorID != REG_COLOR_BLUE &&
+            colorID != REG_COLOR_ORANGE &&
+            colorID != REG_COLOR_BLACK &&
+            colorID != REG_COLOR_WHITE &&
+            colorID != REG_COLOR_UNDEFINED){
+              region = seedFill(colorID,ui,vi);
+              if( region.nPixel >= MIN_PIXELS ) {
+                switch(region.colorID){
+                  case REG_COLOR_CIAN:
+                  index = 0;
+                  break;
+                  case REG_COLOR_PINK:
+                  index = 1;
+                  break;
+                  case REG_COLOR_GREEN:
+                  index = 2;
+                  break;
+                  default:
+                  index = -1;
+                  break;
+                }
+                if(index != -1){
+                  regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
+                  region.center = (RDistortion.corrigir(region.center))/Homography;
 
 
-      	      teamPose.x() = regTeam.center.x();
-      	      teamPose.y() = regTeam.center.y();
-      	      double theta1 = ang_equiv(regTeam.orientation + angCorrecao);
-      	      double theta2 = ang_equiv(arc_tang((region.center.y() -
-      						  regTeam.center.y()),
-      						 (region.center.x() -
-      						  regTeam.center.x()))
-      					-M_PI_4);
+                  teamPose.x() = regTeam.center.x();
+                  teamPose.y() = regTeam.center.y();
+                  double theta1 = ang_equiv(regTeam.orientation + angCorrecao);
+                  double theta2 = ang_equiv(arc_tang((region.center.y() -
+                  regTeam.center.y()),
+                  (region.center.x() -
+                  regTeam.center.x()))
+                  -M_PI_4);
 
-
-       	      teamPose.theta() = media_ang(theta1,theta2);
-      	      return false;
-      	    }
-      	  }
-      	}
+                  teamPose.theta() = media_ang(theta1,theta2);
+                  return false;
+                }
+              }
+            }
+        }
       }
     }
-  }
+
   return true;
 }
 
@@ -726,8 +694,6 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //   int u,v;
   //   REG_COLOR colorID;
   //REGION region;
-
-
 
   //   regAux.colorID = REG_COLOR_UNDEFINED;
   //   min_dist = MAX_RADIUS*10;
@@ -804,16 +770,12 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //     teamPose.theta() = ang_equiv(teamPose.theta() + corrTheta);
 
 
-
   return false; //sem erro
   //   }
   //   return true; //com erro
 }
 
-
-
-bool Acquisition::processGameState()
-{
+bool Acquisition::processGameState(){
 
   //para cada cor está sendo criado um vetor de tamanho igual ao dobro
   //do numero de regioes esperadas daquela cor, pensando na
@@ -833,6 +795,8 @@ bool Acquisition::processGameState()
 
   REGION region, region_aux;
   REG_COLOR colorID;
+  int r;
+  unsigned qtdDiff;
   int u,v;
   int i;
   float H,P,G;
@@ -855,74 +819,92 @@ bool Acquisition::processGameState()
   pos.ball.x() = POSITION_UNDEFINED;
   pos.ball.y() = POSITION_UNDEFINED;
 
-  //  cout << "busca por regioes de cor" << endl;
   //PASSO 1: Busca por regiões amarelas e azuis
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
-      ImBruta.atHPG(v,u,H,P,G);
-      colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
+      //WARNING usando informacoes do campo vazio
+      r = calibracaoParam.isDiff(v,u,ImBruta.atByte(v,u));//compara o byte com o do campo vazio.
+      qtdDiff = 0;
+      //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
+      //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
+      if(r == IS_UNDEF){
+        if(IS_VALID(v-1,u-1))
+          qtdDiff += (calibracaoParam.isDiff(v-1,u-1,ImBruta.atByte(v-1,u-1)) == IS_OBJECT)?1:0;
+        if(IS_VALID(v-1,u+1))
+          qtdDiff += (calibracaoParam.isDiff(v-1,u+1,ImBruta.atByte(v-1,u+1)) == IS_OBJECT)?1:0;
+        if(IS_VALID(v+1,u+1))
+          qtdDiff += (calibracaoParam.isDiff(v+1,u+1,ImBruta.atByte(v+1,u+1)) == IS_OBJECT)?1:0;
+        if(IS_VALID(v+1,u-1))
+          qtdDiff += (calibracaoParam.isDiff(v+1,u-1,ImBruta.atByte(v+1,u-1)) == IS_OBJECT)?1:0;
+      }
+      //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
+      //dos robos ou da bola.
+      if(r == IS_OBJECT || qtdDiff > 2){
+        ImBruta.atHPG(v,u,H,P,G);
+        colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
 
-      // eliminar os pixels sem cor
-      if( colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE ){
+        // eliminar os pixels sem cor
+        if( colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE ){
 
-        region = seedFill(colorID,u,v);
+          region = seedFill(colorID,u,v);
 
-      	if ( region.nPixel >= MIN_PIXELS ) {
-      	  switch(colorID){
-      	  case REG_COLOR_BLUE:
-      	    if(nRegBlue < 3){
+          if ( region.nPixel >= MIN_PIXELS ) {
+            switch(colorID){
+              case REG_COLOR_BLUE:
+              if(nRegBlue < 3){
 
-      	      regBlue[nRegBlue] = region;
-      	      nRegBlue++;
-      	    }else{
-      	      for(i = 0; i < 3; i++){
-            		if(region.nPixel > regBlue[i].nPixel){
-            		  region_aux = regBlue[i];
-            		  regBlue[i] = region;
-            		  region = region_aux;
-            		}
-      	      }
-      	    }
-      	  break;
-      	  case REG_COLOR_YELLOW:
-      	    if(nRegYellow < 3){
+                regBlue[nRegBlue] = region;
+                nRegBlue++;
+              }else{
+                for(i = 0; i < 3; i++){
+                  if(region.nPixel > regBlue[i].nPixel){
+                    region_aux = regBlue[i];
+                    regBlue[i] = region;
+                    region = region_aux;
+                  }
+                }
+              }
+              break;
+              case REG_COLOR_YELLOW:
+              if(nRegYellow < 3){
 
-      	      regYellow[nRegYellow] = region;
-      	      nRegYellow++;
-      	    }else{
-      	      for(i = 0; i < 3; i++){
-            		if(region.nPixel > regYellow[i].nPixel){
-            		  region_aux = regYellow[i];
-            		  regYellow[i] = region;
-            		  region = region_aux;
-            		}
-      	      }
-      	    }
-      	  break;
-      	  case REG_COLOR_ORANGE:
+                regYellow[nRegYellow] = region;
+                nRegYellow++;
+              }else{
+                for(i = 0; i < 3; i++){
+                  if(region.nPixel > regYellow[i].nPixel){
+                    region_aux = regYellow[i];
+                    regYellow[i] = region;
+                    region = region_aux;
+                  }
+                }
+              }
+              break;
+              case REG_COLOR_ORANGE:
 
-      	    if(nRegOrange < 1){
+              if(nRegOrange < 1){
 
-      	      regOrange = region;
-      	      nRegOrange++;
-      	    }else{
-          		if(region.nPixel > regOrange.nPixel){
-          		  regOrange = region;
-      	      }
-      	    }
-      	    break;
-      	  default:
-      	    cerr<<"Nao deveria chegar aqui 1!";
-      	    return true;
-      	    break;
-      	  }
-      	}
+                regOrange = region;
+                nRegOrange++;
+              }else{
+                if(region.nPixel > regOrange.nPixel){
+                  regOrange = region;
+                }
+              }
+              break;
+              default:
+              cerr<<"Nao deveria chegar aqui 1!";
+              return true;
+              break;
+            }
+          }
+
+      }
       }
     }
   }
 
   //PASSO 2: Calcula a pose dos meus robos
-
   REG_COLOR  mycolor = ((myTeam() == YELLOW_TEAM)? REG_COLOR_YELLOW : REG_COLOR_BLUE);
   POS_ROBO teamPose;
   int index = 0;
@@ -935,16 +917,16 @@ bool Acquisition::processGameState()
       }else if(!calculaMinhaPose(regYellow[i],-M_PI_2,-M_PI_2-M_PI_4,index,teamPose)){
       	pos.me[index] = teamPose;
       }else if(!calculaMinhaPoseAproximada(regYellow[i],M_PI_4,index,teamPose)){
-      	pos.me[index] = teamPose;
+        pos.me[index] = teamPose;
       }
     }
     break;
   case REG_COLOR_BLUE:
     for(i = 0; i < nRegBlue; i++){
       if(!calculaMinhaPose(regBlue[i],M_PI_2,M_PI_4,index,teamPose)){
-	pos.me[index] = teamPose;
+	      pos.me[index] = teamPose;
       }else if(!calculaMinhaPose(regBlue[i],-M_PI_2,-M_PI_2-M_PI_4,index,teamPose)){
-	pos.me[index] = teamPose;
+	      pos.me[index] = teamPose;
       }else if(!calculaMinhaPoseAproximada(regBlue[i],M_PI_4,index,teamPose)){
       	pos.me[index] = teamPose;
       }
@@ -988,181 +970,7 @@ bool Acquisition::processGameState()
   }
 
 
-
   //############################################################
-
-
-
-
-
-
-  // //  cout << "\tOK" << endl;
-
-  // double ang = 0.0;
-  // int index = 0;
-  // double dist, min_dist;
-
-  // //cout << "Procura por auxiliares para os rotulos azuis." << endl;
-  // //Procura por auxiliares para os rotulos azuis.
-  // for(i = 0; i < nRegBlue; i++) {
-  //   regAuxBlue[i].colorID = REG_COLOR_UNDEFINED;
-  //   min_dist = MAX_RADIUS*10;
-  //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
-  //     u = (int)round(regBlue[i].center.u() + RADIUS*cos(ang));
-  //     v = (int)round(regBlue[i].center.v() + RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.getWidth() &&
-  // 	 v >= 0 && v < (int)ImBruta.getHeight()){
-
-  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBruta[v][u]);
-  // 	//ImBruta[v][u].setRGB(1.0,1.0,1.0);
-
-  // 	if( colorID != REG_COLOR_YELLOW &&
-  // 	    colorID != REG_COLOR_BLUE &&
-  // 	    colorID != REG_COLOR_ORANGE &&
-  // 	    colorID != REG_COLOR_BLACK &&
-  // 	    colorID != REG_COLOR_WHITE &&
-  // 	    colorID != REG_COLOR_UNDEFINED){
-  // 	  region = seedFill(colorID,u,v);
-  // 	  if ( region.nPixel >= MIN_PIXELS ){
-  // 	    dist = euclid(regBlue[i].center - region.center);
-  // 	    if(dist < min_dist){
-  // 	      regAuxBlue[i] = region;
-  // 	      min_dist = dist;
-  // 	    }
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
-  // //  cout << "\tOK" << endl;
-
-
-  // //  cout << "Procura por auxiliares para os rotulos amarelos." << endl;
-  // //Procura por auxiliares para os rotulos amarelos.
-  // for(i = 0; i < nRegYellow; i++){
-  //   regAuxYellow[i].colorID = REG_COLOR_UNDEFINED;
-  //   min_dist = MAX_RADIUS*10;
-  //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
-  //     u = (int)round(regYellow[i].center.u())
-  // 	+ (int)round(RADIUS*cos(ang));
-  //     v = (int)round(regYellow[i].center.v())
-  // 	+ (int)round(RADIUS*sin(ang));
-  //     if(u >= 0 && u < (int)ImBruta.getWidth() &&
-  // 	 v >= 0 && v < (int)ImBruta.getHeight()){
-
-  // 	colorID = (REG_COLOR)calibracaoParam.getColor(ImBruta[v][u]);
-
-  // 	if( colorID != REG_COLOR_YELLOW &&
-  // 	    colorID != REG_COLOR_BLUE &&
-  // 	    colorID != REG_COLOR_ORANGE &&
-  // 	    colorID != REG_COLOR_BLACK &&
-  // 	    colorID != REG_COLOR_WHITE &&
-  // 	    colorID != REG_COLOR_UNDEFINED) {
-  // 	  region = seedFill(colorID,u,v);
-  // 	  if ( region.nPixel >= MIN_PIXELS ) {
-  // 	    dist = euclid(regYellow[i].center - region.center);
-  // 	    if(dist < min_dist){
-  // 	      regAuxYellow[i] = region;
-  // 	      min_dist = dist;
-  // 	    }
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
-  // //  cout << "\tOK" << endl;
-
-  // for(i = 0; i < nRegBlue; i++){
-  //   switch(regAuxBlue[i].colorID){
-  //   case REG_COLOR_CIAN:
-  //     index = 0;
-  //     break;
-  //   case REG_COLOR_PINK:
-  //     index = 1;
-  //     break;
-  //   case REG_COLOR_GREEN:
-  //     index = 2;
-  //     break;
-  //   default:
-  //     //cerr<<"Nao encontrou cor auxiliar valida para um rotulo azul!\n";
-  //     index = -1;
-  //     break;
-  //   }
-  //   if(index >= 0 && index <=2){
-  //     regBlue[i].center = (RDistortion.corrigir(regBlue[i].center))/Homography;
-  //     if(isnan(regBlue[i].center.x()) ||
-  // 	 isnan(regBlue[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-  //     regAuxBlue[i].center = (RDistortion.corrigir(regAuxBlue[i].center))/Homography;
-  //     if(isnan(regAuxBlue[i].center.x()) ||
-  // 	 isnan(regAuxBlue[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-  //     if(isnan(regBlue[i].center.x()) ||
-  // 	 isnan(regBlue[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!!"<<endl;
-  //     }
-
-  //     blueTeam[index].x() = (regBlue[i].center.x() +
-  // 			     regAuxBlue[i].center.x())/2.0;
-  //     blueTeam[index].y() = (regBlue[i].center.y() +
-  // 			     regAuxBlue[i].center.y())/2.0;
-  //     blueTeam[index].theta() = arc_tang( (regBlue[i].center.y() -
-  // 					   regAuxBlue[i].center.y()),
-  // 					  (regBlue[i].center.x() -
-  // 					   regAuxBlue[i].center.x()) );
-  //   }
-  // }
-
-  // for(i = 0; i < nRegYellow; i++){
-  //   switch(regAuxYellow[i].colorID){
-  //   case REG_COLOR_CIAN:
-  //     index = 0;
-  //     break;
-  //   case REG_COLOR_PINK:
-  //     index = 1;
-  //     break;
-  //   case REG_COLOR_GREEN:
-  //     index = 2;
-  //     break;
-  //   default:
-  //     index = -1;
-  //     //cerr<<"Nao encontrou cor auxiliar valida para um rotulo amarelo!\n";
-  //     break;
-  //   }
-  //   if(index >= 0 && index <=2){
-  //     regYellow[i].center = (RDistortion.corrigir(regYellow[i].center))/Homography;
-  //     if(isnan(regYellow[i].center.x()) ||
-  // 	 isnan(regYellow[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-  //     regAuxYellow[i].center = (RDistortion.corrigir(regAuxYellow[i].center))/Homography;
-  //     if(isnan(regAuxYellow[i].center.x()) ||
-  // 	 isnan(regAuxYellow[i].center.y()) ){
-  // 	cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-  // 	    <<__FILE__<<" "<<__LINE__ <<endl;
-  //     }
-
-
-  //     yellowTeam[index].x() = (regYellow[i].center.x() +
-  // 			       regAuxYellow[i].center.x())/2.0;
-  //     yellowTeam[index].y() = (regYellow[i].center.y() +
-  // 			       regAuxYellow[i].center.y())/2.0;
-  //     yellowTeam[index].theta() = arc_tang( (regYellow[i].center.y() -
-  // 					     regAuxYellow[i].center.y()),
-  // 					    (regYellow[i].center.x() -
-  // 					     regAuxYellow[i].center.x()) );
-  //   }
-  // }
-
-  //  cout << "Calcula centro da bola" << endl;
   if(nRegOrange > 0) {
     regOrange.center = (RDistortion.corrigir(regOrange.center))/Homography;
     if(isnan(regOrange.center.x()) ||
@@ -1176,69 +984,6 @@ bool Acquisition::processGameState()
 
   }
 
-  //  cout << "\tOK" << endl;
-  //  cout << "Atribui valores as variaveis de FutData" << endl;
-
-  // if(myTeam() == BLUE_TEAM){
-  //   for(i = 0; i < 3; i++){
-  //     pos.me[i] = blueTeam[i];
-  //     pos.op[i] = yellowTeam[i];
-  //   }
-  // }else{
-  //   for(i = 0; i < 3; i++){
-  //     pos.me[i] = yellowTeam[i];
-  //     pos.op[i] = blueTeam[i];
-  //   }
-  // }
-
-  //   if(pos.me[0].x() == POSITION_UNDEFINED ||
-  //      pos.me[1].x() == POSITION_UNDEFINED ||
-  //      pos.me[2].x() == POSITION_UNDEFINED){
-  //     saveNextImage = true;
-  //   }
-
-  //for(int i = 0; i < 3; i++){
-  //    cout << "X["<<i<<"]"<<"= "<<pos.me[i].x()<<endl;
-  //  cout << "Y["<<i<<"]"<<"= "<<pos.me[i].y()<<endl;
-  //  cout << "Th["<<i<<"]"<<"= "<<pos.me[i].theta()<<endl;
-  //}
-  //cout << "\tOK" << endl;
-  /*
-    cout << "Regioes auxiliares encontradas:\n";
-    cout << "Ciano: "<< nRegCian << endl;
-    cout << "Rosa: "<< nRegPink << endl;
-    cout << "Verde: "<< nRegGreen << endl;
-
-    cout << "\tFinalizando processGameState..." << endl;
-  */
-
-  /*
-    if(nRegBlue != 3 || nRegYellow != 3 || nRegOrange != 1 ||
-    nRegCian != 2 || nRegPink != 2 || nRegGreen != 2){
-    cout << "Azul: "<< nRegBlue << endl;
-    cout << "Amarelo: "<< nRegYellow << endl;
-    cout << "Orange: "<< nRegOrange << endl;
-    cout << "Ciano: "<< nRegCian << endl;
-    cout << "Rosa: "<< nRegPink << endl;
-    cout << "Verde: "<< nRegGreen << endl;
-    cout << "numQuadros: "<< numQuadros << endl;
-    image.save("acquisition_error.pnm");
-    return true;
-    }
-  */
-
-  /*
-      numQuadros++;
-      if(numQuadros >= 200){
-      for(int i=0;i<200;i++){
-      for(int j=0;j<7;j++){
-      cout <<"["<<i<<","<<j<<"]"<<":\t"<<tempos[i][j].tv_sec<<"\t"<<tempos[i][j].tv_usec<<endl;
-      }
-      cout<<endl;
-      }
-      return true;
-      }
-  */
 
   if(saveNextImage){
     cout << "Regioes encontradas:\n";
@@ -1250,7 +995,7 @@ bool Acquisition::processGameState()
     for(i = 0; i < nRegBlue; i++){
       cout << "Azul " << i << "\t" << regBlue[i];
       if(regAuxBlue[i].colorID != REG_COLOR_UNDEFINED){
-	cout << "\t" << regAuxBlue[i];
+	       cout << "\t" << regAuxBlue[i];
       }
       cout << endl;
     }
@@ -1265,10 +1010,8 @@ bool Acquisition::processGameState()
 
     cout << "Laranja " << regOrange << endl;
     ImagemRGB(ImBruta).save("img_salva.ppm");
-    // ImBruta.save("img_salva.ppm");
     saveNextImage = false;
   }
-
   return false; //no errors
 }
 #endif

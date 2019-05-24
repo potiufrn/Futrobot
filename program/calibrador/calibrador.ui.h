@@ -12,12 +12,12 @@
 
 #define SPIN_MIN_VALUE 0
 #define SPIN_MAX_VALUE 100
+#define NUM_AMOSTRAS 100 //amostrar para calcular a média do campo vazio
 //#define LARGURA_EXIBICAO 640
 //#define ALTURA_EXIBICAO 480
 //#define METADE_LARGURA_EXIBICAO 320
 //#define METADE_ALTURA_EXIBICAO 240
-
-typedef double *pdouble;
+#include <qmessagebox.h>
 
 using namespace std;
 
@@ -31,7 +31,6 @@ void calibrador::fileNew()
     atualizarLimitesHGP( comboCores->currentItem() );
     arquivo = QString::null;
 }
-
 
 void calibrador::fileOpen()
 {
@@ -57,16 +56,22 @@ void calibrador::fileOpen()
 
 void calibrador::fileSave()
 {
+
+
     if(arquivo.isEmpty()){
 	fileSaveAs();
     }else if(X.fileSave(arquivo)){
-	//insira seu pop-up de erro aki
+      QMessageBox::warning(this,
+                          tr(""),
+                          tr("Nem todos os parametros foram configurados"));
     }
 }
 
 
 void calibrador::fileSaveAs()
 {
+
+
     QString text;
     Q3FileDialog* fd = new Q3FileDialog( this );
     fd->setDir("../../etc");
@@ -88,7 +93,7 @@ void calibrador::fileSaveAs()
 void calibrador::fileExit()
 {
     //TODO: Exibir pop-up aqui, caso os parametros nao estejam salvos ainda.
-    //terminar = true;
+
     fileSaveAs();
     X.terminar();
     close();
@@ -114,8 +119,6 @@ void calibrador::cameraLoadParam(){
 
 void calibrador::cameraNew()
 {
-    // X.resetCameraParam();
-    // atualizarCameraParam();
     arquivo_cameraParam = QString::null;
 }
 
@@ -163,10 +166,39 @@ void calibrador::init()
     lcdHGP_P2->setSegmentStyle(QLCDNumber::Flat);
     lcdHGP_G2->setSegmentStyle(QLCDNumber::Flat);
 
-
+    checkExibirImagemProcessada->setText("View field average");
+    checkExibirImagemProcessada->setEnabled(false);
+    pushAvancarTela1->setText("Next(falta a imagem Media)");
+    pushAvancarTela1->setEnabled(false);
+    checkShooting->setChecked(true);
     //inicializa posição do mouse.
     MouseX = 0;
     MouseY = 0;
+
+    //WARNING apagar daqui
+    // labelLimiarPInf->setText("Const Field");
+    // labelLimiarPSup->setText("Const Object");
+    // sliderLimiarPInf->setMaxValue(100);
+    // sliderLimiarPInf->setMinValue(0);
+    // sliderLimiarPSup->setMaxValue(100);
+    // sliderLimiarPSup->setMinValue(0);
+
+    // spinLimiarPInf->setMaxValue(100);
+    // spinLimiarPInf->setMinValue(0);
+    //
+    // spinLimiarPSup->setMaxValue(100);
+    // spinLimiarPSup->setMinValue(0);
+
+    // sliderLimiarPSup->setValue(X.getConstObject());//usado para alterar const object
+    // sliderLimiarPInf->setValue(X.getConstField());
+
+    // X.setPinf(0);
+    // X.setPsup(100);
+
+    // std::cerr << "const object: "<<X.getConstObject() << '\n';
+    // std::cerr << "const Field: "<<X.getConstField() << '\n';
+
+    //TODO ate aqui
 
     //exibe a tela de calibracao de pontos.
     mostrarTela0();
@@ -188,16 +220,14 @@ void calibrador::init()
     connect( Timer, SIGNAL(timeout()), this, SLOT(processarImagem()) );
     //connect( Timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
     Timer->start(200,false);
-
-
 }
 
 bool calibrador::carregaInterface(){
 
     QString ColorName;
     for(unsigned i=0; i < X.getNumCores(); i++){
-	ColorName = X.getNomeCor(i);
-	comboCores->insertItem(ColorName);
+    	ColorName = X.getNomeCor(i);
+    	comboCores->insertItem(ColorName);
    }
     sliderUOffset->setMaxValue(X.getCamWidth() - (pixmap_label1->size()).width());
     sliderVOffset->setMaxValue(X.getCamHeight() - (pixmap_label1->size()).height());
@@ -230,7 +260,7 @@ void calibrador::mouseMove( QPoint Point)
 
 void calibrador::mousePress( QPoint Point)
 {
-  if(telaAtual == 0){
+  if(telaAtual == 1 && checkExibirGrade->isChecked()){
     MouseX = Point.x();
     MouseY = Point.y();
     int selec = X.pontoSelecionado(Point.x(),Point.y());
@@ -321,54 +351,19 @@ void calibrador::atualizarDisplays()
     lcdHGP_H2->display(H);
     lcdHGP_P2->display(P);
     lcdHGP_G2->display(G2);
-
-
-    /*
-    QRgb ponto;
-    if(checkExibirImagemProcessada->isChecked() ){
-	ponto = imagem_processada.pixel(MouseX,MouseY);
-    }else{
-	ponto = imagem.pixel(MouseX,MouseY);
-    }
-
-    lcdRGB_R->display((int)round((qRed(ponto)/255.0)*100));
-    lcdRGB_G->display((int)round((qGreen(ponto)/255.0)*100));
-    lcdRGB_B->display((int)round((qBlue(ponto)/255.0)*100));
-    pixel=PxRGB(qRed(ponto),qGreen(ponto),qBlue(ponto));
-
-//	pixel.set( ((double)qRed(ponto))/255.0,
-//		   ((double)qGreen(ponto))/255.0,
-//		   ((double)qBlue(ponto))/255.0 );
-
-    pixel.getHPG(H, P_, G_);
-    if(isnan(H)){
-	lcdHGP_H->display(999);
-    }
-    else{
-	lcdHGP_H->display((int)round(H*100.0));
-    }
-    lcdHGP_P->display((int)round(P_*100.0));
-    if(isnan(G_)){
-	lcdHGP_G->display(999);
-    }
-    else{
-	lcdHGP_G->display((int)round(G_*100.0));
-    }
-    lcdX->display(MouseX);
-    lcdY->display(MouseY);
-   */
 }
 
 void calibrador::sliderLimiarPInfValueChanged( int valor )
 {
-    if(valor != spinLimiarPInf->value() ){
-	if(valor >= sliderLimiarPSup->value() ){
-	    sliderLimiarPSup->setValue(valor+1);
-	}
-	spinLimiarPInf->setValue(valor);
-	X.setPinf(valor);
-	//novosLimites = true;
-    }
+  if(valor != spinLimiarPInf->value() ){
+  	if(valor >= sliderLimiarPSup->value() )
+  	    sliderLimiarPSup->setValue(valor+1);
+  	spinLimiarPInf->setValue(valor);
+  	X.setPinf(valor);
+
+    // X.setConstField(valor);
+  	//novosLimites = true;
+  }
 }
 
 void calibrador::spinLimiarPInfValueChanged( int valor )
@@ -379,6 +374,8 @@ void calibrador::spinLimiarPInfValueChanged( int valor )
 	}
 	sliderLimiarPInf->setValue(valor);
 	X.setPinf(valor);
+
+  // X.setConstField(valor);
 	//spinLimiarPSup->setMinValue(valor);
 	//novosLimites = true;
     }
@@ -391,7 +388,8 @@ void calibrador::sliderLimiarPSupValueChanged( int valor )
 	    sliderLimiarPInf->setValue(valor-1);
 	}
 	spinLimiarPSup->setValue(valor);
-	X.setPsup(valor);
+	// X.setConstObject(valor);
+  X.setPsup(valor);
 	//novosLimites = true;
     }
 }
@@ -403,6 +401,7 @@ void calibrador::spinLimiarPSupValueChanged( int valor )
   	    spinLimiarPInf->setValue(valor-1);
   	}
     sliderLimiarPSup->setValue(valor);
+    // X.setConstObject(valor);
     X.setPsup(valor);
   }
 }
@@ -601,8 +600,8 @@ void calibrador::PMaxValueChanged(int valor)
 	//novosLimites = true;
     }
     if(valor != sliderHGP_Pmax->value() ){
-	sliderHGP_Pmax->setValue(valor);
-	X.setPmax(comboCores->currentItem(),valor);
+  	sliderHGP_Pmax->setValue(valor);
+  	X.setPmax(comboCores->currentItem(),valor);
 	//novosLimites = true;
     }
 }
@@ -723,6 +722,9 @@ void calibrador::atualizarLimitesP()
 {
     spinLimiarPInf->setValue(X.getPinf());
     spinLimiarPSup->setValue(X.getPsup());
+    // spinLimiarPInf->setValue(X.getConstField());
+    // spinLimiarPSup->setValue(X.getConstObject());
+
 }
 
 
@@ -740,7 +742,38 @@ void calibrador::mostrarTela1()
 {
     widgetStack1->raiseWidget(tela1);
     telaAtual = 1;
-    //novosLimites = true;
+    QString infoText;
+    QMessageBox msgBox;
+
+    if(!X.campoVazioCapturado()){
+      infoText = QString("Operacao obrigatoria, certifique-se de que o programa ira capturar a imagem do campo vazio.\n \n\\
+      Deseja realizar a captura ?");
+    }else{
+      infoText = QString("Deseja realizar uma nova captura do campo Vazio ?");
+      // setarModo();
+      // return;
+    }
+
+
+    msgBox.setText("Captura do Campo Vazio");
+    msgBox.setInformativeText(infoText);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    int ret = msgBox.exec();
+
+    if(ret == QMessageBox::Yes){
+      X.calImgMedia(NUM_AMOSTRAS);
+      QMessageBox msg;
+      msg.setText("Captura da imagem media realizada");
+      msg.exec();
+    }
+
+    if(X.campoVazioCapturado()){
+      pushAvancarTela1->setEnabled(true);
+      pushAvancarTela1->setText("Next");
+      checkExibirImagemProcessada->setEnabled(true);
+    }
+
     setarModo();
 }
 

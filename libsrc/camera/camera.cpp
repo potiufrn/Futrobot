@@ -159,7 +159,6 @@ bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
   if(index > 9){
     std::cerr << "Camera Warning: index invalido" << '\n';
     return false;
-    // errno_exit("Camera: device invalid index");
   }
 
   std::string dev =  std::string("/dev/video") + std::string(new (char)(index+48),1);
@@ -168,18 +167,15 @@ bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
   struct stat st;
   if(-1==stat(name, &st)) {
     fprintf(stderr, "Cannot identify '%s' : %d, %s\n", name, errno, strerror(errno));
-    // exit(1);
     return false;
   }
 
   if(!S_ISCHR(st.st_mode)){
     fprintf(stderr, "%s is no device\n", name);
-    // exit(1);
     return false;
   }
   fd = open(name, O_RDWR | O_NONBLOCK , 0);
   if(-1 == fd){
-    // errno_exit("Camera ERRO: No Open");
     std::cerr << "Camera Warning: No open" << '\n';
     return false;
   }
@@ -326,7 +322,7 @@ void Camera::UnInit() {
 }
 void Camera::Start(){
   if(!this->isOpen)return;
-
+  this->encerrar = false;
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(-1 == xioctl (fd, VIDIOC_STREAMON, &type))
   errno_exit ("Camera ERRO: VIDIOC_STREAMON");
@@ -388,7 +384,6 @@ bool Camera::waitforimage(){
   return false;
 }
 void Camera::run(){
-  encerrar = false;
   while(!encerrar){
     waitforimage();
     captureimage();
@@ -418,7 +413,7 @@ bool Camera::setControl(__u32 id,int v){
     //V4L2_CID_HUE_AUTO = false(0) ; desabilita auto HUE
     //V4L2_CID_AUTOGAIN = false(0); ...
     //V4L2_CID_AUTO_WHITE_BALANC = false(0)
-    std::cerr << "Camera WARNING: setControl, controle desabilitado" << '\n';
+    // std::cerr << "Camera WARNING: setControl, controle desabilitado" << '\n';
   return true;
 }
 int Camera::getControl(__u32 id)const{
@@ -481,15 +476,15 @@ bool Camera::setExposure(int v){
   return setControl(V4L2_CID_EXPOSURE,v);
 }
 bool Camera::setExposureAbs(int v){
-  // std::cout << "Exposure Absolute" << '\n';
+
   return setControl(V4L2_CID_EXPOSURE_ABSOLUTE,v);
 }
 bool Camera::setHue(int v){
-  // std::cout << "Hue" << '\n';
+
   return setControl(V4L2_CID_HUE,v);
 }
 bool Camera::setGamma(int v){
-  // std::cout << "Gamma" << '\n';
+
   return setControl(V4L2_CID_GAMMA,v);
 }
 int Camera::getExposureAbs()const{

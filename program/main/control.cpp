@@ -30,7 +30,7 @@ void PID::anti_windup() {
  // Isso deve ser porque o anti_windup não estava sendo efetivo
  // Vamos modificar para ao invés de parar de crescer o efeito integral, vamos zerar
  // I_ant = I_ant2;         // Suspende a Integração
-  I_ant = I_ant2 = 0.0;   // Zera a parte Integral   
+  I_ant = I_ant2 = 0.0;   // Zera a parte Integral
 }
 
 void PID::reset() {
@@ -107,13 +107,21 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   //################################################################
 
   // Controle Poti
-  double klin = 1.3;//1.3;
-  double tilin= 1E+10;//1E+10;
-  double tdlin = 0.08;//0.08;
+  // double klin = 1.3;//1.3;
+  // double tilin= 1E+10;//1E+10;
+  // double tdlin = 0.08;//0.08;
+  //
+  // double kang = 0.05;//0.08
+  // double tiang = 1.5;//1.5
+  // double tdang = 0.07;//0.07;
 
-  double kang = 0.05;//0.08
-  double tiang = 1.5;//1.5
-  double tdang = 0.07;//0.07;
+  double klin = 0.6402565834*1.4;
+  double tilin= 10000000.0;//10000;
+  double tdlin = 0.0;//0.0;
+
+  double kang = 0.07489797434;
+  double tiang = 10000000.0;//4.0
+  double tdang = 0.0;//0.0;
 
   /*
 	double klin = 0.9;
@@ -290,14 +298,14 @@ bool Control::control()
       pwm.me[i].right = alpha_lin+alpha_ang;
       if (fabs(pwm.me[i].right) < PWM_ZERO) pwm.me[i].right = 0.0;
       else if (pwm.me[i].right > 0.0)
-	pwm.me[i].right = PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].right;
-      else pwm.me[i].right = -PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].right;
+	pwm.me[i].right = pwm.me[i].right;
+      else pwm.me[i].right = pwm.me[i].right;
 
       pwm.me[i].left = alpha_lin-alpha_ang;
       if (fabs(pwm.me[i].left)<1.0/127.0) pwm.me[i].left = 0.0;
       else if (pwm.me[i].left > 0.0)
-	pwm.me[i].left = PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].left;
-      else pwm.me[i].left = -PWM_MINIMO + (1-PWM_MINIMO)*pwm.me[i].left;
+	pwm.me[i].left = pwm.me[i].left;
+      else pwm.me[i].left = pwm.me[i].left;
 
     }
   }

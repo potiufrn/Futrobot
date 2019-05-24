@@ -22,14 +22,17 @@
 #define FPS 30
 
 //WARNING o numero de buffer pode ser alterado
-//mas nao se sabe ate o momento a influencia desta alteracao
-//no desempenho da captura
+//mas nao se sabe ate o momento, quais vantagens isso traz
+//por isso eh mantida como 1
 #define NUM_BUFFERS 1
 
+//Estrutura para auxiliar o controle dos controladores do dispositivo
+//como brilho, ganho, exposicao...
+
 struct controler{
-  bool enable;
-  __u8 name[32];
-  int min,max;
+  bool enable;//flag que indica se o controle esta habilitado
+  __u8 name[32];//nome do controle
+  int min,max;//valores maximos e minimos
   int default_value;
 };
 
@@ -39,10 +42,20 @@ struct buffer{
 };
 
 
+
+/****************************************************************************************************
+ * Classe para realizar o controle de dispositivos de imagem, com formatos YUV:422 ou GBRG 8bits,   *
+ foi utilizado a API Video for Linux 2 (V4L2), essa API possui uma documentação completa e pode ser *
+ encontrada em https://linuxtv.org/downloads/v4l-dvb-apis/uapi/v4l/v4l2.html.                       *
+ A classe foi pensada para ser usada por heranca.                                                   *
+ Para habilitar a captura faz-se necessario alterar o valor da flag "capturando", para true,        *
+ a classe tambem possui outra flag de controle, a "encerrar", que habilita ou desabilita            *
+ a rotina de captura (metodo "run").                                                                *
+ ****************************************************************************************************/
 class Camera {
  private:
   unsigned int width, height, fps;
-  // auxiliar para decodigicar a informacao em ImagemByte
+  // auxiliar para decodigicar a informacao em ImagemBruta
   // GBRG ou YUYV
   PIXEL_FORMAT pxFormat;
 
@@ -54,18 +67,26 @@ class Camera {
 
   bool isOpen;
   int fd;
-  struct buffer meuBuffer[NUM_BUFFERS];
-
+  struct buffer meuBuffer[NUM_BUFFERS];//buffer que contem os dados da imagem.
+  //funcoes auxiliares para controlar os parametros da camera
   bool setControl(__u32 id, int v);
   int  getControl(__u32 id)const;
   struct controler queryControl(__u32 id)const;
 
 protected:
+  /**
+   * Abre a camera default do sistema (index 0, /dev/video0 no linux)
+   */
   Camera();
+  /**
+   * Abre a camera de index informado
+   * @param index endereco do dispositivo que deseja usar
+   */
   Camera(unsigned index);
    ~Camera();
 
-   ImagemByte ImBruta;
+   ImagemBruta ImBruta;
+   //flags para controlar o modo stream e habilitar ou desabilitar a captura
    bool capturando;
    bool encerrar;
 
@@ -73,22 +94,71 @@ protected:
    // inline const uint8_t* getDataImage()const{ return meuBuffer[index_frame].bytes; }
    // const unsigned getDataSize()const{ return meuBuffer[index_frame].length; }
 
-   //Estes metodos retornam true em caso de saida indesejada
-   //e false caso tudo ocorreu como esperado
+
+   /******************************************************************************************************
+    * WARNING O metodo captureimage(), faz um novo "pedido de imagem",ao passo que o waitforimage()      *
+    aguarda para poder retirar uma imagem pronta(que ja se encontra no buffer) e a deixa acessivel       *
+    para usuario (sera a que aparecera na ImBruta).                                                      *
+    WARNING Para se realizar uma captura eh preciso primeiro fazer um captureimage() e em                *
+    seguida fazer um waitforimage(), porem por questoes de desempenho, esta classe faz um captureimage() *
+    logo em sua inicializacao, ou seja, basta o usuario fazer um waitforimage() para ter acesso a essa   *
+    captura e voltar a ordem "normal" de pedido de imagem (capture depois wait).                         *
+    Estes metodos retornam true em caso de saida indesejada                                              *
+    e false caso tudo ocorreu como esperado                                                              *
+    * @return true em caso de erro
+    ******************************************************************************************************/
    bool captureimage();
+   /**
+    * atualiza a ultima imagem
+    * @return true em caso de falha
+    */
    bool waitforimage();
 
+   /**
+    *
+    * @return a largura da imagem
+    */
    inline unsigned getWidth()const {return width;};
+   /**
+    * @return retorna a altura da imagem
+    */
    inline unsigned getHeight()const {return height;};
 
  public:
+   /**
+    * Inicia o modo stream de capura de imagem,
+    * caso a flag capture esteja true, e permanece capturando ate
+    * a flag ser alterada para false, ou pelo metodo terminar()
+    */
    void run();
    void terminar();
+
+   /************************************************************************
+    *  metodo que pode ser chamado a qualquer momento, abre um dispositovo *
+       pelo seu index. Cada camera conectada ao computador                 *
+       possui um endereco em /dev/videoX, onde este "X" eh o index.        *
+       para visualizar a lista de todos os dispositivos conectados         *
+       basta chamar o metodo listDevices().                                *
+                                                                           *
+    * @param  index index da camera                                        *
+    * @return       true em caso de falha                                  *
+    ************************************************************************/
    bool Open(unsigned index);
+
+   /**
+    * Fecha o dispositivo de captura
+    */
    void Close();
 
-   //retorna o numero de dispositivos conectados
-   //e imprimi na tela o nome e o index de cada dispositivo
+
+   /********************************************************
+    * retorna o numero de dispositivos conectados          *
+      e imprimi na tela o nome e o index de cada dispositivo *
+      caso nao queira que seja impresso no terminal a lista, *
+      passe "false" como parametro.                          *
+    * @param  printed [description]                        *
+    * @return         [description]                        *
+    ********************************************************/
    unsigned listDevices(bool printed = true)const;
    //equivalente a v4l2-ctl --list-formats-ext
    //char* printVideoFormats()const; //falta fazer
@@ -99,6 +169,7 @@ protected:
 
    std::ostream& write(std::ostream &O) const;
    bool read(std::istream &I);
+
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
    bool queryBrightness(struct controler &ctrl)const;

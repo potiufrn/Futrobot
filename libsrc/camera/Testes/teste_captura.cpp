@@ -16,61 +16,16 @@ public:
   inline bool wait(){return Camera::waitforimage(); }
   inline bool Open(unsigned index){ Camera::Open(index); this->capturando = true; }
   inline PxRGB  atRGB(unsigned lin, unsigned col){ return ImBruta.atRGB(lin,col); }
+
+  void write_byte(const char* arq){ ImBruta.write(arq); }
+  void copy(ImagemBruta &I){ I = ImBruta; }
 };
 
 int main(){
-  TesteCam cam;
-  unsigned numDevices = 0;
-  unsigned index = 0;
-  char key;
+  ImagemBruta tmp;
 
-  do {
-    do{
-      numDevices = cam.listDevices();
-      std::cout << "\nInforme um index valido da Camera : " << '\n';
-      cin >> index;
-    }while(index >= numDevices);
-    cam.Open(index);
-    cin.ignore(1,'\n');
+  tmp.read(".campoVazio");
+  ImagemRGB(tmp).save("campoVazio.ppm");
 
-    cam.wait();
-    cam.capture();
-    cam.wait();
-
-    cam.capture();
-    cam.save("ok.ppm");
-
-    cout << "q - Quit \n ENTER - escolher"<<endl;
-    cin.get(key);
-  } while(key != 'q');
-
-
-  while(true){
-    cout << "q - Quit \n ENTER - Capture "<<endl;
-    cin.get(key);
-    if(key == 'q'){
-      cout << "Quit\n";
-      break;
-    }
-    if(key == '\n'){
-      double start = relogio();
-      cam.wait();
-      cam.capture();
-      double end = relogio();
-
-      double start_save = relogio();
-      cam.save("CamSaveTeste.ppm");
-      double end_save = relogio();
-
-      cout << "Captura time : " << end - start << endl;
-
-      // unsigned lin,col;
-      // std::cout << "lin e col ? " << '\n';
-      // cin >> lin >> col;
-      // cout << cam.atRGB(lin,col) << endl;
-      // cin.ignore();
-      cout << "Save time  : " << end_save - start_save << endl;
-    }
-  };
   return 0;
 }

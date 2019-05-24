@@ -11,6 +11,7 @@ class TesteCam:public Camera
 public:
   TesteCam():Camera(){this->capturando = true;}
   void save(const char* arq){ ImagemRGB(ImBruta).save(arq); }
+
   inline bool capture(){ return Camera::captureimage(); }
   inline bool wait(){return Camera::waitforimage(); }
 };
@@ -23,35 +24,24 @@ int main(){
 
   ifstream I;
   ofstream O;
+  do{
+    numDevices = cam.listDevices();
+    std::cout << "\nInforme um index valido da Camera : " << '\n';
+    cin >> index;
+  }while(index >= numDevices);
 
-  do {
-    O.open("out.cal");
-    I.open("test.cal");
-    do{
-      numDevices = cam.listDevices();
-      std::cout << "\nInforme um index valido da Camera : " << '\n';
-      cin >> index;
-    }while(index >= numDevices);
+  cam.Open(index);
+  cin.ignore(1,'\n');
 
-    cam.Open(index);
-    cin.ignore(1,'\n');
+  cam.wait();
 
-    cam.wait();
-    cam.capture();
-
-    cam.wait();
-    cam.capture();
-
-    if(cam.read(I))std::cerr << "ERRO: in Read" << '\n';
-    cam.write(O);
-    O.close();
-    I.close();
-
-    cam.save("ok.ppm");
-
-    cout << "q - Quit \n ENTER - escolher"<<endl;
+  do{
+    std::cout << "Q-Exit or Enter-Capture" << '\n';
     cin.get(key);
+    if(key == 'q' || key == 'Q')return 0;
+    cam.capture();
+    cam.wait();
+  }while(true);
 
-  } while(key != 'q');
-  I.close();
+  return 0;
 }
