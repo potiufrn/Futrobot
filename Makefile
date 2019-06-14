@@ -11,10 +11,10 @@ makelibsrc:	clean
 	cd libsrc/camera && ${MAKE}	install
 
 makeprograms:
-	cd program && ${MAKE}	clean
-	cd program && ${MAKE}
-	cd calibrador	&& ${MAKE}	clean && ${MAKE}	install
-	cd main && ${MAKE}	clean && ${MAKE}	install
+	cd program && ${MAKE}	clean && ${MAKE}
+	cd program/main && ${MAKE}	clean && ${MAKE}
+	cd program/calibrador	&& ${MAKE}	clean && ${MAKE}
+	cd program/interface && ${MAKE}	clean && ${MAKE}
 
 .PHONY: clean realclean
 
