@@ -24,7 +24,7 @@
 //WARNING o numero de buffer pode ser alterado
 //mas nao se sabe ate o momento, quais vantagens isso traz
 //por isso eh mantida como 1
-#define NUM_BUFFERS 1
+#define NUM_BUFFERS 2
 
 //Estrutura para auxiliar o controle dos controladores do dispositivo
 //como brilho, ganho, exposicao...
@@ -127,7 +127,7 @@ protected:
    bool read(std::istream &I);
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
-   
+
    bool queryBrightness(struct controler &ctrl)const;
    int  getBrightness()const;
    bool setBrightness(int v);

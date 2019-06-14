@@ -5,3 +5,6 @@
 *.o
 *.a
 *.txt
+*/*.cal
+program/.desvioPadrao
+program/.campoVazio
