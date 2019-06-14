@@ -183,38 +183,6 @@ static BinaryMap analisedPixel(IMAGE_WIDTH,IMAGE_HEIGHT);
 //static HPG_LIMITS colorLimit[NUM_COLORS];
 
 
-//FUNCOES ESTATICAS GLOBAIS
-//***********************************************************
-/*
-  static REG_COLOR getColor(PxRGB pixel){
-  int i;
-  bool ok = true;
-  float H, G, P;
-
-  pixel.getHPG(H,P,G);
-  for(i = 0;i < NUM_COLORS; i++){
-  ok = false;
-  if(colorLimit[i].hMin <= colorLimit[i].hMax){
-  if(H >= colorLimit[i].hMin && H <= colorLimit[i].hMax)
-  ok = true ;
-  }else{
-  if(H >= colorLimit[i].hMin || H <= colorLimit[i].hMax)
-  ok = true ;
-  }
-  if(ok &&
-  G >= colorLimit[i].gMin && G <= colorLimit[i].gMax &&
-  P >= colorLimit[i].pMin && P <= colorLimit[i].pMax){
-  return (REG_COLOR)i;
-  }else if(G < 0.0 || G > 1.0 ||
-  P < 0.0 || P > 1.0){
-  cerr<<"PARAMETROS INVALIDOS!!"<<endl;
-  printf("G -> %E\n",G);
-  printf("P -> %E\n",P);
-  }
-  }
-  return REG_COLOR_UNDEFINED;
-  }
-*/
 static std::ostream& operator<<(std::ostream& os, REGION &r){
   os << r.center << " C-> " << r.colorID << " N-> " << r.nPixel;
   return os;
@@ -232,15 +200,6 @@ static double media_ang(double t1, double t2){
 
   return ang_equiv((t1 + t2)/2.0);
 }
-
-
-//Funcions used by seedfill
-//***********************************************************
-//static inline double euclideanDistance(COORD2 c1, COORD2 c2 )
-//{ return sqrt( (c1.u() - c2.u())*(c1.u() - c2.u()) +
-//	       (c1.v() - c2.v())*(c1.v() - c2.v()) ); }
-//
-//***********************************************************
 
 #endif
 
@@ -261,17 +220,6 @@ Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
   MaxV = 0;
   capturando = true;
 
-  /*
-    for(int i = 0; i < NUM_COLORS; i++){
-
-    colorLimit[i].hMin = 0.0;
-    colorLimit[i].hMax = 1.0;
-    colorLimit[i].gMin = 0.0;
-    colorLimit[i].gMax = 1.0;
-    colorLimit[i].pMin = 0.0;
-    colorLimit[i].pMax = 1.0;
-    }
-  */
 #endif
 }
 
@@ -747,8 +695,6 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //   REG_COLOR colorID;
   //REGION region;
 
-
-
   //   regAux.colorID = REG_COLOR_UNDEFINED;
   //   min_dist = MAX_RADIUS*10;
   //   for(ang = 0.0; ang < 2*M_PI; ang += M_PI/36){
@@ -829,8 +775,7 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //   return true; //com erro
 }
 
-bool Acquisition::processGameState()
-{
+bool Acquisition::processGameState(){
 
   //para cada cor está sendo criado um vetor de tamanho igual ao dobro
   //do numero de regioes esperadas daquela cor, pensando na
@@ -874,7 +819,6 @@ bool Acquisition::processGameState()
   pos.ball.x() = POSITION_UNDEFINED;
   pos.ball.y() = POSITION_UNDEFINED;
 
-  //  cout << "busca por regioes de cor" << endl;
   //PASSO 1: Busca por regiões amarelas e azuis
   for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
     for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
@@ -973,16 +917,16 @@ bool Acquisition::processGameState()
       }else if(!calculaMinhaPose(regYellow[i],-M_PI_2,-M_PI_2-M_PI_4,index,teamPose)){
       	pos.me[index] = teamPose;
       }else if(!calculaMinhaPoseAproximada(regYellow[i],M_PI_4,index,teamPose)){
-      	pos.me[index] = teamPose;
+        pos.me[index] = teamPose;
       }
     }
     break;
   case REG_COLOR_BLUE:
     for(i = 0; i < nRegBlue; i++){
       if(!calculaMinhaPose(regBlue[i],M_PI_2,M_PI_4,index,teamPose)){
-	pos.me[index] = teamPose;
+	      pos.me[index] = teamPose;
       }else if(!calculaMinhaPose(regBlue[i],-M_PI_2,-M_PI_2-M_PI_4,index,teamPose)){
-	pos.me[index] = teamPose;
+	      pos.me[index] = teamPose;
       }else if(!calculaMinhaPoseAproximada(regBlue[i],M_PI_4,index,teamPose)){
       	pos.me[index] = teamPose;
       }
@@ -1051,7 +995,7 @@ bool Acquisition::processGameState()
     for(i = 0; i < nRegBlue; i++){
       cout << "Azul " << i << "\t" << regBlue[i];
       if(regAuxBlue[i].colorID != REG_COLOR_UNDEFINED){
-	cout << "\t" << regAuxBlue[i];
+	       cout << "\t" << regAuxBlue[i];
       }
       cout << endl;
     }
@@ -1068,7 +1012,6 @@ bool Acquisition::processGameState()
     ImagemRGB(ImBruta).save("img_salva.ppm");
     saveNextImage = false;
   }
-
   return false; //no errors
 }
 #endif
@@ -1131,7 +1074,7 @@ bool Acquisition::readGameState()
     printf("Nao ha o que imprimir no modo simulado.\n");
     saveNextImage = false;
   }
-  
+
   return false;
 }
 
