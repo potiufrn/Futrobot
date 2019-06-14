@@ -8,7 +8,7 @@ CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 
 #Use essa opcao para compilar o sistema real e o simulado
-LDLIBS = -lcamera -limagem -lotim -lmatrix -lpthread -lssocket -lbluetoothAction -lbluetooth
+LDLIBS = -lcamera -limagem -lotim -lmatrix -lpthread -lssocket -lbluetoothAction -lbluetooth	-lsystem_tools
 
 #Use essa opcao para compilar somente o sistema simulado
 #LDLIBS = -lmatrix -lpthread -lssocket
