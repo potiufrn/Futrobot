@@ -1,0 +1,99 @@
+\hypertarget{classModelo}{}\section{Modelo Class Reference}
+\label{classModelo}\index{Modelo@{Modelo}}
+
+
+Collaboration diagram for Modelo\+:
+% FIG 0
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries simular} (double dt)\hypertarget{classModelo_a46df07422c7e2f71c6addcb4db543215}{}\label{classModelo_a46df07422c7e2f71c6addcb4db543215}
+
+\item 
+void {\bfseries avancar\+\_\+sem\+\_\+simular} (double dt)\hypertarget{classModelo_a1246915be40eb03d13267a04625a5a25}{}\label{classModelo_a1246915be40eb03d13267a04625a5a25}
+
+\item 
+void {\bfseries posicao\+\_\+inicial} ()\hypertarget{classModelo_a05130d35121313c380136f7a27e7f749}{}\label{classModelo_a05130d35121313c380136f7a27e7f749}
+
+\item 
+void {\bfseries atualizar\+\_\+controle} (T\+E\+AM, int, M\+O\+T\+OR, double)\hypertarget{classModelo_afda0d872ccc8c78b6fb8530427344469}{}\label{classModelo_afda0d872ccc8c78b6fb8530427344469}
+
+\item 
+void {\bfseries le\+\_\+posicao} (\hyperlink{structPOSICAO}{P\+O\+S\+I\+C\+AO} \&)\hypertarget{classModelo_a0f711dbf1eb1552a81bcd2726ac47a7c}{}\label{classModelo_a0f711dbf1eb1552a81bcd2726ac47a7c}
+
+\item 
+double {\bfseries le\+\_\+tempo} ()\hypertarget{classModelo_a97ccaef7e82bed14f32460deb8fb4a36}{}\label{classModelo_a97ccaef7e82bed14f32460deb8fb4a36}
+
+\item 
+void {\bfseries set\+\_\+posicao} (const \hyperlink{structPOSICAO}{P\+O\+S\+I\+C\+AO} \&, double, double)\hypertarget{classModelo_ab00485f32cc524958f7a3870d776e44a}{}\label{classModelo_ab00485f32cc524958f7a3870d776e44a}
+
+\item 
+void {\bfseries set\+\_\+posicao\+\_\+robo} (T\+E\+AM, int, double, double, double)\hypertarget{classModelo_a08244536d72e7cc2a08d650f3d969df0}{}\label{classModelo_a08244536d72e7cc2a08d650f3d969df0}
+
+\item 
+void {\bfseries set\+\_\+posicao\+\_\+bola} (double, double)\hypertarget{classModelo_a3bffbf2e10d8fd07e323f6b6986b0192}{}\label{classModelo_a3bffbf2e10d8fd07e323f6b6986b0192}
+
+\item 
+void {\bfseries set\+\_\+tempo} (double)\hypertarget{classModelo_a04fc18937d8e89f782cf10893e32863a}{}\label{classModelo_a04fc18937d8e89f782cf10893e32863a}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries colisao\+\_\+bola\+\_\+paredes} (const \hyperlink{structCORRECAO}{C\+O\+R\+R\+E\+C\+AO} \&correcao)\hypertarget{classModelo_a9b8714348dab420e56fdeb47dc4028ae}{}\label{classModelo_a9b8714348dab420e56fdeb47dc4028ae}
+
+\item 
+void {\bfseries colisao\+\_\+bola\+\_\+robo} (T\+E\+AM team, int id, const \hyperlink{structCORRECAO}{C\+O\+R\+R\+E\+C\+AO} \&correcao)\hypertarget{classModelo_a3b859d16ae979e80629d6d4ef8ed45ff}{}\label{classModelo_a3b859d16ae979e80629d6d4ef8ed45ff}
+
+\item 
+void {\bfseries colisao\+\_\+robo\+\_\+paredes} (T\+E\+AM team, int id, const \hyperlink{structCORRECAO}{C\+O\+R\+R\+E\+C\+AO} \&correcao)\hypertarget{classModelo_a7f6ea84c78989452f5b40edfd33315fd}{}\label{classModelo_a7f6ea84c78989452f5b40edfd33315fd}
+
+\item 
+void {\bfseries colisao\+\_\+robo\+\_\+robo} (T\+E\+AM team1, int id1, T\+E\+AM team2, int id2, const \hyperlink{structCORRECAO}{C\+O\+R\+R\+E\+C\+AO} \&correcao)\hypertarget{classModelo_af5b48b85ccc2aa6ed4e2ad11888164df}{}\label{classModelo_af5b48b85ccc2aa6ed4e2ad11888164df}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double {\bfseries V\+Lin\+Max}\hypertarget{classModelo_a94d66d2de44f17a5bb69e44ec09f82ae}{}\label{classModelo_a94d66d2de44f17a5bb69e44ec09f82ae}
+
+\item 
+double {\bfseries V\+Ang\+Max}\hypertarget{classModelo_ae7e1804a97bbf12447f5b077af744c3d}{}\label{classModelo_ae7e1804a97bbf12447f5b077af744c3d}
+
+\item 
+double {\bfseries Massa\+Robo}\hypertarget{classModelo_afd2c41f9a3b13934e9917a2bd6eafe89}{}\label{classModelo_afd2c41f9a3b13934e9917a2bd6eafe89}
+
+\item 
+double {\bfseries Momento\+Robo}\hypertarget{classModelo_a06b0b63cf700729abe7374c058ee09f0}{}\label{classModelo_a06b0b63cf700729abe7374c058ee09f0}
+
+\item 
+double {\bfseries T\+Lin}\hypertarget{classModelo_ac2a0d0a621aa86dd89d4d85b0c010c1a}{}\label{classModelo_ac2a0d0a621aa86dd89d4d85b0c010c1a}
+
+\item 
+double {\bfseries T\+Ang}\hypertarget{classModelo_a144b0048bc030e8d0a80fdec99aeca56}{}\label{classModelo_a144b0048bc030e8d0a80fdec99aeca56}
+
+\item 
+double {\bfseries Massa\+Bola}\hypertarget{classModelo_ac87cb0b71fee87fcc8bd1ba6b17d0191}{}\label{classModelo_ac87cb0b71fee87fcc8bd1ba6b17d0191}
+
+\item 
+double {\bfseries T\+Bola}\hypertarget{classModelo_a9a7644a0e9d8b6cf8ee92dec5e375ffe}{}\label{classModelo_a9a7644a0e9d8b6cf8ee92dec5e375ffe}
+
+\item 
+\hyperlink{structEST__ROBO}{E\+S\+T\+\_\+\+R\+O\+BO} {\bfseries azul} \mbox{[}3\mbox{]}\hypertarget{classModelo_affe6d935260128d1530c01aae2fd61a1}{}\label{classModelo_affe6d935260128d1530c01aae2fd61a1}
+
+\item 
+\hyperlink{structEST__ROBO}{E\+S\+T\+\_\+\+R\+O\+BO} {\bfseries amrl} \mbox{[}3\mbox{]}\hypertarget{classModelo_a19e5a25575e7a5732abf354dfa785505}{}\label{classModelo_a19e5a25575e7a5732abf354dfa785505}
+
+\item 
+\hyperlink{structEST__BOLA}{E\+S\+T\+\_\+\+B\+O\+LA} {\bfseries bola}\hypertarget{classModelo_aecece6f46b5dbda86487fa0412f08e9d}{}\label{classModelo_aecece6f46b5dbda86487fa0412f08e9d}
+
+\item 
+double {\bfseries tempo\+\_\+simul}\hypertarget{classModelo_a83a37f33c33975b78bf28732531c0554}{}\label{classModelo_a83a37f33c33975b78bf28732531c0554}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/poti/\+L\+Gabriel/\+Futrobot/program/simulator/modelo.\+h\item 
+/home/poti/\+L\+Gabriel/\+Futrobot/program/simulator/modelo.\+cpp\end{DoxyCompactItemize}

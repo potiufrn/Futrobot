@@ -1,0 +1,103 @@
+\hypertarget{classImagemBruta}{}\section{Imagem\+Bruta Class Reference}
+\label{classImagemBruta}\index{Imagem\+Bruta@{Imagem\+Bruta}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Imagem\+Bruta} (const \hyperlink{classImagemBruta}{Imagem\+Bruta} \&I)=delete\hypertarget{classImagemBruta_a838aff9c2ef65563e22dac8c14635c1f}{}\label{classImagemBruta_a838aff9c2ef65563e22dac8c14635c1f}
+
+\item 
+{\bfseries Imagem\+Bruta} (unsigned larg, unsigned alt)\hypertarget{classImagemBruta_afbe010a51d6ad61a17bee6eaa98fab51}{}\label{classImagemBruta_afbe010a51d6ad61a17bee6eaa98fab51}
+
+\item 
+void {\bfseries copy\+To} (\hyperlink{classImagemBruta}{Imagem\+Bruta} \&dest) const \hypertarget{classImagemBruta_a2836f2b863c0797393a1b1f4216bf83a}{}\label{classImagemBruta_a2836f2b863c0797393a1b1f4216bf83a}
+
+\item 
+void {\bfseries load\+From\+Data} (uint8\+\_\+t $\ast$data, unsigned length, P\+I\+X\+E\+L\+\_\+\+F\+O\+R\+M\+AT Px\+F\+O\+R\+M\+AT, unsigned W\+I\+D\+TH, unsigned H\+E\+I\+G\+HT)\hypertarget{classImagemBruta_a04ae45e70b3f634bf7ec19ec6f2aa296}{}\label{classImagemBruta_a04ae45e70b3f634bf7ec19ec6f2aa296}
+
+\item 
+uint8\+\_\+t {\bfseries at\+Byte} (unsigned pos) const \hypertarget{classImagemBruta_a0f5def4b523db811ea2ef7b6dbe4e7d1}{}\label{classImagemBruta_a0f5def4b523db811ea2ef7b6dbe4e7d1}
+
+\item 
+uint8\+\_\+t \& {\bfseries at\+Byte} (unsigned pos)\hypertarget{classImagemBruta_aaa38236cf6eae1453d6110307f426987}{}\label{classImagemBruta_aaa38236cf6eae1453d6110307f426987}
+
+\item 
+uint8\+\_\+t {\bfseries at\+Byte} (unsigned lin, unsigned col) const \hypertarget{classImagemBruta_ae8e741d1cc510e3999c2b4534900d393}{}\label{classImagemBruta_ae8e741d1cc510e3999c2b4534900d393}
+
+\item 
+\hyperlink{classPxRGB}{Px\+R\+GB} {\bfseries at\+R\+GB} (unsigned lin, unsigned col) const \hypertarget{classImagemBruta_a2283a1b9d849242ea5cc60cc4c4cf8cf}{}\label{classImagemBruta_a2283a1b9d849242ea5cc60cc4c4cf8cf}
+
+\item 
+void {\bfseries at\+H\+PG} (unsigned lin, unsigned col, float \&H, float \&P, float \&G) const \hypertarget{classImagemBruta_ac4c4ee8cda55544e943c9af38c20fddb}{}\label{classImagemBruta_ac4c4ee8cda55544e943c9af38c20fddb}
+
+\item 
+void {\bfseries operator=} (\hyperlink{classImagemBruta}{Imagem\+Bruta} I)=delete\hypertarget{classImagemBruta_a06533a52ae4bd57c9bf24218ab702e52}{}\label{classImagemBruta_a06533a52ae4bd57c9bf24218ab702e52}
+
+\item 
+unsigned {\bfseries get\+Width} () const \hypertarget{classImagemBruta_a26be6b7083ab5303cb9b797b25a9d796}{}\label{classImagemBruta_a26be6b7083ab5303cb9b797b25a9d796}
+
+\item 
+unsigned {\bfseries get\+Height} () const \hypertarget{classImagemBruta_a40a1553f0ea56fa23f78e3592dc926c0}{}\label{classImagemBruta_a40a1553f0ea56fa23f78e3592dc926c0}
+
+\item 
+unsigned {\bfseries get\+Length} () const \hypertarget{classImagemBruta_af67f56676acdd10c062b662970aa5d46}{}\label{classImagemBruta_af67f56676acdd10c062b662970aa5d46}
+
+\item 
+P\+I\+X\+E\+L\+\_\+\+F\+O\+R\+M\+AT {\bfseries get\+Px\+Format} ()\hypertarget{classImagemBruta_af89d9f4d963e11164898c77d4aad51af}{}\label{classImagemBruta_af89d9f4d963e11164898c77d4aad51af}
+
+\item 
+void {\bfseries write} (const char $\ast$arquivo) const \hypertarget{classImagemBruta_aaef6ca2a4ada9e738133ae7f20200542}{}\label{classImagemBruta_aaef6ca2a4ada9e738133ae7f20200542}
+
+\item 
+bool {\bfseries read} (const char $\ast$arquivo)\hypertarget{classImagemBruta_a2a68c9c4f5b12446107c09735d1c5874}{}\label{classImagemBruta_a2a68c9c4f5b12446107c09735d1c5874}
+
+\item 
+void {\bfseries write} (std\+::ofstream \&O) const \hypertarget{classImagemBruta_a649a8af49f180c28b5c125e992267dc8}{}\label{classImagemBruta_a649a8af49f180c28b5c125e992267dc8}
+
+\item 
+bool {\bfseries read} (std\+::ifstream \&I)\hypertarget{classImagemBruta_aa4bffdbe83f135877d8baab28e1cb589}{}\label{classImagemBruta_aa4bffdbe83f135877d8baab28e1cb589}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries copy} (const \hyperlink{classImagemBruta}{Imagem\+Bruta} \&I)\hypertarget{classImagemBruta_a6edc51fd214df869338574c331187f09}{}\label{classImagemBruta_a6edc51fd214df869338574c331187f09}
+
+\item 
+void {\bfseries destruct} ()\hypertarget{classImagemBruta_acb0f63b04d46186f72500c50dc4a1d2e}{}\label{classImagemBruta_acb0f63b04d46186f72500c50dc4a1d2e}
+
+\item 
+void {\bfseries create} ()\hypertarget{classImagemBruta_ae6451ca4e74e07a884543c6109aaa123}{}\label{classImagemBruta_ae6451ca4e74e07a884543c6109aaa123}
+
+\item 
+\hyperlink{classPxRGB}{Px\+R\+GB} {\bfseries at\+G\+B\+R\+Gto\+R\+GB} (unsigned lin, unsigned col) const \hypertarget{classImagemBruta_a75ab5b88fc886c7b0bcaf1290061341b}{}\label{classImagemBruta_a75ab5b88fc886c7b0bcaf1290061341b}
+
+\item 
+\hyperlink{classPxRGB}{Px\+R\+GB} {\bfseries at\+Y\+U\+Y\+Vto\+R\+GB} (unsigned lin, unsigned col) const \hypertarget{classImagemBruta_aaa16342431a936d8f9e5865ce4f67cf9}{}\label{classImagemBruta_aaa16342431a936d8f9e5865ce4f67cf9}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+unsigned {\bfseries width}\hypertarget{classImagemBruta_a65217e1f7e27e1345e1a5fe54f851f9e}{}\label{classImagemBruta_a65217e1f7e27e1345e1a5fe54f851f9e}
+
+\item 
+unsigned {\bfseries height}\hypertarget{classImagemBruta_a1584fed1d5c18d01e4b308ae7d8cbedc}{}\label{classImagemBruta_a1584fed1d5c18d01e4b308ae7d8cbedc}
+
+\item 
+unsigned {\bfseries length}\hypertarget{classImagemBruta_a1c837bfbb1aa7c8f35c0eed1f6dc9cd2}{}\label{classImagemBruta_a1c837bfbb1aa7c8f35c0eed1f6dc9cd2}
+
+\item 
+P\+I\+X\+E\+L\+\_\+\+F\+O\+R\+M\+AT {\bfseries px\+Format}\hypertarget{classImagemBruta_ac8c21e33e43b8ef8d138eafd62c3a523}{}\label{classImagemBruta_ac8c21e33e43b8ef8d138eafd62c3a523}
+
+\item 
+uint8\+\_\+t $\ast$ {\bfseries img\+Data}\hypertarget{classImagemBruta_ad3e7105f017414f30990e7e85195a0ed}{}\label{classImagemBruta_ad3e7105f017414f30990e7e85195a0ed}
+
+\item 
+bool {\bfseries cop}\hypertarget{classImagemBruta_a69628d301828a268764372b3e31d6140}{}\label{classImagemBruta_a69628d301828a268764372b3e31d6140}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/poti/\+L\+Gabriel/\+Futrobot/include/imagem.\+h\end{DoxyCompactItemize}
