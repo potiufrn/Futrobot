@@ -1,7 +1,7 @@
 BASEDIR	=	../../..
 CC	=	g++
 CXX	=	g++
-CPPFLAGS	=	-Wall -I	${BASEDIR}/include
+CPPFLAGS	=	-Wall -std=c++11	-I	${BASEDIR}/include
 LDFLAGS	=	-L	${BASEDIR}/lib
 LDLIBS = -limagem	-lsystem_tools
 

@@ -3,7 +3,7 @@ BASEDIR = ../..
 
 CC = g++
 CXX = g++
-CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
+CPPFLAGS = -Wall -std=c++11	 -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 

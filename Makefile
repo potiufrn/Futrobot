@@ -7,6 +7,7 @@ makelibsrc:	clean
 	cd libsrc/ssocket && ${MAKE}	install
 	cd libsrc/matrix && ${MAKE}	install
 	cd libsrc/otim && ${MAKE}	install
+	cd libsrc/tools && ${MAKE} install
 	cd libsrc/Imagem && ${MAKE}	install
 	cd libsrc/camera && ${MAKE}	install
 
