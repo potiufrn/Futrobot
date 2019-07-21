@@ -21,9 +21,7 @@
 #define HEIGHT 480
 #define FPS 30
 
-//WARNING o numero de buffer pode ser alterado
-//mas nao se sabe ate o momento, quais vantagens isso traz
-//por isso eh mantida como 1
+//WARNING numero minimo
 #define NUM_BUFFERS 2
 
 //Estrutura para auxiliar o controle dos controladores do dispositivo
@@ -80,20 +78,9 @@ protected:
    bool capturando;
    bool encerrar;
 
-   // inline PIXEL_FORMAT getPxFormat()const{ return ImBruta.; }
-   // inline const uint8_t* getDataImage()const{ return meuBuffer[index_frame].bytes; }
-   // const unsigned getDataSize()const{ return meuBuffer[index_frame].length; }
-
-
    //WARNING O metodo captureimage(), faz um novo "pedido de imagem",ao passo que o waitforimage()
    //aguarda para poder retirar uma imagem pronta(que ja se encontra no buffer) e a deixa acessivel
-   //para usuario (sera a que aparecera na ImBruta).
-   //WARNING Para se realizar uma captura eh preciso primeiro fazer um captureimage() e em
-   //seguida fazer um waitforimage(), porem por questoes de desempenho, esta classe faz um captureimage()
-   //logo em sua inicializacao, ou seja, basta o usuario fazer um waitforimage() para ter acesso a essa
-   //captura e voltar a ordem "normal" de pedido de imagem (capture depois wait).
-   //Estes metodos retornam true em caso de saida indesejada
-   //e false caso tudo ocorreu como esperado
+   //para usuario (que estara disponivel na ImBruta).
    bool captureimage();
    bool waitforimage();
 

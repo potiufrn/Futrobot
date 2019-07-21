@@ -65,8 +65,8 @@ private:
   bool canBePainted(REG_COLOR colorID,unsigned u, unsigned v);
   /**
    * Algoritmo otimizado de SEEDFILL/FLOODFILL
-   * dado uma posicao na imagem (semente) e uma cor,
-   * o algoritmo encontra todos os pixels associados a essa
+   * dado uma posicao na imagem e uma cor,
+   * o algoritmo encontra todos os pixels associados a esse pixel inicial
    * semente e sobrescreve os valores desses pixels
    * pela cor especificada.
    * @param  colorID Cor que sera aplicada na regiao.
