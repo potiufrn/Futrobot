@@ -1,16 +1,8 @@
-*.cam
-*.val
-*.cal
 *.ppm
 *.o
 *.a
-*.txt
-*/*.cal
 doc/html
 doc/latex
-program/.desvioPadrao
-program/.campoVazio
-program/main
 program/calibrador/calibrador
 program/main/main
 program/interface/interface
