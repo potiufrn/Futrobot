@@ -6,5 +6,7 @@
 *.a
 *.txt
 */*.cal
+doc/html
+doc/latex
 program/.desvioPadrao
 program/.campoVazio

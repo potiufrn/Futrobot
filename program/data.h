@@ -225,7 +225,6 @@ struct PACKAGEDAT {
   // PxRGB imagem[IMAGE_WIDTH][IMAGE_HEIGHT];
   // ImagemBruta *imgBruta;
 
-
   GAME_STATE game;
 
   /*sentido interface -> FutRobot*/
