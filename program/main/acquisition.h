@@ -28,7 +28,6 @@ enum  REG_COLOR {
   REG_COLOR_UNDEFINED = -1
 };
 
-
 struct REGION{
   Coord2 center;
   double orientation;
@@ -65,8 +64,8 @@ private:
   bool canBePainted(REG_COLOR colorID,unsigned u, unsigned v);
   /**
    * Algoritmo otimizado de SEEDFILL/FLOODFILL
-   * dado uma posicao na imagem e uma cor,
-   * o algoritmo encontra todos os pixels associados a esse pixel inicial
+   * dado uma posicao na imagem (semente) e uma cor,
+   * o algoritmo encontra todos os pixels associados a essa
    * semente e sobrescreve os valores desses pixels
    * pela cor especificada.
    * @param  colorID Cor que sera aplicada na regiao.
