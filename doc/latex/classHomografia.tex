@@ -1,0 +1,80 @@
+\hypertarget{classHomografia}{}\section{Homografia Class Reference}
+\label{classHomografia}\index{Homografia@{Homografia}}
+
+
+Collaboration diagram for Homografia\+:
+% FIG 0
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Homografia} (const \hyperlink{classHomografia}{Homografia} \&H)\hypertarget{classHomografia_a9ba4486db3b472d273d43f121eb574ce}{}\label{classHomografia_a9ba4486db3b472d273d43f121eb574ce}
+
+\item 
+{\bfseries Homografia} (const \hyperlink{classvmatrix}{vmatrix} \&M)\hypertarget{classHomografia_a1a80c35c86125f5106482b2b608c056b}{}\label{classHomografia_a1a80c35c86125f5106482b2b608c056b}
+
+\item 
+const \hyperlink{classfmatrix}{fmatrix} {\bfseries H} () const \hypertarget{classHomografia_a827d86c857184ecd933dc5df6049a131}{}\label{classHomografia_a827d86c857184ecd933dc5df6049a131}
+
+\item 
+const \hyperlink{classfmatrix}{fmatrix} {\bfseries H\+Inv} () const \hypertarget{classHomografia_a14442c779eedcede20566b7bec4bf712}{}\label{classHomografia_a14442c779eedcede20566b7bec4bf712}
+
+\item 
+bool {\bfseries incluir\+Ponto} (const \hyperlink{structCoord2}{Coord2} \&pm, const \hyperlink{structCoord2}{Coord2} \&pi)\hypertarget{classHomografia_af84cb5494aa005b0cd2ac73811d3baf8}{}\label{classHomografia_af84cb5494aa005b0cd2ac73811d3baf8}
+
+\item 
+void {\bfseries limpar\+Pontos} ()\hypertarget{classHomografia_a40cbe824866e9d8c5990153a7357d4da}{}\label{classHomografia_a40cbe824866e9d8c5990153a7357d4da}
+
+\item 
+bool {\bfseries calibrar} ()\hypertarget{classHomografia_a4bab6c630c296339a842e6c9c6adaf10}{}\label{classHomografia_a4bab6c630c296339a842e6c9c6adaf10}
+
+\item 
+double {\bfseries erro} () const \hypertarget{classHomografia_a79a23989d6bac9cc6ba6884518027398}{}\label{classHomografia_a79a23989d6bac9cc6ba6884518027398}
+
+\item 
+double {\bfseries erro\+Max} () const \hypertarget{classHomografia_a4750b435c729c415de61885d227998ed}{}\label{classHomografia_a4750b435c729c415de61885d227998ed}
+
+\item 
+const \hyperlink{structCoord2}{Coord2} {\bfseries para\+Imagem} (const \hyperlink{structCoord2}{Coord2} \&pm) const \hypertarget{classHomografia_a5db87a04b6b02cb6896c376461f7905b}{}\label{classHomografia_a5db87a04b6b02cb6896c376461f7905b}
+
+\item 
+const \hyperlink{structCoord2}{Coord2} {\bfseries operator$\ast$} (const \hyperlink{structCoord2}{Coord2} \&pm) const \hypertarget{classHomografia_a84492a455c11ebf77f04a7b2612e53c4}{}\label{classHomografia_a84492a455c11ebf77f04a7b2612e53c4}
+
+\item 
+const \hyperlink{structCoord2}{Coord2} {\bfseries para\+Mundo} (const \hyperlink{structCoord2}{Coord2} \&pi) const \hypertarget{classHomografia_a467546d6795fd05d2117e203995e613e}{}\label{classHomografia_a467546d6795fd05d2117e203995e613e}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries calcula\+Erros} ()\hypertarget{classHomografia_ab6aa52f09141327f93ad613db4ce20b4}{}\label{classHomografia_ab6aa52f09141327f93ad613db4ce20b4}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classfmatrix}{fmatrix} {\bfseries Hom}\hypertarget{classHomografia_ae8bc40370923ecb0f84e7864819c7097}{}\label{classHomografia_ae8bc40370923ecb0f84e7864819c7097}
+
+\item 
+\hyperlink{classfmatrix}{fmatrix} {\bfseries Hom\+Inv}\hypertarget{classHomografia_a356810106da9f8de4126b04cc383b532}{}\label{classHomografia_a356810106da9f8de4126b04cc383b532}
+
+\item 
+double {\bfseries Erro}\hypertarget{classHomografia_a2e6bb49f3480fc5632b349e9e13111e6}{}\label{classHomografia_a2e6bb49f3480fc5632b349e9e13111e6}
+
+\item 
+double {\bfseries Erro\+Max}\hypertarget{classHomografia_a966090fca3eb32be9033030d87084344}{}\label{classHomografia_a966090fca3eb32be9033030d87084344}
+
+\item 
+std\+::deque$<$ \hyperlink{structDCoord2}{D\+Coord2} $>$ {\bfseries P}\hypertarget{classHomografia_a6a0a07f1d19ed3c463897f4f7d9cb36e}{}\label{classHomografia_a6a0a07f1d19ed3c463897f4f7d9cb36e}
+
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{structCoord2}{Coord2} {\bfseries operator/} (const \hyperlink{structCoord2}{Coord2} \&pi, const \hyperlink{classHomografia}{Homografia} \&H)\hypertarget{classHomografia_ab1f0b063805f0470ffdc7b878e23827f}{}\label{classHomografia_ab1f0b063805f0470ffdc7b878e23827f}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/poti/\+L\+Gabriel/\+Futrobot/include/imagem.\+h\end{DoxyCompactItemize}

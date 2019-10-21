@@ -1,0 +1,49 @@
+\hypertarget{classAnimacao}{}\section{Animacao Class Reference}
+\label{classAnimacao}\index{Animacao@{Animacao}}
+
+
+Inheritance diagram for Animacao\+:
+% FIG 0
+
+
+Collaboration diagram for Animacao\+:
+% FIG 1
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Animacao} (int n\+\_\+my\+\_\+team, Q\+Widget $\ast$parent=0)\hypertarget{classAnimacao_a2cdb82bd3372defea1b96bdac22c873f}{}\label{classAnimacao_a2cdb82bd3372defea1b96bdac22c873f}
+
+\item 
+void {\bfseries set\+Var\+Control} (int n\+\_\+fundo, bool n\+\_\+lin, bool n\+\_\+mro, bool n\+\_\+adv, bool n\+\_\+rtr, bool n\+\_\+ref, bool n\+\_\+bal\+\_\+fut)\hypertarget{classAnimacao_a2701125bce4a7e46b084a0725c37f90b}{}\label{classAnimacao_a2701125bce4a7e46b084a0725c37f90b}
+
+\item 
+void {\bfseries set\+Meus\+Pos} (\hyperlink{structPOS__ROBO}{P\+O\+S\+\_\+\+R\+O\+BO} pos, int id)\hypertarget{classAnimacao_ae41b6d94074ceddbf900a2c162c9b72e}{}\label{classAnimacao_ae41b6d94074ceddbf900a2c162c9b72e}
+
+\item 
+void {\bfseries set\+Advs\+Pos} (\hyperlink{structPOS__ROBO}{P\+O\+S\+\_\+\+R\+O\+BO} pos, int id)\hypertarget{classAnimacao_a0a764c972d3ae05afa8f6ad9854d0688}{}\label{classAnimacao_a0a764c972d3ae05afa8f6ad9854d0688}
+
+\item 
+void {\bfseries setref\+Pos} (\hyperlink{structPOS__ROBO}{P\+O\+S\+\_\+\+R\+O\+BO} pos, int id)\hypertarget{classAnimacao_aaf3a3f435171f0039ef9ca6c5b9165fc}{}\label{classAnimacao_aaf3a3f435171f0039ef9ca6c5b9165fc}
+
+\item 
+void {\bfseries setball\+Pos} (\hyperlink{structPOS__BOLA}{P\+O\+S\+\_\+\+B\+O\+LA} pos, \hyperlink{structVELOCITY}{V\+E\+L\+O\+C\+I\+TY} vel)\hypertarget{classAnimacao_ae4f9aa49526d8feb97a9071c50fd8e87}{}\label{classAnimacao_ae4f9aa49526d8feb97a9071c50fd8e87}
+
+\item 
+void {\bfseries setimg} (const \hyperlink{classPxRGB}{Px\+R\+GB} $\ast$img)\hypertarget{classAnimacao_ac2227f24fee38caf698198761a46c282}{}\label{classAnimacao_ac2227f24fee38caf698198761a46c282}
+
+\item 
+void {\bfseries set\+Function} (F\+U\+N\+C\+T\+I\+ON, F\+U\+N\+C\+T\+I\+ON, F\+U\+N\+C\+T\+I\+ON)\hypertarget{classAnimacao_ac00cd47f5957427ac385aee1cdd1c16b}{}\label{classAnimacao_ac00cd47f5957427ac385aee1cdd1c16b}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries paint\+Event} (Q\+Paint\+Event $\ast$event)\hypertarget{classAnimacao_a8dc20d3f517bcc75f3fefb4120976dfe}{}\label{classAnimacao_a8dc20d3f517bcc75f3fefb4120976dfe}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+program/interface/animacao.\+h\item 
+program/interface/animacao.\+cpp\end{DoxyCompactItemize}
