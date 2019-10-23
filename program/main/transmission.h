@@ -19,10 +19,15 @@
 #else  //#ifndef _TRANSMITION_BLUETOOTH_
 #include <bluetoothAction.h>
 
-#define ID_ROBO_0 "20:17:03:06:25:29"
-#define ID_ROBO_1 "20:17:03:06:00:34"
-#define ID_ROBO_2 "20:17:03:06:17:86"
- 
+//#define ID_ROBO_0 "20:17:03:06:25:29"
+//#define ID_ROBO_1 "20:17:03:06:00:34"
+//#define ID_ROBO_2 "20:17:03:06:17:86"
+
+#define ID_ROBO_0 "30:AE:A4:19:CE:A6"
+#define ID_ROBO_1 "30:AE:A4:20:0E:12"
+#define ID_ROBO_2 "30:AE:A4:13:F8:AE"
+
+
 #endif //#ifndef _TRANSMITION_BLUETOOTH_
 #endif //#ifndef _SO_SIMULADO_
 
@@ -30,7 +35,7 @@
 class Transmission :
   public virtual FutData
 {
- 
+
 private:
 #ifndef _SO_SIMULADO_
   #ifndef _TRANSMITION_BLUETOOTH_

@@ -24,20 +24,23 @@ By: Luís Gabriel Pereira Condados - 16/10/2019
 #include "nvs.h"
 #include "nvs_flash.h"
 
-#include "esp_log.h"
+//Bluetooth
 #include "esp_bt.h"
 #include "esp_bt_main.h"
 #include "esp_gap_bt_api.h"
 #include "esp_bt_device.h"
 #include "esp_spp_api.h"
 
+//FreeRTOS
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
+//Motor Controller PWM
 #include "driver/mcpwm.h"
 #include "driver/gpio.h"
 
+//C
 #include <stdio.h>
 
 //Motor 1 - Pinos e PWM
@@ -54,9 +57,7 @@ int GPIO_B1N1 = GPIO_NUM_5; // Sentido motor
 //Motor 2 - Pinos e PWM
 int GPIO_PWM_B = GPIO_NUM_16; //  Controla a velocidade do motor B (Direito)
 
-
 //############ Variaveis Globais ###############
-static xQueueHandle bt_queue = NULL;
 
 //####################################################################################################
 //                    mode_rotate
@@ -65,35 +66,19 @@ static xQueueHandle bt_queue = NULL;
 void motorControl(const uint8_t mode_rotate, const uint8_t pwmLeft, const uint8_t pwmRight);
 void setup();
 
-static void motorManager(void *arg);
-
 bool initBluetooth(const char* deviceName, esp_spp_cb_t *esp_spp_cb);
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
 //####################################################################################################
 
-
-static void
-motorManager(void *argv)
-{
-  uint8_t bt_data[3];
-
-  while(true)
-  {
-    xQueueReceive(bt_queue, bt_data, portMAX_DELAY);
-    if((bt_data[0] & 0b11111100) == 0b10101000) //check head
-      motorControl(bt_data[0], bt_data[1], bt_data[2]);
-  }
-}
-
-
+//Tarefa principal, que cria as demais tarefas
 void
 app_main(){
-  bt_queue = xQueueCreate(1, 3*sizeof(uint8_t));
 
   setup();
   xTaskCreatePinnedToCore(motorManager, "Motor Manager", 1024, NULL, 5, NULL, 1);
 }
 
+//Funcao que configura e inicializa o Bluetooth
 bool
 initBluetooth(const char* deviceName, esp_spp_cb_t *esp_spp_cb)
 {
@@ -142,49 +127,44 @@ initBluetooth(const char* deviceName, esp_spp_cb_t *esp_spp_cb)
   return true;
 }
 
+//Funcao de tratamento de eventos do bluetooth
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
+  uint8_t bt_data[3];
+
     switch (event){
     case ESP_SPP_INIT_EVT:
-        //ESP_LOGI(SPP_TAG, "Evento: ESP_SPP_INIT_EVT");
         esp_bt_gap_set_scan_mode(ESP_BT_SCAN_MODE_CONNECTABLE_DISCOVERABLE);
         esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, "ESP32_SPP_SERVER");
         break;
     case ESP_SPP_DISCOVERY_COMP_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_DISCOVERY_COMP_EVT");
         printf("Evento: ESP_SPP_DISCOVERY_COMP_EVT\n");
         break;
     case ESP_SPP_OPEN_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_OPEN_EVT");
         printf("Evento: ESP_SPP_OPEN_EVT\n");
         break;
     case ESP_SPP_CLOSE_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_CLOSE_EVT");
         printf("Evento: ESP_SPP_CLOSE_EVT\n");
         break;
     case ESP_SPP_START_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_START_EVT");
         printf("Evento: ESP_SPP_START_EVT\n");
         break;
     case ESP_SPP_CL_INIT_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_CL_INIT_EVT");
         printf("Evento: ESP_SPP_CL_INIT_EVT\n");
         break;
     case ESP_SPP_DATA_IND_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_DATA_IND_EVT");
-        printf("Tamanho: %d da mensagem: %s\n", param->data_ind.len, param->data_ind.data);
-        xQueueSend(bt_queue, &param->data_ind.data, NULL);
+        printf("Mensagem recebida! tamanho:%d\n", param->data_ind.len);
+        // printf("Tamanho: %d da mensagem: %s\n", param->data_ind.len, param->data_ind.data);
+        if((param->data_ind.data[0] & 0b11111100) == 0b10101000) //check head
+          motorControl(param->data_ind.data[0], param->data_ind.data[1], param->data_ind.data[2]);
         break;
     case ESP_SPP_CONG_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_CONG_EVT");
         printf("Evento: ESP_SPP_CONG_EVT\n");
         break;
     case ESP_SPP_WRITE_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_WRITE_EVT");
         printf("Evento: ESP_SPP_WRITE_EVT\n");
         break;
     case ESP_SPP_SRV_OPEN_EVT:
-        //ESP_LOGI(SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         printf("Evento: ESP_SPP_SRV_OPEN_EVT\n");
         break;
     default:
@@ -193,6 +173,8 @@ static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param
 }
 
 //####################################################################################################
+
+//Funcao que realiza as configuracoes dos pinos
 void
 setup()
 {
