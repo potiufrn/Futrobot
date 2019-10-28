@@ -548,7 +548,7 @@ REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v)
   return region;
 }
 
-bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam, double angCorrecao,
+bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam,
 					     int &index, POS_ROBO &teamPose){
   //Não achou marca auxiliar. Utiliza informação da posicao anterior
   //para definir qual o ID do robo e o angulo de correcão.
@@ -575,7 +575,7 @@ bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam, double angCorrecao,
   }
   if(dist_min < dist2_min/2.0){
     index = id_min;
-    double orient1 = ang_equiv(regTeam.orientation + angCorrecao);
+    double orient1 = ang_equiv(regTeam.orientation + M_PI_4);
     double orient2 = ang_equiv(orient1 - M_PI);
 
     double diff1 = fabs(ang_equiv(orient1 - ant.me[index].theta()));
@@ -596,93 +596,343 @@ bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam, double angCorrecao,
   return true;
 }
 
-bool Acquisition::calculaMinhaPose(REGION regTeam, double angBusca,
-				   double angCorrecao,int &index,
-				   POS_ROBO &teamPose){
-  //Macro para testar se uma coordenada, na imagem, eh valida.
-  #define IS_VALID(i,j) ( (i)<ImBruta.getHeight() && (j)<ImBruta.getWidth())?true:false
-  int u,v,ui,vi;
+bool Acquisition::calculaMinhaPose(REGION regTeam,
+                                   int &index, POS_ROBO &teamPose)
+{
+//Macro para testar se uma coordenada, na imagem, eh valida.
+#define IS_VALID(i, j) ((i) < ImBruta.getHeight() && (j) < ImBruta.getWidth()) ? true : false
+  int u, v, ui, vi;
   REG_COLOR colorID;
-  REGION region;
-  float H,P,G;
+  float H, P, G;
+  float angBusca = 0.0;
 
-  u = (int)round(regTeam.center.u()
-		 + RADIUS*cos(regTeam.orientation+angBusca));
-  v = (int)round(regTeam.center.v()
-		 - RADIUS*sin(regTeam.orientation+angBusca));
-  int r;
-  unsigned qtdDiff;
+  //versao com rotulos de duas cores
 
-  for(ui = u-2; ui <= u+2; ui++)
-    for(vi = v-2; vi <= v+2; vi++){
-      if(ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight()){
-        //WARNING usando informacoes do campo vazio
-        r = calibracaoParam.isDiff(vi,ui,ImBruta.atByte(vi,ui));//compara o byte com o do campo vazio.
-        qtdDiff = 0;
-        //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
-        //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
-        if(r == IS_UNDEF){
-          if(IS_VALID(vi-1,ui-1))
-            qtdDiff += (calibracaoParam.isDiff(vi-1,ui-1,ImBruta.atByte(vi-1,ui-1)) == IS_OBJECT)?1:0;
-          if(IS_VALID(vi-1,ui+1))
-            qtdDiff += (calibracaoParam.isDiff(vi-1,ui+1,ImBruta.atByte(vi-1,ui+1)) == IS_OBJECT)?1:0;
-          if(IS_VALID(vi+1,ui+1))
-            qtdDiff += (calibracaoParam.isDiff(vi+1,ui+1,ImBruta.atByte(vi+1,ui+1)) == IS_OBJECT)?1:0;
-          if(IS_VALID(vi+1,ui-1))
-            qtdDiff += (calibracaoParam.isDiff(vi+1,ui-1,ImBruta.atByte(vi+1,ui-1)) == IS_OBJECT)?1:0;
-        }
-        //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
-        //dos robos ou da bola.
-        if(r == IS_OBJECT || qtdDiff > 2){
-          //No trecho seguinte de codigo, eh feito a identificacao da cor,
-          //e um seedFill para determinar a regiao a que este pixel pertence,
-          //para entao calcular o centro deste objeto como sua orientacao.
-          ImBruta.atHPG(vi, ui, H, P, G);
-          colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
-          if( colorID != REG_COLOR_YELLOW &&
-            colorID != REG_COLOR_BLUE &&
-            colorID != REG_COLOR_ORANGE &&
-            colorID != REG_COLOR_BLACK &&
-            colorID != REG_COLOR_WHITE &&
-            colorID != REG_COLOR_UNDEFINED){
-              region = seedFill(colorID,ui,vi);
-              if( region.nPixel >= MIN_PIXELS ) {
-                switch(region.colorID){
-                  case REG_COLOR_CIAN:
-                  index = 0;
-                  break;
-                  case REG_COLOR_PINK:
-                  index = 1;
-                  break;
-                  case REG_COLOR_GREEN:
-                  index = 2;
-                  break;
-                  default:
-                  index = -1;
-                  break;
-                }
-                if(index != -1){
-                  regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
-                  region.center = (RDistortion.corrigir(region.center))/Homography;
+  // REGION region[2], regionPink, regionGreen;
+
+  // regionPink.colorID = REG_COLOR_UNDEFINED;
+  // regionGreen.colorID = REG_COLOR_UNDEFINED;
+
+  // // Procura os (1 ou 2) rotulos auxiliares
+  // for (int i = 0; i < 2; i++)
+  // {
+  //   region[i].colorID = REG_COLOR_UNDEFINED;
+  //   angBusca = M_PI_2 - M_PI * i; // 45 graus ou -45 graus
+
+  //   // Define um ponto central em torno do qual procura o rotulo auxiliar
+  //   u = (int)round(regTeam.center.u() + RADIUS * cos(regTeam.orientation + angBusca));
+  //   v = (int)round(regTeam.center.v() - RADIUS * sin(regTeam.orientation + angBusca));
+
+  //   int r;
+  //   unsigned qtdDiff;
+
+  //   // Procura em todos os pixels na vizinhanca do ponto central de busca do rotulo
+  //   for (ui = u - 2; ui <= u + 2; ui++)
+  //   {
+  //     for (vi = v - 2; vi <= v + 2; vi++)
+  //     {
+  //       if (ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight())
+  //       {
+  //         //WARNING usando informacoes do campo vazio
+  //         r = calibracaoParam.isDiff(vi, ui, ImBruta.atByte(vi, ui)); //compara o byte com o do campo vazio.
+  //         qtdDiff = 0;
+  //         //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
+  //         //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
+  //         if (r == IS_UNDEF)
+  //         {
+  //           if (IS_VALID(vi - 1, ui - 1))
+  //             qtdDiff += (calibracaoParam.isDiff(vi - 1, ui - 1, ImBruta.atByte(vi - 1, ui - 1)) == IS_OBJECT) ? 1 : 0;
+  //           if (IS_VALID(vi - 1, ui + 1))
+  //             qtdDiff += (calibracaoParam.isDiff(vi - 1, ui + 1, ImBruta.atByte(vi - 1, ui + 1)) == IS_OBJECT) ? 1 : 0;
+  //           if (IS_VALID(vi + 1, ui + 1))
+  //             qtdDiff += (calibracaoParam.isDiff(vi + 1, ui + 1, ImBruta.atByte(vi + 1, ui + 1)) == IS_OBJECT) ? 1 : 0;
+  //           if (IS_VALID(vi + 1, ui - 1))
+  //             qtdDiff += (calibracaoParam.isDiff(vi + 1, ui - 1, ImBruta.atByte(vi + 1, ui - 1)) == IS_OBJECT) ? 1 : 0;
+  //         }
+  //         //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
+  //         //dos robos ou da bola.
+  //         if (r == IS_OBJECT || qtdDiff > 2)
+  //         {
+  //           //No trecho seguinte de codigo, eh feito a identificacao da cor,
+  //           //e um seedFill para determinar a regiao a que este pixel pertence,
+  //           //para entao calcular o centro deste objeto como sua orientacao.
+  //           ImBruta.atHPG(vi, ui, H, P, G);
+  //           colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
+  //           if (colorID != REG_COLOR_YELLOW &&
+  //               colorID != REG_COLOR_BLUE &&
+  //               colorID != REG_COLOR_ORANGE &&
+  //               colorID != REG_COLOR_BLACK &&
+  //               colorID != REG_COLOR_WHITE &&
+  //               colorID != REG_COLOR_UNDEFINED)
+  //           {
+  //             region[i] = seedFill(colorID, ui, vi);
+  //             // encerra os for's da varredura em torno do ponto central de busca
+  //             ui = u + 2;
+  //             vi = v + 2;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+  // // Detectou 0, 1 ou 2 rotulos auxiliares
+  // // Calcula o index do robo
+
+  // // Se os dois rotulos tem cores iguais, deu erro
+  // if (region[0].colorID == region[1].colorID)
+  // {
+  //   index = -1;
+  //   return true;
+  // }
+  // // se o rotulo auxiliar nao eh de uma cor valida, deu erro
+  // if (region[0].colorID != REG_COLOR_PINK &&
+  //     region[0].colorID != REG_COLOR_GREEN &&
+  //     region[0].colorID != REG_COLOR_UNDEFINED)
+  // {
+  //   index = -1;
+  //   return true;
+  // }
+  // // se o rotulo auxiliar nao eh de uma cor valida, deu erro
+  // if (region[1].colorID != REG_COLOR_PINK &&
+  //     region[1].colorID != REG_COLOR_GREEN &&
+  //     region[1].colorID != REG_COLOR_UNDEFINED)
+  // {
+  //   index = -1;
+  //   return true;
+  // }
+
+  // // identificação do roboh
+  // switch (region[0].colorID)
+  // {
+  // case REG_COLOR_PINK:
+  //   regionPink = region[0];
+  //   switch (region[1].colorID)
+  //   {
+  //   case REG_COLOR_GREEN:
+  //     regionGreen = region[1];
+  //     index = 0;
+  //     break;
+
+  //   case REG_COLOR_UNDEFINED:
+  //   default:
+  //     index = 1;
+  //     break;
+  //   }
+  //   break;
+  // case REG_COLOR_GREEN:
+  //   regionGreen = region[0];
+  //   switch (region[1].colorID)
+  //   {
+  //   case REG_COLOR_PINK:
+  //     regionPink = region[1];
+  //     index = 0;
+  //     break;
+
+  //   case REG_COLOR_UNDEFINED:
+  //   default:
+  //     index = 2;
+  //     break;
+  //   }
+  //   break;
+  // case REG_COLOR_UNDEFINED:
+  //   switch (region[1].colorID)
+  //   {
+  //   case REG_COLOR_GREEN:
+  //     regionGreen = region[1];
+  //     index = 2;
+  //     break;
+
+  //   case REG_COLOR_PINK:
+  //   default:
+  //     regionPink = region[1];
+  //     index = 1;
+  //     break;
+  //   }
+  //   break;
+
+  // default:
+  //   index = -1;
+  //   return true;
+  // }
+
+  // if (index != -1)
+  // {
+  //   regTeam.center = (RDistortion.corrigir(regTeam.center)) / Homography;
+
+  //   if (regionPink.colorID != REG_COLOR_UNDEFINED)
+  //   {
+  //     regionPink.center = (RDistortion.corrigir(regionPink.center)) / Homography;
+  //   }
+
+  //   if (regionGreen.colorID != REG_COLOR_UNDEFINED)
+  //   {
+  //     regionGreen.center = (RDistortion.corrigir(regionGreen.center)) / Homography;
+  //   }
+
+  //   teamPose.x() = regTeam.center.x();
+  //   teamPose.y() = regTeam.center.y();
+
+  //   double theta1,theta2 = 0.0;
+
+  //   switch (index)
+  //   {
+  //   case 0:
+  //     theta2 = ang_equiv(arc_tang((regionGreen.center.y() - regionPink.center.y()),
+  //                                 (regionGreen.center.x() - regionPink.center.x())) -
+  //                        M_PI_4);
+
+  //     break;
+  //   case 1:
+  //     theta2 = ang_equiv(arc_tang((regTeam.center.y() - regionPink.center.y()),
+  //                                 (regTeam.center.x() - regionPink.center.x())) -
+  //                        M_PI_4);
+  //     break;
+  //   case 2:
+  //     theta2 = ang_equiv(arc_tang((regionGreen.center.y() - regTeam.center.y()),
+  //                                 (regionGreen.center.x() - regTeam.center.x())) -
+  //                        M_PI_4);
+  //     break;
+  //   default:
+  //     return true;
+  //     break;
+  //   }
 
 
-                  teamPose.x() = regTeam.center.x();
-                  teamPose.y() = regTeam.center.y();
-                  double theta1 = ang_equiv(regTeam.orientation + angCorrecao);
-                  double theta2 = ang_equiv(arc_tang((region.center.y() -
-                  regTeam.center.y()),
-                  (region.center.x() -
-                  regTeam.center.x()))
-                  -M_PI_4);
+  //   theta1 = ang_equiv(regTeam.orientation + M_PI_4);
 
-                  teamPose.theta() = media_ang(theta1,theta2);
-                  return false;
-                }
-              }
+
+  //   if (fabs(ang_equiv(theta2-theta1)) > M_PI_2)
+  //   {
+  //     theta1 = ang_equiv(theta1+M_PI);
+  //   }
+
+  //   teamPose.theta() = media_ang(theta1, theta2);
+  //   return false;
+  // }
+
+  // return true;
+
+  //-------------------------------------------------------------------
+
+  // versao com um rotulo auxiliar de uma cor
+
+  REGION regionAux;
+
+  regionAux.colorID = REG_COLOR_UNDEFINED;
+
+  // Procura o rotulo auxiliar
+  for (int i = 0; i < 2; i++)
+  {
+    angBusca = M_PI_2 - M_PI * i; // 45 graus ou -45 graus
+
+    // Define um ponto central em torno do qual procura o rotulo auxiliar
+    u = (int)round(regTeam.center.u() + RADIUS * cos(regTeam.orientation + angBusca));
+    v = (int)round(regTeam.center.v() - RADIUS * sin(regTeam.orientation + angBusca));
+
+    int r;
+    unsigned qtdDiff;
+
+    // Procura em todos os pixels na vizinhanca do ponto central de busca do rotulo
+    for (ui = u - 2; ui <= u + 2; ui++)
+    {
+      for (vi = v - 2; vi <= v + 2; vi++)
+      {
+        if (ui >= 0 && ui < (int)ImBruta.getWidth() && vi >= 0 && vi < (int)ImBruta.getHeight())
+        {
+          //WARNING usando informacoes do campo vazio
+          r = calibracaoParam.isDiff(vi, ui, ImBruta.atByte(vi, ui)); //compara o byte com o do campo vazio.
+          qtdDiff = 0;
+          //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
+          //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
+          if (r == IS_UNDEF)
+          {
+            if (IS_VALID(vi - 1, ui - 1))
+              qtdDiff += (calibracaoParam.isDiff(vi - 1, ui - 1, ImBruta.atByte(vi - 1, ui - 1)) == IS_OBJECT) ? 1 : 0;
+            if (IS_VALID(vi - 1, ui + 1))
+              qtdDiff += (calibracaoParam.isDiff(vi - 1, ui + 1, ImBruta.atByte(vi - 1, ui + 1)) == IS_OBJECT) ? 1 : 0;
+            if (IS_VALID(vi + 1, ui + 1))
+              qtdDiff += (calibracaoParam.isDiff(vi + 1, ui + 1, ImBruta.atByte(vi + 1, ui + 1)) == IS_OBJECT) ? 1 : 0;
+            if (IS_VALID(vi + 1, ui - 1))
+              qtdDiff += (calibracaoParam.isDiff(vi + 1, ui - 1, ImBruta.atByte(vi + 1, ui - 1)) == IS_OBJECT) ? 1 : 0;
+          }
+          //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
+          //dos robos ou da bola.
+          if (r == IS_OBJECT || qtdDiff > 2)
+          {
+            //No trecho seguinte de codigo, eh feito a identificacao da cor,
+            //e um seedFill para determinar a regiao a que este pixel pertence,
+            //para entao calcular o centro deste objeto como sua orientacao.
+            ImBruta.atHPG(vi, ui, H, P, G);
+            colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
+            if (colorID != REG_COLOR_YELLOW &&
+                colorID != REG_COLOR_BLUE &&
+                colorID != REG_COLOR_ORANGE &&
+                colorID != REG_COLOR_BLACK &&
+                colorID != REG_COLOR_WHITE &&
+                colorID != REG_COLOR_UNDEFINED)
+            {
+              regionAux = seedFill(colorID, ui, vi);
+              // encerra os for's da varredura em torno do ponto central de busca
+              ui = u + 2;
+              vi = v + 2;
+              // encerra o for de buscar dos dois lados do rotulo principal
+              i = 2;
             }
+          }
         }
       }
     }
+  }
+
+  // Detectou 0 ou 1 rotulo auxiliar
+  // Calcula o index do robo
+
+  // se o rotulo auxiliar nao eh de uma cor valida, deu erro
+  switch (regionAux.colorID)
+  {
+  case REG_COLOR_CIAN:
+    index = 0;
+    break;
+  case REG_COLOR_PINK:
+    index = 1;
+    break;
+  case REG_COLOR_GREEN:
+    index = 2;
+    break;
+  default:
+    index = -1;
+    return true;
+  }
+
+  if (index != -1)
+  {
+    regTeam.center = (RDistortion.corrigir(regTeam.center)) / Homography;
+
+    regionAux.center = (RDistortion.corrigir(regionAux.center)) / Homography;
+
+    teamPose.x() = regTeam.center.x();
+    teamPose.y() = regTeam.center.y();
+
+    double theta1,theta2 = 0.0;
+
+
+    theta2 = ang_equiv(arc_tang(regionAux.center.y() - regTeam.center.y(),
+                                regionAux.center.x() - regTeam.center.x()) -
+                        M_PI_4);
+
+
+    theta1 = ang_equiv(regTeam.orientation + M_PI_4);
+
+
+    if (fabs(ang_equiv(theta2-theta1)) > M_PI_2)
+    {
+      theta1 = ang_equiv(theta1+M_PI);
+    }
+
+    teamPose.theta() = media_ang(theta1, theta2);
+    return false;
+  }
 
   return true;
 }
@@ -912,22 +1162,18 @@ bool Acquisition::processGameState(){
   switch(mycolor){
   case REG_COLOR_YELLOW:
     for(i = 0; i < nRegYellow; i++){
-      if(!calculaMinhaPose(regYellow[i],M_PI_2,M_PI_4,index,teamPose)){
+      if(!calculaMinhaPose(regYellow[i],index,teamPose)){
       	pos.me[index] = teamPose;
-      }else if(!calculaMinhaPose(regYellow[i],-M_PI_2,-M_PI_2-M_PI_4,index,teamPose)){
-      	pos.me[index] = teamPose;
-      }else if(!calculaMinhaPoseAproximada(regYellow[i],M_PI_4,index,teamPose)){
+      }else if(!calculaMinhaPoseAproximada(regYellow[i],index,teamPose)){
         pos.me[index] = teamPose;
       }
     }
     break;
   case REG_COLOR_BLUE:
     for(i = 0; i < nRegBlue; i++){
-      if(!calculaMinhaPose(regBlue[i],M_PI_2,M_PI_4,index,teamPose)){
+      if(!calculaMinhaPose(regBlue[i],index,teamPose)){
 	      pos.me[index] = teamPose;
-      }else if(!calculaMinhaPose(regBlue[i],-M_PI_2,-M_PI_2-M_PI_4,index,teamPose)){
-	      pos.me[index] = teamPose;
-      }else if(!calculaMinhaPoseAproximada(regBlue[i],M_PI_4,index,teamPose)){
+      }else if(!calculaMinhaPoseAproximada(regBlue[i],index,teamPose)){
       	pos.me[index] = teamPose;
       }
     }
