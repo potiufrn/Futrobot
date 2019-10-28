@@ -87,17 +87,17 @@ initBluetooth(const char* deviceName, esp_spp_cb_t *esp_spp_cb)
       ESP_ERROR_CHECK(nvs_flash_erase());
       ret = nvs_flash_init();
   }
-  ESP_ERROR_CHECK( ret );
+  ESP_ERROR_CHECK(ret);
 
   ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
 
   esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-  if ((ret = esp_bt_controller_init(&bt_cfg)) != ESP_OK) {
+  if ((ret = esp_bt_controller_init(&bt_cfg)) != ESP_OK){
       //ESP_LOGE(SPP_TAG, "%s initialize controller failed: %s\n", _func_, esp_err_to_name(ret));
       return false;
   }
 
-  if ((ret = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) != ESP_OK) {
+  if ((ret = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) != ESP_OK){
       //ESP_LOGE(SPP_TAG, "%s enable controller failed: %s\n", _func_, esp_err_to_name(ret));
       return false;
   }
