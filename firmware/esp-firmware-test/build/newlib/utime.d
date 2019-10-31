@@ -25,7 +25,7 @@ utime.o: /home/gabriel/esp/esp-idf/components/newlib/utime.c \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/reent.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -147,7 +147,7 @@ utime.o: /home/gabriel/esp/esp-idf/components/newlib/utime.c \
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 

@@ -153,27 +153,7 @@ lwip/src/core/init.o: \
  /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/lwip/api.h \
  /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/lwip/netbuf.h \
  /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp_opts.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp_impl.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/string.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/sys/string.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/fsm.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/lcp.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ccp.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/mppe.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/pppcrypt.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/md4.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/md5.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/sha1.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/des.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/arc4.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ipcp.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ipv6cp.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/eui64.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/upap.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/chap-new.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/vj.h \
- /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/pppdebug.h
+ /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp_impl.h
 
 /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/lwip/opt.h:
 
@@ -482,44 +462,4 @@ lwip/src/core/init.o: \
 /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp_opts.h:
 
 /home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp_impl.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/string.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/sys/string.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ppp.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/fsm.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/lcp.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ccp.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/mppe.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/pppcrypt.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/md4.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/md5.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/sha1.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/des.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/polarssl/arc4.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ipcp.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/ipv6cp.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/eui64.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/upap.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/chap-new.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/vj.h:
-
-/home/gabriel/esp/esp-idf/components/lwip/lwip/src/include/netif/ppp/pppdebug.h:
 /home/gabriel/esp/esp-idf/components/lwip/lwip/src/core/init.c:

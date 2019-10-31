@@ -1,7 +1,7 @@
 src//memory_layout_utils.o: \
  /home/gabriel/esp/esp-idf/components/soc/src/memory_layout_utils.c \
  /home/gabriel/esp/esp-idf/components/log/include/esp_log.h \
- /home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_assert.h \
@@ -11,7 +11,7 @@ src//memory_layout_utils.o: \
 
 /home/gabriel/esp/esp-idf/components/log/include/esp_log.h:
 
-/home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
 

@@ -27,7 +27,7 @@ unity_port_esp32.o: \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/sched.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/stdio.h \
  /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/alloca.h \
@@ -108,7 +108,7 @@ unity_port_esp32.o: \
 
 /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h:
 

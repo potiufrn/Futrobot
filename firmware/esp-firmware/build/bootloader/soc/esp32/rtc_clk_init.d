@@ -8,7 +8,7 @@ esp32/rtc_clk_init.o: \
  /home/gabriel/esp/esp-idf/components/esp32/include/rom/uart.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_types.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_attr.h \
- /home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/uart_reg.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/rom/gpio.h \
@@ -59,7 +59,7 @@ esp32/rtc_clk_init.o: \
 
 /home/gabriel/esp/esp-idf/components/esp32/include/esp_attr.h:
 
-/home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/uart_reg.h:
 

@@ -78,8 +78,7 @@ spiram_psram.o: /home/gabriel/esp/esp-idf/components/esp32/spiram_psram.c \
  /home/gabriel/esp/esp-idf/components/bootloader_support/include/bootloader_common.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_flash_data_types.h \
  /home/gabriel/esp/esp-idf/components/bootloader_support/include/esp_image_format.h \
- /home/gabriel/esp/esp-idf/components/bootloader_support/include/esp_flash_partitions.h \
- /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/rtc.h
+ /home/gabriel/esp/esp-idf/components/bootloader_support/include/esp_flash_partitions.h
 
 /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
 
@@ -240,6 +239,4 @@ spiram_psram.o: /home/gabriel/esp/esp-idf/components/esp32/spiram_psram.c \
 /home/gabriel/esp/esp-idf/components/bootloader_support/include/esp_image_format.h:
 
 /home/gabriel/esp/esp-idf/components/bootloader_support/include/esp_flash_partitions.h:
-
-/home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/rtc.h:
 /home/gabriel/esp/esp-idf/components/esp32/./spiram_psram.c:

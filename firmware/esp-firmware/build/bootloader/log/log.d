@@ -1,6 +1,6 @@
 log.o: /home/gabriel/esp/esp-idf/components/log/log.c \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_attr.h \
- /home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_assert.h \
@@ -12,7 +12,7 @@ log.o: /home/gabriel/esp/esp-idf/components/log/log.c \
 
 /home/gabriel/esp/esp-idf/components/esp32/include/esp_attr.h:
 
-/home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/hal.h:
 

@@ -3,7 +3,7 @@
    This file describes the memory layout (memory blocks) as virtual
    memory addresses.
 
-   esp32.common.ld contains output sections to link compiler output
+   esp32.project.ld contains output sections to link compiler output
    into these memory blocks.
 
    ***
@@ -59,14 +59,14 @@ MEMORY
 
      Start of RTC slow memory is reserved for ULP co-processor code + data, if enabled.
   */
-  rtc_slow_seg(RW) : org = 0x50000000 + 512,
-                                     len = 0x1000 - 512
+  rtc_slow_seg(RW) : org = 0x50000000 + 0,
+                                     len = 0x1000 - 0
   /* external memory ,including data and text */
   extern_ram_seg(RWX) : org = 0x3F800000,
                                      len = 0x400000
 }
 /* Heap ends at top of dram0_0_seg */
-_heap_end = 0x40000000 - 0x0;
+_heap_end = 0x40000000 - 0x8000;
 _data_seg_org = ORIGIN(rtc_data_seg);
 /* The lines below define location alias for .rtc.data section based on Kconfig option. 
    When the option is not defined then use slow memory segment 

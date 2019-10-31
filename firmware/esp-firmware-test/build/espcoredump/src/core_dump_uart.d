@@ -21,7 +21,7 @@ src/core_dump_uart.o: \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_assert.h \
  /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/alloca.h \
@@ -129,7 +129,7 @@ src/core_dump_uart.o: \
 
 /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h:
 

@@ -1,1 +1,1 @@
-a1877b6-dirty esp-firmware v3.3
+1 esp-firmware v3.3-dirty

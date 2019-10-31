@@ -21,7 +21,7 @@ src/wifi_scan.o: \
  /home/gabriel/esp/esp-idf/components/log/include/esp_log.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/soc.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_assert.h \
@@ -178,7 +178,7 @@ src/wifi_scan.o: \
 
 /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
 

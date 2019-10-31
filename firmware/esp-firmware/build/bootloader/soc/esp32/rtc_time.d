@@ -9,7 +9,7 @@ esp32/rtc_time.o: \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/timer_group_reg.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/soc_log.h \
  /home/gabriel/esp/esp-idf/components/log/include/esp_log.h \
- /home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/log/include/esp_log_internal.h
 
 /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
@@ -30,7 +30,7 @@ esp32/rtc_time.o: \
 
 /home/gabriel/esp/esp-idf/components/log/include/esp_log.h:
 
-/home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/log/include/esp_log_internal.h:
 /home/gabriel/esp/esp-idf/components/soc/esp32/rtc_time.c:

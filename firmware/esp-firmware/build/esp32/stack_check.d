@@ -56,10 +56,7 @@ stack_check.o: /home/gabriel/esp/esp-idf/components/esp32/stack_check.c \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/xtensa-versions.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core-matmap.h \
- /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/touch_channel.h \
- /home/gabriel/esp/esp-idf/components/log/include/esp_log.h \
- /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
- /home/gabriel/esp/esp-idf/components/log/include/esp_log_internal.h
+ /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/touch_channel.h
 
 /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
 
@@ -176,10 +173,4 @@ stack_check.o: /home/gabriel/esp/esp-idf/components/esp32/stack_check.c \
 /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core-matmap.h:
 
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/touch_channel.h:
-
-/home/gabriel/esp/esp-idf/components/log/include/esp_log.h:
-
-/home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h:
-
-/home/gabriel/esp/esp-idf/components/log/include/esp_log_internal.h:
 /home/gabriel/esp/esp-idf/components/esp32/./stack_check.c:

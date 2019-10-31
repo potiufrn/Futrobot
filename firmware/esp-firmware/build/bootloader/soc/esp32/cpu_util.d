@@ -1,7 +1,7 @@
 esp32/cpu_util.o: \
  /home/gabriel/esp/esp-idf/components/soc/esp32/cpu_util.c \
  /home/gabriel/esp/esp-idf/components/esp32/include/esp_attr.h \
- /home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/cpu.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/corebits.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -17,7 +17,7 @@ esp32/cpu_util.o: \
 
 /home/gabriel/esp/esp-idf/components/esp32/include/esp_attr.h:
 
-/home/gabriel/workarea/esp-idf-myProject/build/bootloader/../include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/bootloader/../include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/cpu.h:
 

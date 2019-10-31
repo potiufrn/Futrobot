@@ -23,7 +23,7 @@ src/manager.o: \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -192,7 +192,7 @@ src/manager.o: \
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 

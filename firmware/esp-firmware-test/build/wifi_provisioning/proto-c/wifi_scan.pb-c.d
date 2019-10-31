@@ -3,7 +3,7 @@ proto-c/wifi_scan.pb-c.o: \
  /home/gabriel/esp/esp-idf/components/wifi_provisioning/proto-c/wifi_scan.pb-c.h \
  /home/gabriel/esp/esp-idf/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.h \
  /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h \
@@ -33,7 +33,7 @@ proto-c/wifi_scan.pb-c.o: \
 
 /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h:
 

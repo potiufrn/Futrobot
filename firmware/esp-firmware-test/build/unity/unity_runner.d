@@ -30,7 +30,7 @@ unity_runner.o: /home/gabriel/esp/esp-idf/components/unity/unity_runner.c \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h \
+ /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/assert.h \
  /home/gabriel/esp/esp-idf/components/unity/include/unity_test_runner.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/setjmp.h \
@@ -100,7 +100,7 @@ unity_runner.o: /home/gabriel/esp/esp-idf/components/unity/unity_runner.c \
 
 /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware/build/include/sdkconfig.h:
+/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/assert.h:
 
