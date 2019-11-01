@@ -117,13 +117,23 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
 
   //LARC2019
 
+  // double klin = 1.0;
+  // double tilin= 10000000.0;//10000;
+  // double tdlin = 0.0;//0.0;
+  //
+  // double kang = 0.08;
+  // double tiang = 10000000.0;//4.0
+  // double tdang = 0.0;//0.0;
+
+  // FPS 100
   double klin = 1.0;
   double tilin= 10000000.0;//10000;
   double tdlin = 0.0;//0.0;
 
-  double kang = 0.08;
+  double kang = 0.4;
   double tiang = 10000000.0;//4.0
   double tdang = 0.0;//0.0;
+
 
   //################################################################
   //################################################################
@@ -262,6 +272,10 @@ bool Control::control()
 	// Gera sinal de controle para o movimento linear
 	//      alpha_lin = lin[i].controle(erro_lin, T_AMOSTR);
 	alpha_lin = lin[i].controle(erro_lin, dt_amostr);
+
+  //alpha_lin = 0.0;
+
+
 	// Saturação
 	if (alpha_lin > 1-fabs(alpha_ang)) {
 	  alpha_lin = 1-fabs(alpha_ang);

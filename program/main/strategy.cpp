@@ -1178,8 +1178,8 @@ void Strategy::calcula_referencias(int id)
   case COMEMORAR:
   { // :-)
 
-    double tempo_volta = 5.0; // Uma volta em 5 segundos
-    double ang_circulo = ang_equiv(2.0 * M_PI * id_pos / (30.0 * tempo_volta));
+    double tempo_volta = 4.0; // Uma volta em 5 segundos
+    double ang_circulo = ang_equiv(2.0 * M_PI * id_pos / (FPS * tempo_volta));
     ang_circulo += id * 2.0 * M_PI / 3.0;
     ref.me[id].x() = 1.0 * CIRCLE_RADIUS * cos(ang_circulo);
     ref.me[id].y() = 1.0 * CIRCLE_RADIUS * sin(ang_circulo);

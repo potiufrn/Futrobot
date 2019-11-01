@@ -1,3 +1,6 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <linux/videodev2.h> //struct v4l2 ...
 #include <fcntl.h>  // O_RDWR
 #include <unistd.h> //close()
@@ -155,3 +158,5 @@ protected:
    //WARNING este metodo nao funcionou como esperado
    bool queryMinBuffer(struct controler &ctrl)const;
 };
+
+#endif
