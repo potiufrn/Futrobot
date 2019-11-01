@@ -25,8 +25,10 @@ static const double MARGEM_HISTERESE(0.01); // 1cm
 static const unsigned COM_BOLA_DEFAULT(0);
 static const unsigned SEM_BOLA_DEFAULT(2);
 static const unsigned GOLEIRO_DEFAULT(1);
-static const unsigned LIMITE_CONT_PARADO(20);
-static const unsigned LIMITE_CONT_PERDIDO(10);
+//static const unsigned LIMITE_CONT_PARADO(20);
+static const unsigned LIMITE_CONT_PARADO(FPS);
+//static const unsigned LIMITE_CONT_PERDIDO(10);
+static const unsigned LIMITE_CONT_PERDIDO(FPS/3);
 
 // Classes locais
 class Repulsao{
@@ -1178,7 +1180,7 @@ void Strategy::calcula_referencias(int id)
   case COMEMORAR:
   { // :-)
 
-    double tempo_volta = 4.0; // Uma volta em 5 segundos
+    double tempo_volta = 3.0; // Uma volta em 5 segundos
     double ang_circulo = ang_equiv(2.0 * M_PI * id_pos / (FPS * tempo_volta));
     ang_circulo += id * 2.0 * M_PI / 3.0;
     ref.me[id].x() = 1.0 * CIRCLE_RADIUS * cos(ang_circulo);

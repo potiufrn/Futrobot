@@ -126,11 +126,11 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   // double tdang = 0.0;//0.0;
 
   // FPS 100
-  double klin = 1.0;
+  double klin = 0.75;
   double tilin= 10000000.0;//10000;
   double tdlin = 0.0;//0.0;
 
-  double kang = 0.4;
+  double kang = 0.17;
   double tiang = 10000000.0;//4.0
   double tdang = 0.0;//0.0;
 
