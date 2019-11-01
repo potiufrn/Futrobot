@@ -106,41 +106,24 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode):
   //############## CONSTANTES DO CONTROLADOR #######################
   //################################################################
 
-  // Controle Poti
-  // double klin = 1.3;//1.3;
-  // double tilin= 1E+10;//1E+10;
-  // double tdlin = 0.08;//0.08;
-  //
-  // double kang = 0.05;//0.08
-  // double tiang = 1.5;//1.5
-  // double tdang = 0.07;//0.07;
 
-  double klin = 0.6402565834*1.4;
+  // double klin = 0.6402565834*1.4;
+  // double tilin= 10000000.0;//10000;
+  // double tdlin = 0.0;//0.0;
+
+  // double kang = 0.07489797434;
+  // double tiang = 10000000.0;//4.0
+  // double tdang = 0.0;//0.0;
+
+  //LARC2019
+
+  double klin = 1.0;
   double tilin= 10000000.0;//10000;
   double tdlin = 0.0;//0.0;
 
-  double kang = 0.07489797434;
+  double kang = 0.08;
   double tiang = 10000000.0;//4.0
   double tdang = 0.0;//0.0;
-
-  /*
-	double klin = 0.9;
-  double tilin = 1E+10;
-  double tdlin = 0.07;
-
-  double kang = 0.12; //0.12
-  double tiang = 18.0;
-  double tdang = 0.01;
-*/
-
-  // Controle Jerimum
-//   double klin = 0.15;//0.3
-//   double tilin = 50.0;//50.0
-//   double tdlin = 0.0;
-//
-//   double kang = 0.02;//0.02
-//   double tiang = 50.0;
-//   double tdang = 0.0;
 
   //################################################################
   //################################################################
@@ -288,6 +271,7 @@ bool Control::control()
 	  alpha_lin = -(1-fabs(alpha_ang));
 	  lin[i].anti_windup(); // Podia dispensar, já que é PD
 	}
+
       }
 
       // Cálculo dos percentuais dos motores das rodas. Os valores
@@ -304,7 +288,7 @@ bool Control::control()
       pwm.me[i].left = alpha_lin-alpha_ang;
       if (fabs(pwm.me[i].left)<1.0/127.0) pwm.me[i].left = 0.0;
       else if (pwm.me[i].left > 0.0)
-	pwm.me[i].left = pwm.me[i].left;
+	      pwm.me[i].left = pwm.me[i].left;
       else pwm.me[i].left = pwm.me[i].left;
 
     }

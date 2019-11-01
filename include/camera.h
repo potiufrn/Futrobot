@@ -19,7 +19,7 @@
 //Default
 #define WIDTH 640
 #define HEIGHT 480
-#define FPS 30
+#define FPS 100
 
 //WARNING numero minimo
 #define NUM_BUFFERS 2

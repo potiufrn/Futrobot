@@ -96,8 +96,8 @@ private:
    * @param  teamPose    [description]
    * @return             [description]
    */
-  bool calculaMinhaPose(REGION regTeam, double angBusca,
-			double angCorrecao,int &index, POS_ROBO &teamPose);
+  bool calculaMinhaPose(REGION regTeam,
+          int &index, POS_ROBO &teamPose);
   /**
    * [calculaMinhaPoseAproximada description]
    * @param  regTeam     [description]
@@ -106,7 +106,7 @@ private:
    * @param  teamPose    [description]
    * @return             [description]
    */
-  bool calculaMinhaPoseAproximada(REGION regTeam,double angCorrecao,
+  bool calculaMinhaPoseAproximada(REGION regTeam,
 				  int &index, POS_ROBO &teamPose);
   /**
    * [calculaPoseAdv description]
