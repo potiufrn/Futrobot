@@ -35,7 +35,7 @@ deps_config := \
 	/home/gabriel/esp/esp-idf/components/app_update/Kconfig.projbuild \
 	/home/gabriel/esp/esp-idf/components/bootloader/Kconfig.projbuild \
 	/home/gabriel/esp/esp-idf/components/esptool_py/Kconfig.projbuild \
-	/home/gabriel/workarea/esp-firmware-test/main/Kconfig.projbuild \
+	/home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/Kconfig.projbuild \
 	/home/gabriel/esp/esp-idf/components/partition_table/Kconfig.projbuild \
 	/home/gabriel/esp/esp-idf/Kconfig
 

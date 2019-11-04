@@ -13,7 +13,6 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
-// #include "esp_timer.h"
 
 #include "driver/periph_ctrl.h"
 #include "driver/ledc.h"
@@ -35,11 +34,9 @@
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 
-#define DEVICE_NAME "ESP_ROBO_0"
+#define DEVICE_NAME "ESP_ROBO_TEST"
 
 #define Fs  300.0   //  freq. de amostragem
-#define DELTA_T 1/Fs
-#define DELTA_T_us DELTA_T*1000000.0 //DELTA_T em us
 
 //Motor 1 (Esquerdo)
 #define  GPIO_PWM_LEFT       23  //Controla a velocidade do motor A (Esquerdo)
@@ -50,11 +47,11 @@
 // Modo Standby do driver
 #define  GPIO_STBY        18
 //Motor 2 (Direito)
-#define  GPIO_PWM_RIGHT      16  //  Controla a velocidade do motor B (Direito)
-#define  GPIO_B1N1_RIGHT      5  // Sentido motor
+#define  GPIO_PWM_RIGHT       16  //  Controla a velocidade do motor B (Direito)
+#define  GPIO_B1N1_RIGHT       5  // Sentido motor
 #define  GPIO_B1N2_RIGHT      17  // Sentido motor B
 #define  GPIO_OUTA_CAP0_RIGHT 15  //Sinal de saida do encoder Esquerdo (usado para calcular a velocidade)
-#define  GPIO_OUTB_CAP1_RIGHT 2  //Sinal em quadrado com relacao ao CAP0A do motor 1 (usado para identificar o sentido de rotacao)
+#define  GPIO_OUTB_CAP1_RIGHT  2  //Sinal em quadrado com relacao ao CAP0A do motor 1 (usado para identificar o sentido de rotacao)
 
 #define CAP0_INT_EN BIT(27)  //Capture 0 interrupt bit
 #define CAP1_INT_EN BIT(28)  //Capture 1 interrupt bit
@@ -168,7 +165,6 @@ void time_init(){
   };
   esp_timer_handle_t periodic_timer;
   ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-  // ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, DELTA_T_us));
   ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 0.8*1000000));
   vTaskDelete(NULL);
 }
@@ -197,17 +193,11 @@ static void config_bluetooth()
 void app_main()
 {
   //configuracoes iniciais
-  xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 5, NULL, 0);
+  xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 3, NULL, 0);
   xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 5, NULL, 0);
   xTaskCreatePinnedToCore(mcpwm_init_isrLeft, "mcpwm 0", 4096, NULL, 4, NULL, 0);
   xTaskCreatePinnedToCore(mcpwm_init_isrRight, "mcpwm 1", 4096, NULL, 4, NULL, 0);
   xTaskCreatePinnedToCore(time_init, "timer init", 2048, NULL, 5, NULL, 1);
-
-  // while (1) {
-  //   vTaskDelay(500/portTICK_PERIOD_MS);
-  //   printf("Esquerdo Vel:%lf\n", velocity[LEFT]);
-  //   printf("Direito  Vel:%lf\n", velocity[RIGHT]);
-  // }
 }
 
 static void IRAM_ATTR isr_EncoderLeft()
@@ -278,6 +268,7 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_DISCOVERY_COMP_EVT:
         break;
     case ESP_SPP_OPEN_EVT:
+      printf("Conectado!\n");
       bt_handle = param->open.handle;
         break;
     case ESP_SPP_CLOSE_EVT:
@@ -288,7 +279,8 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_CL_INIT_EVT:
         break;
     case ESP_SPP_DATA_IND_EVT:
-        // printf("Tamanho: %d da mensagem: %s\n", param->data_ind.len, param->data_ind.data);
+        // param->data_ind.len e param->data_ind.data
+        // esp_spp_write(bt_handle, param->data_ind.len, param->data_ind.data);
         if((param->data_ind.data[0] & 0b11110000) == 0b10100000 )
         {
           if((param->data_ind.data[0] & 0b00001100) == 0b00000100) //calibracao  01
@@ -311,6 +303,7 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
               break;
           }
         }
+        
         break;
     case ESP_SPP_CONG_EVT:
         break;
@@ -430,7 +423,6 @@ static void calibration()
     }
   }
   controlSignal(false, false, 0.0, 0.0);
-
   /*************************************** RIGHTBACK *************************************************************/
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
@@ -450,7 +442,6 @@ static void calibration()
     }
   }
   controlSignal(false, false, 0.0, 0.0);
-
   //Calculo dos coef.
   coef[LEFT_FRONT].alpha = (100.0 - pwmMin[LEFT_FRONT])/(velocity_max[LEFT_FRONT]);
   coef[LEFT_FRONT].beta  = pwmMin[LEFT_FRONT];

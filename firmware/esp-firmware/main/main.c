@@ -33,7 +33,7 @@ By: Luís Gabriel Pereira Condados - 31/10/2019
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 
-#define DEVICE_NAME "ESP_ROBO_1"
+#define DEVICE_NAME "ESP_ROBO_2"
 
 //Motor 1 (Esquerdo)
 #define  GPIO_PWM_LEFT       23  //Controla a velocidade do motor A (Esquerdo)
@@ -71,7 +71,7 @@ static void config_gpio(){
   mcpwm_gpio_init(MCPWM_UNIT_1, MCPWM0A, GPIO_PWM_RIGHT);
 
   mcpwm_config_t pwm_config;
-  pwm_config.frequency = 10000;    //frequency = 10kHz
+  pwm_config.frequency = 1000;    //frequency = 1kHz
   pwm_config.cmpr_a = 0.0;       //duty cycle of PWMxA = 0.0%
   pwm_config.counter_mode = MCPWM_UP_COUNTER;
   pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
@@ -119,9 +119,9 @@ static void controlSignal(bool frontLeft, bool frontRight, float pwmLeft, float 
 
   gpio_set_level(GPIO_STBY, 0);
   //set PWM motor esquerdo
-  mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, pwmLeft + (pwmLeft > 0.0)*8.0);
+  mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, pwmLeft + (pwmLeft > 0.0)*6.5);
   //set PWM motor direito
-  mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM0A, pwmRight+ (pwmRight > 0.0)*8.0);
+  mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM0A, pwmRight+ (pwmRight > 0.0)*6.5);
   //driver on
   gpio_set_level(GPIO_STBY, 1);
 }
@@ -141,6 +141,12 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
       bt_handle = param->open.handle;
         break;
     case ESP_SPP_CLOSE_EVT:
+      gpio_set_level(GPIO_STBY, 0);
+      //set PWM motor esquerdo
+      mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, 0.0);
+      //set PWM motor direito
+      mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM0A, 0.0);
+      //driver on
       bt_handle = 0;
         break;
     case ESP_SPP_START_EVT:

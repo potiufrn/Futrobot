@@ -1,7 +1,7 @@
 esp_app_desc.o: \
  /home/gabriel/esp/esp-idf/components/app_update/esp_app_desc.c \
  /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h \
- /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h \
@@ -41,7 +41,7 @@ esp_app_desc.o: \
 
 /home/gabriel/esp/esp-idf/components/newlib/platform_include/assert.h:
 
-/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h:
 

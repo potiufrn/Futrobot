@@ -1,4 +1,4 @@
-In archive /home/gabriel/workarea/esp-firmware-test/build/libsodium/liblibsodium.a:
+In archive /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/libsodium/liblibsodium.a:
 
 randombytes_esp32.o:     file format elf32-xtensa-le
 

@@ -1,6 +1,9 @@
 *.ppm
 *.o
 *.a
+*.map
+*.bin
+*.elf
 doc/html
 doc/latex
 program/calibrador/calibrador

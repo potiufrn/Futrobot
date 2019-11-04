@@ -12,18 +12,18 @@
 #ifndef __BLUETOOTHACTION_H__
 #define __BLUETOOTHACTION_H__
 
+// #include <stdio.h>
+// #include <unistd.h>
+// #include <stdlib.h>
 #include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <string>
 #include <sys/socket.h> /*communications stuffs by socket - also used by bluetooth */
+
 #include <bluetooth/bluetooth.h> /*lib for bluetooth comm*/
 #include <bluetooth/hci.h> /*lib for bluetooth comm*/
 #include <bluetooth/hci_lib.h> /*lib for bluetooth comm*/
 #include <bluetooth/rfcomm.h> /*lib for bluetooth comm*/
 #include <bluetooth/l2cap.h>/*lib for bluetooth l2acp*/
-#include <iostream>
-using namespace std;
 
 /*Class body*/
 /**
@@ -39,10 +39,10 @@ class BluetoothAction {
     /*socket variables*/
     struct sockaddr_rc addr; //RFCOMM
     struct sockaddr_l2 addr2;
-    vector<string> dest;
+    std::vector<std::string> dest;
     int sock[10];
     int status[10];
-    vector<int> tmp_status;
+    std::vector<int> tmp_status;
 
   public:
 
@@ -51,29 +51,43 @@ class BluetoothAction {
     //BluetoothAction(int len_buff = 0, int num_bt_dv = 0);
     ~BluetoothAction();
     /**
-     * [sendBluetoothMessage description]
-     * @param  int  [description]
-     * @param  char [description]
-     * @return      [description]
+     * Envia uma mensagem para o idBt com tamanho maximo de LEN_BUFFER
+     * @param  int id id do destino.
+     * @param  char message mensagem que sera enviada.
+     * @return      true em caso de falha, false caso contrario.
      */
     bool sendBluetoothMessage(const unsigned int, const unsigned char []);
     /**
-     * [closeBluetooths description]
-     * @param int [description]
+     * Envia uma mensagem para o idBt com tamanho maximo de LEN_BUFFER
+     * @param  int id id do destino.
+     * @param  int  id do destino.
+     * @param  char message mensagem que sera enviada.
+     * @return      true em caso de falha, false caso contrario.
+     */
+    bool sendBluetoothMessage(const unsigned int, const int, const unsigned char*);
+
+    int recvBluetoothMessage(const int idBt, uint8_t*buffer, int lengthMax);
+    // int recvBluetoothMessage();
+    /**
+     * Encerra multiplas conexoes, do id 0 até bt.
+     * @param int bt último idBt fechado.
      */
     void closeBluetooths(int);
     /**
-     * [initBluetoothById description]
-     * @param  int [description]
-     * @return     [description]
+     * Encerra uma conexao.
+     * @param int idBt bluetooth ID que sera fechado.
      */
-    int initBluetoothById(int);
+    void closeBluetoothById(int);
     /**
-     * [initBluetoothDevices description]
-     * @param  int [description]
-     * @return     [description]
+     * Metodo para se conectar com um dos MAC destinos por meio do ID retornado pelo
+     * metodo setBluetoothAddr.
+     * @param  int idBt id do destino.
      */
-    int initBluetoothDevices(int);//init devices based RFCOMM protocol
+    void initBluetoothById(int);
+    /**
+     * Tenta realizar conexões com todos os NUM_BT_DEVICES adicionados.
+     */
+    void initBluetoothDevices();//init devices based RFCOMM protocol
     /**
      * [initBluetoothDevicesL2CAP description]
      * @param  int [description]
@@ -85,13 +99,12 @@ class BluetoothAction {
      * @return  [description]
      */
     int findActiveBluetoothDevice(void);
-
     //getters
     /**
      * [getDest description]
      * @return  [description]
      */
-    vector<string> getDest(void);
+    std::vector<std::string> getDest(void);
     /**
      * [getLenBuffer description]
      * @return  [description]
@@ -112,7 +125,7 @@ class BluetoothAction {
      * @param  int [description]
      * @return     [description]
      */
-    string getBluetoothAddr(int);
+    std::string getBluetoothAddr(int);
 
     /*setters*/
     void setLenBuffer(int);
@@ -127,15 +140,15 @@ class BluetoothAction {
      */
     void setLenAddrBTDevices(int);
     /**
-     * [setBluetoothAddr description]
-     * @param string [description]
+     * Adiciona um novo endereco de destino.
+     * @param std::string Endereco MAC do destino.
+     * @return id do sock.
      */
-    void setBluetoothAddr(string);
+    int setBluetoothAddr(std::string);
     /**
      * [getStatus description]
      * @return [description]
      */
-    vector<int> getStatus();
+    std::vector<int> getStatus();
 };
-
 #endif

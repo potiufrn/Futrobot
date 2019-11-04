@@ -1,4 +1,5 @@
-main.o: /home/gabriel/workarea/esp-firmware-test/main/main.c \
+main.o: \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/main.c \
  /home/gabriel/esp/esp-idf/components/newlib/include/string.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/newlib.h \
@@ -27,7 +28,7 @@ main.o: /home/gabriel/workarea/esp-firmware-test/main/main.c \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
- /home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/hal.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core.h \
@@ -174,7 +175,7 @@ main.o: /home/gabriel/workarea/esp-firmware-test/main/main.c \
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
-/home/gabriel/workarea/esp-firmware-test/build/include/sdkconfig.h:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/include/sdkconfig.h:
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h:
 
@@ -353,4 +354,4 @@ main.o: /home/gabriel/workarea/esp-firmware-test/main/main.c \
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_reg.h:
 
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_struct.h:
-/home/gabriel/workarea/esp-firmware-test/main/./main.c:
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/./main.c:
