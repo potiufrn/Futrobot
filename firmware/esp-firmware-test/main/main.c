@@ -255,7 +255,7 @@ static void controlSignal(bool frontLeft, bool frontRight, float pwmLeft, float 
   //driver on
   gpio_set_level(GPIO_STBY, 1);
 }
-
+static const unsigned char msg[12] = "hello world";
 //Funcao de tratamento de eventos do bluetooth
 static void
 esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
@@ -280,7 +280,8 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_DATA_IND_EVT:
         // param->data_ind.len e param->data_ind.data
-        // esp_spp_write(bt_handle, param->data_ind.len, param->data_ind.data);
+
+        esp_spp_write(bt_handle, 12, msg);
         if((param->data_ind.data[0] & 0b11110000) == 0b10100000 )
         {
           if((param->data_ind.data[0] & 0b00001100) == 0b00000100) //calibracao  01
@@ -303,7 +304,7 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
               break;
           }
         }
-        
+
         break;
     case ESP_SPP_CONG_EVT:
         break;
