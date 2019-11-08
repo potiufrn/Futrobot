@@ -36,7 +36,8 @@
 
 #define DEVICE_NAME "ESP_ROBO_TEST"
 
-#define Fs  300.0   //  freq. de amostragem
+#define TIME_TEST_OMEGA_ZERO 0.8   //segundos
+#define TIME_CONTROLLER      0.003 //segundos
 
 //Motor 1 (Esquerdo)
 #define  GPIO_PWM_LEFT       23  //Controla a velocidade do motor A (Esquerdo)
@@ -57,43 +58,47 @@
 #define CAP1_INT_EN BIT(28)  //Capture 1 interrupt bit
 
 //#########################################################################################
-enum{
-  LEFT_FRONT,
-  LEFT_BACK,
-  RIGHT_FRONT,
-  RIGHT_BACK
+//sinal de um float, 1 => negativo. 0 => positivo
+#define F_IS_NEG(x) (*(uint32_t*)&(x) >> 31)
+
+enum ROTATE_S{
+  FRONT,
+  BACK
 };
 enum MOTOR{
   LEFT,
   RIGHT
 };
 struct CoefLine{
-  float alpha;
-  float beta;
+  float alpha; //coef. angular da reta
+  float beta;  //coef. linear da reta
 };
 //############################### Variaveis Globais ######################################
 /*flags para auxiliar a identificar velocidade nula (quando o encoder nao gera interrupcao)
 */
 static mcpwm_dev_t *MCPWM[2] = {&MCPWM0, &MCPWM1};
 
-struct CoefLine coef[4];        //coef. das retas PWM(velocity)
-static float maxVelocity = 0.0; //velocidade maxima considerada
+struct CoefLine coef[4];        //coef. das retas PWM(omega)
+static float omega_max = 0.0; //modulo da velocidade maxima do robo
 
-static float velocity[2] = {0.0, 0.0};
-static bool  velZero[2]  = {true, true};
+static bool  controller_enable = true;
+static bool  omega_zero[2]     = {true, true};
+static float omega_ref[2]      = {0.0, 0.0}; //-1.0 a 1.0
+static float omega_current[2]  = {0.0, 0.0}; //-1.0 a 1.0
 //Identificador do Bluetooth
 static uint32_t bt_handle = 0;
 //########################################################################################
+//interruptions and callbacks
 static void IRAM_ATTR isr_EncoderLeft();
 static void IRAM_ATTR isr_EncoderRight();
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
-static void periodic_callback();
-static void motorControl(bool frontLeft, bool frontRight, float leftVelPercent, float rigthVelPercent);
-static void controlSignal(bool frontLeft, bool frontRight, float pwmLeft, float pwmRight);
-static void calibration();
+static void periodic_test_omega_zero_cb();
+static void periodic_controller();
+//my functions
+static void func_controlSignal(const float pwmL,const float pwmR);
+static void func_calibration();
 double get_time_sec(void);
 //######################################################################################
-
 static void config_gpio(){
   //config. GPIO
   #define GPIO_OUTPUT_PIN_SEL (1ULL << GPIO_STBY) | (1ULL << GPIO_A1N1_LEFT)  | (1ULL << GPIO_A1N2_LEFT) | \
@@ -141,31 +146,39 @@ static void config_gpio(){
 
   vTaskDelete(NULL);
 }
-
 static void mcpwm_init_isrLeft()
 {
   MCPWM[MCPWM_UNIT_0]->int_ena.val = CAP0_INT_EN;  //Enable interrupt on  CAP0, CAP1 and CAP2 signal
   mcpwm_isr_register(MCPWM_UNIT_0, isr_EncoderLeft, NULL, ESP_INTR_FLAG_IRAM, NULL);  //Set ISR Handle
   vTaskDelete(NULL);
 }
-
 static void mcpwm_init_isrRight()
 {
   MCPWM[MCPWM_UNIT_1]->int_ena.val = CAP0_INT_EN;  //Enable interrupt on  CAP0, CAP1 and CAP2 signal
   mcpwm_isr_register(MCPWM_UNIT_1, isr_EncoderRight, NULL, ESP_INTR_FLAG_IRAM, NULL);  //Set ISR Handle
   vTaskDelete(NULL);
 }
-
-void time_init(){
-  // //Config. Timer
-  const esp_timer_create_args_t periodic_timer_args = {
-          .callback = &periodic_callback,
+void periodics_func_config()
+{
+  //Config. Timer
+  const esp_timer_create_args_t periodic_test_args = {
+          .callback = &periodic_test_omega_zero_cb,
           /* name is optional, but may help identify the timer when debugging */
-          .name = "periodic_timer"
+          .name = "periodic_test_omega_zero_cb"
   };
-  esp_timer_handle_t periodic_timer;
-  ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 0.8*1000000));
+  const esp_timer_create_args_t periodic_controller_args = {
+          .callback = &periodic_controller,
+          /* name is optional, but may help identify the timer when debugging */
+          .name = "periodic_controller"
+  };
+  esp_timer_handle_t periodic_test_handle;
+  ESP_ERROR_CHECK(esp_timer_create(&periodic_test_args, &periodic_test_handle));
+  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, TIME_TEST_OMEGA_ZERO*1000000)); //timer de 800ms, para medir velocidade zero
+
+  esp_timer_handle_t periodic_controller_handle;
+  ESP_ERROR_CHECK(esp_timer_create(&periodic_controller_args, &periodic_controller_handle));
+  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, TIME_CONTROLLER*1000000.0)); //timer de 800ms, para medir velocidade zero
+
   vTaskDelete(NULL);
 }
 
@@ -192,34 +205,33 @@ static void config_bluetooth()
 
 void app_main()
 {
-  //configuracoes iniciais
+  /** configuracoes iniciais **/
   xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 3, NULL, 0);
   xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 5, NULL, 0);
+  xTaskCreatePinnedToCore(periodics_func_config, "periodics_func_config", 2048, NULL, 5, NULL, 1);
+
   xTaskCreatePinnedToCore(mcpwm_init_isrLeft, "mcpwm 0", 4096, NULL, 4, NULL, 0);
   xTaskCreatePinnedToCore(mcpwm_init_isrRight, "mcpwm 1", 4096, NULL, 4, NULL, 0);
-  xTaskCreatePinnedToCore(time_init, "timer init", 2048, NULL, 5, NULL, 1);
 }
-
 static void IRAM_ATTR isr_EncoderLeft()
 {
   static double old_time = 0;
   double new_time = get_time_sec();
 
-  velocity[LEFT] = 1.0/(new_time - old_time);
-  old_time = new_time;
+  omega_current[LEFT] = 1.0/(new_time - old_time);
   velZero[LEFT] = false;
+  old_time = new_time;
 
   uint32_t mcpwm_intr_status;
   mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; //Read interrupt status
   MCPWM[MCPWM_UNIT_0]->int_clr.val = mcpwm_intr_status;
 }
-
 static void IRAM_ATTR isr_EncoderRight()
 {
   static double old_time = 0;
   double new_time = get_time_sec();
 
-  velocity[RIGHT] = 1.0/(new_time - old_time);
+  omega_current[RIGHT] = 1.0/(new_time - old_time);
   old_time = new_time;
   velZero[RIGHT]  = false;
 
@@ -227,35 +239,45 @@ static void IRAM_ATTR isr_EncoderRight()
   mcpwm_intr_status = MCPWM[MCPWM_UNIT_1]->int_st.val; //Read interrupt status
   MCPWM[MCPWM_UNIT_1]->int_clr.val = mcpwm_intr_status;
 }
-
 //Interrupcao de timeout, mede velocidade de cada motor.
 //Chamado a cada 5ms
-static void periodic_callback()
+static void periodic_test_omega_zero_cb()
 {
-  if(velZero[LEFT])velocity[LEFT] = 0.0;
-  if(velZero[RIGHT])velocity[RIGHT] = 0.0;
-
-  velZero[LEFT] = true;
-  velZero[RIGHT]= true;
+  if(omega_zero[LEFT])
+  {
+    omega_current[LEFT] = 0.0;
+  }
+  if(omega_zero[RIGHT])
+  {
+    omega_current[RIGHT] = 0.0;
+  }
+  omega_zero[LEFT] = true;
+  omega_zero[RIGHT]= true;
 }
 
-static void controlSignal(bool frontLeft, bool frontRight, float pwmLeft, float pwmRight)
+static void func_controlSignal(const float pwmL,const float pwmR)
 {
-  gpio_set_level(GPIO_A1N1_LEFT, !frontLeft);
-  gpio_set_level(GPIO_A1N2_LEFT, frontLeft);
+  #define ABS(x) ((x)*(-1)*F_IS_NEG(x) + (x)*!F_IS_NEG(x))
+  #define SATURADOR(x) ((ABS(x) > 1.0)?1.0:ABS(x))  //0.0 a 1.0
+
+  static bool front[2]  = {false, false}
+  front[LEFT]  = !F_IS_NEG(pwmL);
+  front[RIGHT] = !F_IS_NEG(pwmR);
+
+  gpio_set_level(GPIO_A1N1_LEFT, !front[LEFT]);
+  gpio_set_level(GPIO_A1N2_LEFT, front[LEFT]);
   //set modo de rotacao do motor direito
-  gpio_set_level(GPIO_B1N1_RIGHT, !frontRight);
-  gpio_set_level(GPIO_B1N2_RIGHT, frontRight);
+  gpio_set_level(GPIO_B1N1_RIGHT, !front[RIGHT]);
+  gpio_set_level(GPIO_B1N2_RIGHT, front[RIGHT]);
 
   gpio_set_level(GPIO_STBY, 0);
   //set PWM motor esquerdo
-  mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, pwmLeft);
+  mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, SATURADOR(pwmL)*100.0);
   //set PWM motor direito
-  mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM0A, pwmRight);
+  mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM0A, SATURADOR(pwmR)*100.0);
   //driver on
-  gpio_set_level(GPIO_STBY, 1);
+  gpio_set_level(GPIO_STBY, (pwmL != 0.0) && (pwmR != 0.0));
 }
-static const unsigned char msg[12] = "hello world";
 //Funcao de tratamento de eventos do bluetooth
 static void
 esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
@@ -268,7 +290,6 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_DISCOVERY_COMP_EVT:
         break;
     case ESP_SPP_OPEN_EVT:
-      printf("Conectado!\n");
       bt_handle = param->open.handle;
         break;
     case ESP_SPP_CLOSE_EVT:
@@ -280,31 +301,6 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_DATA_IND_EVT:
         // param->data_ind.len e param->data_ind.data
-
-        esp_spp_write(bt_handle, 12, msg);
-        if((param->data_ind.data[0] & 0b11110000) == 0b10100000 )
-        {
-          if((param->data_ind.data[0] & 0b00001100) == 0b00000100) //calibracao  01
-          {
-            calibration();
-            break;
-          }
-
-          if((param->data_ind.data[0] & 0b00001100) == 0b00001000) //controlSignal 10
-          {
-              motorControl(param->data_ind.data[0] & 0x02, param->data_ind.data[0] & 0x01,
-                           param->data_ind.data[1]/255.0 , param->data_ind.data[2]/255.0);
-              break;
-          }
-
-          if((param->data_ind.data[0] & 0b00001100) == 0b00001100) //controlSignal 11
-          {
-              controlSignal(param->data_ind.data[0] & 0x02    , param->data_ind.data[0] & 0x01,
-                            100*param->data_ind.data[1]/255.0 , 100*param->data_ind.data[2]/255.0);
-              break;
-          }
-        }
-
         break;
     case ESP_SPP_CONG_EVT:
         break;
@@ -319,26 +315,19 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 }
 
 static void
-motorControl(bool frontLeft, bool frontRight, float leftVelPercent, float rigthVelPercent)
+periodic_controller();
 {
-  float pwmLeft, pwmRight;
-  float left_vel  = leftVelPercent*maxVelocity;
-  float rigth_vel = rigthVelPercent*maxVelocity;
-
-  if(frontLeft)
-  {
-    pwmLeft = coef[LEFT_FRONT].alpha*left_vel + coef[LEFT_FRONT].beta*( left_vel != 0 );
-  }else{
-    pwmLeft = coef[LEFT_BACK].alpha*left_vel  + coef[LEFT_BACK].beta*( left_vel  != 0 );
-  }
-
-  if(frontRight)
-  {
-    pwmRight = coef[RIGHT_FRONT].alpha*rigth_vel + coef[RIGHT_FRONT].beta*( rigth_vel != 0 );
-  }else{
-    pwmRight = coef[RIGHT_BACK].alpha*rigth_vel  + coef[RIGHT_BACK].beta*( rigth_vel  != 0 );
-  }
-  controlSignal(frontLeft, frontRight, pwmLeft, pwmRight);
+  static float pwm[2] = {0.0};
+  static ROTATE_S sense[2] = {FRONT, FRONT};
+  sense[LEFT]  = F_IS_NEG(omega_ref);
+  sense[RIGHT] = F_IS_NEG(omega_ref);
+  //controlador FeedForWard
+  pwm[LEFT]  = coef[sense[LEFT] ].alpha*omega_ref[LEFT]  +
+               coef[sense[LEFT] ].beta*(omega_ref[LEFT]  != 0 );
+  pwm[RIGHT] = coef[sense[RIGHT]].alpha*omega_ref[RIGHT] +
+               coef[sense[RIGHT]].beta*(omega_ref[RIGHT] != 0 );
+  //aqui ficara o controlador BackWard (PID)
+  func_controlSignal(pwm[LEFT], pwm[RIGHT]);
 }
 
 double get_time_sec(void)
@@ -356,41 +345,43 @@ double get_time_sec(void)
 
 static void calibration()
 {
-  #define PWM_MIN_INIT         20.0
+  #define PWM_MIN_INIT         0.4
   #define TIME_MS_WAIT_PWM_MIN 1000
   #define TIME_MS_WAIT_VEL_MAX 1500
+  const float STEP = 1.0/32768.0; //por causa da resolucao de 15 bits na transmissao da ref
 
-  float velocity_max[4];
+  float omega_max_tmp[4];
   float pwmMin[4];
-  float minVelocityMax = 0.0;
+  float minOmegaMax = 0.0;
   //##################################### Calibrar motor direito ##########################################//
   /*************************************** LEFT FRONT *************************************************************/
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
-  controlSignal(true, false, 100.0, 0.0);
+  func_controlSignal(1.0, 0.0);
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
-  velocity_max[LEFT_FRONT] = velocity[LEFT];
-  minVelocityMax = velocity_max[LEFT_FRONT];
+  omega_max_tmp[LEFT_FRONT] = velocity[LEFT];
+  minOmegaMax = omega_max_tmp[LEFT_FRONT];
   //Encontrando o PWM minimo
-  for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - 2.0)
+  for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - STEP)
   {
-    controlSignal(true, false, pwm, 0.0);
+    func_controlSignal(pwm, 0.0);
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
-    if(velocity[LEFT] == 0.0)
+    if(omega_current[LEFT] == 0.0)
     {
       pwmMin[LEFT_FRONT] = pwm;
       pwm = 0;
     }
   }
   controlSignal(false, false, 0.0, 0.0);
+  func_controlSignal(0.0, 0.0);
   /*************************************** LEFT BACK *************************************************************/
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
   controlSignal(false, false, 100.0, 0.0);
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
-  velocity_max[LEFT_BACK] = velocity[LEFT];
+  omega_max_tmp[LEFT_BACK] = velocity[LEFT];
 
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - 2.0)
@@ -411,7 +402,7 @@ static void calibration()
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
   controlSignal(false, true, 0.0, 100.0);
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
-  velocity_max[RIGHT_FRONT] = velocity[RIGHT];
+  omega_max_tmp[RIGHT_FRONT] = velocity[RIGHT];
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - 2.0)
   {
@@ -430,7 +421,7 @@ static void calibration()
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
   controlSignal(false, false, 0.0, 100.0);
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
-  velocity_max[RIGHT_BACK] = velocity[RIGHT];
+  omega_max_tmp[RIGHT_BACK] = velocity[RIGHT];
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - 2.0)
   {
@@ -444,23 +435,23 @@ static void calibration()
   }
   controlSignal(false, false, 0.0, 0.0);
   //Calculo dos coef.
-  coef[LEFT_FRONT].alpha = (100.0 - pwmMin[LEFT_FRONT])/(velocity_max[LEFT_FRONT]);
+  coef[LEFT_FRONT].alpha = (100.0 - pwmMin[LEFT_FRONT])/(omega_max_tmp[LEFT_FRONT]);
   coef[LEFT_FRONT].beta  = pwmMin[LEFT_FRONT];
 
-  coef[LEFT_BACK].alpha = (100.0 - pwmMin[LEFT_BACK])/(velocity_max[LEFT_BACK]);
+  coef[LEFT_BACK].alpha = (100.0 - pwmMin[LEFT_BACK])/(omega_max_tmp[LEFT_BACK]);
   coef[LEFT_BACK].beta  = pwmMin[LEFT_BACK];
 
-  coef[RIGHT_FRONT].alpha = (100.0 - pwmMin[RIGHT_FRONT])/(velocity_max[RIGHT_FRONT]);
+  coef[RIGHT_FRONT].alpha = (100.0 - pwmMin[RIGHT_FRONT])/(omega_max_tmp[RIGHT_FRONT]);
   coef[RIGHT_FRONT].beta  = pwmMin[RIGHT_FRONT];
 
-  coef[RIGHT_BACK].alpha = (100.0 - pwmMin[RIGHT_BACK])/(velocity_max[RIGHT_BACK]);
+  coef[RIGHT_BACK].alpha = (100.0 - pwmMin[RIGHT_BACK])/(omega_max_tmp[RIGHT_BACK]);
   coef[RIGHT_BACK].beta  = pwmMin[RIGHT_BACK];
 
   //Menor das Maximas velocidades
   for(uint8_t i = 0; i < 4; i++)
   {
-    minVelocityMax = (velocity_max[i] < minVelocityMax)?velocity_max[i]:minVelocityMax;
+    minOmegaMax = (omega_max_tmp[i] < minOmegaMax)?omega_max_tmp[i]:minOmegaMax;
   }
   //Maior velocidade considerada
-  maxVelocity = 0.80 * minVelocityMax;
+  omega_max = 0.85 * minOmegaMax;
 }
