@@ -1,120 +1,70 @@
 #include <iostream>
-#include <stdlib.h>
-#include <math.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <bluetoothAction.h>
+#include <omp.h>
 
-using namespace::std;
+// ESP de TEST : "30:AE:A4:3B:A4:26"
+// #define MAC_BT "30:AE:A4:3B:A4:26" //TEST
+// #define MAC_BT "30:AE:A4:20:0E:12"    //1
 
+#define MAC_BT "30:AE:A4:20:0E:12"
+#define PACKET_SIZE 5
 
-const int LEN_BUFFER = 3;
-const int MAX_PWM_ARDUINO = 256;
-
-BluetoothAction btAction;// = BluetoothAction;
-
-//COPIA DA STRUCT DO CONTROLE
-struct pwmRobo{
-	double left,right;
-};
-
-pwmRobo me[3];
-
-uint8_t pwmToByte(double pwm){
-
-	pwm=fabs(pwm);
-	if(pwm>=1.0){
-		pwm=0.999999999;
-	}
-	uint8_t byte = MAX_PWM_ARDUINO*pwm; //256 é o valor máximo de um byte para o arduino
-	return byte;
-}
-
-bool transmission(){
-	static uint8_t dados[LEN_BUFFER];
-	for(int i=0;i<3;i++){
-		// os seis primeiros bits do primeiro byte são 1010 10xx = 0xA8
-		dados[0]=0xA8;
-		// o sétimo bit do primeiro byte é o sentido do motor left
-		// 1= para frente , 0= para trás.
-		if(me[i].left>= 0.0){
-			dados[0]+=0x02;
-		}
-		// o oitavo bit do primeiro byte é o sentido do motor right
-		// 1= para frente , 0= para trás.
-		if(me[i].right>= 0.0){
-			dados[0]+=0x01;
-		}
-		// o segundo byte é a velocidade do motor left
-		dados[1]=pwmToByte(me[i].left);
-		// o terceiro byte é a velocidade do motor right
-		dados[2]=pwmToByte(me[i].right);
-		cout<<"dados  = "<<(int)dados[0] << ' ' <<(int)dados[1]<< ' ' <<(int)dados[2]<<endl;
-		btAction.sendBluetoothMessage(i,dados);
-	}
-	return false;
-}
+#define CMD_HEAD           0xA0
+#define CMD_CONTROL_SIGNAL 0x0B
+#define CMD_SET_POINT      0x0A
 
 
-int main(){
-	int idRobo;
+enum{ LEFT, RIGHT };
 
-	cout << "----------------------------------------------------------\n";
-	cout << "\tSimple Bluetooth Zone :: 'Powered by BluetoothAction.h' \n";
-	cout << "----------------------------------------------------------\n";
+#define F_IS_NEG(x) (*(uint32_t*)&(x) >> 31)
 
-	/*scan all active bluetooths*/
-	//findActiveBluetoothDevice();
+using namespace std;
 
-	/*seta endereços dos robôs*/
-	btAction.setBluetoothAddr("20:17:03:06:25:29");
-	// btAction.setBluetoothAddr("20:17:03:06:00:34");
-	// btAction.setBluetoothAddr("20:17:03:06:17:86");
+int main(int argc, char** argv)
+{
+  BluetoothAction btAction;
+  uint8_t         packet[PACKET_SIZE];
+	float           ref_f[2];
+	uint16_t        ref_b[2];
+  int             idBt;
 
-	/*identifica bluetooths proximos*/
-	//btAction.findActiveBluetoothDevice();
+  printf("Programa de Teste do Bluetoth Action\n");
 
-	/*faz a conecção com os bluetooths with RFCOMM protocol*/
-	btAction.initBluetoothDevices(btAction.getNumBTDevices());
+  idBt = btAction.setBluetoothAddr(MAC_BT);
+  btAction.initBluetoothById(idBt);
 
-  /*
-  for (int i=0; i<1000; i++)
+	memset(packet, 0, PACKET_SIZE);
+
+
+  #define ABS_F(x) (((x)<0.0)?-(x):(x))
+  while(1)
   {
-    me[0].left = sin(2*M_PI*i/1000.0);
-    me[0].right = sin(2*M_PI*i/1000.0);
+		// printf("Referencia Esquerda e Direita | -2 para terminar\n");
+		cout << "Referencia para Esquerda e Direita | -2 para terminar\n";
+		cin >> ref_f[LEFT];
+		if(ref_f[0] == -2.0)
+			break;
+		cin >> ref_f[RIGHT];
+		if(ref_f[1] == -2.0)
+			break;
 
-    me[1].left = cos(2*M_PI*i/1000.0);
-    me[1].right = cos(2*M_PI*i/1000.0);
+		ref_b[LEFT] = (!F_IS_NEG(ref_f[LEFT]) << 15)  | (uint16_t)(ABS_F(ref_f[LEFT])*32767.0);
+    ref_b[RIGHT]= (!F_IS_NEG(ref_f[RIGHT]) << 15) | (uint16_t)(ABS_F(ref_f[RIGHT])*32767.0);
 
-    me[2].left = sin(2*M_PI*i/1000.0);
-    me[2].right = cos(2*M_PI*i/1000.0);
+		packet[0] = CMD_HEAD | CMD_CONTROL_SIGNAL;
+		packet[1] = (ref_b[LEFT] & 0xFF00) >> 8;
+		packet[2] = (ref_b[LEFT] & 0x00FF);
+		packet[3] = (ref_b[RIGHT] & 0xFF00) >> 8;
+		packet[4] = (ref_b[RIGHT] & 0x00FF);
 
-    cout << "PWMs:" << ' ' << me[0].left << ';' << me[0].right
-		    << ' ' << me[1].left << ';' << me[1].right
-		    << ' ' << me[2].left << ';' << me[2].right << endl;
-    transmission();
+		printf("Left:%X \t Right:%X\n", ref_b[LEFT], ref_b[RIGHT]);
 
-    usleep(30000);
+		btAction.sendBluetoothMessage(idBt, PACKET_SIZE, packet);
+		// system("clear");
   }
 
-  me[0].left = 0;
-  me[0].right = 0;
-
-  me[1].left = 0;
-  me[1].right = 0;
-
-  me[2].left = 0;
-  me[2].right = 0;
-
-  transmission();
-
+  printf("Encerrando conexao\n");
+  btAction.closeBluetoothById(idBt);
   return 0;
-  */
-    do{
-			me[0].left = 255;
-			me[0].right= 255;
-		}while(1);
-
-	return 0;
 }

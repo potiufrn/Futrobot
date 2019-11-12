@@ -22,7 +22,6 @@ int main(int argc, char** argv)
 
   const unsigned char msg[LEN_MSG] = "HELLO WORLD";
 
-
   while(1)
   {
     tsend[0] = omp_get_wtime();
@@ -35,7 +34,8 @@ int main(int argc, char** argv)
       printf("Tempo para enviar e receber:%f\n", tsend[1] - tsend[0]);
       printf("Mensagem recebida: %s\n", buffer);
     }
-    else{
+    else
+    {
       printf("ERRO com RECV!\n");
     }
   }
