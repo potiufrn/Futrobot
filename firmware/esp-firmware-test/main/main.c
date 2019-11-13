@@ -3,6 +3,7 @@
  *  O programa ira identificar a relacao entre PWM e Velocidade de cada motor para cada
  *  sentido de rotacao
  **/
+
  #include "freertos/FreeRTOS.h"
  #include "freertos/portmacro.h"
  #include "freertos/task.h"
@@ -26,6 +27,8 @@
  #include "esp_bt_device.h"
  #include "esp_spp_api.h"
 
+ #include "esp_attr.h"
+
  #include "soc/mcpwm_reg.h"
  #include "soc/mcpwm_struct.h"
 
@@ -46,22 +49,23 @@ static void periodics_func_config();
 //interruptions and callbacks
 static void IRAM_ATTR isr_EncoderLeft();
 static void IRAM_ATTR isr_EncoderRight();
+static void task_read_sense(void *arg);
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
 static void periodic_test_omega_zero_cb(void *arg);
 static void periodic_controller(void *arg);
 //my functions
 static void func_controlSignal(const float pwmL,const float pwmR);
 static void func_calibration();
-
-
 /*************************************************************************************/
 /****************************** VARIAVEIS GLOBAIS ************************************/
 /*************************************************************************************/
 static mcpwm_dev_t *MCPWM[2] = {&MCPWM0, &MCPWM1};
 
-xQueueHandle bt_queue;
+static xQueueHandle bt_queue = NULL;
+static xQueueHandle encoder_queue = NULL;
 
 static bool controller_enable = true;
+
 struct CoefLine coefL[2];       //coef. das retas PWM(omega) para o motor esquerdo
 struct CoefLine coefR[2];       //coef. das retas PWM(omega) para o motor direito
 static float omega_max = 0.0;   //modulo da velocidade maxima do robo
@@ -69,6 +73,7 @@ static float omega_max = 0.0;   //modulo da velocidade maxima do robo
 static bool  omega_zero[2]     = {true, true};
 static float omega_ref[2]      = {0.0, 0.0}; //-1.0 a 1.0
 static float omega_current[2]  = {0.0, 0.0}; //-1.0 a 1.0
+static float _sense[2]         = {1.0, 1.0};
 //Identificador do Bluetooth
 static uint32_t bt_handle = 0;
 
@@ -78,20 +83,28 @@ static uint32_t bt_handle = 0;
 void app_main()
 {
   bt_data btdata;
-  bt_queue = xQueueCreate(1, sizeof(bt_data));
+  bt_queue      = xQueueCreate(1, sizeof(bt_data));
+  encoder_queue = xQueueCreate(1, sizeof(uint8_t));
+
   /** configuracoes iniciais **/
-  xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 3, NULL, 0);
   xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 5, NULL, 0);
+
+  xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 3, NULL, 0);
   xTaskCreatePinnedToCore(periodics_func_config, "periodics_func_config", 4096, NULL, 4, NULL, 1);
 
   xTaskCreatePinnedToCore(mcpwm_init_isrLeft, "mcpwm 0", 4096, NULL, 5, NULL, 0);
   xTaskCreatePinnedToCore(mcpwm_init_isrRight, "mcpwm 1", 4096, NULL, 5, NULL, 0);
+  xTaskCreatePinnedToCore(task_read_sense, "task_read_sense", 2048, NULL, 5, NULL, 0);
+
 
   uint8_t  head, cmd;
+  // uint32_t size;
+  uint8_t  *bitstream;
+  float    *vec_float;
   while(1){
       xQueueReceive(bt_queue, &btdata, portMAX_DELAY);
 
-      head = btdata.data[0];
+      head = btdata.data[0] & 0xF0;
       if(head != CMD_HEAD)
         continue;
 
@@ -115,15 +128,28 @@ void app_main()
         //Falta fazer
         break;
       case CMD_CALIBRATION:
-        //Falta fazer
+        func_calibration();
         break;
       case CMD_REQ_OMEGA:
-        //Falta fazer
-        // esp_spp_write(bt_handle, btdata.len, btdata.data);
+        esp_spp_write(bt_handle, 2*sizeof(float), (uint8_t*)omega_current);
         break;
       case CMD_REQ_CAL:
         //Falta fazer
-        // esp_spp_write(bt_handle, btdata.len, btdata.data);
+        bitstream = (uint8_t*)malloc(8*sizeof(float));
+
+        bitstream[0*sizeof(float)] = *(uint8_t*)&coefL[FRONT].alpha;
+        bitstream[1*sizeof(float)] = *(uint8_t*)&coefL[FRONT].beta;
+        bitstream[2*sizeof(float)] = *(uint8_t*)&coefL[BACK].alpha;
+        bitstream[3*sizeof(float)] = *(uint8_t*)&coefL[BACK].beta;
+
+        bitstream[4*sizeof(float)] = *(uint8_t*)&coefR[FRONT].alpha;
+        bitstream[5*sizeof(float)] = *(uint8_t*)&coefR[FRONT].beta;
+        bitstream[6*sizeof(float)] = *(uint8_t*)&coefR[BACK].alpha;
+        bitstream[7*sizeof(float)] = *(uint8_t*)&coefR[BACK].beta;
+
+        esp_spp_write(bt_handle, 8*sizeof(float), bitstream);
+
+        free(bitstream);
         break;
       case CMD_REQ_IDENT:
         //Falta fazer
@@ -136,16 +162,21 @@ void app_main()
   }
 }
 //***************************************************************************************
+
 static void IRAM_ATTR isr_EncoderLeft()
 {
+
   static double old_time = 0;
   static double new_time;
+  static uint8_t ignore;
 
   new_time = get_time_sec();
 
-  omega_current[LEFT] = 1.0/(new_time - old_time);
+  omega_current[LEFT] = _sense[LEFT]/(new_time - old_time);
   omega_zero[LEFT] = false;
   old_time = new_time;
+
+  xQueueSendFromISR(encoder_queue, &ignore, NULL);
 
   uint32_t mcpwm_intr_status;
   mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; //Read interrupt status
@@ -155,19 +186,51 @@ static void IRAM_ATTR isr_EncoderRight()
 {
   static double old_time = 0;
   static double new_time;
+  static uint8_t ignore;
 
   new_time = get_time_sec();
 
-  omega_current[RIGHT] = 1.0/(new_time - old_time);
-  old_time = new_time;
+  omega_current[RIGHT] = _sense[RIGHT]/(new_time - old_time);
   omega_zero[RIGHT]  = false;
+  old_time = new_time;
+
+  xQueueSendFromISR(encoder_queue, &ignore, NULL);
 
   uint32_t mcpwm_intr_status;
   mcpwm_intr_status = MCPWM[MCPWM_UNIT_1]->int_st.val; //Read interrupt status
   MCPWM[MCPWM_UNIT_1]->int_clr.val = mcpwm_intr_status;
 }
+
+static void task_read_sense(void *arg)
+{
+  bool level;
+  // static float sense[2] = {1.0, 1.0};
+  int ignore;
+  while(1)
+  {
+    xQueueReceive(encoder_queue, &ignore, portMAX_DELAY);
+    if(omega_current[LEFT] < 200.0)
+    {
+      level = gpio_get_level(GPIO_OUTB_CAP1_LEFT);
+      _sense[LEFT] = (1.0)*level + (-1.0)*(!level);
+      // omega_current[LEFT] *= sense[LEFT];//acrescenta a informacao de sentido
+      continue;
+    }
+
+    if(omega_current[RIGHT] < 200.0)
+    {
+      level = gpio_get_level(GPIO_OUTB_CAP1_RIGHT);
+      _sense[RIGHT] = (1.0)*level + (-1.0)*(!level);
+      // omega_current[RIGHT]*= sense[RIGHT];//acrescenta a informacao de sentido
+      continue;
+    }
+
+    // omega_current[LEFT] *= sense[LEFT];//acrescenta a informacao de sentido
+  }
+}
+
 //Interrupcao de timeout, mede velocidade de cada motor.
-//Chamado a cada 5ms
+//Chamado a cada 800ms
 static void periodic_test_omega_zero_cb(void *arg)
 {
   if(omega_zero[LEFT])
@@ -277,7 +340,7 @@ static void func_calibration()
   #define PWM_MIN_INIT          0.3  // 30%
   #define TIME_MS_WAIT_PWM_MIN 1000
   #define TIME_MS_WAIT_VEL_MAX 1500
-  const float STEP = 1.0/32768.0;    //por causa da resolucao de 15 bits na transmissao da ref
+  const float STEP = 1.0/32767.0;    //por causa da resolucao de 15 bits na transmissao da ref
 
   float omega_max_tmpL[2];
   float omega_max_tmpR[2];
@@ -473,6 +536,13 @@ static void config_gpio(){
   io_conf.pull_up_en = 0;
   //configure GPIO with the given settings
   gpio_config(&io_conf);
+
+
+  io_conf.mode = GPIO_MODE_INPUT;
+  //bit mask of the pins that you want to set,e.g.GPIO18/19
+  io_conf.pin_bit_mask = (1ULL << GPIO_OUTB_CAP1_LEFT) | (1ULL << GPIO_OUTB_CAP1_RIGHT);
+  gpio_config(&io_conf);
+
 
   mcpwm_pin_config_t pin_configLeft = {
       .mcpwm0a_out_num = GPIO_PWM_LEFT,

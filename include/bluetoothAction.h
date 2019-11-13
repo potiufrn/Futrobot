@@ -64,9 +64,10 @@ class BluetoothAction {
      * @param  char message mensagem que sera enviada.
      * @return      true em caso de falha, false caso contrario.
      */
-    bool sendBluetoothMessage(const unsigned int, const int, const unsigned char*);
+     bool sendBluetoothMessage(const unsigned int id, const uint8_t* message, const int len_buffer);
 
-    int recvBluetoothMessage(const int idBt, uint8_t*buffer, int lengthMax);
+    // int recvBluetoothMessage(const int idBt, uint8_t*buffer, int lengthMax);
+    int recvBluetoothMessage(const int idBt, uint8_t*buffer, int lengthMax, int timeout = 20);
     // int recvBluetoothMessage();
     /**
      * Encerra multiplas conexoes, do id 0 até bt.

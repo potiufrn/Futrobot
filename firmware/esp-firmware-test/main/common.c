@@ -4,9 +4,14 @@
 #include <sys/time.h>
 #include <string.h>
 
-void bits2float(const uint8_t *bitstream, float*f, uint32_t num_float)
+void bytes2float(const uint8_t *bitstream, float*f, uint32_t num_float)
 {
   memcpy((float*)bitstream, f, num_float*sizeof(float));
+}
+
+void float2bytes(const float*f, uint8_t *bitstream, uint32_t num_float)
+{
+  memcpy((uint8_t*)f, bitstream, num_float*sizeof(float));
 }
 
 void decodeFloat(const uint8_t *data, float *fa, float *fb)

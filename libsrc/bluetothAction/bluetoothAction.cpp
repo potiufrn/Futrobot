@@ -40,7 +40,8 @@ BluetoothAction::sendBluetoothMessage(const unsigned int id,
 
 bool
 BluetoothAction::sendBluetoothMessage(const unsigned int id,
-                                      const int len_buffer,const unsigned char* message)
+                                      const uint8_t* message,
+                                      const int len_buffer)
 {
   status[id] = write(sock[id], message,  len_buffer);
   if (status[id] != len_buffer)
@@ -51,8 +52,13 @@ BluetoothAction::sendBluetoothMessage(const unsigned int id,
 }
 
 int
-BluetoothAction::recvBluetoothMessage(const int idBt, uint8_t*buffer, int lengthMax)
+BluetoothAction::recvBluetoothMessage(const int idBt, uint8_t*buffer, int lengthMax, int timeout)
 {
+  struct timeval tv;
+  tv.tv_sec = timeout;        // 30 Secs Timeout
+  tv.tv_usec = 0;        // Not init'ing this can cause strange errors
+  setsockopt(sock[idBt], SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv,sizeof(struct timeval));
+
   if(idBt >= (int)dest.size())return -1;
   return recv(sock[idBt], buffer, lengthMax, 0);
 }
