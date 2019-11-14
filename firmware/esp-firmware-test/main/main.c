@@ -4,37 +4,7 @@
  *  sentido de rotacao
  **/
 
- #include "freertos/FreeRTOS.h"
- #include "freertos/portmacro.h"
- #include "freertos/task.h"
- #include "freertos/queue.h"
- #include "freertos/semphr.h"
-
- #include "driver/periph_ctrl.h"
- #include "driver/ledc.h"
- #include "driver/gpio.h"
- #include "driver/pcnt.h"
- #include "driver/timer.h"
- #include "driver/mcpwm.h"
-
- #include "nvs.h"
- #include "nvs_flash.h"
-
- //Bluetooth
- #include "esp_bt.h"
- #include "esp_bt_main.h"
- #include "esp_gap_bt_api.h"
- #include "esp_bt_device.h"
- #include "esp_spp_api.h"
-
- #include "esp_attr.h"
-
- #include "soc/mcpwm_reg.h"
- #include "soc/mcpwm_struct.h"
-
 #include <string.h>
-#include <stdio.h>
-
 #include "common.h"
 
 /*************************************************************************************/
@@ -49,10 +19,13 @@ static void periodics_func_config();
 //interruptions and callbacks
 static void IRAM_ATTR isr_EncoderLeft();
 static void IRAM_ATTR isr_EncoderRight();
-static void task_read_sense(void *arg);
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
 static void periodic_test_omega_zero_cb(void *arg);
 static void periodic_controller(void *arg);
+
+static void task_calc_Leftsense(void *arg);
+static void task_calc_Rightsense(void *arg);
+
 //my functions
 static void func_controlSignal(const float pwmL,const float pwmR);
 static void func_calibration();
@@ -62,7 +35,8 @@ static void func_calibration();
 static mcpwm_dev_t *MCPWM[2] = {&MCPWM0, &MCPWM1};
 
 static xQueueHandle bt_queue = NULL;
-static xQueueHandle encoder_queue = NULL;
+static xQueueHandle encL_queue = NULL;
+static xQueueHandle encR_queue = NULL;
 
 static bool controller_enable = true;
 
@@ -76,29 +50,29 @@ static float omega_current[2]  = {0.0, 0.0}; //-1.0 a 1.0
 static float _sense[2]         = {1.0, 1.0};
 //Identificador do Bluetooth
 static uint32_t bt_handle = 0;
-
 /*************************************************************************************/
 /****************************** ROTINAS PRINCIPAIS ***********************************/
 /*************************************************************************************/
 void app_main()
 {
   bt_data btdata;
-  bt_queue      = xQueueCreate(1, sizeof(bt_data));
-  encoder_queue = xQueueCreate(1, sizeof(uint8_t));
+  bt_queue   = xQueueCreate(1, sizeof(bt_data));
+  encL_queue = xQueueCreate(1, 0);
+  encR_queue = xQueueCreate(1, 0);
 
   /** configuracoes iniciais **/
   xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 5, NULL, 0);
 
-  xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 3, NULL, 0);
+  xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 5, NULL, 0);
   xTaskCreatePinnedToCore(periodics_func_config, "periodics_func_config", 4096, NULL, 4, NULL, 1);
 
-  xTaskCreatePinnedToCore(mcpwm_init_isrLeft, "mcpwm 0", 4096, NULL, 5, NULL, 0);
-  xTaskCreatePinnedToCore(mcpwm_init_isrRight, "mcpwm 1", 4096, NULL, 5, NULL, 0);
-  xTaskCreatePinnedToCore(task_read_sense, "task_read_sense", 2048, NULL, 5, NULL, 0);
+  xTaskCreatePinnedToCore(mcpwm_init_isrLeft, "mcpwm 0", 4096, NULL, 4, NULL, 0);
+  xTaskCreatePinnedToCore(mcpwm_init_isrRight, "mcpwm 1", 4096, NULL, 4, NULL, 0);
 
+  xTaskCreatePinnedToCore(task_calc_Leftsense, "task_calc_Leftsense", 2048, NULL, 5, NULL, 0);
+  xTaskCreatePinnedToCore(task_calc_Rightsense, "task_calc_Rightsense", 2048, NULL, 5, NULL, 0);
 
   uint8_t  head, cmd;
-  // uint32_t size;
   uint8_t  *bitstream;
   float    *vec_float;
   while(1){
@@ -162,13 +136,11 @@ void app_main()
   }
 }
 //***************************************************************************************
-
 static void IRAM_ATTR isr_EncoderLeft()
 {
-
-  static double old_time = 0;
+  static double old_time = 0.0;
   static double new_time;
-  static uint8_t ignore;
+  static uint8_t trash;
 
   new_time = get_time_sec();
 
@@ -176,56 +148,52 @@ static void IRAM_ATTR isr_EncoderLeft()
   omega_zero[LEFT] = false;
   old_time = new_time;
 
-  xQueueSendFromISR(encoder_queue, &ignore, NULL);
+  // if(omega_current[LEFT] < 100.0)
+  xQueueSendFromISR(encL_queue, &trash, NULL);
 
-  uint32_t mcpwm_intr_status;
-  mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; //Read interrupt status
-  MCPWM[MCPWM_UNIT_0]->int_clr.val = mcpwm_intr_status;
+  MCPWM[MCPWM_UNIT_0]->int_clr.val = MCPWM[MCPWM_UNIT_0]->int_st.val;
 }
+
 static void IRAM_ATTR isr_EncoderRight()
 {
   static double old_time = 0;
   static double new_time;
-  static uint8_t ignore;
+  static uint8_t trash;
 
   new_time = get_time_sec();
-
   omega_current[RIGHT] = _sense[RIGHT]/(new_time - old_time);
-  omega_zero[RIGHT]  = false;
+  omega_zero[RIGHT]    = false;
   old_time = new_time;
 
-  xQueueSendFromISR(encoder_queue, &ignore, NULL);
+  // if(omega_current[RIGHT] < 100.0)
+  xQueueSendFromISR(encR_queue, &trash, NULL);
 
-  uint32_t mcpwm_intr_status;
-  mcpwm_intr_status = MCPWM[MCPWM_UNIT_1]->int_st.val; //Read interrupt status
-  MCPWM[MCPWM_UNIT_1]->int_clr.val = mcpwm_intr_status;
+  MCPWM[MCPWM_UNIT_1]->int_clr.val = MCPWM[MCPWM_UNIT_1]->int_st.val;
 }
 
-static void task_read_sense(void *arg)
+static void task_calc_Leftsense(void *arg)
 {
+  uint8_t trash;
   bool level;
-  // static float sense[2] = {1.0, 1.0};
-  int ignore;
   while(1)
   {
-    xQueueReceive(encoder_queue, &ignore, portMAX_DELAY);
-    if(omega_current[LEFT] < 200.0)
-    {
-      level = gpio_get_level(GPIO_OUTB_CAP1_LEFT);
-      _sense[LEFT] = (1.0)*level + (-1.0)*(!level);
-      // omega_current[LEFT] *= sense[LEFT];//acrescenta a informacao de sentido
-      continue;
-    }
+    xQueueReceive(encL_queue, &trash, portMAX_DELAY);
+    if(omega_current[LEFT] > 80.0)continue;
+    level = gpio_get_level(GPIO_OUTB_CAP1_LEFT);
+    _sense[LEFT] = (!level)*-1.0 + level*1.0f;
+  }
+}
 
-    if(omega_current[RIGHT] < 200.0)
-    {
-      level = gpio_get_level(GPIO_OUTB_CAP1_RIGHT);
-      _sense[RIGHT] = (1.0)*level + (-1.0)*(!level);
-      // omega_current[RIGHT]*= sense[RIGHT];//acrescenta a informacao de sentido
-      continue;
-    }
-
-    // omega_current[LEFT] *= sense[LEFT];//acrescenta a informacao de sentido
+static void task_calc_Rightsense(void *arg)
+{
+  uint8_t trash;
+  bool level;
+  while(1)
+  {
+    xQueueReceive(encR_queue, &trash, portMAX_DELAY);
+    if(omega_current[RIGHT] > 80.0)continue;
+    level = gpio_get_level(GPIO_OUTB_CAP1_RIGHT);
+    _sense[RIGHT] = (level)*-1.0 + (!level)*1.0f;
   }
 }
 
@@ -304,12 +272,26 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     }
 }
-
 static void
 periodic_controller(void *arg)
 {
   static float pwm[2];
   static int sense[2];
+
+  static float difPhase;
+  if(omega_current[LEFT] < 80.0 && (omega_current[LEFT] != 0.0))
+  {
+     difPhase = gpio_get_level(GPIO_OUTA_CAP0_LEFT) - gpio_get_level(GPIO_OUTB_CAP1_LEFT);
+    _sense[LEFT] = difPhase;
+    // printf("Motor Esquerdo => Sentido:%f\n", difPhase);
+  }
+  if(omega_current[RIGHT] < 80.0 && (omega_current[RIGHT] != 0.0))
+  {
+     difPhase = gpio_get_level(GPIO_OUTB_CAP1_RIGHT) - gpio_get_level(GPIO_OUTA_CAP0_RIGHT);
+    _sense[RIGHT] = difPhase;
+    // printf("Motor Direito => Sentido:%f\n", difPhase);
+  }
+
   sense[LEFT]  = F_IS_NEG(omega_ref[LEFT]); //se false => sentido para "frente"
   sense[RIGHT] = F_IS_NEG(omega_ref[RIGHT]); //se false => sentido para "frente"
 
@@ -331,7 +313,6 @@ periodic_controller(void *arg)
   //aplicar sinal de controle
   func_controlSignal(pwm[LEFT], pwm[RIGHT]);
 }
-
 static void func_calibration()
 {
   //desabilita a rotina de controle para realizar esse procedimento
@@ -447,13 +428,6 @@ static void func_calibration()
 
 
 
-
-
-
-
-
-
-
 /*************************************************************************************/
 /****************************** CONFIGURACOES ****************************************/
 /*************************************************************************************/
@@ -537,12 +511,11 @@ static void config_gpio(){
   //configure GPIO with the given settings
   gpio_config(&io_conf);
 
-
   io_conf.mode = GPIO_MODE_INPUT;
   //bit mask of the pins that you want to set,e.g.GPIO18/19
+  io_conf.pull_down_en = 1;
   io_conf.pin_bit_mask = (1ULL << GPIO_OUTB_CAP1_LEFT) | (1ULL << GPIO_OUTB_CAP1_RIGHT);
   gpio_config(&io_conf);
-
 
   mcpwm_pin_config_t pin_configLeft = {
       .mcpwm0a_out_num = GPIO_PWM_LEFT,

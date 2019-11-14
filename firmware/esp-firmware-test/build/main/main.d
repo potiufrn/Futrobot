@@ -1,19 +1,24 @@
 main.o: \
  /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/main.c \
- /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/sys/reent.h \
+ /home/gabriel/esp/esp-idf/components/newlib/include/string.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/newlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/config.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/ieeefp.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/features.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core-isa.h \
+ /home/gabriel/esp/esp-idf/components/newlib/include/sys/reent.h \
+ /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_types.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/_types.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/_default_types.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/lock.h \
+ /home/gabriel/esp/esp-idf/components/newlib/include/sys/cdefs.h \
+ /home/gabriel/esp/esp-idf/components/newlib/include/sys/string.h \
+ /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/common.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
+ /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h \
  /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/include/sdkconfig.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/xtensa_config.h \
@@ -27,8 +32,6 @@ main.o: \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/corebits.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/xtruntime-frames.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/sys/cdefs.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/stdlib.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/alloca.h \
  /home/gabriel/esp/esp-idf/components/esp32/include/rom/ets_sys.h \
@@ -111,14 +114,9 @@ main.o: \
  /home/gabriel/esp/esp-idf/components/bt/bluedroid/api/include/api/esp_bt_device.h \
  /home/gabriel/esp/esp-idf/components/bt/bluedroid/api/include/api/esp_spp_api.h \
  /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_reg.h \
- /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_struct.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/string.h \
- /home/gabriel/esp/esp-idf/components/newlib/include/sys/string.h \
- /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/common.h
+ /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_struct.h
 
-/home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/sys/reent.h:
+/home/gabriel/esp/esp-idf/components/newlib/include/string.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h:
 
@@ -132,6 +130,10 @@ main.o: \
 
 /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/config/core-isa.h:
 
+/home/gabriel/esp/esp-idf/components/newlib/include/sys/reent.h:
+
+/home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h:
+
 /home/gabriel/esp/esp-idf/components/newlib/include/sys/_types.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/machine/_types.h:
@@ -140,9 +142,17 @@ main.o: \
 
 /home/gabriel/esp/esp-idf/components/newlib/include/sys/lock.h:
 
+/home/gabriel/esp/esp-idf/components/newlib/include/sys/cdefs.h:
+
+/home/gabriel/esp/esp-idf/components/newlib/include/sys/string.h:
+
+/home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/common.h:
+
 /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h:
+
+/home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h:
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOSConfig.h:
 
@@ -169,10 +179,6 @@ main.o: \
 /home/gabriel/esp/esp-idf/components/esp32/include/xtensa/xtruntime-frames.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/stdlib.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/_ansi.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/sys/cdefs.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/machine/stdlib.h:
 
@@ -339,10 +345,4 @@ main.o: \
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_reg.h:
 
 /home/gabriel/esp/esp-idf/components/soc/esp32/include/soc/mcpwm_struct.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/string.h:
-
-/home/gabriel/esp/esp-idf/components/newlib/include/sys/string.h:
-
-/home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/common.h:
 /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/main/./main.c:

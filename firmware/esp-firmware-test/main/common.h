@@ -1,5 +1,33 @@
 #include <stdint.h>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/portmacro.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "freertos/semphr.h"
+
+#include "driver/periph_ctrl.h"
+#include "driver/ledc.h"
+#include "driver/gpio.h"
+#include "driver/pcnt.h"
+#include "driver/timer.h"
+#include "driver/mcpwm.h"
+
+
+#include "nvs.h"
+#include "nvs_flash.h"
+
+//Bluetooth
+#include "esp_bt.h"
+#include "esp_bt_main.h"
+#include "esp_gap_bt_api.h"
+#include "esp_bt_device.h"
+#include "esp_spp_api.h"
+
+#include "esp_attr.h"
+
+#include "soc/mcpwm_reg.h"
+#include "soc/mcpwm_struct.h"
 // #define DEVICE_NAME "ESP_ROBO_TEST"
 #define DEVICE_NAME "ESP_ROBO_1"
 
@@ -24,8 +52,8 @@
 /*************************************************************************************/
 /****************************** DEFINICOES DE TEMPOS *********************************/
 /*************************************************************************************/
-#define TIME_TEST_OMEGA_ZERO 800   //ms, tempo do timer que realiza o teste de velocidade zero
-#define TIME_CONTROLLER        5   //ms, periodo de acionamento do controlador
+#define TIME_TEST_OMEGA_ZERO 1800   //ms, tempo do timer que realiza o teste de velocidade zero
+#define TIME_CONTROLLER       10   //ms, periodo de acionamento do controlador
 
 /*************************************************************************************/
 /****************************** ROTINAS PRINCIPAIS ***********************************/
@@ -68,13 +96,10 @@ struct CoefLine{
   float alpha; //coef. angular da reta
   float beta;  //coef. linear da reta
 };
-
 typedef struct{
   uint8_t *data;
   uint32_t len;
 }bt_data;
-
-
 /*************************************************************************************/
 /****************************** FUNCOES AUXILIARES ***********************************/
 /*************************************************************************************/
