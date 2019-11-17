@@ -1,1 +1,1 @@
-75bc12d-dirty esp-firmware v3.3-dirty
+040a66a-dirty esp-firmware v3.3

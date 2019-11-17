@@ -1,3 +1,5 @@
+#include <string>
+#include <fstream>
 #include <iostream>          //cout, cerr, cin
 #include <stdio.h>           //printf
 #include <unistd.h>          //sleep
@@ -14,6 +16,19 @@ using namespace std;
 
 BluetoothAction btAction;
 
+string getData(){
+  time_t rawtime;
+  tm *timeinfo;
+  time(&rawtime);
+  timeinfo = localtime(&rawtime);
+  std::string strTime = asctime(timeinfo);
+  strTime.replace(strTime.find(' '), 1, "_");
+  strTime.replace(strTime.find(' '), 1, "_");
+  strTime.replace(strTime.find(' '), 1, "_");
+  strTime.replace(strTime.find(' '), 1, "_");
+  return strTime;
+}
+
 void bytes2float(const uint8_t *bitstream, float*f, uint32_t num_float)
 {
   memcpy((float*)bitstream, f, num_float*sizeof(float));
@@ -27,7 +42,6 @@ void float2bytes(const float*f, uint8_t *bitstream, uint32_t num_float)
 void encodeFloat(const float* vec_f, uint8_t *bitstream)
 {
   uint16_t ref_b[2];
-  uint8_t  sense[2]; // 0 -> back, 1 -> front
 
 	ref_b[0] = (!F_IS_NEG(vec_f[0]) << 15)  | (uint16_t)(ABS_F(vec_f[0])*32767.0);
   ref_b[1]= (!F_IS_NEG(vec_f[1]) << 15)   | (uint16_t)(ABS_F(vec_f[1])*32767.0);
@@ -62,7 +76,7 @@ void _pause(const char* msg = ""){
 void _printListMACs(){
   printf("****************MACs Conhecidos*************\n");
   vector<string> addrs = btAction.getDest();
-  for(int i = 0; i < addrs.size(); i++)
+  for(int i = 0; i < (int)addrs.size(); i++)
   {
     printf("%d -> %s\n",i, addrs[i].c_str());
   }
@@ -75,7 +89,6 @@ int main(int argc, char** argv)
   float   *vec_float;
   int     idBt = -1;
   int     choice;
-  char    trash;
 
   btAction.setBluetoothAddr(MAC_ESP_TEST);
   btAction.setBluetoothAddr(MAC_ESP_ROBO_1);
@@ -167,17 +180,18 @@ int main(int argc, char** argv)
       break;
     case 9://dados da calibracao
       bitstream = new uint8_t[1];
-      vec_float = new float[8];
 
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 8*sizeof(float));
+      delete[] bitstream;
+      bitstream = new uint8_t[8*sizeof(float)];
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 8*sizeof(float), 20);
 
-      printf("Coeficientes da calibracao:\n");
-      printf("Left  Front  => a = %f , b = %f \n", vec_float[0], vec_float[1]);
-      printf("Left  Back   => a = %f , b = %f \n", vec_float[2], vec_float[3]);
-      printf("Right Front  => a = %f , b = %f \n", vec_float[4], vec_float[5]);
-      printf("Right Back   => a = %f , b = %f \n", vec_float[6], vec_float[7]);
+      printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
+      printf("Left  Front  => a = %f , b = %f \n", *(float*)&vec_float[0*sizeof(float)], *(float*)&vec_float[1*sizeof(float)]);
+      printf("Left  Back   => a = %f , b = %f \n", *(float*)&vec_float[2*sizeof(float)], *(float*)&vec_float[3*sizeof(float)]);
+      printf("Right Front  => a = %f , b = %f \n", *(float*)&vec_float[4*sizeof(float)], *(float*)&vec_float[5*sizeof(float)]);
+      printf("Right Back   => a = %f , b = %f \n", *(float*)&vec_float[6*sizeof(float)], *(float*)&vec_float[7*sizeof(float)]);
       _pause();
 
       delete[] bitstream;
@@ -185,11 +199,12 @@ int main(int argc, char** argv)
 
       break;
     case 10://dados da identificacao
-      bitstream = new uint8_t;
 
-      bitstream[0] = CMD_HEAD | CMD_REQ_IDENT;
-      btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      delete   bitstream;
+      // bitstream = new uint8_t;
+      //
+      // bitstream[0] = CMD_HEAD | CMD_REQ_IDENT;
+      // btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
+      // delete   bitstream;
 
       break;
     case 11://solicitar omegas

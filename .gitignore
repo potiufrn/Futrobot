@@ -4,6 +4,8 @@
 *.map
 *.bin
 *.elf
+*.d
+*.txt
 doc/html
 doc/latex
 program/calibrador/calibrador

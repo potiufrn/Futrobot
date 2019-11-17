@@ -1,4 +1,4 @@
-In archive /home/gabriel/workarea/esp-firmware-test/build/esp_ringbuf/libesp_ringbuf.a:
+In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/esp_ringbuf/libesp_ringbuf.a:
 
 ringbuf.o:     file format elf32-xtensa-le
 
@@ -240,15 +240,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
 117 .debug_ranges 00000170  00000000  00000000  00006e15  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
-118 .debug_line   0000159f  00000000  00000000  00006f85  2**0
+118 .debug_line   000015a6  00000000  00000000  00006f85  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
-119 .debug_str    00000afe  00000000  00000000  00008524  2**0
+119 .debug_str    00000b1b  00000000  00000000  0000852b  2**0
                   CONTENTS, READONLY, DEBUGGING
-120 .comment      0000003b  00000000  00000000  00009022  2**0
+120 .comment      0000003b  00000000  00000000  00009046  2**0
                   CONTENTS, READONLY
-121 .xtensa.info  00000038  00000000  00000000  0000905d  2**0
+121 .xtensa.info  00000038  00000000  00000000  00009081  2**0
                   CONTENTS, READONLY
-122 .xt.lit       00000118  00000000  00000000  00009095  2**0
+122 .xt.lit       00000118  00000000  00000000  000090b9  2**0
                   CONTENTS, RELOC, READONLY
-123 .xt.prop      00001464  00000000  00000000  000091ad  2**0
+123 .xt.prop      00001464  00000000  00000000  000091d1  2**0
                   CONTENTS, RELOC, READONLY

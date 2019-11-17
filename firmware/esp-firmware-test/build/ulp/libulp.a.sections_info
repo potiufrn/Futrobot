@@ -1,4 +1,4 @@
-In archive /home/gabriel/workarea/esp-firmware-test/build/ulp/libulp.a:
+In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/ulp/libulp.a:
 
 ulp.o:     file format elf32-xtensa-le
 
@@ -38,17 +38,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  16 .debug_ranges 00000020  00000000  00000000  00000ef3  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 17 .debug_line   00000380  00000000  00000000  00000f13  2**0
+ 17 .debug_line   00000387  00000000  00000000  00000f13  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 18 .debug_str    000003c7  00000000  00000000  00001293  2**0
+ 18 .debug_str    000003e4  00000000  00000000  0000129a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000003b  00000000  00000000  0000165a  2**0
+ 19 .comment      0000003b  00000000  00000000  0000167e  2**0
                   CONTENTS, READONLY
- 20 .xtensa.info  00000038  00000000  00000000  00001695  2**0
+ 20 .xtensa.info  00000038  00000000  00000000  000016b9  2**0
                   CONTENTS, READONLY
- 21 .xt.lit       00000018  00000000  00000000  000016cd  2**0
+ 21 .xt.lit       00000018  00000000  00000000  000016f1  2**0
                   CONTENTS, RELOC, READONLY
- 22 .xt.prop      00000150  00000000  00000000  000016e5  2**0
+ 22 .xt.prop      00000150  00000000  00000000  00001709  2**0
                   CONTENTS, RELOC, READONLY
 
 ulp_macro.o:     file format elf32-xtensa-le
@@ -89,15 +89,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  16 .debug_ranges 00000038  00000000  00000000  00001da7  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 17 .debug_line   00000509  00000000  00000000  00001ddf  2**0
+ 17 .debug_line   00000510  00000000  00000000  00001ddf  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 18 .debug_str    0000046a  00000000  00000000  000022e8  2**0
+ 18 .debug_str    00000487  00000000  00000000  000022ef  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000003b  00000000  00000000  00002752  2**0
+ 19 .comment      0000003b  00000000  00000000  00002776  2**0
                   CONTENTS, READONLY
- 20 .xtensa.info  00000038  00000000  00000000  0000278d  2**0
+ 20 .xtensa.info  00000038  00000000  00000000  000027b1  2**0
                   CONTENTS, READONLY
- 21 .xt.lit       00000010  00000000  00000000  000027c5  2**0
+ 21 .xt.lit       00000010  00000000  00000000  000027e9  2**0
                   CONTENTS, RELOC, READONLY
- 22 .xt.prop      000002dc  00000000  00000000  000027d5  2**0
+ 22 .xt.prop      000002dc  00000000  00000000  000027f9  2**0
                   CONTENTS, RELOC, READONLY

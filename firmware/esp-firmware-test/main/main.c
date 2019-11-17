@@ -5,38 +5,63 @@
  **/
 
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+
+#include "driver/gpio.h"
+#include "driver/timer.h"
+#include "driver/mcpwm.h"
+
+#include "nvs.h"
+#include "nvs_flash.h"
+
+//Bluetooth
+#include "esp_bt.h"
+#include "esp_bt_main.h"
+#include "esp_gap_bt_api.h"
+#include "esp_bt_device.h"
+#include "esp_spp_api.h"
+
+#include "esp_attr.h"
+
 #include "common.h"
 
+
+#define GPIO_OUTPUT_PIN_SEL ((1ULL << GPIO_STBY)      | \
+                             (1ULL << GPIO_A1N1_LEFT) | \
+                             (1ULL << GPIO_A1N2_LEFT) | \
+                             (1ULL << GPIO_B1N1_RIGHT)| \
+                             (1ULL << GPIO_B1N2_RIGHT))
+
+#define GPIO_INPUT_PIN_SEL ( (1ULL << GPIO_OUTA_LEFT)  | \
+                             (1ULL << GPIO_OUTB_LEFT)  | \
+                             (1ULL << GPIO_OUTA_RIGHT) | \
+                             (1ULL << GPIO_OUTB_RIGHT))
+
 /*************************************************************************************/
-/****************************** CONFIGURACOES ****************************************/
+/********************************* CABEÇALHOS ****************************************/
 /*************************************************************************************/
 static void config_bluetooth();
-static void mcpwm_init_isrLeft();
-static void mcpwm_init_isrRight();
 static void config_gpio();
 static void periodics_func_config();
 
 //interruptions and callbacks
-static void IRAM_ATTR isr_EncoderLeft();
-static void IRAM_ATTR isr_EncoderRight();
+static void IRAM_ATTR isr_EncoderLeft(void* arg);
+static void IRAM_ATTR isr_EncoderRight(void* arg);
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
 static void periodic_test_omega_zero_cb(void *arg);
 static void periodic_controller(void *arg);
-
-static void task_calc_Leftsense(void *arg);
-static void task_calc_Rightsense(void *arg);
-
 //my functions
 static void func_controlSignal(const float pwmL,const float pwmR);
 static void func_calibration();
 /*************************************************************************************/
 /****************************** VARIAVEIS GLOBAIS ************************************/
 /*************************************************************************************/
-static mcpwm_dev_t *MCPWM[2] = {&MCPWM0, &MCPWM1};
-
 static xQueueHandle bt_queue = NULL;
-static xQueueHandle encL_queue = NULL;
-static xQueueHandle encR_queue = NULL;
 
 static bool controller_enable = true;
 
@@ -47,7 +72,6 @@ static float omega_max = 0.0;   //modulo da velocidade maxima do robo
 static bool  omega_zero[2]     = {true, true};
 static float omega_ref[2]      = {0.0, 0.0}; //-1.0 a 1.0
 static float omega_current[2]  = {0.0, 0.0}; //-1.0 a 1.0
-static float _sense[2]         = {1.0, 1.0};
 //Identificador do Bluetooth
 static uint32_t bt_handle = 0;
 /*************************************************************************************/
@@ -57,20 +81,14 @@ void app_main()
 {
   bt_data btdata;
   bt_queue   = xQueueCreate(1, sizeof(bt_data));
-  encL_queue = xQueueCreate(1, 0);
-  encR_queue = xQueueCreate(1, 0);
 
   /** configuracoes iniciais **/
+  //interrupcoes no nucleo 0
   xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 5, NULL, 0);
-
   xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 5, NULL, 0);
+
+  //controlador no nucleo 1
   xTaskCreatePinnedToCore(periodics_func_config, "periodics_func_config", 4096, NULL, 4, NULL, 1);
-
-  xTaskCreatePinnedToCore(mcpwm_init_isrLeft, "mcpwm 0", 4096, NULL, 4, NULL, 0);
-  xTaskCreatePinnedToCore(mcpwm_init_isrRight, "mcpwm 1", 4096, NULL, 4, NULL, 0);
-
-  xTaskCreatePinnedToCore(task_calc_Leftsense, "task_calc_Leftsense", 2048, NULL, 5, NULL, 0);
-  xTaskCreatePinnedToCore(task_calc_Rightsense, "task_calc_Rightsense", 2048, NULL, 5, NULL, 0);
 
   uint8_t  head, cmd;
   uint8_t  *bitstream;
@@ -105,11 +123,21 @@ void app_main()
         func_calibration();
         break;
       case CMD_REQ_OMEGA:
+
         esp_spp_write(bt_handle, 2*sizeof(float), (uint8_t*)omega_current);
         break;
       case CMD_REQ_CAL:
-        //Falta fazer
         bitstream = (uint8_t*)malloc(8*sizeof(float));
+
+        coefL[FRONT].alpha = 0.02;
+        coefL[FRONT].beta  = 0.3;
+        coefL[BACK].alpha = 0.035;
+        coefL[BACK].beta  = 0.21;
+
+        coefR[FRONT].alpha = 0.015;
+        coefR[FRONT].beta  = 0.18;
+        coefR[BACK].alpha = 0.049;
+        coefR[BACK].beta  = 0.16;
 
         bitstream[0*sizeof(float)] = *(uint8_t*)&coefL[FRONT].alpha;
         bitstream[1*sizeof(float)] = *(uint8_t*)&coefL[FRONT].beta;
@@ -121,7 +149,12 @@ void app_main()
         bitstream[6*sizeof(float)] = *(uint8_t*)&coefR[BACK].alpha;
         bitstream[7*sizeof(float)] = *(uint8_t*)&coefR[BACK].beta;
 
-        esp_spp_write(bt_handle, 8*sizeof(float), bitstream);
+        esp_spp_write(bt_handle, 8*sizeof(float), (uint8_t*)bitstream);
+
+        printf("Left  Front  => a = %f , b = %f \n", *(float*)&bitstream[0*sizeof(float)], *(float*)&bitstream[1*sizeof(float)]);
+        printf("Left  Back   => a = %f , b = %f \n", *(float*)&bitstream[2*sizeof(float)], *(float*)&bitstream[3*sizeof(float)]);
+        printf("Right Front  => a = %f , b = %f \n", *(float*)&bitstream[4*sizeof(float)], *(float*)&bitstream[5*sizeof(float)]);
+        printf("Right Back   => a = %f , b = %f \n", *(float*)&bitstream[6*sizeof(float)], *(float*)&bitstream[7*sizeof(float)]);
 
         free(bitstream);
         break;
@@ -136,69 +169,48 @@ void app_main()
   }
 }
 //***************************************************************************************
-static void IRAM_ATTR isr_EncoderLeft()
+
+// gettimeofday(&t,NULL);
+// t.tv_sec + t.tv_usec/1000000.0;
+static void IRAM_ATTR isr_EncoderLeft(void*arg)
 {
-  static double old_time = 0.0;
-  static double new_time;
-  static uint8_t trash;
-
-  new_time = get_time_sec();
-
-  omega_current[LEFT] = _sense[LEFT]/(new_time - old_time);
   omega_zero[LEFT] = false;
+  static struct timeval t;
+  static int8_t  lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
+  static double  old_time = 0, new_time = 0;
+  static uint8_t enc_v = 0;
+  gettimeofday(&t, NULL);
+
+  enc_v <<= 2;
+  enc_v |= ((uint32_t)REG_READ(GPIO_IN1_REG) & 0x02);
+  new_time =  t.tv_usec/1000000.0;
+  omega_current[0] = lookup_table[enc_v & 0b1111]/(new_time - old_time);
+  // omega_current[0] = 1.0/(new_time - old_time);
   old_time = new_time;
-
-  // if(omega_current[LEFT] < 100.0)
-  xQueueSendFromISR(encL_queue, &trash, NULL);
-
-  MCPWM[MCPWM_UNIT_0]->int_clr.val = MCPWM[MCPWM_UNIT_0]->int_st.val;
 }
-
-static void IRAM_ATTR isr_EncoderRight()
+static void IRAM_ATTR isr_EncoderRight(void*arg)
 {
-  static double old_time = 0;
-  static double new_time;
-  static uint8_t trash;
+  omega_zero[RIGHT] = false;
+  static struct timeval t;
+  static int8_t   lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
+  static double   old_time = 0, new_time = 0;
+  static uint8_t  enc_v = 0;
+  static uint32_t reg_read;
 
-  new_time = get_time_sec();
-  omega_current[RIGHT] = _sense[RIGHT]/(new_time - old_time);
-  omega_zero[RIGHT]    = false;
+  gettimeofday(&t, NULL);
+
+  enc_v <<= 2;
+  //WARNING, trocar as GPIO dos canais A e B, para serem adjacentes, isso economizaria tempo na leitura
+  reg_read = REG_READ(GPIO_IN_REG);
+  enc_v |= (reg_read & LS(GPIO_OUTA_RIGHT)) >> (GPIO_OUTA_RIGHT-1);
+  enc_v |= (reg_read & LS(GPIO_OUTB_RIGHT)) >> GPIO_OUTB_RIGHT;
+  new_time =  t.tv_usec/1000000.0;
+  omega_current[1] = lookup_table[enc_v & 0b1111]/(new_time - old_time);
   old_time = new_time;
-
-  // if(omega_current[RIGHT] < 100.0)
-  xQueueSendFromISR(encR_queue, &trash, NULL);
-
-  MCPWM[MCPWM_UNIT_1]->int_clr.val = MCPWM[MCPWM_UNIT_1]->int_st.val;
 }
 
-static void task_calc_Leftsense(void *arg)
-{
-  uint8_t trash;
-  bool level;
-  while(1)
-  {
-    xQueueReceive(encL_queue, &trash, portMAX_DELAY);
-    if(omega_current[LEFT] > 80.0)continue;
-    level = gpio_get_level(GPIO_OUTB_CAP1_LEFT);
-    _sense[LEFT] = (!level)*-1.0 + level*1.0f;
-  }
-}
-
-static void task_calc_Rightsense(void *arg)
-{
-  uint8_t trash;
-  bool level;
-  while(1)
-  {
-    xQueueReceive(encR_queue, &trash, portMAX_DELAY);
-    if(omega_current[RIGHT] > 80.0)continue;
-    level = gpio_get_level(GPIO_OUTB_CAP1_RIGHT);
-    _sense[RIGHT] = (level)*-1.0 + (!level)*1.0f;
-  }
-}
-
-//Interrupcao de timeout, mede velocidade de cada motor.
 //Chamado a cada 800ms
+//Testa se houve interrupcao dos encoders, rotina para medir velocidade zero
 static void periodic_test_omega_zero_cb(void *arg)
 {
   if(omega_zero[LEFT])
@@ -212,23 +224,25 @@ static void periodic_test_omega_zero_cb(void *arg)
   omega_zero[LEFT] = true;
   omega_zero[RIGHT]= true;
 }
+
 static void func_controlSignal(const float pwmL,const float pwmR)
 {
   static bool front[2]  = {false, false};
   front[LEFT]  = !F_IS_NEG(pwmL);
   front[RIGHT] = !F_IS_NEG(pwmR);
 
+  gpio_set_level(GPIO_STBY, 0);
   gpio_set_level(GPIO_A1N1_LEFT, !front[LEFT]);
   gpio_set_level(GPIO_A1N2_LEFT, front[LEFT]);
   //set modo de rotacao do motor direito
   gpio_set_level(GPIO_B1N1_RIGHT, !front[RIGHT]);
   gpio_set_level(GPIO_B1N2_RIGHT, front[RIGHT]);
 
-  gpio_set_level(GPIO_STBY, 0);
   //set PWM motor esquerdo
   mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0A, ABS_F(pwmL)*100.0);
   //set PWM motor direito
-  mcpwm_set_duty(MCPWM_UNIT_1, MCPWM_TIMER_0, MCPWM0A, ABS_F(pwmR)*100.0);
+  mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM0B, ABS_F(pwmR)*100.0);
+
   //driver on
   gpio_set_level(GPIO_STBY, (pwmL != 0.0) || (pwmR != 0.0)); //se algum pwm for diferente de zero, liga o drive (1)
 }
@@ -276,24 +290,6 @@ static void
 periodic_controller(void *arg)
 {
   static float pwm[2];
-  static int sense[2];
-
-  static float difPhase;
-  if(omega_current[LEFT] < 80.0 && (omega_current[LEFT] != 0.0))
-  {
-     difPhase = gpio_get_level(GPIO_OUTA_CAP0_LEFT) - gpio_get_level(GPIO_OUTB_CAP1_LEFT);
-    _sense[LEFT] = difPhase;
-    // printf("Motor Esquerdo => Sentido:%f\n", difPhase);
-  }
-  if(omega_current[RIGHT] < 80.0 && (omega_current[RIGHT] != 0.0))
-  {
-     difPhase = gpio_get_level(GPIO_OUTB_CAP1_RIGHT) - gpio_get_level(GPIO_OUTA_CAP0_RIGHT);
-    _sense[RIGHT] = difPhase;
-    // printf("Motor Direito => Sentido:%f\n", difPhase);
-  }
-
-  sense[LEFT]  = F_IS_NEG(omega_ref[LEFT]); //se false => sentido para "frente"
-  sense[RIGHT] = F_IS_NEG(omega_ref[RIGHT]); //se false => sentido para "frente"
 
   if(!controller_enable)
   {
@@ -302,10 +298,10 @@ periodic_controller(void *arg)
   }
 
   //controlador FeedForWard
-  pwm[LEFT]  = coefL[sense[LEFT] ].alpha*omega_ref[LEFT]  +
-               coefL[sense[LEFT] ].beta*(omega_ref[LEFT]  != 0 );
-  pwm[RIGHT] = coefR[sense[RIGHT]].alpha*omega_ref[RIGHT] +
-               coefR[sense[RIGHT]].beta*(omega_ref[RIGHT] != 0 );
+  // pwm[LEFT]  = coefL[sense[LEFT] ].alpha*omega_ref[LEFT]  +
+  //              coefL[sense[LEFT] ].beta*(omega_ref[LEFT]  != 0 );
+  // pwm[RIGHT] = coefR[sense[RIGHT]].alpha*omega_ref[RIGHT] +
+               // coefR[sense[RIGHT]].beta*(omega_ref[RIGHT] != 0 );
   /****
   *aqui ficara o controlador BackWard (PID)
   ****/
@@ -426,8 +422,6 @@ static void func_calibration()
   omega_max = 0.85 * minOmegaMax;
 }
 
-
-
 /*************************************************************************************/
 /****************************** CONFIGURACOES ****************************************/
 /*************************************************************************************/
@@ -479,69 +473,41 @@ static void config_bluetooth()
   vTaskDelete(NULL);
 }
 
-static void mcpwm_init_isrLeft()
-{
-  MCPWM[MCPWM_UNIT_0]->int_ena.val = CAP0_INT_EN;  //Enable interrupt on  CAP0, CAP1 and CAP2 signal
-  mcpwm_isr_register(MCPWM_UNIT_0, isr_EncoderLeft, NULL, ESP_INTR_FLAG_IRAM, NULL);  //Set ISR Handle
-  vTaskDelete(NULL);
-}
-static void mcpwm_init_isrRight()
-{
-  MCPWM[MCPWM_UNIT_1]->int_ena.val = CAP0_INT_EN;  //Enable interrupt on  CAP0, CAP1 and CAP2 signal
-  mcpwm_isr_register(MCPWM_UNIT_1, isr_EncoderRight, NULL, ESP_INTR_FLAG_IRAM, NULL);  //Set ISR Handle
-  vTaskDelete(NULL);
-}
-
 static void config_gpio(){
-  //config. GPIO
-  #define GPIO_OUTPUT_PIN_SEL (1ULL << GPIO_STBY) | (1ULL << GPIO_A1N1_LEFT)  | (1ULL << GPIO_A1N2_LEFT) | \
-                              (1ULL << GPIO_B1N1_RIGHT) | (1ULL << GPIO_B1N2_RIGHT)
   //##### SET GPIO CONFIG ########
   gpio_config_t io_conf;
-  //disable interrupt
   io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-  //set as output mode
   io_conf.mode = GPIO_MODE_OUTPUT;
-  //bit mask of the pins that you want to set,e.g.GPIO18/19
   io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
-  //disable pull-down mode
   io_conf.pull_down_en = 0;
-  //disable pull-up mode
   io_conf.pull_up_en = 0;
-  //configure GPIO with the given settings
   gpio_config(&io_conf);
 
+  io_conf.intr_type = GPIO_INTR_ANYEDGE;
   io_conf.mode = GPIO_MODE_INPUT;
-  //bit mask of the pins that you want to set,e.g.GPIO18/19
   io_conf.pull_down_en = 1;
-  io_conf.pin_bit_mask = (1ULL << GPIO_OUTB_CAP1_LEFT) | (1ULL << GPIO_OUTB_CAP1_RIGHT);
+  io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
   gpio_config(&io_conf);
+
+  gpio_install_isr_service(0);
+  gpio_isr_handler_add(GPIO_OUTA_LEFT, isr_EncoderLeft, (void*) 1);
+  gpio_isr_handler_add(GPIO_OUTB_LEFT, isr_EncoderLeft, (void*) 0);
+  gpio_isr_handler_add(GPIO_OUTA_RIGHT,isr_EncoderRight,(void*) 1);
+  gpio_isr_handler_add(GPIO_OUTB_RIGHT,isr_EncoderRight,(void*) 0);
 
   mcpwm_pin_config_t pin_configLeft = {
       .mcpwm0a_out_num = GPIO_PWM_LEFT,
-      .mcpwm_cap0_in_num   = GPIO_OUTA_CAP0_LEFT,
+      .mcpwm0b_out_num = GPIO_PWM_RIGHT,
   };
   mcpwm_set_pin(MCPWM_UNIT_0, &pin_configLeft);
-
-  mcpwm_pin_config_t pin_configRight = {
-      .mcpwm0a_out_num = GPIO_PWM_RIGHT,
-      .mcpwm_cap0_in_num   = GPIO_OUTA_CAP0_RIGHT,
-  };
-  mcpwm_set_pin(MCPWM_UNIT_1, &pin_configRight);
-
-  gpio_pulldown_en(GPIO_OUTA_CAP0_LEFT);    //Enable pull down on CAP0   signal
-  gpio_pulldown_en(GPIO_OUTA_CAP0_RIGHT);    //Enable pull down on CAP0   signal
 
   mcpwm_config_t pwm_config;
   pwm_config.frequency = 10000;    //frequency = 10kHz
   pwm_config.cmpr_a = 0.0;       //duty cycle of PWMxA = 0.0%
+  pwm_config.cmpr_b = 0.0;       //duty cycle of PWMxA = 0.0%
   pwm_config.counter_mode = MCPWM_UP_COUNTER;
   pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
   mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);   //Configure PWM0A & PWM0B with above settings
-  mcpwm_init(MCPWM_UNIT_1, MCPWM_TIMER_0, &pwm_config);   //Configure PWM0A & PWM0B with above settings
-
-  mcpwm_capture_enable(MCPWM_UNIT_0, MCPWM_SELECT_CAP0, MCPWM_POS_EDGE, 0);  //capture signal on rising edge, prescale = 0 i.e. 800,000,000 counts is equal to one second
-  mcpwm_capture_enable(MCPWM_UNIT_1, MCPWM_SELECT_CAP0, MCPWM_POS_EDGE, 0);  //capture signal on rising edge, prescale = 0 i.e. 800,000,000 counts is equal to one second
 
   vTaskDelete(NULL);
 }

@@ -1,4 +1,4 @@
-In archive /home/gabriel/workarea/esp-firmware-test/build/heap/libheap.a:
+In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/heap/libheap.a:
 
 heap_caps_init.o:     file format elf32-xtensa-le
 
@@ -50,17 +50,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  22 .debug_ranges 00000078  00000000  00000000  000019ac  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 23 .debug_line   000006dc  00000000  00000000  00001a24  2**0
+ 23 .debug_line   000006e7  00000000  00000000  00001a24  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 24 .debug_str    0000055f  00000000  00000000  00002100  2**0
+ 24 .debug_str    0000057c  00000000  00000000  0000210b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 25 .comment      0000003b  00000000  00000000  0000265f  2**0
+ 25 .comment      0000003b  00000000  00000000  00002687  2**0
                   CONTENTS, READONLY
- 26 .xtensa.info  00000038  00000000  00000000  0000269a  2**0
+ 26 .xtensa.info  00000038  00000000  00000000  000026c2  2**0
                   CONTENTS, READONLY
- 27 .xt.lit       00000028  00000000  00000000  000026d2  2**0
+ 27 .xt.lit       00000028  00000000  00000000  000026fa  2**0
                   CONTENTS, RELOC, READONLY
- 28 .xt.prop      00000360  00000000  00000000  000026fa  2**0
+ 28 .xt.prop      00000360  00000000  00000000  00002722  2**0
                   CONTENTS, RELOC, READONLY
 
 heap_caps.o:     file format elf32-xtensa-le
@@ -185,17 +185,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  58 .debug_ranges 00000158  00000000  00000000  00002f92  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 59 .debug_line   00000afd  00000000  00000000  000030ea  2**0
+ 59 .debug_line   00000b04  00000000  00000000  000030ea  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 60 .debug_str    00000729  00000000  00000000  00003be7  2**0
+ 60 .debug_str    00000746  00000000  00000000  00003bee  2**0
                   CONTENTS, READONLY, DEBUGGING
- 61 .comment      0000003b  00000000  00000000  00004310  2**0
+ 61 .comment      0000003b  00000000  00000000  00004334  2**0
                   CONTENTS, READONLY
- 62 .xtensa.info  00000038  00000000  00000000  0000434b  2**0
+ 62 .xtensa.info  00000038  00000000  00000000  0000436f  2**0
                   CONTENTS, READONLY
- 63 .xt.lit       000000b0  00000000  00000000  00004383  2**0
+ 63 .xt.lit       000000b0  00000000  00000000  000043a7  2**0
                   CONTENTS, RELOC, READONLY
- 64 .xt.prop      000009f0  00000000  00000000  00004433  2**0
+ 64 .xt.prop      000009f0  00000000  00000000  00004457  2**0
                   CONTENTS, RELOC, READONLY
 
 multi_heap.o:     file format elf32-xtensa-le
@@ -308,17 +308,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  52 .debug_ranges 00000108  00000000  00000000  000070ee  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 53 .debug_line   00001252  00000000  00000000  000071f6  2**0
+ 53 .debug_line   00001259  00000000  00000000  000071f6  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 54 .debug_str    000006ed  00000000  00000000  00008448  2**0
+ 54 .debug_str    0000070a  00000000  00000000  0000844f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 55 .comment      0000003b  00000000  00000000  00008b35  2**0
+ 55 .comment      0000003b  00000000  00000000  00008b59  2**0
                   CONTENTS, READONLY
- 56 .xtensa.info  00000038  00000000  00000000  00008b70  2**0
+ 56 .xtensa.info  00000038  00000000  00000000  00008b94  2**0
                   CONTENTS, READONLY
- 57 .xt.lit       00000070  00000000  00000000  00008ba8  2**0
+ 57 .xt.lit       00000070  00000000  00000000  00008bcc  2**0
                   CONTENTS, RELOC, READONLY
- 58 .xt.prop      00000cf0  00000000  00000000  00008c18  2**0
+ 58 .xt.prop      00000cf0  00000000  00000000  00008c3c  2**0
                   CONTENTS, RELOC, READONLY
 
 heap_trace.o:     file format elf32-xtensa-le
@@ -429,15 +429,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  51 .debug_ranges 000000b8  00000000  00000000  000015a2  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 52 .debug_line   0000052e  00000000  00000000  0000165a  2**0
+ 52 .debug_line   00000536  00000000  00000000  0000165a  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 53 .debug_str    000005bf  00000000  00000000  00001b88  2**0
+ 53 .debug_str    000005dc  00000000  00000000  00001b90  2**0
                   CONTENTS, READONLY, DEBUGGING
- 54 .comment      0000003b  00000000  00000000  00002147  2**0
+ 54 .comment      0000003b  00000000  00000000  0000216c  2**0
                   CONTENTS, READONLY
- 55 .xtensa.info  00000038  00000000  00000000  00002182  2**0
+ 55 .xtensa.info  00000038  00000000  00000000  000021a7  2**0
                   CONTENTS, READONLY
- 56 .xt.lit       00000090  00000000  00000000  000021ba  2**0
+ 56 .xt.lit       00000090  00000000  00000000  000021df  2**0
                   CONTENTS, RELOC, READONLY
- 57 .xt.prop      0000045c  00000000  00000000  0000224a  2**0
+ 57 .xt.prop      0000045c  00000000  00000000  0000226f  2**0
                   CONTENTS, RELOC, READONLY

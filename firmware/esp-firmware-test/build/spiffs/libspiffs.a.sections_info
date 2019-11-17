@@ -1,4 +1,4 @@
-In archive /home/gabriel/workarea/esp-firmware-test/build/spiffs/libspiffs.a:
+In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/spiffs/libspiffs.a:
 
 spiffs_api.o:     file format elf32-xtensa-le
 
@@ -52,17 +52,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  23 .debug_ranges 00000038  00000000  00000000  00001231  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 24 .debug_line   000003b1  00000000  00000000  00001269  2**0
+ 24 .debug_line   000003ba  00000000  00000000  00001269  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 25 .debug_str    00000b9d  00000000  00000000  0000161a  2**0
+ 25 .debug_str    00000bba  00000000  00000000  00001623  2**0
                   CONTENTS, READONLY, DEBUGGING
- 26 .comment      0000003b  00000000  00000000  000021b7  2**0
+ 26 .comment      0000003b  00000000  00000000  000021dd  2**0
                   CONTENTS, READONLY
- 27 .xtensa.info  00000038  00000000  00000000  000021f2  2**0
+ 27 .xtensa.info  00000038  00000000  00000000  00002218  2**0
                   CONTENTS, READONLY
- 28 .xt.lit       00000030  00000000  00000000  0000222a  2**0
+ 28 .xt.lit       00000030  00000000  00000000  00002250  2**0
                   CONTENTS, RELOC, READONLY
- 29 .xt.prop      0000018c  00000000  00000000  0000225a  2**0
+ 29 .xt.prop      0000018c  00000000  00000000  00002280  2**0
                   CONTENTS, RELOC, READONLY
 
 esp_spiffs.o:     file format elf32-xtensa-le
@@ -249,17 +249,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  89 .debug_ranges 00000110  00000000  00000000  00006ce1  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 90 .debug_line   00001296  00000000  00000000  00006df1  2**0
+ 90 .debug_line   000012a5  00000000  00000000  00006df1  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 91 .debug_str    00001566  00000000  00000000  00008087  2**0
+ 91 .debug_str    00001583  00000000  00000000  00008096  2**0
                   CONTENTS, READONLY, DEBUGGING
- 92 .comment      0000003b  00000000  00000000  000095ed  2**0
+ 92 .comment      0000003b  00000000  00000000  00009619  2**0
                   CONTENTS, READONLY
- 93 .xtensa.info  00000038  00000000  00000000  00009628  2**0
+ 93 .xtensa.info  00000038  00000000  00000000  00009654  2**0
                   CONTENTS, READONLY
- 94 .xt.lit       00000100  00000000  00000000  00009660  2**0
+ 94 .xt.lit       00000100  00000000  00000000  0000968c  2**0
                   CONTENTS, RELOC, READONLY
- 95 .xt.prop      00000f18  00000000  00000000  00009760  2**0
+ 95 .xt.prop      00000f18  00000000  00000000  0000978c  2**0
                   CONTENTS, RELOC, READONLY
 
 spiffs_cache.o:     file format elf32-xtensa-le
@@ -320,17 +320,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  26 .debug_ranges 000000c0  00000000  00000000  00001fbe  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 27 .debug_line   000005bc  00000000  00000000  0000207e  2**0
+ 27 .debug_line   000005be  00000000  00000000  0000207e  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 28 .debug_str    0000079f  00000000  00000000  0000263a  2**0
+ 28 .debug_str    000007bc  00000000  00000000  0000263c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 29 .comment      0000003b  00000000  00000000  00002dd9  2**0
+ 29 .comment      0000003b  00000000  00000000  00002df8  2**0
                   CONTENTS, READONLY
- 30 .xtensa.info  00000038  00000000  00000000  00002e14  2**0
+ 30 .xtensa.info  00000038  00000000  00000000  00002e33  2**0
                   CONTENTS, READONLY
- 31 .xt.lit       00000038  00000000  00000000  00002e4c  2**0
+ 31 .xt.lit       00000038  00000000  00000000  00002e6b  2**0
                   CONTENTS, RELOC, READONLY
- 32 .xt.prop      0000048c  00000000  00000000  00002e84  2**0
+ 32 .xt.prop      0000048c  00000000  00000000  00002ea3  2**0
                   CONTENTS, RELOC, READONLY
 
 spiffs_gc.o:     file format elf32-xtensa-le
@@ -379,17 +379,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  20 .debug_ranges 000000e0  00000000  00000000  00003013  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 21 .debug_line   00000ae5  00000000  00000000  000030f3  2**0
+ 21 .debug_line   00000ae9  00000000  00000000  000030f3  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 22 .debug_str    0000095b  00000000  00000000  00003bd8  2**0
+ 22 .debug_str    00000978  00000000  00000000  00003bdc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 23 .comment      0000003b  00000000  00000000  00004533  2**0
+ 23 .comment      0000003b  00000000  00000000  00004554  2**0
                   CONTENTS, READONLY
- 24 .xtensa.info  00000038  00000000  00000000  0000456e  2**0
+ 24 .xtensa.info  00000038  00000000  00000000  0000458f  2**0
                   CONTENTS, READONLY
- 25 .xt.lit       00000030  00000000  00000000  000045a6  2**0
+ 25 .xt.lit       00000030  00000000  00000000  000045c7  2**0
                   CONTENTS, RELOC, READONLY
- 26 .xt.prop      0000093c  00000000  00000000  000045d6  2**0
+ 26 .xt.prop      0000093c  00000000  00000000  000045f7  2**0
                   CONTENTS, RELOC, READONLY
 
 spiffs_nucleus.o:     file format elf32-xtensa-le
@@ -566,17 +566,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  84 .debug_ranges 00000278  00000000  00000000  0000b1b8  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 85 .debug_line   00002839  00000000  00000000  0000b430  2**0
+ 85 .debug_line   0000283c  00000000  00000000  0000b430  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 86 .debug_str    00000f78  00000000  00000000  0000dc69  2**0
+ 86 .debug_str    00000f95  00000000  00000000  0000dc6c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 87 .comment      0000003b  00000000  00000000  0000ebe1  2**0
+ 87 .comment      0000003b  00000000  00000000  0000ec01  2**0
                   CONTENTS, READONLY
- 88 .xtensa.info  00000038  00000000  00000000  0000ec1c  2**0
+ 88 .xtensa.info  00000038  00000000  00000000  0000ec3c  2**0
                   CONTENTS, READONLY
- 89 .xt.lit       00000130  00000000  00000000  0000ec54  2**0
+ 89 .xt.lit       00000130  00000000  00000000  0000ec74  2**0
                   CONTENTS, RELOC, READONLY
- 90 .xt.prop      000029f4  00000000  00000000  0000ed84  2**0
+ 90 .xt.prop      000029f4  00000000  00000000  0000eda4  2**0
                   CONTENTS, RELOC, READONLY
 
 spiffs_check.o:     file format elf32-xtensa-le
@@ -647,17 +647,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  31 .debug_ranges 000001f0  00000000  00000000  00005379  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 32 .debug_line   00001218  00000000  00000000  00005569  2**0
+ 32 .debug_line   0000121a  00000000  00000000  00005569  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 33 .debug_str    000009a5  00000000  00000000  00006781  2**0
+ 33 .debug_str    000009c2  00000000  00000000  00006783  2**0
                   CONTENTS, READONLY, DEBUGGING
- 34 .comment      0000003b  00000000  00000000  00007126  2**0
+ 34 .comment      0000003b  00000000  00000000  00007145  2**0
                   CONTENTS, READONLY
- 35 .xtensa.info  00000038  00000000  00000000  00007161  2**0
+ 35 .xtensa.info  00000038  00000000  00000000  00007180  2**0
                   CONTENTS, READONLY
- 36 .xt.lit       00000058  00000000  00000000  00007199  2**0
+ 36 .xt.lit       00000058  00000000  00000000  000071b8  2**0
                   CONTENTS, RELOC, READONLY
- 37 .xt.prop      000011d0  00000000  00000000  000071f1  2**0
+ 37 .xt.prop      000011d0  00000000  00000000  00007210  2**0
                   CONTENTS, RELOC, READONLY
 
 spiffs_hydrogen.o:     file format elf32-xtensa-le
@@ -848,15 +848,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  91 .debug_ranges 00000178  00000000  00000000  00008659  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 92 .debug_line   00001ae2  00000000  00000000  000087d1  2**0
+ 92 .debug_line   00001ae6  00000000  00000000  000087d1  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 93 .debug_str    00000e55  00000000  00000000  0000a2b3  2**0
+ 93 .debug_str    00000e72  00000000  00000000  0000a2b7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 94 .comment      0000003b  00000000  00000000  0000b108  2**0
+ 94 .comment      0000003b  00000000  00000000  0000b129  2**0
                   CONTENTS, READONLY
- 95 .xtensa.info  00000038  00000000  00000000  0000b143  2**0
+ 95 .xtensa.info  00000038  00000000  00000000  0000b164  2**0
                   CONTENTS, READONLY
- 96 .xt.lit       00000140  00000000  00000000  0000b17b  2**0
+ 96 .xt.lit       00000140  00000000  00000000  0000b19c  2**0
                   CONTENTS, RELOC, READONLY
- 97 .xt.prop      00001a4c  00000000  00000000  0000b2bb  2**0
+ 97 .xt.prop      00001a4c  00000000  00000000  0000b2dc  2**0
                   CONTENTS, RELOC, READONLY

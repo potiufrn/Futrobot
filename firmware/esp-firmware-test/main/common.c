@@ -24,8 +24,8 @@ void decodeFloat(const uint8_t *data, float *fa, float *fb)
   ref[LEFT]    = ((data[1] << 8) | data[2]) & 0x7FFF;
   ref[RIGHT]   = ((data[3] << 8) | data[4]) & 0x7FFF;
 
-  *fa  = (ref[LEFT]/32768.0)*(2.0*sense[LEFT]-1.0);
-  *fb  = (ref[RIGHT]/32768.0)*(2.0*sense[RIGHT]-1.0);
+  *fa  = (ref[LEFT]/32767.0)*(2.0*sense[LEFT]-1.0);
+  *fb  = (ref[RIGHT]/32767.0)*(2.0*sense[RIGHT]-1.0);
 }
 
 double get_time_sec()
