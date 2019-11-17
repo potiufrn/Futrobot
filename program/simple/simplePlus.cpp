@@ -180,18 +180,16 @@ int main(int argc, char** argv)
       break;
     case 9://dados da calibracao
       bitstream = new uint8_t[1];
-
+      vec_float = new float[8];
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      delete[] bitstream;
-      bitstream = new uint8_t[8*sizeof(float)];
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 8*sizeof(float), 20);
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 8*sizeof(float), 5);
 
       printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
-      printf("Left  Front  => a = %f , b = %f \n", *(float*)&vec_float[0*sizeof(float)], *(float*)&vec_float[1*sizeof(float)]);
-      printf("Left  Back   => a = %f , b = %f \n", *(float*)&vec_float[2*sizeof(float)], *(float*)&vec_float[3*sizeof(float)]);
-      printf("Right Front  => a = %f , b = %f \n", *(float*)&vec_float[4*sizeof(float)], *(float*)&vec_float[5*sizeof(float)]);
-      printf("Right Back   => a = %f , b = %f \n", *(float*)&vec_float[6*sizeof(float)], *(float*)&vec_float[7*sizeof(float)]);
+      printf("Left  Front  => a = %f , b = %f \n", vec_float[0], vec_float[1]);
+      printf("Left  Back   => a = %f , b = %f \n", vec_float[2], vec_float[3]);
+      printf("Right Front  => a = %f , b = %f \n", vec_float[4], vec_float[5]);
+      printf("Right Back   => a = %f , b = %f \n", vec_float[6], vec_float[7]);
       _pause();
 
       delete[] bitstream;

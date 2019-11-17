@@ -1,1 +1,1 @@
-040a66a-dirty esp-firmware v3.3
+44744be-dirty esp-firmware v3.3

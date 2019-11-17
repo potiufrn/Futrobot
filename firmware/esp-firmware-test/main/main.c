@@ -123,40 +123,24 @@ void app_main()
         func_calibration();
         break;
       case CMD_REQ_OMEGA:
-
         esp_spp_write(bt_handle, 2*sizeof(float), (uint8_t*)omega_current);
         break;
       case CMD_REQ_CAL:
         bitstream = (uint8_t*)malloc(8*sizeof(float));
+        vec_float = (float*)malloc(8*sizeof(float));
 
-        coefL[FRONT].alpha = 0.02;
-        coefL[FRONT].beta  = 0.3;
-        coefL[BACK].alpha = 0.035;
-        coefL[BACK].beta  = 0.21;
+        vec_float[0] = coefL[FRONT].alpha;
+        vec_float[1] = coefL[FRONT].beta;
+        vec_float[2] = coefL[BACK].alpha;
+        vec_float[3] = coefL[BACK].beta;
 
-        coefR[FRONT].alpha = 0.015;
-        coefR[FRONT].beta  = 0.18;
-        coefR[BACK].alpha = 0.049;
-        coefR[BACK].beta  = 0.16;
+        vec_float[4] = coefR[FRONT].alpha;
+        vec_float[5] = coefR[FRONT].beta;
+        vec_float[6] = coefR[BACK].alpha;
+        vec_float[7] = coefR[BACK].beta;
 
-        bitstream[0*sizeof(float)] = *(uint8_t*)&coefL[FRONT].alpha;
-        bitstream[1*sizeof(float)] = *(uint8_t*)&coefL[FRONT].beta;
-        bitstream[2*sizeof(float)] = *(uint8_t*)&coefL[BACK].alpha;
-        bitstream[3*sizeof(float)] = *(uint8_t*)&coefL[BACK].beta;
-
-        bitstream[4*sizeof(float)] = *(uint8_t*)&coefR[FRONT].alpha;
-        bitstream[5*sizeof(float)] = *(uint8_t*)&coefR[FRONT].beta;
-        bitstream[6*sizeof(float)] = *(uint8_t*)&coefR[BACK].alpha;
-        bitstream[7*sizeof(float)] = *(uint8_t*)&coefR[BACK].beta;
-
-        esp_spp_write(bt_handle, 8*sizeof(float), (uint8_t*)bitstream);
-
-        printf("Left  Front  => a = %f , b = %f \n", *(float*)&bitstream[0*sizeof(float)], *(float*)&bitstream[1*sizeof(float)]);
-        printf("Left  Back   => a = %f , b = %f \n", *(float*)&bitstream[2*sizeof(float)], *(float*)&bitstream[3*sizeof(float)]);
-        printf("Right Front  => a = %f , b = %f \n", *(float*)&bitstream[4*sizeof(float)], *(float*)&bitstream[5*sizeof(float)]);
-        printf("Right Back   => a = %f , b = %f \n", *(float*)&bitstream[6*sizeof(float)], *(float*)&bitstream[7*sizeof(float)]);
-
-        free(bitstream);
+        esp_spp_write(bt_handle, 8*sizeof(float), (uint8_t*)vec_float);
+        free(vec_float);
         break;
       case CMD_REQ_IDENT:
         //Falta fazer
@@ -165,7 +149,6 @@ void app_main()
       default:
         break;
       }
-
   }
 }
 //***************************************************************************************
