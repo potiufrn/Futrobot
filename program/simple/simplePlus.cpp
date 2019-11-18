@@ -10,6 +10,9 @@
 
 #define MAC_ESP_TEST   "30:AE:A4:3B:A4:26"
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
+#define MAC_ESP_ROBO_2 "30:AE:A4:13:F8:AE"
+#define MAC_ESP_ROBO_3 "30:AE:A4:20:0E:12"
+
 // #define MAC_ESP_ROBO_2
 
 using namespace std;
@@ -78,7 +81,7 @@ void _printListMACs(){
   vector<string> addrs = btAction.getDest();
   for(int i = 0; i < (int)addrs.size(); i++)
   {
-    printf("%d -> %s\n",i, addrs[i].c_str());
+    printf("%d -> Robo_%d = %s\n",i, i, addrs[i].c_str());
   }
 };
 
@@ -92,6 +95,8 @@ int main(int argc, char** argv)
 
   btAction.setBluetoothAddr(MAC_ESP_TEST);
   btAction.setBluetoothAddr(MAC_ESP_ROBO_1);
+  btAction.setBluetoothAddr(MAC_ESP_ROBO_2);
+  btAction.setBluetoothAddr(MAC_ESP_ROBO_3);
 
   bool run = true;
   int  send = 0,rec = 0;
@@ -180,16 +185,17 @@ int main(int argc, char** argv)
       break;
     case 9://dados da calibracao
       bitstream = new uint8_t[1];
-      vec_float = new float[8];
+      vec_float = new float[9];
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 8*sizeof(float), 5);
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 9*sizeof(float), 5);
 
       printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
-      printf("Left  Front  => a = %f , b = %f \n", vec_float[0], vec_float[1]);
-      printf("Left  Back   => a = %f , b = %f \n", vec_float[2], vec_float[3]);
-      printf("Right Front  => a = %f , b = %f \n", vec_float[4], vec_float[5]);
-      printf("Right Back   => a = %f , b = %f \n", vec_float[6], vec_float[7]);
+      printf("Omega Max: %f rpm\n", vec_float[0]);
+      printf("Left  Front  => a = %f , b = %f \n", vec_float[1], vec_float[2]);
+      printf("Left  Back   => a = %f , b = %f \n", vec_float[3], vec_float[4]);
+      printf("Right Front  => a = %f , b = %f \n", vec_float[5], vec_float[6]);
+      printf("Right Back   => a = %f , b = %f \n", vec_float[7], vec_float[8]);
       _pause();
 
       delete[] bitstream;

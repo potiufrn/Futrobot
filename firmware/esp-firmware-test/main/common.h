@@ -1,6 +1,8 @@
 #include <stdint.h>
-#define DEVICE_NAME "ESP_ROBO_TEST"
+
+// #define DEVICE_NAME "ESP_ROBO_TEST"
 // #define DEVICE_NAME "ESP_ROBO_1"
+#define DEVICE_NAME "ESP_ROBO_2"
 
 /*************************************************************************************/
 /********************************** COMANDOS  ****************************************/
@@ -42,7 +44,7 @@
 #define  GPIO_B1N1_RIGHT    5  // Sentido motor
 #define  GPIO_B1N2_RIGHT   17  // Sentido motor B
 #define  GPIO_OUTA_RIGHT   15  //Sinal de saida do encoder Esquerdo (usado para calcular a velocidade)
-#define  GPIO_OUTB_RIGHT    2  //Sinal em quadrado com relacao ao CAP0A do motor 1 (usado para identificar o sentido de rotacao)
+#define  GPIO_OUTB_RIGHT    4  //Sinal em quadrado com relacao ao CAP0A do motor 1 (usado para identificar o sentido de rotacao)
 
 /*************************************************************************************/
 /****************************** MACROS, ESTRUCT E ENUM *******************************/

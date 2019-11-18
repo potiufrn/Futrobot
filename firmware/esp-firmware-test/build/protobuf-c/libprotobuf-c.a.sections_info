@@ -1,4 +1,4 @@
-In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/protobuf-c/libprotobuf-c.a:
+In archive /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/protobuf-c/libprotobuf-c.a:
 
 protobuf-c.o:     file format elf32-xtensa-le
 
@@ -312,15 +312,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
 153 .debug_ranges 000005f8  00000000  00000000  000143cb  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
-154 .debug_line   0000454a  00000000  00000000  000149c3  2**0
+154 .debug_line   00004546  00000000  00000000  000149c3  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
-155 .debug_str    0000154a  00000000  00000000  00018f0d  2**0
+155 .debug_str    00001549  00000000  00000000  00018f09  2**0
                   CONTENTS, READONLY, DEBUGGING
-156 .comment      0000003b  00000000  00000000  0001a457  2**0
+156 .comment      0000003b  00000000  00000000  0001a452  2**0
                   CONTENTS, READONLY
-157 .xtensa.info  00000038  00000000  00000000  0001a492  2**0
+157 .xtensa.info  00000038  00000000  00000000  0001a48d  2**0
                   CONTENTS, READONLY
-158 .xt.lit       00000180  00000000  00000000  0001a4ca  2**0
+158 .xt.lit       00000180  00000000  00000000  0001a4c5  2**0
                   CONTENTS, RELOC, READONLY
-159 .xt.prop      00004ef0  00000000  00000000  0001a64a  2**0
+159 .xt.prop      00004ef0  00000000  00000000  0001a645  2**0
                   CONTENTS, RELOC, READONLY

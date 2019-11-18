@@ -4,6 +4,8 @@
  *  sentido de rotacao
  **/
 
+ //Doc util: https://www.pjrc.com/teensy/td_libs_Encoder.html#optimize
+
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
@@ -47,13 +49,13 @@
 /*************************************************************************************/
 static void config_bluetooth();
 static void config_gpio();
-static void periodics_func_config();
+static void periodic_controller_config();
 
 //interruptions and callbacks
-static void IRAM_ATTR isr_EncoderLeft(void* arg);
-static void IRAM_ATTR isr_EncoderRight(void* arg);
+static void IRAM_ATTR isr_EncoderLeft();
+static void IRAM_ATTR isr_EncoderRight();
+static void task_Encoder(void*arg);
 static void esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param);
-static void periodic_test_omega_zero_cb(void *arg);
 static void periodic_controller(void *arg);
 //my functions
 static void func_controlSignal(const float pwmL,const float pwmR);
@@ -62,18 +64,19 @@ static void func_calibration();
 /****************************** VARIAVEIS GLOBAIS ************************************/
 /*************************************************************************************/
 static xQueueHandle bt_queue = NULL;
+static xQueueHandle encoder_queue[2] = {NULL,NULL};
 
-static bool controller_enable = true;
+static bool bypass_controller = false;
 
 struct CoefLine coefL[2];       //coef. das retas PWM(omega) para o motor esquerdo
 struct CoefLine coefR[2];       //coef. das retas PWM(omega) para o motor direito
 static float omega_max = 0.0;   //modulo da velocidade maxima do robo
 
-static bool  omega_zero[2]     = {true, true};
 static float omega_ref[2]      = {0.0, 0.0}; //-1.0 a 1.0
 static float omega_current[2]  = {0.0, 0.0}; //-1.0 a 1.0
 //Identificador do Bluetooth
 static uint32_t bt_handle = 0;
+esp_timer_handle_t periodic_controller_handle;
 /*************************************************************************************/
 /****************************** ROTINAS PRINCIPAIS ***********************************/
 /*************************************************************************************/
@@ -81,14 +84,17 @@ void app_main()
 {
   bt_data btdata;
   bt_queue   = xQueueCreate(1, sizeof(bt_data));
+  encoder_queue[LEFT]  = xQueueCreate(1, sizeof(int8_t));
+  encoder_queue[RIGHT] = xQueueCreate(1, sizeof(int8_t));
 
   /** configuracoes iniciais **/
   //interrupcoes no nucleo 0
-  xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 5, NULL, 0);
+  xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 5, NULL, 0);
-
   //controlador no nucleo 1
-  xTaskCreatePinnedToCore(periodics_func_config, "periodics_func_config", 4096, NULL, 4, NULL, 1);
+  xTaskCreatePinnedToCore(periodic_controller_config, "periodic_controller_config", 4096, NULL, 4, NULL, 1);
+  xTaskCreatePinnedToCore(task_Encoder, "task_Encoder", 2048, LEFT, 3, NULL, 1);
+  xTaskCreatePinnedToCore(task_Encoder, "task_Encoder", 2048, RIGHT, 3, NULL, 1);
 
   uint8_t  head, cmd;
   uint8_t  *bitstream;
@@ -104,13 +110,12 @@ void app_main()
 
       switch (cmd) {
       case CMD_SET_POINT:
-        if(!controller_enable)
-          controller_enable = true;
         decodeFloat(btdata.data, &omega_ref[LEFT], &omega_ref[RIGHT]);
+        if(bypass_controller)
+          bypass_controller = false;
         break;
       case CMD_CONTROL_SIGNAL:
-        if(controller_enable)
-          controller_enable = false;
+        bypass_controller = true;
         decodeFloat(btdata.data, &omega_ref[LEFT], &omega_ref[RIGHT]);
         break;
       case CMD_PING:
@@ -126,20 +131,22 @@ void app_main()
         esp_spp_write(bt_handle, 2*sizeof(float), (uint8_t*)omega_current);
         break;
       case CMD_REQ_CAL:
-        bitstream = (uint8_t*)malloc(8*sizeof(float));
-        vec_float = (float*)malloc(8*sizeof(float));
+        vec_float = (float*)malloc(9*sizeof(float));
+        // vec_float[0] = coefL[FRONT].alpha;
 
-        vec_float[0] = coefL[FRONT].alpha;
-        vec_float[1] = coefL[FRONT].beta;
-        vec_float[2] = coefL[BACK].alpha;
-        vec_float[3] = coefL[BACK].beta;
+        vec_float[0] = omega_max;
 
-        vec_float[4] = coefR[FRONT].alpha;
-        vec_float[5] = coefR[FRONT].beta;
-        vec_float[6] = coefR[BACK].alpha;
-        vec_float[7] = coefR[BACK].beta;
+        vec_float[1] = coefL[FRONT].alpha;
+        vec_float[2] = coefL[FRONT].beta;
+        vec_float[3] = coefL[BACK].alpha;
+        vec_float[4] = coefL[BACK].beta;
 
-        esp_spp_write(bt_handle, 8*sizeof(float), (uint8_t*)vec_float);
+        vec_float[5] = coefR[FRONT].alpha;
+        vec_float[6] = coefR[FRONT].beta;
+        vec_float[7] = coefR[BACK].alpha;
+        vec_float[8] = coefR[BACK].beta;
+
+        esp_spp_write(bt_handle, 9*sizeof(float), (uint8_t*)vec_float);
         free(vec_float);
         break;
       case CMD_REQ_IDENT:
@@ -153,61 +160,51 @@ void app_main()
 }
 //***************************************************************************************
 
-// gettimeofday(&t,NULL);
-// t.tv_sec + t.tv_usec/1000000.0;
-static void IRAM_ATTR isr_EncoderLeft(void*arg)
+static void IRAM_ATTR isr_EncoderLeft()
 {
-  omega_zero[LEFT] = false;
-  static struct timeval t;
-  static int8_t  lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
-  static double  old_time = 0, new_time = 0;
+  static int8_t  lookup_table[] = { 0,1, -1, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, -1, 1, 0 };
   static uint8_t enc_v = 0;
-  gettimeofday(&t, NULL);
 
   enc_v <<= 2;
-  enc_v |= ((uint32_t)REG_READ(GPIO_IN1_REG) & 0x02);
-  new_time =  t.tv_usec/1000000.0;
-  omega_current[0] = lookup_table[enc_v & 0b1111]/(new_time - old_time);
-  // omega_current[0] = 1.0/(new_time - old_time);
-  old_time = new_time;
+  enc_v |= (REG_READ(GPIO_IN1_REG) >> (GPIO_OUTB_LEFT - 32)) & 0b0011;
+  xQueueSendFromISR(encoder_queue[LEFT], &lookup_table[enc_v & 0b111], NULL);
 }
-static void IRAM_ATTR isr_EncoderRight(void*arg)
+
+static void IRAM_ATTR isr_EncoderRight()
 {
-  omega_zero[RIGHT] = false;
-  static struct timeval t;
-  static int8_t   lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
-  static double   old_time = 0, new_time = 0;
+  static int8_t  lookup_table[] = { 0,-1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 };
   static uint8_t  enc_v = 0;
   static uint32_t reg_read;
 
-  gettimeofday(&t, NULL);
-
   enc_v <<= 2;
-  //WARNING, trocar as GPIO dos canais A e B, para serem adjacentes, isso economizaria tempo na leitura
   reg_read = REG_READ(GPIO_IN_REG);
   enc_v |= (reg_read & LS(GPIO_OUTA_RIGHT)) >> (GPIO_OUTA_RIGHT-1);
   enc_v |= (reg_read & LS(GPIO_OUTB_RIGHT)) >> GPIO_OUTB_RIGHT;
-  new_time =  t.tv_usec/1000000.0;
-  omega_current[1] = lookup_table[enc_v & 0b1111]/(new_time - old_time);
-  old_time = new_time;
+  xQueueSendFromISR(encoder_queue[RIGHT], &lookup_table[enc_v & 0b111], NULL);
 }
-
-//Chamado a cada 800ms
-//Testa se houve interrupcao dos encoders, rotina para medir velocidade zero
-static void periodic_test_omega_zero_cb(void *arg)
+static void task_Encoder(void*arg)
 {
-  if(omega_zero[LEFT])
+  int motor = (int)arg;
+  struct timeval t;
+  double old_time = 0.0, new_time;
+  int8_t sense, old_sense = 0;
+  while(1)
   {
-    omega_current[LEFT] = 0.0;
+    if(!xQueueReceive(encoder_queue[motor], &sense, TIME_TEST_OMEGA_ZERO/portTICK_PERIOD_MS))
+    {
+      omega_current[motor] = 0;
+      continue;
+    }
+    if(sense == 0)
+      sense = old_sense;
+    gettimeofday(&t, NULL);
+    new_time =  t.tv_usec/1000000.0;
+    omega_current[motor] = sense/(new_time - old_time);
+    old_time = new_time;
+    if(sense != 0)
+      old_sense = sense;
   }
-  if(omega_zero[RIGHT])
-  {
-    omega_current[RIGHT] = 0.0;
-  }
-  omega_zero[LEFT] = true;
-  omega_zero[RIGHT]= true;
 }
-
 static void func_controlSignal(const float pwmL,const float pwmR)
 {
   static bool front[2]  = {false, false};
@@ -247,6 +244,8 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_CLOSE_EVT:
       bt_handle = 0;
         memset(omega_ref, 0, 2*sizeof(float));
+        bypass_controller = true;
+        esp_timer_start_periodic(periodic_controller_handle, TIME_CONTROLLER*1000);
         break;
     case ESP_SPP_START_EVT:
         break;
@@ -273,34 +272,37 @@ static void
 periodic_controller(void *arg)
 {
   static float pwm[2];
+  // static float e[2] = {0.0, 0.0};
 
-  if(!controller_enable)
+  if(bypass_controller)
   {
     func_controlSignal(omega_ref[LEFT], omega_ref[RIGHT]);
     return;
   }
 
   //controlador FeedForWard
-  // pwm[LEFT]  = coefL[sense[LEFT] ].alpha*omega_ref[LEFT]  +
-  //              coefL[sense[LEFT] ].beta*(omega_ref[LEFT]  != 0 );
-  // pwm[RIGHT] = coefR[sense[RIGHT]].alpha*omega_ref[RIGHT] +
-               // coefR[sense[RIGHT]].beta*(omega_ref[RIGHT] != 0 );
+  pwm[LEFT]  = coefL[F_IS_NEG(omega_ref[LEFT])].alpha*omega_ref[LEFT]*omega_max  +
+               coefL[F_IS_NEG(omega_ref[LEFT])].beta*(omega_ref[LEFT]  != 0 );
+  pwm[RIGHT] = coefR[F_IS_NEG(omega_ref[RIGHT])].alpha*omega_ref[RIGHT]*omega_max +
+               coefR[F_IS_NEG(omega_ref[RIGHT])].beta*(omega_ref[RIGHT] != 0 );
   /****
   *aqui ficara o controlador BackWard (PID)
   ****/
+  // e[LEFT] = omega_ref[LEFT] - omega_current[LEFT];
+  // e[RIGHT] = omega_ref[RIGHT] - omega_current[RIGHT];
+
 
   //aplicar sinal de controle
   func_controlSignal(pwm[LEFT], pwm[RIGHT]);
 }
 static void func_calibration()
 {
-  //desabilita a rotina de controle para realizar esse procedimento
-  controller_enable = false;
+  esp_timer_stop(periodic_controller_handle);
 
-  #define PWM_MIN_INIT          0.3  // 30%
-  #define TIME_MS_WAIT_PWM_MIN 1000
-  #define TIME_MS_WAIT_VEL_MAX 1500
-  const float STEP = 1.0/32767.0;    //por causa da resolucao de 15 bits na transmissao da ref
+  #define PWM_MIN_INIT         0.10
+  #define TIME_MS_WAIT_PWM_MIN  250
+  #define TIME_MS_WAIT_VEL_MAX 1000
+  const float STEP = 5.0/32767.0;    //por causa da resolucao de 15 bits na transmissao da ref
 
   float omega_max_tmpL[2];
   float omega_max_tmpR[2];
@@ -334,7 +336,7 @@ static void func_calibration()
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
   func_controlSignal(-1.0, 0.0);
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
-  omega_max_tmpL[BACK] = omega_current[LEFT];
+  omega_max_tmpL[BACK] = ABS_F(omega_current[LEFT]);
 
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - STEP)
@@ -363,7 +365,7 @@ static void func_calibration()
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
     if(omega_current[RIGHT] == 0)
     {
-      pwmMinR[BACK] = pwm;
+      pwmMinR[FRONT] = pwm;
       pwm = 0;
     }
   }
@@ -374,9 +376,9 @@ static void func_calibration()
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
   func_controlSignal(0.0, -1.0);
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
-  omega_max_tmpR[BACK] = omega_current[RIGHT];
+  omega_max_tmpR[BACK] = ABS_F(omega_current[RIGHT]);
   //Encontrando o PWM minimo
-  for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - 2.0)
+  for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - STEP)
   {
     func_controlSignal(0.0, -pwm);
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
@@ -388,50 +390,49 @@ static void func_calibration()
   }
 
   func_controlSignal(0.0, 0.0);
-  for(uint8_t i = 0; i < 2; i++)
+
+  for(int i = 0; i < 2; i++)
   {
-    //Calculo dos coef.
-    coefL[i].alpha = (1.0 - pwmMinL[i])/(omega_max_tmpL[i]);
-    coefL[i].beta  = pwmMinL[i];
-
-    coefR[i].alpha = (1.0 - pwmMinR[i])/(omega_max_tmpR[i]);
-    coefR[i].beta  = pwmMinR[i];
-
     //Menor das Maximas velocidades
     minOmegaMax = (omega_max_tmpL[i] < minOmegaMax)?omega_max_tmpL[i]:minOmegaMax;
     minOmegaMax = (omega_max_tmpR[i] < minOmegaMax)?omega_max_tmpR[i]:minOmegaMax;
   }
+
+  //Calculo dos coef.
+  coefL[FRONT].alpha = (1.0 - pwmMinL[FRONT])/(omega_max_tmpL[FRONT]);
+  coefL[FRONT].beta  = pwmMinL[FRONT];
+
+  coefL[BACK].alpha = (1.0 - pwmMinL[BACK])/(omega_max_tmpL[BACK]);
+  coefL[BACK].beta  = -pwmMinL[BACK];
+
+  coefR[FRONT].alpha = (1.0 - pwmMinR[FRONT])/(omega_max_tmpR[FRONT]);
+  coefR[FRONT].beta  = pwmMinR[FRONT];
+
+  coefR[BACK].alpha = (1.0 - pwmMinR[BACK])/(omega_max_tmpR[BACK]);
+  coefR[BACK].beta  = -pwmMinR[BACK];
+
   //Maior velocidade considerada
   omega_max = 0.85 * minOmegaMax;
+
+  //retoma a rotina de controle
+  esp_timer_start_periodic(periodic_controller_handle, TIME_CONTROLLER*1000);
 }
 
 /*************************************************************************************/
 /****************************** CONFIGURACOES ****************************************/
 /*************************************************************************************/
-void periodics_func_config()
+void periodic_controller_config()
 {
-  //Config. Timer
-  const esp_timer_create_args_t periodic_test_args = {
-          .callback = &periodic_test_omega_zero_cb,
-          /* name is optional, but may help identify the timer when debugging */
-          .name = "periodic_test_omega_zero_cb"
-  };
-  esp_timer_handle_t periodic_test_handle;
-  ESP_ERROR_CHECK(esp_timer_create(&periodic_test_args, &periodic_test_handle));
-  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_test_handle,
-                                           TIME_TEST_OMEGA_ZERO*1000)); //timer de 800ms, para medir velocidade zero
-
   const esp_timer_create_args_t periodic_controller_args = {
    .callback = &periodic_controller,
    /* name is optional, but may help identify the timer when debugging */
    .name = "periodic_controller"
   };
-  esp_timer_handle_t periodic_controller_handle;
+
   ESP_ERROR_CHECK(esp_timer_create(&periodic_controller_args,
                                    &periodic_controller_handle));
   ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_controller_handle,
-                                          TIME_CONTROLLER*1000)); //timer de 800ms, para medir velocidade zero
-
+                                          TIME_CONTROLLER*1000));
   vTaskDelete(NULL);
 }
 
@@ -468,15 +469,17 @@ static void config_gpio(){
 
   io_conf.intr_type = GPIO_INTR_ANYEDGE;
   io_conf.mode = GPIO_MODE_INPUT;
-  io_conf.pull_down_en = 1;
+  io_conf.pull_down_en = 0;
+  io_conf.pull_up_en = 1;
   io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
   gpio_config(&io_conf);
 
   gpio_install_isr_service(0);
-  gpio_isr_handler_add(GPIO_OUTA_LEFT, isr_EncoderLeft, (void*) 1);
-  gpio_isr_handler_add(GPIO_OUTB_LEFT, isr_EncoderLeft, (void*) 0);
-  gpio_isr_handler_add(GPIO_OUTA_RIGHT,isr_EncoderRight,(void*) 1);
-  gpio_isr_handler_add(GPIO_OUTB_RIGHT,isr_EncoderRight,(void*) 0);
+  gpio_isr_handler_add(GPIO_OUTA_LEFT, isr_EncoderLeft, NULL);
+  gpio_isr_handler_add(GPIO_OUTB_LEFT, isr_EncoderLeft, NULL);
+
+  gpio_isr_handler_add(GPIO_OUTA_RIGHT,isr_EncoderRight, NULL);
+  gpio_isr_handler_add(GPIO_OUTB_RIGHT,isr_EncoderRight, NULL);
 
   mcpwm_pin_config_t pin_configLeft = {
       .mcpwm0a_out_num = GPIO_PWM_LEFT,

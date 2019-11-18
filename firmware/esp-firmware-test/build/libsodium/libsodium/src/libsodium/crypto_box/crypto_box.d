@@ -1,12 +1,12 @@
 libsodium/src/libsodium/crypto_box/crypto_box.o: \
- /home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/crypto_box/crypto_box.c \
- /home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box.h \
- /home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box_curve25519xsalsa20poly1305.h \
- /home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/export.h
+ /home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/crypto_box/crypto_box.c \
+ /home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box.h \
+ /home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box_curve25519xsalsa20poly1305.h \
+ /home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/export.h
 
-/home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box.h:
+/home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box.h:
 
-/home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box_curve25519xsalsa20poly1305.h:
+/home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/crypto_box_curve25519xsalsa20poly1305.h:
 
-/home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/export.h:
-/home/lgabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/crypto_box/crypto_box.c:
+/home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/include/sodium/export.h:
+/home/gabriel/esp/esp-idf/components/libsodium/libsodium/src/libsodium/crypto_box/crypto_box.c:

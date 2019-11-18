@@ -1,4 +1,4 @@
-In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/json/libjson.a:
+In archive /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/json/libjson.a:
 
 cJSON.o:     file format elf32-xtensa-le
 
@@ -422,17 +422,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
 208 .debug_ranges 000003d8  00000000  00000000  0000a30c  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
-209 .debug_line   000027e2  00000000  00000000  0000a6e4  2**0
+209 .debug_line   000027df  00000000  00000000  0000a6e4  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
-210 .debug_str    00000e95  00000000  00000000  0000cec6  2**0
+210 .debug_str    00000e8a  00000000  00000000  0000cec3  2**0
                   CONTENTS, READONLY, DEBUGGING
-211 .comment      0000003b  00000000  00000000  0000dd5b  2**0
+211 .comment      0000003b  00000000  00000000  0000dd4d  2**0
                   CONTENTS, READONLY
-212 .xtensa.info  00000038  00000000  00000000  0000dd96  2**0
+212 .xtensa.info  00000038  00000000  00000000  0000dd88  2**0
                   CONTENTS, READONLY
-213 .xt.lit       000002b0  00000000  00000000  0000ddce  2**0
+213 .xt.lit       000002b0  00000000  00000000  0000ddc0  2**0
                   CONTENTS, RELOC, READONLY
-214 .xt.prop      0000315c  00000000  00000000  0000e07e  2**0
+214 .xt.prop      0000315c  00000000  00000000  0000e070  2**0
                   CONTENTS, RELOC, READONLY
 
 cJSON_Utils.o:     file format elf32-xtensa-le
@@ -597,15 +597,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  78 .debug_ranges 000001c8  00000000  00000000  000058cb  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 79 .debug_line   000012d0  00000000  00000000  00005a93  2**0
+ 79 .debug_line   000012cd  00000000  00000000  00005a93  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 80 .debug_str    00000987  00000000  00000000  00006d63  2**0
+ 80 .debug_str    0000097c  00000000  00000000  00006d60  2**0
                   CONTENTS, READONLY, DEBUGGING
- 81 .comment      0000003b  00000000  00000000  000076ea  2**0
+ 81 .comment      0000003b  00000000  00000000  000076dc  2**0
                   CONTENTS, READONLY
- 82 .xtensa.info  00000038  00000000  00000000  00007725  2**0
+ 82 .xtensa.info  00000038  00000000  00000000  00007717  2**0
                   CONTENTS, READONLY
- 83 .xt.lit       000000f8  00000000  00000000  0000775d  2**0
+ 83 .xt.lit       000000f8  00000000  00000000  0000774f  2**0
                   CONTENTS, RELOC, READONLY
- 84 .xt.prop      0000165c  00000000  00000000  00007855  2**0
+ 84 .xt.prop      0000165c  00000000  00000000  00007847  2**0
                   CONTENTS, RELOC, READONLY

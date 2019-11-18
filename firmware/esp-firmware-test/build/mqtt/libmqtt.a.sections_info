@@ -1,4 +1,4 @@
-In archive /home/lgabriel/workarea-Futrobot/Futrobot/firmware/esp-firmware-test/build/mqtt/libmqtt.a:
+In archive /home/gabriel/workarea/Futrobot/firmware/esp-firmware-test/build/mqtt/libmqtt.a:
 
 mqtt_client.o:     file format elf32-xtensa-le
 
@@ -124,17 +124,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  59 .debug_ranges 000000d8  00000000  00000000  00006e52  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 60 .debug_line   000014c4  00000000  00000000  00006f2a  2**0
+ 60 .debug_line   000014b9  00000000  00000000  00006f2a  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 61 .debug_str    00001528  00000000  00000000  000083ee  2**0
+ 61 .debug_str    0000151d  00000000  00000000  000083e3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 62 .comment      0000003b  00000000  00000000  00009916  2**0
+ 62 .comment      0000003b  00000000  00000000  00009900  2**0
                   CONTENTS, READONLY
- 63 .xtensa.info  00000038  00000000  00000000  00009951  2**0
+ 63 .xtensa.info  00000038  00000000  00000000  0000993b  2**0
                   CONTENTS, READONLY
- 64 .xt.lit       000000b0  00000000  00000000  00009989  2**0
+ 64 .xt.lit       000000b0  00000000  00000000  00009973  2**0
                   CONTENTS, RELOC, READONLY
- 65 .xt.prop      00000ec4  00000000  00000000  00009a39  2**0
+ 65 .xt.prop      00000ec4  00000000  00000000  00009a23  2**0
                   CONTENTS, RELOC, READONLY
 
 mqtt_outbox.o:     file format elf32-xtensa-le
@@ -207,17 +207,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  32 .debug_ranges 000000c8  00000000  00000000  000014cb  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 33 .debug_line   00000676  00000000  00000000  00001593  2**0
+ 33 .debug_line   00000670  00000000  00000000  00001593  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 34 .debug_str    0000043e  00000000  00000000  00001c09  2**0
+ 34 .debug_str    00000433  00000000  00000000  00001c03  2**0
                   CONTENTS, READONLY, DEBUGGING
- 35 .comment      0000003b  00000000  00000000  00002047  2**0
+ 35 .comment      0000003b  00000000  00000000  00002036  2**0
                   CONTENTS, READONLY
- 36 .xtensa.info  00000038  00000000  00000000  00002082  2**0
+ 36 .xtensa.info  00000038  00000000  00000000  00002071  2**0
                   CONTENTS, READONLY
- 37 .xt.lit       00000048  00000000  00000000  000020ba  2**0
+ 37 .xt.lit       00000048  00000000  00000000  000020a9  2**0
                   CONTENTS, RELOC, READONLY
- 38 .xt.prop      000004d4  00000000  00000000  00002102  2**0
+ 38 .xt.prop      000004d4  00000000  00000000  000020f1  2**0
                   CONTENTS, RELOC, READONLY
 
 mqtt_msg.o:     file format elf32-xtensa-le
@@ -316,17 +316,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, RELOC, READONLY, DEBUGGING
  45 .debug_ranges 000000d0  00000000  00000000  00002e2f  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 46 .debug_line   000008ef  00000000  00000000  00002eff  2**0
+ 46 .debug_line   000008eb  00000000  00000000  00002eff  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 47 .debug_str    000007a3  00000000  00000000  000037ee  2**0
+ 47 .debug_str    00000798  00000000  00000000  000037ea  2**0
                   CONTENTS, READONLY, DEBUGGING
- 48 .comment      0000003b  00000000  00000000  00003f91  2**0
+ 48 .comment      0000003b  00000000  00000000  00003f82  2**0
                   CONTENTS, READONLY
- 49 .xtensa.info  00000038  00000000  00000000  00003fcc  2**0
+ 49 .xtensa.info  00000038  00000000  00000000  00003fbd  2**0
                   CONTENTS, READONLY
- 50 .xt.lit       00000078  00000000  00000000  00004004  2**0
+ 50 .xt.lit       00000078  00000000  00000000  00003ff5  2**0
                   CONTENTS, RELOC, READONLY
- 51 .xt.prop      00000954  00000000  00000000  0000407c  2**0
+ 51 .xt.prop      00000954  00000000  00000000  0000406d  2**0
                   CONTENTS, RELOC, READONLY
 
 platform_esp32_idf.o:     file format elf32-xtensa-le
@@ -347,39 +347,39 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, DATA
   6 .bss          00000000  00000000  00000000  00000070  2**0
                   ALLOC
-  7 .rodata.str1.4 000000ab  00000000  00000000  00000070  2**2
+  7 .rodata.str1.4 000000a7  00000000  00000000  00000070  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  8 .text.platform_create_id_string 00000062  00000000  00000000  0000011c  2**2
+  8 .text.platform_create_id_string 00000062  00000000  00000000  00000118  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
-  9 .text.platform_random 0000000e  00000000  00000000  00000180  2**2
+  9 .text.platform_random 0000000e  00000000  00000000  0000017c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 10 .text.platform_tick_get_ms 00000043  00000000  00000000  00000190  2**2
+ 10 .text.platform_tick_get_ms 00000043  00000000  00000000  0000018c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 11 .text.ms_to_timeval 0000002e  00000000  00000000  000001d4  2**2
+ 11 .text.ms_to_timeval 0000002e  00000000  00000000  000001d0  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 12 .rodata.__FUNCTION__$6404 0000001a  00000000  00000000  00000204  2**2
+ 12 .rodata.__FUNCTION__$6404 0000001a  00000000  00000000  00000200  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
- 13 .debug_frame  00000070  00000000  00000000  00000220  2**2
+ 13 .debug_frame  00000070  00000000  00000000  0000021c  2**2
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 14 .debug_info   00000367  00000000  00000000  00000290  2**0
+ 14 .debug_info   00000367  00000000  00000000  0000028c  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 15 .debug_abbrev 000001a4  00000000  00000000  000005f7  2**0
+ 15 .debug_abbrev 000001a4  00000000  00000000  000005f3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_loc    00000060  00000000  00000000  0000079b  2**0
+ 16 .debug_loc    00000060  00000000  00000000  00000797  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 17 .debug_aranges 00000038  00000000  00000000  000007fb  2**0
+ 17 .debug_aranges 00000038  00000000  00000000  000007f7  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 18 .debug_ranges 00000028  00000000  00000000  00000833  2**0
+ 18 .debug_ranges 00000028  00000000  00000000  0000082f  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 19 .debug_line   0000027b  00000000  00000000  0000085b  2**0
+ 19 .debug_line   00000275  00000000  00000000  00000857  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 20 .debug_str    0000033f  00000000  00000000  00000ad6  2**0
+ 20 .debug_str    00000334  00000000  00000000  00000acc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 21 .comment      0000003b  00000000  00000000  00000e15  2**0
+ 21 .comment      0000003b  00000000  00000000  00000e00  2**0
                   CONTENTS, READONLY
- 22 .xtensa.info  00000038  00000000  00000000  00000e50  2**0
+ 22 .xtensa.info  00000038  00000000  00000000  00000e3b  2**0
                   CONTENTS, READONLY
- 23 .xt.lit       00000020  00000000  00000000  00000e88  2**0
+ 23 .xt.lit       00000020  00000000  00000000  00000e73  2**0
                   CONTENTS, RELOC, READONLY
- 24 .xt.prop      000000f0  00000000  00000000  00000ea8  2**0
+ 24 .xt.prop      000000f0  00000000  00000000  00000e93  2**0
                   CONTENTS, RELOC, READONLY
