@@ -10,7 +10,6 @@
 #define CMD_HEAD           0xA0
 
 #define CMD_REQ_CAL        0x00
-#define CMD_REQ_IDENT      0x01
 #define CMD_REQ_OMEGA      0x03
 
 #define CMD_CALIBRATION    0x04
@@ -26,7 +25,7 @@
 /****************************** DEFINICOES DE TEMPOS *********************************/
 /*************************************************************************************/
 #define TIME_TEST_OMEGA_ZERO 2000   //ms, tempo do timer que realiza o teste de velocidade zero
-#define TIME_CONTROLLER        10   //ms, periodo de acionamento do controlador
+#define TIME_CONTROLLER        3   //ms, periodo de acionamento do controlador
 
 /*************************************************************************************/
 /****************************** ROTINAS PRINCIPAIS ***********************************/

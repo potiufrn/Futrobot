@@ -22,6 +22,7 @@ main.o: \
  /home/gabriel/esp/esp-idf/components/newlib/include/machine/types.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/sched.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/time.h \
+ /home/gabriel/esp/esp-idf/components/newlib/include/math.h \
  /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/stdint.h \
  /home/gabriel/esp/esp-idf/components/newlib/include/sys/_intsup.h \
@@ -154,6 +155,8 @@ main.o: \
 /home/gabriel/esp/esp-idf/components/newlib/include/sys/sched.h:
 
 /home/gabriel/esp/esp-idf/components/newlib/include/sys/time.h:
+
+/home/gabriel/esp/esp-idf/components/newlib/include/math.h:
 
 /home/gabriel/esp/esp-idf/components/freertos/include/freertos/FreeRTOS.h:
 

@@ -1,1 +1,1 @@
-c07a698-dirty esp-firmware v3.3-dirty
+efdc1d7-dirty esp-firmware v3.3-dirty

@@ -1,9 +1,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>          //cout, cerr, cin
-#include <stdio.h>           //printf
+#include <cstdio>           //printf
 #include <unistd.h>          //sleep
 #include <bluetoothAction.h>
+#include <cmath>
 #include <omp.h>
 
 #include "../../firmware/esp-firmware-test/main/common.h"
@@ -12,6 +13,9 @@
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
 #define MAC_ESP_ROBO_2 "30:AE:A4:13:F8:AE"
 #define MAC_ESP_ROBO_3 "30:AE:A4:20:0E:12"
+
+#define RADIUS    1.5/100 //metros
+#define REDUCTION 30 //30x1
 
 // #define MAC_ESP_ROBO_2
 
@@ -31,6 +35,8 @@ string getData(){
   strTime.replace(strTime.find(' '), 1, "_");
   return strTime;
 }
+
+void saveToFile(const float *datas, const int size, const float timeout, const char* fileName);
 
 void bytes2float(const uint8_t *bitstream, float*f, uint32_t num_float)
 {
@@ -64,10 +70,9 @@ void _printMainMenu(){
   printf("05 -> ENVIAR REFERÊNCIAS\n");
   printf("06 -> ENVIAR SINAL DE CONTROLE\n");
   printf("07 -> INICIAR CALIBRAÇÃO DO CONTROLADOR\n");
-  printf("08 -> INICIAR IDENTIFICAÇÃO\n");
+  printf("08 -> IDENTIFICAÇÃO\n");
   printf("09 -> PEDIR DADOS DA CALIBRACAO\n");
-  printf("10 -> PEDIR DADOS DA IDENTIFICACAO\n");
-  printf("11 -> PEDIR OMEGAS ATUAIS\n");
+  printf("10 -> PEDIR OMEGAS ATUAIS\n");
 };
 
 void _pause(const char* msg = ""){
@@ -177,12 +182,73 @@ int main(int argc, char** argv)
       delete bitstream;
       break;
     case 8://identificar
-      bitstream = new uint8_t;
-      bitstream[0] = CMD_HEAD | CMD_IDENTIFY;
-      btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      delete bitstream;
+    {
+      uint8_t motor, typeC;
+      int size;
+      float setpoint, step_time, timeout;
+
+      cout << "Motor ? (0 -> Left \t 1 -> Right): ";
+      cin >> motor;
+
+      cout << "Setpoint: ";
+      cin >> setpoint;
+
+      cout << "Desabilitar controlador ? 0(nao), 1(sim): ";
+      cin >> typeC;
+
+      cout << "Timeout: ";
+      cin >> timeout;
+
+      cout << "Step time: ";
+      cin >> step_time;
+
+      size       = floor(timeout/step_time);
+      vec_float  = new float[size];
+      bitstream  = new uint8_t[2 + 3*sizeof(float)];
+
+      bitstream[0]                   = CMD_HEAD | CMD_IDENTIFY;
+      bitstream[1]                   = ((motor << 7)  | typeC) & 0b10000001;
+      *(float*)&bitstream[2 + 0*sizeof(float)] = setpoint;
+      *(float*)&bitstream[2 + 1*sizeof(float)] = step_time;
+      *(float*)&bitstream[2 + 2*sizeof(float)] = timeout;
+
+      printf("Options: %x \t setpoint: %f \t steptime: %f \t timeout: %f\n",
+              bitstream[1],
+              *(float*)&bitstream[2 + 0*sizeof(float)],
+              *(float*)&bitstream[2 + 1*sizeof(float)],
+              *(float*)&bitstream[2 + 2*sizeof(float)]);
+
+      btAction.sendBluetoothMessage(idBt, bitstream, 2 + 3*sizeof(float));
+
+      printf("Esperando...\n");
+      time_stemp[0] = omp_get_wtime();
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, size*sizeof(float), 3*timeout);
+      time_stemp[1] = omp_get_wtime();
+      printf("Tempo decorrido: %f s\n", time_stemp[1] - time_stemp[0]);
+
+
+      printf("%d Bytes recebidos, deseja salvar ? (0/1)", rec);
+      cin >> choice;
+
+      if(choice == 1)
+      {
+        char fileName[50];
+        cout << "Que nome devo colocar no arquivo ? ";
+        scanf("%50s", fileName);
+        saveToFile(vec_float, size, timeout, fileName);
+        cout << "Salvando...\n";
+        cout << "Salvo!\n";
+        _pause();
+      }else{
+        printf("Tudo bem então...\n");
+        _pause();
+      }
+
+      delete[] bitstream;
+      delete[] vec_float;
 
       break;
+    }
     case 9://dados da calibracao
       bitstream = new uint8_t[1];
       vec_float = new float[9];
@@ -191,7 +257,7 @@ int main(int argc, char** argv)
       rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 9*sizeof(float), 5);
 
       printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
-      printf("Omega Max: %f rpm\n", vec_float[0]);
+      printf("Omega Max: %f rad/s = %f m/s\n", vec_float[0], vec_float[0]*RADIUS/(REDUCTION));//reducao de 30 e 24 interrupcoes por volta
       printf("Left  Front  => a = %f , b = %f \n", vec_float[1], vec_float[2]);
       printf("Left  Back   => a = %f , b = %f \n", vec_float[3], vec_float[4]);
       printf("Right Front  => a = %f , b = %f \n", vec_float[5], vec_float[6]);
@@ -200,18 +266,8 @@ int main(int argc, char** argv)
 
       delete[] bitstream;
       delete[] vec_float;
-
       break;
-    case 10://dados da identificacao
-
-      // bitstream = new uint8_t;
-      //
-      // bitstream[0] = CMD_HEAD | CMD_REQ_IDENT;
-      // btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      // delete   bitstream;
-
-      break;
-    case 11://solicitar omegas
+    case 10://solicitar omegas
       bitstream = new uint8_t[1];
       vec_float = new float[2];
 
@@ -223,11 +279,11 @@ int main(int argc, char** argv)
 
       if(rec != 2*sizeof(float))
       {
-        printf("Omega Left:%f \t Omega Right:%f\n", vec_float[0], vec_float[1]);
         _pause("Erro na leitura");
         break;
       }
-      printf("Omega Left:%f \t Omega Right:%f\n", vec_float[0], vec_float[1]);
+      printf("   Omega Left:%f rad/     Omega Right:%f rad/s\n", vec_float[0], vec_float[1]);
+      printf("Velocity Left:%f m/s   Velocity Right:%f m/s\n", vec_float[0]*RADIUS/REDUCTION, vec_float[1]*RADIUS/REDUCTION);
       _pause();
 
       delete[] bitstream;
@@ -244,4 +300,17 @@ int main(int argc, char** argv)
     btAction.closeBluetoothById(idBt);
 
   return 0;
+}
+
+void saveToFile(const float *datas, const int size, const float timeout, const char* fileName)
+{
+  ofstream out(fileName);
+
+  out << size << ',' << timeout << '\n';
+  out << datas[0];
+  for(int i = 0; i < size; i++){
+    out << ',' << datas[i];
+  }
+
+  out.close();
 }

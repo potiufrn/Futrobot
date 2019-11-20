@@ -9,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -60,6 +61,17 @@ static void periodic_controller(void *arg);
 //my functions
 static void func_controlSignal(const float pwmL,const float pwmR);
 static void func_calibration();
+//options = 0xXY, sendo X 1 bit para indicar o motor, e os demais bits 7bits da parte Y indicando opcoes para o controlador utilizado,
+//por enquanto Y serão:
+// 0 => controlador padrao
+// 1 => bypass controlador
+// a coleta as velocidades medidas pelos sensores em intervalos de step_time até
+// um tempo total de timeout, retorna um vetor de omegas medidos por referencias e
+// o tamanho do vetor por retorno de funcao
+static void func_identify(const uint8_t options,
+                         const float setpoint,  // -1.0 a 1.0
+                         const float step_time, //em segundos
+                         const float timeout);  //em segundos
 /*************************************************************************************/
 /****************************** VARIAVEIS GLOBAIS ************************************/
 /*************************************************************************************/
@@ -122,7 +134,10 @@ void app_main()
         esp_spp_write(bt_handle, btdata.len, btdata.data);
         break;
       case CMD_IDENTIFY:
-        //Falta fazer
+        func_identify((uint8_t)btdata.data[1],                    //options
+                      *(float*)&btdata.data[2+0*sizeof(float)],      //setpoint
+                      *(float*)&btdata.data[2+1*sizeof(float)],      //steptime
+                      *(float*)&btdata.data[2+2*sizeof(float)]);     //timeout
         break;
       case CMD_CALIBRATION:
         func_calibration();
@@ -132,7 +147,6 @@ void app_main()
         break;
       case CMD_REQ_CAL:
         vec_float = (float*)malloc(9*sizeof(float));
-        // vec_float[0] = coefL[FRONT].alpha;
 
         vec_float[0] = omega_max;
 
@@ -148,10 +162,6 @@ void app_main()
 
         esp_spp_write(bt_handle, 9*sizeof(float), (uint8_t*)vec_float);
         free(vec_float);
-        break;
-      case CMD_REQ_IDENT:
-        //Falta fazer
-        // esp_spp_write(bt_handle, btdata.len, btdata.data);
         break;
       default:
         break;
@@ -169,7 +179,6 @@ static void IRAM_ATTR isr_EncoderLeft()
   enc_v |= (REG_READ(GPIO_IN1_REG) >> (GPIO_OUTB_LEFT - 32)) & 0b0011;
   xQueueSendFromISR(encoder_queue[LEFT], &lookup_table[enc_v & 0b111], NULL);
 }
-
 static void IRAM_ATTR isr_EncoderRight()
 {
   static int8_t  lookup_table[] = { 0,-1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 };
@@ -199,7 +208,9 @@ static void task_Encoder(void*arg)
       sense = old_sense;
     gettimeofday(&t, NULL);
     new_time =  t.tv_usec/1000000.0;
-    omega_current[motor] = sense/(new_time - old_time);
+    //12 interrupcoes, por revolucao, para interrupcoes do tipo change nos canais A e B.
+    //(2pi/12)/dt => (pi/6)/dt rad/s
+    omega_current[motor] = sense*(M_PI/6.0)/(new_time - old_time);
     old_time = new_time;
     if(sense != 0)
       old_sense = sense;
@@ -207,6 +218,8 @@ static void task_Encoder(void*arg)
 }
 static void func_controlSignal(const float pwmL,const float pwmR)
 {
+  #define SAT(x) (((x) > 1.0)?1.0:(x))
+
   static bool front[2]  = {false, false};
   front[LEFT]  = !F_IS_NEG(pwmL);
   front[RIGHT] = !F_IS_NEG(pwmR);
@@ -272,7 +285,7 @@ static void
 periodic_controller(void *arg)
 {
   static float pwm[2];
-  // static float e[2] = {0.0, 0.0};
+  static float e[2] = {0.0, 0.0};
 
   if(bypass_controller)
   {
@@ -285,12 +298,16 @@ periodic_controller(void *arg)
                coefL[F_IS_NEG(omega_ref[LEFT])].beta*(omega_ref[LEFT]  != 0 );
   pwm[RIGHT] = coefR[F_IS_NEG(omega_ref[RIGHT])].alpha*omega_ref[RIGHT]*omega_max +
                coefR[F_IS_NEG(omega_ref[RIGHT])].beta*(omega_ref[RIGHT] != 0 );
+
+  // func_controlSignal(pwm[LEFT], pwm[RIGHT]);
   /****
   *aqui ficara o controlador BackWard (PID)
   ****/
-  // e[LEFT] = omega_ref[LEFT] - omega_current[LEFT];
-  // e[RIGHT] = omega_ref[RIGHT] - omega_current[RIGHT];
-
+  // e[LEFT]  = omega_ref[LEFT]*omega_max - omega_current[LEFT];
+  // e[RIGHT] = omega_ref[RIGHT]*omega_max - omega_current[RIGHT];
+  //
+  // pwm[LEFT]  += e[LEFT]*1.0*(!!omega_ref[LEFT]);
+  // pwm[RIGHT] += e[RIGHT]*1.0*(!!omega_ref[RIGHT]);
 
   //aplicar sinal de controle
   func_controlSignal(pwm[LEFT], pwm[RIGHT]);
@@ -412,10 +429,61 @@ static void func_calibration()
   coefR[BACK].beta  = -pwmMinR[BACK];
 
   //Maior velocidade considerada
-  omega_max = 0.85 * minOmegaMax;
+  omega_max = 0.90 * minOmegaMax;
 
   //retoma a rotina de controle
   esp_timer_start_periodic(periodic_controller_handle, TIME_CONTROLLER*1000);
+}
+
+static void func_identify(const uint8_t options,
+                         const float setpoint,
+                         const float step_time,
+                         const float timeout)
+{
+  memset(omega_ref, 0, 2*sizeof(float));  //zera as referencias
+
+  int size       = ABS_F(floor(timeout/step_time));
+  uint8_t motor  = options & 0x80;
+  uint8_t typeC  = options & 0x7F;
+
+  // printf("Options: %x \t setpoint: %0.3f \t steptime: %0.3f \t timeout: %0.3f\n",
+  //         options,
+  //         setpoint,
+  //         step_time,
+  //         timeout);
+  // printf("Size:%d\n", size);
+
+  if(size == 0.0)
+    return;
+
+  float *vec_omegas = (float*)malloc(size*sizeof(float));
+  memset(vec_omegas, 0, size*sizeof(float));
+
+  bypass_controller = !!typeC; //bypass ou nao o controlador
+
+  int step_time_ticks = (step_time*1000.0)/portTICK_PERIOD_MS;
+
+  omega_ref[(int)motor] = setpoint;
+  double time[2];
+  time[0] = get_time_sec();
+  for(int i = 0; i < size; i++)
+  {
+    vec_omegas[i] = omega_current[motor];
+    vTaskDelay(step_time_ticks);
+  }
+  time[1] = get_time_sec();
+
+
+  // printf("step_time*1000 = %f \t portTICK_PERIOD_MS = %d \t step_time_ticks: %d\n",
+  //        step_time*1000.0, portTICK_PERIOD_MS ,step_time_ticks);
+  // printf("Tempo decorrido na identify function: %f\n", time[1] - time[0]);
+
+  memset(omega_ref, 0, 2*sizeof(float));  //zera as referencias
+
+  esp_spp_write(bt_handle, (size)*sizeof(float), (uint8_t*)vec_omegas);
+
+  free(vec_omegas);
+  return size;
 }
 
 /*************************************************************************************/
