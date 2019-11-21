@@ -1,8 +1,8 @@
 #include <stdint.h>
 
-// #define DEVICE_NAME "ESP_ROBO_TEST"
+#define DEVICE_NAME "ESP_ROBO_TEST"
 // #define DEVICE_NAME "ESP_ROBO_1"
-#define DEVICE_NAME "ESP_ROBO_2"
+// #define DEVICE_NAME "ESP_ROBO_2"
 
 /*************************************************************************************/
 /********************************** COMANDOS  ****************************************/
@@ -34,8 +34,8 @@
 #define  GPIO_PWM_LEFT       23  //Controla a velocidade do motor A (Esquerdo)
 #define  GPIO_A1N1_LEFT      21 //Sentido motor A
 #define  GPIO_A1N2_LEFT      19 //Sentido motor A
-#define  GPIO_OUTA_LEFT 33 //Sinal de saida do encoder Direito (Usado para calcular a velocidade)
-#define  GPIO_OUTB_LEFT 32 //Sinal em quadrado com relacao ao CAP1A do motor 2 (usado para calcular o sentido de rotacao)
+#define  GPIO_OUTA_LEFT      33 //Sinal de saida do encoder Direito (Usado para calcular a velocidade)
+#define  GPIO_OUTB_LEFT      32 //Sinal em quadrado com relacao ao CAP1A do motor 2 (usado para calcular o sentido de rotacao)
 // Modo Standby do driver
 #define  GPIO_STBY         18
 //Motor 2 (Direito)

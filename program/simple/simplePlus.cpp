@@ -63,7 +63,7 @@ void encodeFloat(const float* vec_f, uint8_t *bitstream)
 
 void _printMainMenu(){
   printf("****************MENU DE AÇÕES*************\n");
-  printf("01 -> ENCERRAR O PROGRAMA\n");
+  printf("01 -> PEDIR OMEGAS ATUAIS\n");
   printf("02 -> CONECTAR\n");
   printf("03 -> DESCONECTAR\n");
   printf("04 -> PING\n");
@@ -71,8 +71,9 @@ void _printMainMenu(){
   printf("06 -> ENVIAR SINAL DE CONTROLE\n");
   printf("07 -> INICIAR CALIBRAÇÃO DO CONTROLADOR\n");
   printf("08 -> IDENTIFICAÇÃO\n");
-  printf("09 -> PEDIR DADOS DA CALIBRACAO\n");
-  printf("10 -> PEDIR OMEGAS ATUAIS\n");
+  printf("09 -> VISUALIZAR GRAFICOS\n");
+  printf("10 -> PEDIR DADOS DA CALIBRACAO\n");
+  printf("11 -> ENCERRAR O PROGRAMA\n");
 };
 
 void _pause(const char* msg = ""){
@@ -112,15 +113,35 @@ int main(int argc, char** argv)
     _printMainMenu();
     cin >> choice;
 
-    if(choice != 2 && idBt == -1 && choice != 1)
+    if(choice != 2 && idBt == -1 && choice != 9 && choice != 11)
     {
       _pause("Nenhum dispositivo conectado!");
       continue;
     }
 
     switch (choice){
-    case 1: //terminar
-      run = false;
+    case 1://solicitar omegas
+      bitstream = new uint8_t[1];
+      vec_float = new float[2];
+
+      memset(vec_float, 0, 2*sizeof(float));
+
+      bitstream[0] = CMD_HEAD | CMD_REQ_OMEGA;
+      btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 2*sizeof(float), 2);
+
+      if(rec != 2*sizeof(float))
+      {
+        _pause("Erro na leitura");
+        break;
+      }
+      printf("   Omega Left:%f rad/     Omega Right:%f rad/s\n", vec_float[0], vec_float[1]);
+      printf("Velocity Left:%f m/s   Velocity Right:%f m/s\n", vec_float[0]*RADIUS/REDUCTION, vec_float[1]*RADIUS/REDUCTION);
+      _pause();
+
+      delete[] bitstream;
+      delete[] vec_float;
+
       break;
     case 2://conectar
       _printListMACs();
@@ -235,9 +256,10 @@ int main(int argc, char** argv)
         char fileName[50];
         cout << "Que nome devo colocar no arquivo ? ";
         scanf("%50s", fileName);
-        saveToFile(vec_float, size, timeout, fileName);
+
+        saveToFile(vec_float, size, timeout, (string("etc/") + string(fileName)).c_str() );
         cout << "Salvando...\n";
-        cout << "Salvo!\n";
+        printf("Salvo! Em: %s\n", (string("etc/") + string(fileName)).c_str());
         _pause();
       }else{
         printf("Tudo bem então...\n");
@@ -249,7 +271,10 @@ int main(int argc, char** argv)
 
       break;
     }
-    case 9://dados da calibracao
+    case 9://graficos
+    system("python3 etc/_pyplotter.py");
+    break;
+    case 10://dados da calibracao
       bitstream = new uint8_t[1];
       vec_float = new float[9];
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
@@ -267,28 +292,8 @@ int main(int argc, char** argv)
       delete[] bitstream;
       delete[] vec_float;
       break;
-    case 10://solicitar omegas
-      bitstream = new uint8_t[1];
-      vec_float = new float[2];
-
-      memset(vec_float, 0, 2*sizeof(float));
-
-      bitstream[0] = CMD_HEAD | CMD_REQ_OMEGA;
-      btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 2*sizeof(float), 2);
-
-      if(rec != 2*sizeof(float))
-      {
-        _pause("Erro na leitura");
-        break;
-      }
-      printf("   Omega Left:%f rad/     Omega Right:%f rad/s\n", vec_float[0], vec_float[1]);
-      printf("Velocity Left:%f m/s   Velocity Right:%f m/s\n", vec_float[0]*RADIUS/REDUCTION, vec_float[1]*RADIUS/REDUCTION);
-      _pause();
-
-      delete[] bitstream;
-      delete[] vec_float;
-
+    case 11: //terminar
+      run = false;
       break;
     default:
       break;
@@ -306,7 +311,7 @@ void saveToFile(const float *datas, const int size, const float timeout, const c
 {
   ofstream out(fileName);
 
-  out << size << ',' << timeout << '\n';
+  out << size << ',' << timeout << ',';
   out << datas[0];
   for(int i = 0; i < size; i++){
     out << ',' << datas[i];

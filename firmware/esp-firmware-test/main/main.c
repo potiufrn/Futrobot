@@ -69,9 +69,11 @@ static void func_calibration();
 // um tempo total de timeout, retorna um vetor de omegas medidos por referencias e
 // o tamanho do vetor por retorno de funcao
 static void func_identify(const uint8_t options,
-                         const float setpoint,  // -1.0 a 1.0
-                         const float step_time, //em segundos
-                         const float timeout);  //em segundos
+                          const float setpoint,  // -1.0 a 1.0
+                          const float step_time, //em segundos
+                          const float timeout);  //em segundos
+
+// static void func_identify(void* arg);  //em segundos
 /*************************************************************************************/
 /****************************** VARIAVEIS GLOBAIS ************************************/
 /*************************************************************************************/
@@ -134,10 +136,11 @@ void app_main()
         esp_spp_write(bt_handle, btdata.len, btdata.data);
         break;
       case CMD_IDENTIFY:
-        func_identify((uint8_t)btdata.data[1],                    //options
+        func_identify((uint8_t)btdata.data[1],                       //options
                       *(float*)&btdata.data[2+0*sizeof(float)],      //setpoint
                       *(float*)&btdata.data[2+1*sizeof(float)],      //steptime
                       *(float*)&btdata.data[2+2*sizeof(float)]);     //timeout
+        // xTaskCreatePinnedToCore(task_Encoder, "task_Encoder", 2048, RIGHT, 3, NULL, 1);
         break;
       case CMD_CALIBRATION:
         func_calibration();
@@ -252,10 +255,10 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_DISCOVERY_COMP_EVT:
         break;
     case ESP_SPP_OPEN_EVT:
-      bt_handle = param->open.handle;
+        bt_handle = param->open.handle;
         break;
     case ESP_SPP_CLOSE_EVT:
-      bt_handle = 0;
+        bt_handle = 0;
         memset(omega_ref, 0, 2*sizeof(float));
         bypass_controller = true;
         esp_timer_start_periodic(periodic_controller_handle, TIME_CONTROLLER*1000);
@@ -434,12 +437,13 @@ static void func_calibration()
   //retoma a rotina de controle
   esp_timer_start_periodic(periodic_controller_handle, TIME_CONTROLLER*1000);
 }
-
+// static void func_identify(void* arg)  //em segundos
 static void func_identify(const uint8_t options,
-                         const float setpoint,
-                         const float step_time,
-                         const float timeout)
+  const float setpoint,
+  const float step_time,
+  const float timeout)
 {
+
   memset(omega_ref, 0, 2*sizeof(float));  //zera as referencias
 
   int size       = ABS_F(floor(timeout/step_time));
@@ -469,6 +473,7 @@ static void func_identify(const uint8_t options,
   for(int i = 0; i < size; i++)
   {
     vec_omegas[i] = omega_current[motor];
+    // vec_omegas[i] = i*i;
     vTaskDelay(step_time_ticks);
   }
   time[1] = get_time_sec();

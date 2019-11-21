@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-for p,_,files in os.walk('../etc/'):
+for p,_,files in os.walk('.'):
     pass
 files.remove('_pyplotter.py')
 
@@ -16,29 +16,21 @@ for i in range(0,len(files)):
     print(i, '- ', files[i])
 index_file = int(input("index do arquivo para plotter?\t"))
 
-dados = open(p+files[index_file],'r').read()
-curve = dados[0]
-print("curva:\t", curve)
-
-dados = dados.split(',')
-
-dados.pop(0)
-
+print(p)
+dados  = open(p+'/'+files[index_file],'r').read().split(',')
 for i in range(0,len(dados)):
     dados[i] = float(dados[i])
 
-if(curve == '1'):
-    print("Curva tipo 1")
-    x = np.linspace(0,30, len(dados))
-else:
-    print("Curva tipo 2")
-    x = np.linspace(0,40, len(dados))
+size    = int(dados[0])
+timeout = dados[1]
+x = np.linspace(0,timeout, size)
+y = dados[3:]
 
-y = dados
+print("Timeout:", timeout," size:", size, "\n")
 
 plt.plot(x,y)
 plt.xlabel('t(s)')
-plt.ylabel('PWM(%)')
-plt.title('Q(t)')
-
+plt.ylabel('Omega(rad/s)')
+plt.grid();
+plt.title(str(files[index_file]))
 plt.show()
