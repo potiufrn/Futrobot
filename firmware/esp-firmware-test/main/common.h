@@ -1,9 +1,5 @@
 #include <stdint.h>
 
-#define DEVICE_NAME "ESP_ROBO_TEST"
-// #define DEVICE_NAME "ESP_ROBO_1"
-// #define DEVICE_NAME "ESP_ROBO_2"
-
 /*************************************************************************************/
 /********************************** COMANDOS  ****************************************/
 /*************************************************************************************/
@@ -25,7 +21,7 @@
 /****************************** DEFINICOES DE TEMPOS *********************************/
 /*************************************************************************************/
 #define TIME_TEST_OMEGA_ZERO 2000   //ms, tempo do timer que realiza o teste de velocidade zero
-#define TIME_CONTROLLER        3   //ms, periodo de acionamento do controlador
+#define TIME_CONTROLLER        5   //ms, periodo de acionamento do controlador
 
 /*************************************************************************************/
 /****************************** ROTINAS PRINCIPAIS ***********************************/
@@ -70,6 +66,11 @@ typedef struct{
   uint8_t *data;
   uint32_t len;
 }bt_data;
+
+struct Encoder_data{
+  int64_t pulse_counter; //quantidade de pulsos desde o inicio da interrupcao
+  float   dt;  //tempo entre interrupcoes
+};
 /*************************************************************************************/
 /****************************** FUNCOES AUXILIARES ***********************************/
 /*************************************************************************************/

@@ -28,7 +28,7 @@ y = dados[3:]
 
 print("Timeout:", timeout," size:", size, "\n")
 
-plt.plot(x,y)
+plt.plot(x,y, 'b')
 plt.xlabel('t(s)')
 plt.ylabel('Omega(rad/s)')
 plt.grid();

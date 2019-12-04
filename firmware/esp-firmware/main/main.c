@@ -33,7 +33,7 @@ By: Luís Gabriel Pereira Condados - 31/10/2019
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 
-#define DEVICE_NAME "ESP_ROBO_2"
+#define DEVICE_NAME "ESP_ROBO_1"
 
 //Motor 1 (Esquerdo)
 #define  GPIO_PWM_LEFT       23  //Controla a velocidade do motor A (Esquerdo)

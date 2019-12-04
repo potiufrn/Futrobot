@@ -24,117 +24,117 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
   9 .literal.esp_mqtt_client_ping 00000018  00000000  00000000  000001e8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 10 .literal.esp_mqtt_task 000000c4  00000000  00000000  00000200  2**2
+ 10 .literal.esp_mqtt_task 000000c0  00000000  00000000  00000200  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 11 .literal.mqtt_enqueue 00000008  00000000  00000000  000002c4  2**2
+ 11 .literal.mqtt_enqueue 00000008  00000000  00000000  000002c0  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 12 .literal.mqtt_enqueue_oversized 00000008  00000000  00000000  000002cc  2**2
+ 12 .literal.mqtt_enqueue_oversized 00000008  00000000  00000000  000002c8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 13 .literal.esp_mqtt_set_config 000000c0  00000000  00000000  000002d4  2**2
+ 13 .literal.esp_mqtt_set_config 000000c0  00000000  00000000  000002d0  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 14 .literal.esp_mqtt_client_set_uri 00000058  00000000  00000000  00000394  2**2
+ 14 .literal.esp_mqtt_client_set_uri 00000058  00000000  00000000  00000390  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 15 .literal.esp_mqtt_client_start 0000002c  00000000  00000000  000003ec  2**2
+ 15 .literal.esp_mqtt_client_start 0000002c  00000000  00000000  000003e8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 16 .literal.esp_mqtt_client_stop 00000014  00000000  00000000  00000418  2**2
+ 16 .literal.esp_mqtt_client_stop 00000014  00000000  00000000  00000414  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 17 .literal.esp_mqtt_client_destroy 00000020  00000000  00000000  0000042c  2**2
+ 17 .literal.esp_mqtt_client_destroy 00000020  00000000  00000000  00000428  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 18 .literal.esp_mqtt_client_init 0000012c  00000000  00000000  0000044c  2**2
+ 18 .literal.esp_mqtt_client_init 0000012c  00000000  00000000  00000448  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 19 .literal.esp_mqtt_client_subscribe 00000028  00000000  00000000  00000578  2**2
+ 19 .literal.esp_mqtt_client_subscribe 00000028  00000000  00000000  00000574  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 20 .literal.esp_mqtt_client_unsubscribe 00000028  00000000  00000000  000005a0  2**2
+ 20 .literal.esp_mqtt_client_unsubscribe 00000028  00000000  00000000  0000059c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 21 .literal.esp_mqtt_client_publish 00000038  00000000  00000000  000005c8  2**2
+ 21 .literal.esp_mqtt_client_publish 00000038  00000000  00000000  000005c4  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 22 .text         00000000  00000000  00000000  00000600  2**0
+ 22 .text         00000000  00000000  00000000  000005fc  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 23 .data         00000000  00000000  00000000  00000600  2**0
+ 23 .data         00000000  00000000  00000000  000005fc  2**0
                   CONTENTS, ALLOC, LOAD, DATA
- 24 .bss          00000000  00000000  00000000  00000600  2**0
+ 24 .bss          00000000  00000000  00000000  000005fc  2**0
                   ALLOC
- 25 .text.esp_mqtt_dispatch_event 00000021  00000000  00000000  00000600  2**2
+ 25 .text.esp_mqtt_dispatch_event 00000021  00000000  00000000  000005fc  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 26 .rodata.str1.4 00000704  00000000  00000000  00000624  2**2
+ 26 .rodata.str1.4 00000704  00000000  00000000  00000620  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
- 27 .text.create_string 00000056  00000000  00000000  00000d28  2**2
+ 27 .text.create_string 00000056  00000000  00000000  00000d24  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 28 .text.esp_mqtt_destroy_config 00000078  00000000  00000000  00000d80  2**2
+ 28 .text.esp_mqtt_destroy_config 00000078  00000000  00000000  00000d7c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 29 .text.esp_mqtt_dispatch_event_with_msgid 0000001d  00000000  00000000  00000df8  2**2
+ 29 .text.esp_mqtt_dispatch_event_with_msgid 0000001d  00000000  00000000  00000df4  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 30 .text.esp_mqtt_abort_connection 00000039  00000000  00000000  00000e18  2**2
+ 30 .text.esp_mqtt_abort_connection 00000039  00000000  00000000  00000e14  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 31 .text.mqtt_write_data 00000048  00000000  00000000  00000e54  2**2
+ 31 .text.mqtt_write_data 00000048  00000000  00000000  00000e50  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 32 .text.esp_mqtt_connect 000001a0  00000000  00000000  00000e9c  2**2
+ 32 .text.esp_mqtt_connect 000001a0  00000000  00000000  00000e98  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 33 .rodata.esp_mqtt_connect 00000018  00000000  00000000  0000103c  2**2
+ 33 .rodata.esp_mqtt_connect 00000018  00000000  00000000  00001038  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
- 34 .text.deliver_publish 0000011e  00000000  00000000  00001054  2**2
+ 34 .text.deliver_publish 0000011e  00000000  00000000  00001050  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 35 .text.is_valid_mqtt_msg 00000048  00000000  00000000  00001174  2**2
+ 35 .text.is_valid_mqtt_msg 00000048  00000000  00000000  00001170  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 36 .text.mqtt_process_receive 000001cc  00000000  00000000  000011bc  2**2
+ 36 .text.mqtt_process_receive 000001cc  00000000  00000000  000011b8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 37 .rodata.mqtt_process_receive 0000002c  00000000  00000000  00001388  2**2
+ 37 .rodata.mqtt_process_receive 0000002c  00000000  00000000  00001384  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
- 38 .text.esp_mqtt_client_ping 00000036  00000000  00000000  000013b4  2**2
+ 38 .text.esp_mqtt_client_ping 00000036  00000000  00000000  000013b0  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 39 .text.esp_mqtt_task 000002e7  00000000  00000000  000013ec  2**2
+ 39 .text.esp_mqtt_task 000002df  00000000  00000000  000013e8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 40 .text.mqtt_enqueue 00000042  00000000  00000000  000016d4  2**2
+ 40 .text.mqtt_enqueue 00000042  00000000  00000000  000016c8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 41 .text.mqtt_enqueue_oversized 0000004b  00000000  00000000  00001718  2**2
+ 41 .text.mqtt_enqueue_oversized 0000004b  00000000  00000000  0000170c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 42 .text.esp_mqtt_set_config 00000399  00000000  00000000  00001764  2**2
+ 42 .text.esp_mqtt_set_config 00000399  00000000  00000000  00001758  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 43 .text.esp_mqtt_client_set_uri 00000118  00000000  00000000  00001b00  2**2
+ 43 .text.esp_mqtt_client_set_uri 00000118  00000000  00000000  00001af4  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 44 .text.esp_mqtt_client_start 00000064  00000000  00000000  00001c18  2**2
+ 44 .text.esp_mqtt_client_start 00000064  00000000  00000000  00001c0c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 45 .text.esp_mqtt_client_stop 00000044  00000000  00000000  00001c7c  2**2
+ 45 .text.esp_mqtt_client_stop 00000044  00000000  00000000  00001c70  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 46 .text.esp_mqtt_client_destroy 0000004a  00000000  00000000  00001cc0  2**2
+ 46 .text.esp_mqtt_client_destroy 0000004a  00000000  00000000  00001cb4  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 47 .text.esp_mqtt_client_init 000004c5  00000000  00000000  00001d0c  2**2
+ 47 .text.esp_mqtt_client_init 000004c5  00000000  00000000  00001d00  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 48 .text.esp_mqtt_client_subscribe 00000081  00000000  00000000  000021d4  2**2
+ 48 .text.esp_mqtt_client_subscribe 00000081  00000000  00000000  000021c8  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 49 .text.esp_mqtt_client_unsubscribe 0000007e  00000000  00000000  00002258  2**2
+ 49 .text.esp_mqtt_client_unsubscribe 0000007e  00000000  00000000  0000224c  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 50 .text.esp_mqtt_client_publish 0000011b  00000000  00000000  000022d8  2**2
+ 50 .text.esp_mqtt_client_publish 0000011b  00000000  00000000  000022cc  2**2
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
- 51 .rodata.__FUNCTION__$7218 0000000e  00000000  00000000  000023f4  2**2
+ 51 .rodata.__FUNCTION__$7218 0000000e  00000000  00000000  000023e8  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
- 52 .rodata.__FUNCTION__$7203 00000015  00000000  00000000  00002404  2**2
+ 52 .rodata.__FUNCTION__$7203 00000015  00000000  00000000  000023f8  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
- 53 .rodata.__FUNCTION__$7177 00000014  00000000  00000000  0000241c  2**2
+ 53 .rodata.__FUNCTION__$7177 00000014  00000000  00000000  00002410  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
- 54 .debug_frame  00000238  00000000  00000000  00002430  2**2
+ 54 .debug_frame  00000238  00000000  00000000  00002424  2**2
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 55 .debug_info   0000338c  00000000  00000000  00002668  2**0
+ 55 .debug_info   0000338c  00000000  00000000  0000265c  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 56 .debug_abbrev 000003c6  00000000  00000000  000059f4  2**0
+ 56 .debug_abbrev 000003c6  00000000  00000000  000059e8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 57 .debug_loc    00000fc8  00000000  00000000  00005dba  2**0
+ 57 .debug_loc    00000fc8  00000000  00000000  00005dae  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 58 .debug_aranges 000000d0  00000000  00000000  00006d82  2**0
+ 58 .debug_aranges 000000d0  00000000  00000000  00006d76  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 59 .debug_ranges 000000d8  00000000  00000000  00006e52  2**0
+ 59 .debug_ranges 000000d8  00000000  00000000  00006e46  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 60 .debug_line   000014b9  00000000  00000000  00006f2a  2**0
+ 60 .debug_line   000014b9  00000000  00000000  00006f1e  2**0
                   CONTENTS, RELOC, READONLY, DEBUGGING
- 61 .debug_str    0000151d  00000000  00000000  000083e3  2**0
+ 61 .debug_str    0000151d  00000000  00000000  000083d7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 62 .comment      0000003b  00000000  00000000  00009900  2**0
+ 62 .comment      0000003b  00000000  00000000  000098f4  2**0
                   CONTENTS, READONLY
- 63 .xtensa.info  00000038  00000000  00000000  0000993b  2**0
+ 63 .xtensa.info  00000038  00000000  00000000  0000992f  2**0
                   CONTENTS, READONLY
- 64 .xt.lit       000000b0  00000000  00000000  00009973  2**0
+ 64 .xt.lit       000000b0  00000000  00000000  00009967  2**0
                   CONTENTS, RELOC, READONLY
- 65 .xt.prop      00000ec4  00000000  00000000  00009a23  2**0
+ 65 .xt.prop      00000ec4  00000000  00000000  00009a17  2**0
                   CONTENTS, RELOC, READONLY
 
 mqtt_outbox.o:     file format elf32-xtensa-le
