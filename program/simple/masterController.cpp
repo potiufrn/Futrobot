@@ -17,8 +17,6 @@
 #define RADIUS    1.5/100 //metros
 #define REDUCTION 30 //30x1
 
-// #define MAC_ESP_ROBO_2
-
 using namespace std;
 
 BluetoothAction btAction;
@@ -135,7 +133,7 @@ int main(int argc, char** argv)
         _pause("Erro na leitura");
         break;
       }
-      printf("   Omega Left:%f rad/     Omega Right:%f rad/s\n", vec_float[0], vec_float[1]);
+      printf("   Omega Left:%f rad/s     Omega Right:%f rad/s\n", vec_float[0], vec_float[1]);
       printf("Velocity Left:%f m/s   Velocity Right:%f m/s\n", vec_float[0]*RADIUS/REDUCTION, vec_float[1]*RADIUS/REDUCTION);
       _pause();
 

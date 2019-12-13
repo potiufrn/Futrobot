@@ -86,12 +86,10 @@ static bool bypass_controller = false;
 
 struct CoefLine coefL[2];       //coef. das retas PWM(omega) para o motor esquerdo
 struct CoefLine coefR[2];       //coef. das retas PWM(omega) para o motor direito
-static float omega_max = 0.0;   //modulo da velocidade maxima do robo
 
+static float omega_max = 0.0;   //modulo da velocidade maxima do robo
 static float omega_ref[2]       = {0.0, 0.0}; //-1.0 a 1.0
 static float omega_current[2]   = {0.0, 0.0}; //-1.0 a 1.0
-static float omega_beta[2]      = {0.0, 0.0};
-static int32_t pulse_counter[2]= {0, 0};
 //Identificador do Bluetooth
 static uint32_t bt_handle = 0;
 static TaskHandle_t controller_xHandle = 0;
@@ -103,8 +101,8 @@ void app_main()
 {
   bt_data btdata;
   bt_queue   = xQueueCreate(1, sizeof(bt_data));
-  encoder_queue[LEFT]  = xQueueCreate(1, sizeof(int8_t));
-  encoder_queue[RIGHT] = xQueueCreate(1, sizeof(int8_t));
+  encoder_queue[LEFT]  = xQueueCreate(1, sizeof(struct Encoder_data));
+  encoder_queue[RIGHT] = xQueueCreate(1, sizeof(struct Encoder_data));
 
   /** configuracoes iniciais **/
   //interrupcoes no nucleo 0
@@ -178,17 +176,22 @@ void app_main()
 //***************************************************************************************
 static void IRAM_ATTR isr_EncoderLeft()
 {
-  static timeval timev;
   static int8_t  lookup_table[] = { 0,1, -1, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, -1, 1, 0 };
   static uint8_t enc_v = 0;
+  static struct timeval t = {0, 0};
   static struct Encoder_data my_data = {0, 0.0};
-
-    gettimeofday(&t, NULL);
-    new_time =  t.tv_usec/1000000.0;
+  static int8_t last = 0;
 
   enc_v <<= 2;
   enc_v |= (REG_READ(GPIO_IN1_REG) >> (GPIO_OUTB_LEFT - 32)) & 0b0011;
-  xQueueSendFromISR(encoder_queue[LEFT], &lookup_table[enc_v & 0b111], NULL);
+
+  //utiliza a ultima decodificação quando há falha(decode = 0)
+  my_data.pulse_counter += (lookup_table[enc_v & 0b111] == 0)?last:lookup_table[enc_v & 0b111];
+  if(lookup_table[enc_v & 0b111] != 0)
+    last = lookup_table[enc_v & 0b111];
+
+  /*atualiza buffer*/
+  xQueueSendFromISR(encoder_queue[LEFT], &my_data, NULL);
 }
 static void IRAM_ATTR isr_EncoderRight()
 {
@@ -196,13 +199,77 @@ static void IRAM_ATTR isr_EncoderRight()
   static uint8_t  enc_v = 0;
   static uint32_t reg_read;
   static struct Encoder_data my_data = {0, 0.0};
-  static float t_last = 0.0;
+  static int8_t last = 0;
 
   enc_v <<= 2;
   reg_read = REG_READ(GPIO_IN_REG);
   enc_v |= (reg_read & LS(GPIO_OUTA_RIGHT)) >> (GPIO_OUTA_RIGHT-1);
   enc_v |= (reg_read & LS(GPIO_OUTB_RIGHT)) >> GPIO_OUTB_RIGHT;
-  xQueueSendFromISR(encoder_queue[RIGHT], &lookup_table[enc_v & 0b111], NULL);
+
+  //para evitar somar zero (que é quando o loopup table "falha")
+  my_data.pulse_counter += (lookup_table[enc_v & 0b111] == 0)?last:lookup_table[enc_v & 0b111];
+  if(lookup_table[enc_v & 0b111] != 0)
+    last = lookup_table[enc_v & 0b111];
+
+  /*atualiza buffer*/
+  xQueueSendFromISR(encoder_queue[RIGHT], &my_data, NULL);
+}
+
+static void
+periodic_controller()
+{
+  float pwm[2];
+  struct Encoder_data enc_datas[2];
+  int64_t old_pulse_counter[2] = {0, 0};
+  double omega_beta[2] = {0.0, 0.0};    //por contagem de pulsos=> dt fixo qtd pulsos variavel
+  // double omega_alpha[2];   //por contagem de tempo => quantidade de pulsos fixo em 1, dt variavel
+
+  const double k = (M_PI/6.0)*1000.0/(TIME_CONTROLLER); //constante pra converter de pulsos/s para rad/s
+
+  int i;
+  while(1)
+  {
+
+    if(xQueueReceive(encoder_queue[LEFT], &enc_datas[LEFT], 0) == 0) //buffer vazio
+    {
+      omega_beta[LEFT]  = 0.0;
+    }else{
+      omega_beta[LEFT]  = (enc_datas[LEFT].pulse_counter - old_pulse_counter[LEFT])*k*0.5 + omega_beta[LEFT]*0.5;
+      old_pulse_counter[LEFT] = enc_datas[LEFT].pulse_counter;
+    }
+
+    if(xQueueReceive(encoder_queue[RIGHT], &enc_datas[RIGHT], 0) == 0) //buffer vazio
+    {
+      omega_beta[RIGHT] = 0.0;
+    }else{
+      omega_beta[RIGHT]  = (enc_datas[RIGHT].pulse_counter - old_pulse_counter[RIGHT])*k*0.5 + omega_beta[RIGHT]*0.5;
+      old_pulse_counter[RIGHT] = enc_datas[RIGHT].pulse_counter;
+    }
+
+    omega_current[LEFT]  = omega_beta[LEFT];
+    omega_current[RIGHT] = omega_beta[RIGHT];
+
+
+    if(bypass_controller)
+    {
+      //talvez colocar um taskYield aqui para permitir troca de contexto para outra trask executar
+      func_controlSignal(omega_ref[LEFT], omega_ref[RIGHT]);
+      vTaskDelay(TIME_CONTROLLER/portTICK_PERIOD_MS);
+      continue;
+    }
+
+    //controlador FeedForWard
+    for(i = 0; i < 2; i++)
+    {
+      pwm[i]  = coefL[F_IS_NEG(omega_ref[i])].alpha*omega_ref[i]*omega_max  +
+      coefL[F_IS_NEG(omega_ref[i])].beta*(omega_ref[i]  != 0 );
+    }
+
+    //aplicar sinal de controle
+    func_controlSignal(pwm[LEFT], pwm[RIGHT]);
+    vTaskDelay(TIME_CONTROLLER/portTICK_PERIOD_MS);
+  }
+
 }
 
 static void func_controlSignal(const float pwmL,const float pwmR)
@@ -247,7 +314,6 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         bt_handle = 0;
         memset(omega_ref, 0, 2*sizeof(float));
         bypass_controller = true;
-        vTaskSuspend(controller_xHandle);
         break;
     case ESP_SPP_START_EVT:
         vTaskResume(controller_xHandle);
@@ -271,55 +337,11 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     }
 }
-static void
-periodic_controller()
-{
-  float pwm[2];
-  float e[2] = {0.0, 0.0};
-
-  const float k = (M_PI/6.0)*1000.0/(TIME_CONTROLLER); //constante pra converter de pulsos/s para rad/s
-
-  while(1)
-  {
-    omega_beta[RIGHT] = (pulse_counter[RIGHT]*k + omega_beta[RIGHT])/2.0;
-    omega_beta[LEFT]  = (pulse_counter[LEFT]*k  + omega_beta[LEFT])/2.0;
-
-    memset(pulse_counter, 0, 2*sizeof(int32_t));
-
-    if(bypass_controller)
-    {
-      //talvez colocar um taskYield aqui para permitir troca de contexto para outra trask executar
-      func_controlSignal(omega_ref[LEFT], omega_ref[RIGHT]);
-      vTaskDelay(TIME_CONTROLLER/portTICK_PERIOD_MS);
-      continue;
-    }
-
-    //controlador FeedForWard
-    pwm[LEFT]  = coefL[F_IS_NEG(omega_ref[LEFT])].alpha*omega_ref[LEFT]*omega_max  +
-      coefL[F_IS_NEG(omega_ref[LEFT])].beta*(omega_ref[LEFT]  != 0 );
-    pwm[RIGHT] = coefR[F_IS_NEG(omega_ref[RIGHT])].alpha*omega_ref[RIGHT]*omega_max +
-      coefR[F_IS_NEG(omega_ref[RIGHT])].beta*(omega_ref[RIGHT] != 0 );
-
-    // func_controlSignal(pwm[LEFT], pwm[RIGHT]);
-    /****
-     *aqui ficara o controlador BackWard (PID)
-     ****/
-    // e[LEFT]  = omega_ref[LEFT]*omega_max - omega_current[LEFT];
-    // e[RIGHT] = omega_ref[RIGHT]*omega_max - omega_current[RIGHT];
-    //
-    // pwm[LEFT]  += e[LEFT]*1.0*(!!omega_ref[LEFT]);
-    // pwm[RIGHT] += e[RIGHT]*1.0*(!!omega_ref[RIGHT]);
-
-    //aplicar sinal de controle
-    func_controlSignal(pwm[LEFT], pwm[RIGHT]);
-    vTaskDelay(TIME_CONTROLLER/portTICK_PERIOD_MS);
-  }
-
-}
 
 static void func_calibration()
 {
-  vTaskSuspend(controller_xHandle);
+  bypass_controller = true;
+  memset(omega_ref, 0, 2*sizeof(float));
 
   #define PWM_MIN_INIT         0.10
   #define TIME_MS_WAIT_PWM_MIN  250
@@ -336,14 +358,14 @@ static void func_calibration()
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
-  func_controlSignal(1.0, 0.0);
+  omega_ref[LEFT] = 1.0;
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
   omega_max_tmpL[FRONT] = omega_current[LEFT];
   minOmegaMax = omega_max_tmpL[FRONT];
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0.0; pwm = pwm - STEP)
   {
-    func_controlSignal(pwm, 0.0);
+    omega_ref[LEFT] = pwm;
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
     if(omega_current[LEFT] == 0.0)
     {
@@ -351,19 +373,20 @@ static void func_calibration()
       pwm = 0.0;
     }
   }
-  func_controlSignal(0.0, 0.0);
+
+  memset(omega_ref, 0, 2*sizeof(float));
   /*************************************** LEFT BACK *************************************************************/
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
-  func_controlSignal(-1.0, 0.0);
+  omega_ref[LEFT] = -1.0;
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
   omega_max_tmpL[BACK] = ABS_F(omega_current[LEFT]);
 
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - STEP)
   {
-    func_controlSignal(-pwm, 0.0);
+    omega_ref[LEFT] = -pwm;
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
     if(omega_current[LEFT] == 0.0)
     {
@@ -371,19 +394,20 @@ static void func_calibration()
       pwm = 0.0;
     }
   }
-  func_controlSignal(0.0, 0.0);
+
+  memset(omega_ref, 0, 2*sizeof(float));
   //##################################### Calibrar motor direito ##########################################//
   /*************************************** RIGHT FRONT *************************************************************/
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
-  func_controlSignal(0.0, 1.0);
+  omega_ref[RIGHT] = 1.0;
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
   omega_max_tmpR[FRONT] = omega_current[RIGHT];
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - STEP)
   {
-    func_controlSignal(0.0, pwm);
+    omega_ref[RIGHT] = pwm;
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
     if(omega_current[RIGHT] == 0)
     {
@@ -391,18 +415,19 @@ static void func_calibration()
       pwm = 0;
     }
   }
-  func_controlSignal(0.0, 0.0);
+
+  memset(omega_ref, 0, 2*sizeof(float));
   /*************************************** RIGHT BACK *************************************************************/
   //Aplica maximo PWM
   //aguarda 500ms e armazena as 100 ultimas velocidades do motor esquerdo
   //calcula a media dessas velocidades e armazena como sendo a maior velocidade desse motor para essa rotacao
-  func_controlSignal(0.0, -1.0);
+  omega_ref[RIGHT] = -1.0;
   vTaskDelay(TIME_MS_WAIT_VEL_MAX/portTICK_PERIOD_MS);
   omega_max_tmpR[BACK] = ABS_F(omega_current[RIGHT]);
   //Encontrando o PWM minimo
   for(float pwm = PWM_MIN_INIT; pwm > 0; pwm = pwm - STEP)
   {
-    func_controlSignal(0.0, -pwm);
+    omega_ref[RIGHT] = -pwm;
     vTaskDelay(TIME_MS_WAIT_PWM_MIN/portTICK_PERIOD_MS);
     if(omega_current[RIGHT] == 0)
     {
@@ -411,7 +436,8 @@ static void func_calibration()
     }
   }
 
-  func_controlSignal(0.0, 0.0);
+  // func_controlSignal(0.0, 0.0);
+  memset(omega_ref, 0, 2*sizeof(float));
 
   for(int i = 0; i < 2; i++)
   {
@@ -434,10 +460,9 @@ static void func_calibration()
   coefR[BACK].beta  = -pwmMinR[BACK];
 
   //Maior velocidade considerada
-  omega_max = 0.90 * minOmegaMax;
+  omega_max = 0.95 * minOmegaMax;
 
-  //retoma a rotina de controle
-  vTaskResume(controller_xHandle);
+  memset(omega_ref, 0, 2*sizeof(float));
 }
 
 static void func_identify(const uint8_t options,
