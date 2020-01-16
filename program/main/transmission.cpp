@@ -42,7 +42,7 @@ static uint8_t pwm2Byte8bits(double pwm)
     pwm=0.999999999;
   }
   uint8_t retorno = (uint8_t)(256.0*pwm);
-  return retorno; 
+  return retorno;
 }
 #endif //#ifndef _TRANSMITION_BLUETOOTH_
 
@@ -60,7 +60,7 @@ Transmission::Transmission(TEAM team, SIDE side, GAME_MODE mode):
 //   cfsetospeed(&port_config, B57600);// taxa de transmissão de dados de saida
   cfsetispeed(&port_config, B115200);// taxa de transmissão de dados de entrada
   cfsetospeed(&port_config, B115200);// taxa de transmissão de dados de saida
-  
+
   serial_fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY); //opens serial port in device slot
   if(serial_fd == -1){  //-1 is the error message for failed open port
      cerr << "Falha ao abrir a porta serial :( \n";
@@ -68,14 +68,14 @@ Transmission::Transmission(TEAM team, SIDE side, GAME_MODE mode):
   #else  //#ifndef _TRANSMITION_BLUETOOTH_
   /*seta endereços dos robôs*/
   btAction.setBluetoothAddr(ID_ROBO_0);
-  btAction.setBluetoothAddr(ID_ROBO_1); 
-  btAction.setBluetoothAddr(ID_ROBO_2); 
-  
+  btAction.setBluetoothAddr(ID_ROBO_1);
+  btAction.setBluetoothAddr(ID_ROBO_2);
+
   /*identifica bluetooths proximos*/
   //btAction.findActiveBluetoothDevice();
-	
+
   /*faz a conecção com os bluetooths*/
-  btAction.initBluetoothDevices(btAction.getNumBTDevices());
+  btAction.initBluetoothDevices();
   #endif //#ifndef _TRANSMITION_BLUETOOTH_
 #endif
 }
@@ -93,11 +93,11 @@ Transmission::~Transmission()
 
 bool Transmission::transmission(){
 #ifndef _SO_SIMULADO_
-  if(gameMode() == REAL_MODE){ 
+  if(gameMode() == REAL_MODE){
     #ifndef _TRANSMITION_BLUETOOTH_
     #define LEN_BUFFER 8
     static uint8_t dados[LEN_BUFFER];
-    
+
     dados[0] = 0x80;//Valor de inicio do Cabeçalho
     for( int i=0; i<3; i++ ) {
       dados[(i*2)+1] = pwm2Byte7bits( pwm.me[i].left );
@@ -105,7 +105,7 @@ bool Transmission::transmission(){
     }
     dados[7] = 0x7F; //Valor de fim de Cabeçalho
     //write(serial_fd, &dados, LEN_BUFFER);
-    
+
     if (write(serial_fd, &dados, LEN_BUFFER) != LEN_BUFFER) {
       cerr << "Erro na escrita no dispositivo serial" << endl;
       return true;
@@ -116,18 +116,18 @@ bool Transmission::transmission(){
     for(int i=0; i<3; i++){
       // os seis primeiros bits do primeiro byte são 1010 10xx = 0xA8
       dados[0]=0xA8;
-      // o sétimo bit do primeiro byte é o sentido do motor left 
+      // o sétimo bit do primeiro byte é o sentido do motor left
       // 1= para frente , 0= para trás.
       if (pwm.me[i].left >= 0.0){
 	dados[0] += 0x02;
       }
-      // o oitavo bit do primeiro byte é o sentido do motor right 
+      // o oitavo bit do primeiro byte é o sentido do motor right
       // 1= para frente , 0= para trás.
       if(pwm.me[i].right >= 0.0){
 	dados[0]+=0x01;
       }
       // o segundo byte é a velocidade do motor left
-      dados[1]=pwm2Byte8bits(pwm.me[i].left);	
+      dados[1]=pwm2Byte8bits(pwm.me[i].left);
       // o terceiro byte é a velocidade do motor right
       dados[2]=pwm2Byte8bits(pwm.me[i].right);
 
@@ -137,7 +137,7 @@ bool Transmission::transmission(){
       }
       /* // identificação Equipe poti 2017
       if(i==0 && cont<1000)
-      {	
+      {
 	  if(cont>=0)
 	  {
 	    x[cont]=pos.me[i].x();
@@ -147,7 +147,7 @@ bool Transmission::transmission(){
 	    pwml[cont]=pwm.me[0].left;
 	  }
 	  cont++;
-	
+
       }
       if(i==0 && cont==1000)
       {
@@ -157,7 +157,7 @@ bool Transmission::transmission(){
 	   if(myfile.is_open())
 	   {
 	     myfile<<x[ii]<<'\t'<< y[ii]<<'\t'<< tetta[ii]<<'\t'<< pwmr[ii]<<'\t'<< pwml[ii]<<endl;
-				 
+
 	   }
 	 }
          myfile.close();
@@ -165,17 +165,17 @@ bool Transmission::transmission(){
          cont++;
       }
       */
-			
-	    
+
+
     }
     #endif //#ifndef _TRANSMITION_BLUETOOTH_
-       
+
     return false;
   }
 
 #endif //#ifndef _SO_SIMULADO_
-  
-  
+
+
   SINAL_RADIO mySignal;
   mySignal.id = id_pos;
   for( int i=0; i<3; i++ ) {
@@ -185,7 +185,7 @@ bool Transmission::transmission(){
     cerr << "Erro na escrita no socket do simulador" << endl;
     return true;
   }
-  
+
   return false;
-  
+
 }

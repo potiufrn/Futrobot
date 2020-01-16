@@ -1,3 +1,6 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <linux/videodev2.h> //struct v4l2 ...
 #include <fcntl.h>  // O_RDWR
 #include <unistd.h> //close()
@@ -19,7 +22,7 @@
 //Default
 #define WIDTH 640
 #define HEIGHT 480
-#define FPS 30
+#define FPS 100
 
 //WARNING numero minimo
 #define NUM_BUFFERS 2
@@ -155,3 +158,5 @@ protected:
    //WARNING este metodo nao funcionou como esperado
    bool queryMinBuffer(struct controler &ctrl)const;
 };
+
+#endif

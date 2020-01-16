@@ -86,7 +86,7 @@ void Futrobot::management()
     myt_start = relogio();
     dt_amostr = myt_start - t_start;
     //teste para evitar divisoes por zero.
-    if(dt_amostr == 0.0) dt_amostr = FRAME_RATE_INICIAL;
+    if(dt_amostr == 0.0) dt_amostr = 1.0/FPS;
     // Lẽ a nova imagem
     if (gameState() != FINISH_STATE && acquisitionCapture()) {
       finish();

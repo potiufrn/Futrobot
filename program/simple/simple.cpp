@@ -76,7 +76,7 @@ int main(){
 	//btAction.findActiveBluetoothDevice();
 
 	/*faz a conecção com os bluetooths with RFCOMM protocol*/
-	btAction.initBluetoothDevices(btAction.getNumBTDevices());
+	btAction.initBluetoothDevices();
 
   /*
   for (int i=0; i<1000; i++)

@@ -6,7 +6,7 @@ CXX = g++
 CPPFLAGS = -Wall -O2 -I ${BASEDIR}/include
 CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
-LDLIBS = -lbluetooth
+LDLIBS = -lbluetooth	-fopenmp
 
 all: libbluetoothAction.a
 
