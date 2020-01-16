@@ -7,7 +7,7 @@
 
 FutData::FutData(TEAM team, SIDE side, GAME_MODE mode)
 {
-  dt_amostr = FRAME_RATE_INICIAL;
+  dt_amostr = 1.0/FPS;
 
   start_data(team,side,mode);
   // est_jogo = JOGAR;
@@ -17,7 +17,7 @@ FutData::FutData(TEAM team, SIDE side, GAME_MODE mode)
     bloqueado[i] = false;
     bypassControl[i] = false;
   }
-  
+
 }
 
 
@@ -26,7 +26,7 @@ void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
   my_team = team;
   my_side = side;
   game_mode = gameMode;
-  
+
   ant.me[0].x() = pos.me[0].x() = -0.6;
   ant.me[0].y() = pos.me[0].y() = 0.5;
   ant.me[0].theta() = pos.me[0].theta() = 0.0;

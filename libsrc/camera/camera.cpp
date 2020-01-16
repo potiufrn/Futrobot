@@ -175,6 +175,7 @@ bool Camera::Open(unsigned index) { // Rotina que serve para abrir dispositivo.
     return false;
   }
   fd = open(name, O_RDWR | O_NONBLOCK , 0);
+  // fd = open(name, O_RDWR, 0);
   if(-1 == fd){
     std::cerr << "Camera Warning: No open" << '\n';
     return false;
@@ -255,7 +256,7 @@ void Camera::Init(){
     format.fmt.pix.pixelformat = V4L2_PIX_FMT_SGBRG8;
   else
     format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
-  // format.fmt.pix.field  = V4L2_FIELD_INTERLACED;
+  format.fmt.pix.field  = V4L2_FIELD_INTERLACED;
 
   //aplica as configuracoes de formato
   //Primeiro tenta-se setar o formato de Pixel GBRG, caso

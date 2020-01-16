@@ -1,0 +1,33 @@
+digraph "Animacao"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="Animacao",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="QWidget",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled"];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" RDistortion" ,fontname="Helvetica"];
+  Node3 [label="DistRadial",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classDistRadial.html"];
+  Node4 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" Tadj\nDim\nC" ,fontname="Helvetica"];
+  Node4 [label="Coord2",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structCoord2.html"];
+  Node5 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" centerImg" ,fontname="Helvetica"];
+  Node5 [label="CoordI2",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCoordI2.html"];
+  Node6 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" vel_ball" ,fontname="Helvetica"];
+  Node6 [label="VELOCITY",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structVELOCITY.html"];
+  Node7 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" ref0\nadv0\nref1\nadv1\nref2\nadv2\nmeu0\nmeu1\nmeu2" ,fontname="Helvetica"];
+  Node7 [label="POS_ROBO",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structPOS__ROBO.html"];
+  Node8 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Coord3",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structCoord3.html"];
+  Node9 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" ball" ,fontname="Helvetica"];
+  Node9 [label="POS_BOLA",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structPOS__BOLA.html"];
+  Node4 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" Homography" ,fontname="Helvetica"];
+  Node10 [label="Homografia",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classHomografia.html"];
+  Node11 -> Node10 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" Hom\nHomInv" ,fontname="Helvetica"];
+  Node11 [label="fmatrix",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfmatrix.html"];
+  Node12 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="vmatrix",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classvmatrix.html"];
+  Node13 -> Node12 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" x\nbufx" ,fontname="Helvetica"];
+  Node13 [label="fvector",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfvector.html"];
+  Node14 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="vvector",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classvvector.html"];
+}

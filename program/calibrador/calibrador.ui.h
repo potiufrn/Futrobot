@@ -211,7 +211,7 @@ void calibrador::init()
     novosLimites = true;
     novosParametros = true;
 
-    //inicializarComValoresPadroes();
+    // inicializarComValoresPadroes();
     arquivo = QString::null;
     arquivo_cameraParam = QString::null;
 
@@ -219,7 +219,7 @@ void calibrador::init()
     connect( Timer, SIGNAL(timeout()), this, SLOT(novosParametrosCamera()) );
     connect( Timer, SIGNAL(timeout()), this, SLOT(processarImagem()) );
     //connect( Timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
-    Timer->start(200,false);
+    Timer->start(60,false);
 }
 
 bool calibrador::carregaInterface(){

@@ -1,0 +1,275 @@
+\hypertarget{classCamera}{}\section{Camera Class Reference}
+\label{classCamera}\index{Camera@{Camera}}
+
+
+Inheritance diagram for Camera\+:
+% FIG 0
+
+
+Collaboration diagram for Camera\+:
+% FIG 1
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classCamera_aaa3745c0cf0f286ef80b7eeebc248cc9}{run} ()
+\item 
+void {\bfseries terminar} ()\hypertarget{classCamera_ac23da4af80b47b15ecff351730530000}{}\label{classCamera_ac23da4af80b47b15ecff351730530000}
+
+\item 
+bool {\bfseries Open} (unsigned index)\hypertarget{classCamera_a7d053aef332ee8193275b1f1831a7c56}{}\label{classCamera_a7d053aef332ee8193275b1f1831a7c56}
+
+\item 
+void \hyperlink{classCamera_ab5ed03b2c4bf168e678c845c4074a4f5}{Close} ()
+\item 
+unsigned {\bfseries list\+Devices} (bool printed=true) const \hypertarget{classCamera_a9e52bc20b53e35f82b1239b7a6db3cfa}{}\label{classCamera_a9e52bc20b53e35f82b1239b7a6db3cfa}
+
+\item 
+bool {\bfseries write} (const char $\ast$arquivo) const \hypertarget{classCamera_ab21eb843ec7960952cffd922ff88313c}{}\label{classCamera_ab21eb843ec7960952cffd922ff88313c}
+
+\item 
+bool {\bfseries read} (const char $\ast$arquivo)\hypertarget{classCamera_a4117156051ad9bd9592da324d28f9f3b}{}\label{classCamera_a4117156051ad9bd9592da324d28f9f3b}
+
+\item 
+std\+::ostream \& {\bfseries write} (std\+::ostream \&O) const \hypertarget{classCamera_a5b0db9336a585f5e4a0a32aaecbaaeda}{}\label{classCamera_a5b0db9336a585f5e4a0a32aaecbaaeda}
+
+\item 
+bool {\bfseries read} (std\+::istream \&I)\hypertarget{classCamera_ac768179644339146b3f7894d0d256d10}{}\label{classCamera_ac768179644339146b3f7894d0d256d10}
+
+\item 
+bool {\bfseries query\+Brightness} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_ad4208b2d5ae94625090ebb8fbb322ba4}{}\label{classCamera_ad4208b2d5ae94625090ebb8fbb322ba4}
+
+\item 
+int {\bfseries get\+Brightness} () const \hypertarget{classCamera_a177add712ab5c9a53b654b3a5e5ce396}{}\label{classCamera_a177add712ab5c9a53b654b3a5e5ce396}
+
+\item 
+bool {\bfseries set\+Brightness} (int v)\hypertarget{classCamera_a6371dde083125581c1287b83ff58158f}{}\label{classCamera_a6371dde083125581c1287b83ff58158f}
+
+\item 
+bool {\bfseries query\+Contrast} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_acb5c62f298f64177f9aad5448c134567}{}\label{classCamera_acb5c62f298f64177f9aad5448c134567}
+
+\item 
+int {\bfseries get\+Contrast} () const \hypertarget{classCamera_a1fa662f08c11d0b64603a335171f42c6}{}\label{classCamera_a1fa662f08c11d0b64603a335171f42c6}
+
+\item 
+bool {\bfseries set\+Constrast} (int v)\hypertarget{classCamera_ab1ec015b46c0d2af19579140c1129835}{}\label{classCamera_ab1ec015b46c0d2af19579140c1129835}
+
+\item 
+bool {\bfseries query\+Saturation} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_ac13cc2837539bbfcad04450c79abae60}{}\label{classCamera_ac13cc2837539bbfcad04450c79abae60}
+
+\item 
+int {\bfseries get\+Saturation} () const \hypertarget{classCamera_a260548be8d455f684cd51e39caea3c52}{}\label{classCamera_a260548be8d455f684cd51e39caea3c52}
+
+\item 
+bool {\bfseries set\+Saturation} (int v)\hypertarget{classCamera_ab8fecb1d27e872110fa74621f766fa79}{}\label{classCamera_ab8fecb1d27e872110fa74621f766fa79}
+
+\item 
+bool {\bfseries query\+Gamma} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_ac6682015ed4ec29ad10f1da43ecbada9}{}\label{classCamera_ac6682015ed4ec29ad10f1da43ecbada9}
+
+\item 
+int {\bfseries get\+Gamma} () const \hypertarget{classCamera_a42f221c5b69fd2157fba7bca438a9151}{}\label{classCamera_a42f221c5b69fd2157fba7bca438a9151}
+
+\item 
+bool {\bfseries set\+Gamma} (int v)\hypertarget{classCamera_a6d57aa6355e38f991f41e34a3dffd9f4}{}\label{classCamera_a6d57aa6355e38f991f41e34a3dffd9f4}
+
+\item 
+bool {\bfseries query\+Hue} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_a3388f9b4a2f25294f0ccfb76366064e7}{}\label{classCamera_a3388f9b4a2f25294f0ccfb76366064e7}
+
+\item 
+int {\bfseries get\+Hue} () const \hypertarget{classCamera_a2c9882d9c49fc045ed92715fb1cf14b5}{}\label{classCamera_a2c9882d9c49fc045ed92715fb1cf14b5}
+
+\item 
+bool {\bfseries set\+Hue} (int v)\hypertarget{classCamera_acb72648ceadd8eb336e560c705ee9a64}{}\label{classCamera_acb72648ceadd8eb336e560c705ee9a64}
+
+\item 
+bool {\bfseries query\+Sharpness} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_a5fb0094f6a5f42f81525b8d33a10dca8}{}\label{classCamera_a5fb0094f6a5f42f81525b8d33a10dca8}
+
+\item 
+int {\bfseries get\+Sharpness} () const \hypertarget{classCamera_af9a93c5376f5c4176538bd12c32c2056}{}\label{classCamera_af9a93c5376f5c4176538bd12c32c2056}
+
+\item 
+bool {\bfseries set\+Sharpness} (int v)\hypertarget{classCamera_a09c967ad56e7494645069831d5072c9a}{}\label{classCamera_a09c967ad56e7494645069831d5072c9a}
+
+\item 
+bool {\bfseries query\+Gain} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_abb8b7edb37093b3e17b7bd72a4ffec3e}{}\label{classCamera_abb8b7edb37093b3e17b7bd72a4ffec3e}
+
+\item 
+int {\bfseries get\+Gain} () const \hypertarget{classCamera_a356e28df754467e045ad95e6a0fc03c6}{}\label{classCamera_a356e28df754467e045ad95e6a0fc03c6}
+
+\item 
+bool {\bfseries set\+Gain} (int v)\hypertarget{classCamera_a376d26c986bd1c12ea48c6eeb1f20d6a}{}\label{classCamera_a376d26c986bd1c12ea48c6eeb1f20d6a}
+
+\item 
+bool {\bfseries query\+Exposure\+Abs} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_ab70714d470014801feca4df34ae2168c}{}\label{classCamera_ab70714d470014801feca4df34ae2168c}
+
+\item 
+int {\bfseries get\+Exposure\+Abs} () const \hypertarget{classCamera_a12ace77f46e4f5f6f2b7a5217109aeb4}{}\label{classCamera_a12ace77f46e4f5f6f2b7a5217109aeb4}
+
+\item 
+bool {\bfseries set\+Exposure\+Abs} (int v)\hypertarget{classCamera_a7e7d2edc5754f933e3a7716ca3c47ef6}{}\label{classCamera_a7e7d2edc5754f933e3a7716ca3c47ef6}
+
+\item 
+bool {\bfseries query\+Exposure} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_a7d725f27ae3b6e97764edb2b300add45}{}\label{classCamera_a7d725f27ae3b6e97764edb2b300add45}
+
+\item 
+int {\bfseries get\+Exposure} () const \hypertarget{classCamera_aba649b02d2c41a85abeb28520bef9158}{}\label{classCamera_aba649b02d2c41a85abeb28520bef9158}
+
+\item 
+bool {\bfseries set\+Exposure} (int v)\hypertarget{classCamera_af28839f021a92b97bac6afda689232c8}{}\label{classCamera_af28839f021a92b97bac6afda689232c8}
+
+\item 
+bool {\bfseries query\+Min\+Buffer} (struct \hyperlink{structcontroler}{controler} \&ctrl) const \hypertarget{classCamera_a9c34f884e5728853865c5fb098760425}{}\label{classCamera_a9c34f884e5728853865c5fb098760425}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classCamera_a01f94c3543f56ede7af49dc778f19331}{Camera} ()
+\item 
+\hyperlink{classCamera_a764d3e60f41d5caaf7a23d55f2c288b0}{Camera} (unsigned index)
+\item 
+bool {\bfseries captureimage} ()\hypertarget{classCamera_ae72461f2c1c0a42d1a3548373398dd76}{}\label{classCamera_ae72461f2c1c0a42d1a3548373398dd76}
+
+\item 
+bool \hyperlink{classCamera_a390cff9fec6a9b0cd3e893fec13ac358}{waitforimage} ()
+\item 
+unsigned \hyperlink{classCamera_a47d78517869974a0815f21b35179e61e}{get\+Width} () const 
+\item 
+unsigned \hyperlink{classCamera_a12fcce34a0f01cbede0fd7c2b0efdecb}{get\+Height} () const 
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classImagemBruta}{Imagem\+Bruta} {\bfseries Im\+Bruta}\hypertarget{classCamera_a13894c820cbf481aa9a819c5deed0521}{}\label{classCamera_a13894c820cbf481aa9a819c5deed0521}
+
+\item 
+bool {\bfseries capturando}\hypertarget{classCamera_a70a568ef2b25e3ac0d86bf7ff9ca32a2}{}\label{classCamera_a70a568ef2b25e3ac0d86bf7ff9ca32a2}
+
+\item 
+bool {\bfseries encerrar}\hypertarget{classCamera_a9f6fdc49fb03227375a2850b7c351f50}{}\label{classCamera_a9f6fdc49fb03227375a2850b7c351f50}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries Start} ()\hypertarget{classCamera_a758234ad0415d4072c69820c8e0f15a8}{}\label{classCamera_a758234ad0415d4072c69820c8e0f15a8}
+
+\item 
+void {\bfseries Stop} ()\hypertarget{classCamera_aba5fb6404d7d0876d428fc79b918d019}{}\label{classCamera_aba5fb6404d7d0876d428fc79b918d019}
+
+\item 
+void {\bfseries Init} ()\hypertarget{classCamera_a1543c3415858fa4773f8a69ef903366c}{}\label{classCamera_a1543c3415858fa4773f8a69ef903366c}
+
+\item 
+void {\bfseries Un\+Init} ()\hypertarget{classCamera_a4572da1f732efa4a4a468e455cf5242f}{}\label{classCamera_a4572da1f732efa4a4a468e455cf5242f}
+
+\item 
+void {\bfseries init\+\_\+mmap} ()\hypertarget{classCamera_a83bac8347403e471308f266c0b199b03}{}\label{classCamera_a83bac8347403e471308f266c0b199b03}
+
+\item 
+bool {\bfseries set\+Control} (\+\_\+\+\_\+u32 id, int v)\hypertarget{classCamera_a06e02ab83ca6313d367d98e0b014ad86}{}\label{classCamera_a06e02ab83ca6313d367d98e0b014ad86}
+
+\item 
+int {\bfseries get\+Control} (\+\_\+\+\_\+u32 id) const \hypertarget{classCamera_aa1cc5aa6f6f37433f78c6cfc9187e742}{}\label{classCamera_aa1cc5aa6f6f37433f78c6cfc9187e742}
+
+\item 
+struct \hyperlink{structcontroler}{controler} {\bfseries query\+Control} (\+\_\+\+\_\+u32 id) const \hypertarget{classCamera_a9af6989d5576502311741acaa8b79acd}{}\label{classCamera_a9af6989d5576502311741acaa8b79acd}
+
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+unsigned int {\bfseries width}\hypertarget{classCamera_aa18f0bf8b6e8cb661643d980a4484ac0}{}\label{classCamera_aa18f0bf8b6e8cb661643d980a4484ac0}
+
+\item 
+unsigned int {\bfseries height}\hypertarget{classCamera_ae9ed166dbbc8876027ecbec9af8761c4}{}\label{classCamera_ae9ed166dbbc8876027ecbec9af8761c4}
+
+\item 
+unsigned int {\bfseries fps}\hypertarget{classCamera_aca3576bde05741a362eb2d0ad7d105e7}{}\label{classCamera_aca3576bde05741a362eb2d0ad7d105e7}
+
+\item 
+P\+I\+X\+E\+L\+\_\+\+F\+O\+R\+M\+AT {\bfseries px\+Format}\hypertarget{classCamera_a384282dd3e0a75b22f79425506cefa4d}{}\label{classCamera_a384282dd3e0a75b22f79425506cefa4d}
+
+\item 
+bool {\bfseries is\+Open}\hypertarget{classCamera_ac40e8d63d35cf6cfcd84982a75b11950}{}\label{classCamera_ac40e8d63d35cf6cfcd84982a75b11950}
+
+\item 
+int {\bfseries fd}\hypertarget{classCamera_a16bc7bd67e638272141fd697f026e49c}{}\label{classCamera_a16bc7bd67e638272141fd697f026e49c}
+
+\item 
+struct \hyperlink{structbuffer}{buffer} {\bfseries meu\+Buffer} \mbox{[}N\+U\+M\+\_\+\+B\+U\+F\+F\+E\+RS\mbox{]}\hypertarget{classCamera_ad9a4209f53656b0b10ba5248da5d03f6}{}\label{classCamera_ad9a4209f53656b0b10ba5248da5d03f6}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{Camera@{Camera}!Camera@{Camera}}
+\index{Camera@{Camera}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{Camera()}{Camera()}}]{\setlength{\rightskip}{0pt plus 5cm}Camera\+::\+Camera (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classCamera_a01f94c3543f56ede7af49dc778f19331}{}\label{classCamera_a01f94c3543f56ede7af49dc778f19331}
+Abre a camera default do sistema (index 0, /dev/video0 no linux) \index{Camera@{Camera}!Camera@{Camera}}
+\index{Camera@{Camera}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{Camera(unsigned index)}{Camera(unsigned index)}}]{\setlength{\rightskip}{0pt plus 5cm}Camera\+::\+Camera (
+\begin{DoxyParamCaption}
+\item[{unsigned}]{index}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classCamera_a764d3e60f41d5caaf7a23d55f2c288b0}{}\label{classCamera_a764d3e60f41d5caaf7a23d55f2c288b0}
+Abre a camera de index informado 
+\begin{DoxyParams}{Parameters}
+{\em index} & endereco do dispositivo que deseja usar \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\index{Camera@{Camera}!Close@{Close}}
+\index{Close@{Close}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{Close()}{Close()}}]{\setlength{\rightskip}{0pt plus 5cm}void Camera\+::\+Close (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classCamera_ab5ed03b2c4bf168e678c845c4074a4f5}{}\label{classCamera_ab5ed03b2c4bf168e678c845c4074a4f5}
+Fecha o dispositivo de captura \index{Camera@{Camera}!get\+Height@{get\+Height}}
+\index{get\+Height@{get\+Height}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{get\+Height() const }{getHeight() const }}]{\setlength{\rightskip}{0pt plus 5cm}unsigned Camera\+::get\+Height (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\hypertarget{classCamera_a12fcce34a0f01cbede0fd7c2b0efdecb}{}\label{classCamera_a12fcce34a0f01cbede0fd7c2b0efdecb}
+\begin{DoxyReturn}{Returns}
+retorna a altura da imagem 
+\end{DoxyReturn}
+\index{Camera@{Camera}!get\+Width@{get\+Width}}
+\index{get\+Width@{get\+Width}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{get\+Width() const }{getWidth() const }}]{\setlength{\rightskip}{0pt plus 5cm}unsigned Camera\+::get\+Width (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}\hypertarget{classCamera_a47d78517869974a0815f21b35179e61e}{}\label{classCamera_a47d78517869974a0815f21b35179e61e}
+\begin{DoxyReturn}{Returns}
+a largura da imagem 
+\end{DoxyReturn}
+\index{Camera@{Camera}!run@{run}}
+\index{run@{run}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{run()}{run()}}]{\setlength{\rightskip}{0pt plus 5cm}void Camera\+::run (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classCamera_aaa3745c0cf0f286ef80b7eeebc248cc9}{}\label{classCamera_aaa3745c0cf0f286ef80b7eeebc248cc9}
+Inicia o modo stream de capura de imagem, caso a flag capture esteja true, e permanece capturando ate a flag ser alterada para false, ou pelo metodo terminar() \index{Camera@{Camera}!waitforimage@{waitforimage}}
+\index{waitforimage@{waitforimage}!Camera@{Camera}}
+\subsubsection[{\texorpdfstring{waitforimage()}{waitforimage()}}]{\setlength{\rightskip}{0pt plus 5cm}bool Camera\+::waitforimage (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [protected]}}\hypertarget{classCamera_a390cff9fec6a9b0cd3e893fec13ac358}{}\label{classCamera_a390cff9fec6a9b0cd3e893fec13ac358}
+atualiza a ultima imagem \begin{DoxyReturn}{Returns}
+true em caso de falha 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/poti/\+L\+Gabriel/\+Futrobot/include/camera.\+h\end{DoxyCompactItemize}
