@@ -102,6 +102,7 @@ int main(int argc, char** argv)
   btAction.setBluetoothAddr(MAC_ESP_ROBO_2);
   btAction.setBluetoothAddr(MAC_ESP_ROBO_3);
 
+
   bool run = true;
   int  send = 0,rec = 0;
   while(run)
@@ -203,8 +204,9 @@ int main(int argc, char** argv)
     case 8://identificar
     {
       uint8_t motor, typeC;
-      int size;
-      float setpoint, step_time, timeout;
+      float setpoint;
+      const int size = (2.0/0.01);
+      int sumRec = 0;
 
       cout << "Motor ? (0 -> Left \t 1 -> Right): ";
       cin >> motor;
@@ -215,46 +217,36 @@ int main(int argc, char** argv)
       cout << "Desabilitar controlador ? 0(nao), 1(sim): ";
       cin >> typeC;
 
-      cout << "Timeout: ";
-      cin >> timeout;
-
-      cout << "Step time: ";
-      cin >> step_time;
-
-      size       = ceil(timeout/step_time);
-
       vec_float  = new float[size];
-      bitstream  = new uint8_t[2 + 3*sizeof(float)];
+      bitstream  = new uint8_t[2 + 1*sizeof(float)];
 
       bitstream[0]                   = CMD_HEAD | CMD_IDENTIFY;
       bitstream[1]                   = ((motor << 7)  | typeC) & 0b10000001;
       *(float*)&bitstream[2 + 0*sizeof(float)] = setpoint;
-      *(float*)&bitstream[2 + 1*sizeof(float)] = step_time;
-      *(float*)&bitstream[2 + 2*sizeof(float)] = timeout;
+      // printf("Options: %x \t setpoint: %f \t steptime: %f \t timeout: %f\n",
+      //         bitstream[1],
+      //         *(float*)&bitstream[2 + 0*sizeof(float)],
+      //         *(float*)&bitstream[2 + 1*sizeof(float)],
+      //         *(float*)&bitstream[2 + 2*sizeof(float)]);
 
-      printf("Options: %x \t setpoint: %f \t steptime: %f \t timeout: %f\n",
-              bitstream[1],
-              *(float*)&bitstream[2 + 0*sizeof(float)],
-              *(float*)&bitstream[2 + 1*sizeof(float)],
-              *(float*)&bitstream[2 + 2*sizeof(float)]);
-
-      btAction.sendBluetoothMessage(idBt, bitstream, 2 + 3*sizeof(float));
+      btAction.sendBluetoothMessage(idBt, bitstream, 2 + 1*sizeof(float));
 
       printf("Esperando...\n");
       time_stemp[0] = omp_get_wtime();
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, size*sizeof(float), timeout*3);
-      // for(int i = 0; i < size; i = i + 100)
-      // {
-      //   // printf("i = %d\n",i);
-      //   rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 100*sizeof(float), 1);
-      //   if(rec == -1)
-      //     puts("timeout!");
-      // }
+      // rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, size*sizeof(float), 6);
+      for(int i = 0; i < size; i += 200)
+      {
+        // printf("i = %d\n",i);
+        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 6);
+        printf("Recebi:%d bytes\n", rec);
+        if(rec == -1)
+          puts("timeout!");
+        sumRec += rec;
+      }
       time_stemp[1] = omp_get_wtime();
       printf("Tempo decorrido: %f s\n", time_stemp[1] - time_stemp[0]);
 
-
-      printf("%d Bytes recebidos, deseja salvar ? (0/1)", rec);
+      printf("%d Bytes recebidos, deseja salvar ? (0/1)", sumRec);
       cin >> choice;
 
       if(choice == 1)
@@ -263,7 +255,7 @@ int main(int argc, char** argv)
         cout << "Que nome devo colocar no arquivo ? ";
         scanf("%50s", fileName);
 
-        saveToFile(vec_float, size, timeout, (string("etc/") + string(fileName)).c_str() );
+        saveToFile(vec_float, size, 2.0, (string("etc/") + string(fileName)).c_str() );
         cout << "Salvando...\n";
         printf("Salvo! Em: %s\n", (string("etc/") + string(fileName)).c_str());
         _pause();

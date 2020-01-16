@@ -4,7 +4,9 @@
  *  sentido de rotacao
  **/
 
- //Doc util: https://www.pjrc.com/teensy/td_libs_Encoder.html#optimize
+ //Doc util:
+// https://www.pjrc.com/teensy/td_libs_Encoder.html#optimize
+// https://github.com/igorantolic/ai-esp32-rotary-encoder/tree/master/src
 
 #include <string.h>
 #include <time.h>
@@ -14,6 +16,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+#include "freertos/semphr.h"
 
 #include "driver/gpio.h"
 #include "driver/timer.h"
@@ -28,10 +31,12 @@
 #include "esp_gap_bt_api.h"
 #include "esp_bt_device.h"
 #include "esp_spp_api.h"
-
 #include "esp_attr.h"
 
 #include "common.h"
+
+#include <stdio.h>
+#include "esp_log.h"
 
 // #define DEVICE_NAME "ESP_ROBO_TEST"
 // #define DEVICE_NAME "ESP_ROBO_1"
@@ -51,8 +56,6 @@
 /*************************************************************************************/
 /********************************* CABEÇALHOS ****************************************/
 /*************************************************************************************/
-// static void task_Encoder(void*arg);
-
 static void config_bluetooth();
 static void config_gpio();
 
@@ -72,10 +75,7 @@ static void func_calibration();
 // um tempo total de timeout, retorna um vetor de omegas medidos por referencias e
 // o tamanho do vetor por retorno de funcao
 static void func_identify(const uint8_t options,
-                          const float setpoint,  // -1.0 a 1.0
-                          const float step_time, //em segundos
-                          const float timeout);  //em segundos
-// static void func_identify(void* arg);  //em segundos
+                          const float setpoint);  // -1.0 a 1.0
 /*************************************************************************************/
 /****************************** VARIAVEIS GLOBAIS ************************************/
 /*************************************************************************************/
@@ -108,21 +108,16 @@ void app_main()
   //interrupcoes no nucleo 0
   xTaskCreatePinnedToCore(config_gpio, "config_gpio", 4096, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(config_bluetooth, "config_bluetooth", 2048, NULL, 5, NULL, 0);
-  xTaskCreatePinnedToCore(periodic_controller, "periodic_controller", 2048, NULL, 4, &controller_xHandle, 0);
-  // //controlador no nucleo 1
-  // xTaskCreatePinnedToCore(task_Encoder, "task_Encoder", 2048, LEFT, 3, NULL, 1);
-  // xTaskCreatePinnedToCore(task_Encoder, "task_Encoder", 2048, RIGHT, 3, NULL, 1);
+  xTaskCreatePinnedToCore(periodic_controller, "periodic_controller", 2048, NULL, 4, &controller_xHandle, 1);
 
+  //controlador no nucleo 1
   uint8_t  head, cmd;
-  uint8_t  *bitstream;
   float    *vec_float;
   while(1){
       xQueueReceive(bt_queue, &btdata, portMAX_DELAY);
-
       head = btdata.data[0] & 0xF0;
       if(head != CMD_HEAD)
         continue;
-
       cmd = btdata.data[0] & 0x0F;
 
       switch (cmd) {
@@ -132,17 +127,17 @@ void app_main()
           bypass_controller = false;
         break;
       case CMD_CONTROL_SIGNAL:
+        //Trecho para teste
         bypass_controller = true;
         decodeFloat(btdata.data, &omega_ref[LEFT], &omega_ref[RIGHT]);
+        func_controlSignal(omega_ref[LEFT], omega_ref[RIGHT]);
         break;
       case CMD_PING:
         esp_spp_write(bt_handle, btdata.len, btdata.data);
         break;
       case CMD_IDENTIFY:
         func_identify((uint8_t)btdata.data[1],                       //options
-                      *(float*)&btdata.data[2+0*sizeof(float)],      //setpoint
-                      *(float*)&btdata.data[2+1*sizeof(float)],      //steptime
-                      *(float*)&btdata.data[2+2*sizeof(float)]);     //timeout
+                      *(float*)&btdata.data[2+0*sizeof(float)]);      //setpoint
         break;
       case CMD_CALIBRATION:
         func_calibration();
@@ -176,15 +171,15 @@ void app_main()
 //***************************************************************************************
 static void IRAM_ATTR isr_EncoderLeft()
 {
-  static int8_t  lookup_table[] = { 0,1, -1, 0, -1, 0, 0, 1, 1, 0, 0, -1, 0, -1, 1, 0 };
+  static int8_t  lookup_table[] = { 0,-1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
   static uint8_t enc_v = 0;
-  static struct timeval t = {0, 0};
-  static struct Encoder_data my_data = {0, 0.0};
+  static struct Encoder_data my_data = {0};//{0, 0.0};
   static int8_t last = 0;
 
   enc_v <<= 2;
   enc_v |= (REG_READ(GPIO_IN1_REG) >> (GPIO_OUTB_LEFT - 32)) & 0b0011;
 
+  my_data.pulse_counter += -lookup_table[enc_v & 0b111];
   //utiliza a ultima decodificação quando há falha(decode = 0)
   my_data.pulse_counter += (lookup_table[enc_v & 0b111] == 0)?last:lookup_table[enc_v & 0b111];
   if(lookup_table[enc_v & 0b111] != 0)
@@ -195,10 +190,12 @@ static void IRAM_ATTR isr_EncoderLeft()
 }
 static void IRAM_ATTR isr_EncoderRight()
 {
-  static int8_t  lookup_table[] = { 0,-1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 };
+  // {0, -1, 1, 2, 1, 0, 2, -1, -1, 2, 0, 1, 2, 1, -1, 0};
+  //{ 0,-1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
+  static int8_t  lookup_table[] = { 0,-1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
   static uint8_t  enc_v = 0;
   static uint32_t reg_read;
-  static struct Encoder_data my_data = {0, 0.0};
+  static struct Encoder_data my_data = {0};//{0, 0.0};
   static int8_t last = 0;
 
   enc_v <<= 2;
@@ -206,6 +203,7 @@ static void IRAM_ATTR isr_EncoderRight()
   enc_v |= (reg_read & LS(GPIO_OUTA_RIGHT)) >> (GPIO_OUTA_RIGHT-1);
   enc_v |= (reg_read & LS(GPIO_OUTB_RIGHT)) >> GPIO_OUTB_RIGHT;
 
+  // my_data.pulse_counter += lookup_table[enc_v & 0b111];
   //para evitar somar zero (que é quando o loopup table "falha")
   my_data.pulse_counter += (lookup_table[enc_v & 0b111] == 0)?last:lookup_table[enc_v & 0b111];
   if(lookup_table[enc_v & 0b111] != 0)
@@ -222,39 +220,28 @@ periodic_controller()
   struct Encoder_data enc_datas[2];
   int64_t old_pulse_counter[2] = {0, 0};
   double omega_beta[2] = {0.0, 0.0};    //por contagem de pulsos=> dt fixo qtd pulsos variavel
-  // double omega_alpha[2];   //por contagem de tempo => quantidade de pulsos fixo em 1, dt variavel
 
   const double k = (M_PI/6.0)*1000.0/(TIME_CONTROLLER); //constante pra converter de pulsos/s para rad/s
-
   int i;
+  TickType_t xLastWakeTime = xTaskGetTickCount();
   while(1)
   {
-
-    if(xQueueReceive(encoder_queue[LEFT], &enc_datas[LEFT], 0) == 0) //buffer vazio
+    vTaskDelayUntil( &xLastWakeTime, TIME_CONTROLLER/portTICK_PERIOD_MS);
+    for(i = 0; i < 2; i++)
     {
-      omega_beta[LEFT]  = 0.0;
-    }else{
-      omega_beta[LEFT]  = (enc_datas[LEFT].pulse_counter - old_pulse_counter[LEFT])*k*0.5 + omega_beta[LEFT]*0.5;
-      old_pulse_counter[LEFT] = enc_datas[LEFT].pulse_counter;
+      if(xQueueReceive(encoder_queue[i], &enc_datas[i], 0) == 0) //buffer vazio
+      {
+        omega_current[i] = 0.0;
+      }else{
+        omega_current[i]  = (enc_datas[i].pulse_counter - old_pulse_counter[i])*k;//*0.5 + omega_beta[LEFT]*0.5;
+        old_pulse_counter[i] = enc_datas[i].pulse_counter;
+      }
     }
-
-    if(xQueueReceive(encoder_queue[RIGHT], &enc_datas[RIGHT], 0) == 0) //buffer vazio
-    {
-      omega_beta[RIGHT] = 0.0;
-    }else{
-      omega_beta[RIGHT]  = (enc_datas[RIGHT].pulse_counter - old_pulse_counter[RIGHT])*k*0.5 + omega_beta[RIGHT]*0.5;
-      old_pulse_counter[RIGHT] = enc_datas[RIGHT].pulse_counter;
-    }
-
-    omega_current[LEFT]  = omega_beta[LEFT];
-    omega_current[RIGHT] = omega_beta[RIGHT];
-
 
     if(bypass_controller)
     {
       //talvez colocar um taskYield aqui para permitir troca de contexto para outra trask executar
       func_controlSignal(omega_ref[LEFT], omega_ref[RIGHT]);
-      vTaskDelay(TIME_CONTROLLER/portTICK_PERIOD_MS);
       continue;
     }
 
@@ -262,16 +249,16 @@ periodic_controller()
     for(i = 0; i < 2; i++)
     {
       pwm[i]  = coefL[F_IS_NEG(omega_ref[i])].alpha*omega_ref[i]*omega_max  +
-      coefL[F_IS_NEG(omega_ref[i])].beta*(omega_ref[i]  != 0 );
+                coefL[F_IS_NEG(omega_ref[i])].beta*(omega_ref[i]  != 0 );
     }
 
     //aplicar sinal de controle
     func_controlSignal(pwm[LEFT], pwm[RIGHT]);
-    vTaskDelay(TIME_CONTROLLER/portTICK_PERIOD_MS);
   }
-
 }
 
+//WARNING usar o acesso direto aos registradores para efetuar as operacoes de
+//mudanca de nivel dos gpios. Obs.: tambem eh possivel alterar o dutycicle por registradores
 static void func_controlSignal(const float pwmL,const float pwmR)
 {
   #define SAT(x) (((x) > 1.0)?1.0:(x))
@@ -338,6 +325,7 @@ esp_spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     }
 }
 
+//Refazer
 static void func_calibration()
 {
   bypass_controller = true;
@@ -465,31 +453,26 @@ static void func_calibration()
   memset(omega_ref, 0, 2*sizeof(float));
 }
 
-static void func_identify(const uint8_t options,
-  const float setpoint,
-  const float step_time,
-  const float timeout)
+/**WARNING:
+** Fixar o steptime e o timeout = 2s
+**/
+static void func_identify(const uint8_t options,const float setpoint)
 {
+  const float steptime = 0.01; //segundos
+  const float timeout  = 2.0;   //segundos
 
   omega_ref[LEFT]  = 0;
   omega_ref[RIGHT] = 0;
 
-  int size       = ABS_F(ceil(timeout/step_time));
-
   uint8_t motor  = ((options & 0x80) >> 7) & 0x01;
   uint8_t typeC  = options & 0x7F;
-
-  if(size == 0.0)
-    return;
-
+  int size = timeout/steptime;
+  int step_time_ticks = (steptime*1000)/portTICK_PERIOD_MS;
   float *vec_omegas = (float*)malloc(size*sizeof(float));
   memset(vec_omegas, 0, size*sizeof(float));
 
   bypass_controller = !!typeC; //bypass ou nao o controlador
-
-  int step_time_ticks = (step_time*1000)/portTICK_PERIOD_MS;
-
-  omega_ref[motor] = setpoint;
+  omega_ref[motor]  = setpoint;
 
   for(int i = 0; i < size; i++)
   {
@@ -500,41 +483,14 @@ static void func_identify(const uint8_t options,
   omega_ref[LEFT]  = 0;
   omega_ref[RIGHT] = 0;
 
-  esp_spp_write(bt_handle, size*sizeof(float), (uint8_t*)vec_omegas);
+  //enviar em blocos de 200, observei que o maximo de bytes transmitidos esta sendo de 990 bytes
+  //que equivale a 247.5 floats
+  //transmissao dos dados em bloco de 200
+  for(int i = 0; i < size; i += 200)
+    esp_spp_write(bt_handle, (200)*sizeof(float), (uint8_t*)vec_omegas+i);
 
   free(vec_omegas);
 }
-
-// static void task_Encoder(void*arg)
-// {
-//   int motor = (int)arg;
-//   struct timeval t;
-//   double old_time = 0.0, new_time;
-//   int8_t sense, old_sense = 0;
-//   while(1)
-//   {
-//     if(!xQueueReceive(encoder_queue[motor], &sense, TIME_TEST_OMEGA_ZERO/portTICK_PERIOD_MS))
-//     {
-//       omega_current[motor] = 0;
-//       continue;
-//     }
-//
-//     if(sense == 0)
-//       sense = old_sense;
-//     gettimeofday(&t, NULL);
-//     new_time =  t.tv_usec/1000000.0;
-//     //12 interrupcoes, por revolucao, para interrupcoes do tipo change nos canais A e B.
-//     //(2pi/12)/dt => (pi/6)/dt rad/s
-//     pulse_counter[motor]+=sense;
-//     omega_current[motor] = sense*(M_PI/6.0)/(new_time - old_time);
-//     old_time = new_time;
-//     if(sense != 0)
-//       old_sense = sense;
-//   }
-// }
-
-
-
 /*************************************************************************************/
 /****************************** CONFIGURACOES ****************************************/
 /*************************************************************************************/
@@ -558,7 +514,6 @@ static void config_bluetooth()
 
   vTaskDelete(NULL);
 }
-
 static void config_gpio(){
   //##### SET GPIO CONFIG ########
   gpio_config_t io_conf;

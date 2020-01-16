@@ -1,10 +1,14 @@
 # https://matplotlib.org/3.1.1/users/installing.html
 # Codigo em python3
-import numpy as np
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 
-for p,_,files in os.walk('.'):
+def func(x,K,a):
+    return K*(1.0 - np.exp(-a*x))
+
+for p,_,files in os.walk('etc'):
     pass
 files.remove('_pyplotter.py')
 
@@ -16,21 +20,27 @@ for i in range(0,len(files)):
     print(i, '- ', files[i])
 index_file = int(input("index do arquivo para plotter?\t"))
 
-print(p)
-dados  = open(p+'/'+files[index_file],'r').read().split(',')
-for i in range(0,len(dados)):
-    dados[i] = float(dados[i])
+dados = open(p+'/'+files[index_file],'r').read().split(',')
+dados = list(map(float, dados))
 
 size    = int(dados[0])
 timeout = dados[1]
-x = np.linspace(0,timeout, size)
-y = dados[3:]
 
-print("Timeout:", timeout," size:", size, "\n")
+t = np.linspace(0,timeout, size)
+y = np.array(dados[3:])
 
-plt.plot(x,y, 'b')
+popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
+
+K = popt[0]
+a = popt[1]
+
+y_reg = func(t, K, a);
+plt.plot(t,y, 'b', label='data')
+plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
+
 plt.xlabel('t(s)')
-plt.ylabel('Omega(rad/s)')
-plt.grid();
-plt.title(str(files[index_file]))
+plt.ylabel(r'$\omega(rad/s)$')
+plt.grid()
+plt.legend()
+plt.title(str(files[index_file]).replace('_',' ').split('.')[0])
 plt.show()

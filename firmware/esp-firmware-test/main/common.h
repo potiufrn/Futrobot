@@ -21,7 +21,7 @@
 /****************************** DEFINICOES DE TEMPOS *********************************/
 /*************************************************************************************/
 #define TIME_TEST_OMEGA_ZERO 2000   //ms, tempo do timer que realiza o teste de velocidade zero
-#define TIME_CONTROLLER         3   //ms, periodo de acionamento do controlador
+#define TIME_CONTROLLER         5   //ms, periodo de acionamento do controlador
 
 /*************************************************************************************/
 /****************************** ROTINAS PRINCIPAIS ***********************************/
@@ -49,6 +49,8 @@
 #define ABS_F(x) (((x)<0.0)?-(x):(x))
 #define SATURADOR(x) ((ABS_F(x) > 1.0)?1.0:ABS_F(x))  //0.0 a 1.0
 #define LS(x) (1ULL << (x))
+#define DELAY_SEC(x) vTaskDelay(((x)*1000.0)/portTICK_PERIOD_MS)
+
 
 enum ROTATE_S{
   FRONT,
@@ -69,7 +71,6 @@ typedef struct{
 
 struct Encoder_data{
   int64_t pulse_counter; //quantidade de pulsos desde o inicio da interrupcao
-  // float   dt;  //tempo entre interrupcoes
 };
 /*************************************************************************************/
 /****************************** FUNCOES AUXILIARES ***********************************/
