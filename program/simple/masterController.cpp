@@ -7,12 +7,28 @@
 #include <cmath>
 #include <omp.h>
 
-#include "../../firmware/esp-firmware-test/main/common.h"
+// #include "../../firmware/esp-firmware-test/main/common.h"
 
 #define MAC_ESP_TEST   "30:AE:A4:3B:A4:26"
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
 #define MAC_ESP_ROBO_2 "30:AE:A4:13:F8:AE"
 #define MAC_ESP_ROBO_3 "30:AE:A4:20:0E:12"
+
+#define F_IS_NEG(x) (*(uint32_t*)&(x) >> 31)
+#define ABS_F(x) (((x)<0.0)?-(x):(x))
+
+#define CMD_HEAD           0xA0
+
+#define CMD_REQ_CAL        0x00
+#define CMD_REQ_OMEGA      0x03
+
+#define CMD_CALIBRATION    0x04
+#define CMD_IDENTIFY       0x05
+
+#define CMD_SET_POINT      0x0A
+#define CMD_CONTROL_SIGNAL 0x0B
+
+#define CMD_PING           0x0F
 
 #define RADIUS    1.5/100 //metros
 #define REDUCTION 30 //30x1

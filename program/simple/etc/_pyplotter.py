@@ -35,7 +35,7 @@ K = popt[0]
 a = popt[1]
 
 y_reg = func(t, K, a);
-plt.plot(t,y, 'b', label='data')
+plt.plot(t,y, '.b', label='data')
 plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
 
 plt.xlabel('t(s)')
