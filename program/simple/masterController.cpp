@@ -37,7 +37,8 @@ using namespace std;
 
 BluetoothAction btAction;
 
-string getData(){
+string getDate()
+{
   time_t rawtime;
   tm *timeinfo;
   time(&rawtime);
