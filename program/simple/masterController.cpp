@@ -240,20 +240,13 @@ int main(int argc, char** argv)
       bitstream[0]                   = CMD_HEAD | CMD_IDENTIFY;
       bitstream[1]                   = ((motor << 7)  | typeC) & 0b10000001;
       *(float*)&bitstream[2 + 0*sizeof(float)] = setpoint;
-      // printf("Options: %x \t setpoint: %f \t steptime: %f \t timeout: %f\n",
-      //         bitstream[1],
-      //         *(float*)&bitstream[2 + 0*sizeof(float)],
-      //         *(float*)&bitstream[2 + 1*sizeof(float)],
-      //         *(float*)&bitstream[2 + 2*sizeof(float)]);
 
       btAction.sendBluetoothMessage(idBt, bitstream, 2 + 1*sizeof(float));
 
       printf("Esperando...\n");
       time_stemp[0] = omp_get_wtime();
-      // rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, size*sizeof(float), 6);
       for(int i = 0; i < size; i += 200)
       {
-        // printf("i = %d\n",i);
         rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 6);
         printf("Recebi:%d bytes\n", rec);
         if(rec == -1)
@@ -291,10 +284,10 @@ int main(int argc, char** argv)
     break;
     case 10://dados da calibracao
       bitstream = new uint8_t[1];
-      vec_float = new float[9];
+      vec_float = new float[9+2];
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 9*sizeof(float), 5);
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, (9+2)*sizeof(float), 5);
 
       printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
       printf("Omega Max: %f rad/s = %f m/s\n", vec_float[0], vec_float[0]*RADIUS/(REDUCTION));//reducao de 30 e 24 interrupcoes por volta
@@ -302,6 +295,8 @@ int main(int argc, char** argv)
       printf("Left  Back   => a = %f , b = %f \n", vec_float[3], vec_float[4]);
       printf("Right Front  => a = %f , b = %f \n", vec_float[5], vec_float[6]);
       printf("Right Back   => a = %f , b = %f \n", vec_float[7], vec_float[8]);
+      printf("Right Back   => a = %f , b = %f \n", vec_float[7], vec_float[8]);
+      printf("Left Kp = %f , Right kp = %f \n", vec_float[9], vec_float[10]);
       _pause();
 
       delete[] bitstream;
