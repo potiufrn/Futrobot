@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+omega_max = 3204.424561
+omega_ref = 0.5*omega_max
+
+
 def func(x,K,a):
     return K*(1.0 - np.exp(-a*x))
 
@@ -35,12 +39,15 @@ K = popt[0]
 a = popt[1]
 
 y_reg = func(t, K, a);
-plt.plot(t,y, '.b', label='data')
+plt.plot(t,y, 'g', label='Omega Medido')
 plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
+
+# plt.plot(t, np.full(t.size,omega_ref), 'b', label='referência')
 
 plt.xlabel('t(s)')
 plt.ylabel(r'$\omega(rad/s)$')
 plt.grid()
 plt.legend()
 plt.title(str(files[index_file]).replace('_',' ').split('.')[0])
+plt.xlim(0,t[-1]);
 plt.show()

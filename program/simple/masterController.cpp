@@ -7,16 +7,38 @@
 #include <cmath>
 #include <omp.h>
 
-// #include "../../firmware/esp-firmware-test/main/common.h"
+/*
+//Esquerdo
+0.000096527030
+0.000025
+0.000005
+//Direito
+0.000111663656
+0.0006
+0.00035
+0.00045
+0.0002
+0.00020
+*/
+
+/* Robo
+Left  Front  => a = 0.000272 , b = 0.089525
+Left  Back   => a = 0.000256 , b = -0.089219
+Right Front  => a = 0.000254 , b = 0.095323
+Right Back   => a = 0.000272 , b = -0.089067
+*/
 
 #define MAC_ESP_TEST   "30:AE:A4:3B:A4:26"
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
 #define MAC_ESP_ROBO_2 "30:AE:A4:13:F8:AE"
 #define MAC_ESP_ROBO_3 "30:AE:A4:20:0E:12"
+#define MAC_ESP_ROBO_4 "30:AE:A4:41:74:F6"
 
 #define F_IS_NEG(x) (*(uint32_t*)&(x) >> 31)
 #define ABS_F(x) (((x)<0.0)?-(x):(x))
 
+
+//Comandos do bluetooth
 #define CMD_HEAD           0xA0
 
 #define CMD_REQ_CAL        0x00
@@ -24,14 +46,30 @@
 
 #define CMD_CALIBRATION    0x04
 #define CMD_IDENTIFY       0x05
+#define CMD_SET_KP         0x06
 
-#define CMD_SET_POINT      0x0A
+#define CMD_REF            0x0A
 #define CMD_CONTROL_SIGNAL 0x0B
 
 #define CMD_PING           0x0F
 
 #define RADIUS    1.5/100 //metros
 #define REDUCTION 30 //30x1
+
+enum OPTION{
+  _rec_omegas  = 1,
+  _connect     = 2,
+  _disconnect  = 3,
+  _ping        = 4,
+  _send_ref    = 5,
+  _send_pwm    = 6,
+  _send_kp     = 7,
+  _calibration = 8,
+  _identify    = 9,
+  _graphic     = 10,
+  _rec_coef    = 11,
+  _close       = 12
+};
 
 using namespace std;
 
@@ -76,19 +114,27 @@ void encodeFloat(const float* vec_f, uint8_t *bitstream)
   bitstream[3] = (ref_b[1] & 0x00FF);
 }
 
-void _printMainMenu(){
+
+
+void _printMainMenu()
+{
   printf("****************MENU DE AÇÕES*************\n");
-  printf("01 -> PEDIR OMEGAS ATUAIS\n");
-  printf("02 -> CONECTAR\n");
-  printf("03 -> DESCONECTAR\n");
-  printf("04 -> PING\n");
-  printf("05 -> ENVIAR REFERÊNCIAS\n");
-  printf("06 -> ENVIAR SINAL DE CONTROLE\n");
-  printf("07 -> INICIAR CALIBRAÇÃO DO CONTROLADOR\n");
-  printf("08 -> IDENTIFICAÇÃO\n");
-  printf("09 -> VISUALIZAR GRAFICOS\n");
-  printf("10 -> PEDIR DADOS DA CALIBRACAO\n");
-  printf("11 -> ENCERRAR O PROGRAMA\n");
+  printf("%d -> PEDIR OMEGAS ATUAIS\n", OPTION::_rec_omegas);
+  printf("************************************\n");
+  printf("%d -> CONECTAR\n",OPTION::_connect);
+  printf("%d -> DESCONECTAR\n",OPTION::_disconnect);
+  printf("%d -> PING\n",OPTION::_ping);
+  printf("************************************\n");
+  printf("%d -> ENVIAR REFERÊNCIAS\n",OPTION::_send_ref);
+  printf("%d -> ENVIAR PWM\n",OPTION::_send_pwm);
+  printf("************************************\n");
+  printf("%d -> ALTERAR Kp\n", OPTION::_send_kp);
+  printf("%d -> CALIBRAR CONTROLADOR\n",OPTION::_calibration);
+  printf("%d -> IDENTIFICAÇÃO\n",OPTION::_identify);
+  printf("%d -> VISUALIZAR GRAFICOS\n",OPTION::_graphic);
+  printf("%d -> PEDIR DADOS DA CALIBRACAO\n",OPTION::_rec_coef);
+  printf("************************************\n");
+  printf("%d -> ENCERRAR O PROGRAMA\n",OPTION::_close);
 };
 
 void _pause(const char* msg = ""){
@@ -118,6 +164,7 @@ int main(int argc, char** argv)
   btAction.setBluetoothAddr(MAC_ESP_ROBO_1);
   btAction.setBluetoothAddr(MAC_ESP_ROBO_2);
   btAction.setBluetoothAddr(MAC_ESP_ROBO_3);
+  btAction.setBluetoothAddr(MAC_ESP_ROBO_4);
 
 
   bool run = true;
@@ -129,14 +176,16 @@ int main(int argc, char** argv)
     _printMainMenu();
     cin >> choice;
 
-    if(choice != 2 && idBt == -1 && choice != 9 && choice != 11)
+    if(idBt == -1 && (choice != _graphic &&
+                      choice != _connect &&
+                      choice != _close))
     {
-      _pause("Nenhum dispositivo conectado!");
-      continue;
+          _pause("Nenhum dispositivo conectado!");
+          continue;
     }
 
     switch (choice){
-    case 1://solicitar omegas
+    case OPTION::_rec_omegas://solicitar omegas
       bitstream = new uint8_t[1];
       vec_float = new float[2];
 
@@ -159,18 +208,18 @@ int main(int argc, char** argv)
       delete[] vec_float;
 
       break;
-    case 2://conectar
+    case OPTION::_connect://conectar
       _printListMACs();
       cin >> idBt;
       btAction.initBluetoothById(idBt);
       _pause();
       break;
-    case 3://desconectar
+    case OPTION::_disconnect://desconectar
       btAction.closeBluetoothById(idBt);
       _pause("Dispositivo desconectado!");
       idBt = -1;
       break;
-    case 4: //ping
+    case OPTION::_ping: //_ping
       bitstream = new uint8_t[64];
 
       memset(bitstream, 'A', 64);
@@ -186,8 +235,8 @@ int main(int argc, char** argv)
       _pause();
 
       break;
-    case 5://omegas ref
-    case 6://omegas sinal de controle
+    case OPTION::_send_ref://omegas ref
+    case OPTION::_send_pwm://omegas sinal de controle
       vec_float = new float[2];
       bitstream = new uint8_t[5];
       memset(bitstream, 0, 5*sizeof(uint8_t));
@@ -201,7 +250,7 @@ int main(int argc, char** argv)
       encodeFloat(vec_float, bitstream+1);
 
       if(choice == 5){
-        bitstream[0] = CMD_HEAD | CMD_SET_POINT;
+        bitstream[0] = CMD_HEAD | CMD_REF;
       }else{ //control signal
         bitstream[0] = CMD_HEAD | CMD_CONTROL_SIGNAL;
       }
@@ -212,17 +261,36 @@ int main(int argc, char** argv)
       delete[] vec_float;
 
       break;
-    case 7://calibrar
+    case OPTION::_send_kp://omegas sinal de controle
+      vec_float = new float[2];
+      bitstream = new uint8_t[1 + 2*sizeof(float)];
+      memset(bitstream, 0, (1 + 2*sizeof(uint8_t)));
+      memset(vec_float, 0, 2*sizeof(float));
+
+      printf("kp para o motor esquerdo ?\n");
+      cin >> vec_float[0];
+      printf("kp para o motor direito ? \n");
+      cin >> vec_float[1];
+
+      bitstream[0]  = CMD_HEAD  | CMD_SET_KP;
+      memcpy(bitstream+1, vec_float, 2*sizeof(float));
+      btAction.sendBluetoothMessage(idBt, bitstream, 1+2*sizeof(float));
+
+      delete[] bitstream;
+      delete[] vec_float;
+
+      break;
+    case OPTION::_calibration://calibrar
       bitstream = new uint8_t;
       bitstream[0] = CMD_HEAD | CMD_CALIBRATION;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
       delete bitstream;
       break;
-    case 8://identificar
+    case OPTION::_identify://identificar
     {
       uint8_t motor, typeC;
       float setpoint;
-      const int size = (2.0/0.01);
+      int size;
       int sumRec = 0;
 
       cout << "Motor ? (0 -> Left \t 1 -> Right): ";
@@ -234,7 +302,6 @@ int main(int argc, char** argv)
       cout << "Desabilitar controlador ? 0(nao), 1(sim): ";
       cin >> typeC;
 
-      vec_float  = new float[size];
       bitstream  = new uint8_t[2 + 1*sizeof(float)];
 
       bitstream[0]                   = CMD_HEAD | CMD_IDENTIFY;
@@ -244,10 +311,19 @@ int main(int argc, char** argv)
       btAction.sendBluetoothMessage(idBt, bitstream, 2 + 1*sizeof(float));
 
       printf("Esperando...\n");
+
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&size, sizeof(int), 10);
+      if(rec == -1)
+        puts("timeout! erro ao receber informacao do size");
+      else
+        printf("Medicoes:%d\n", size);
+      rec = 0;
+      vec_float  = new float[size];
+
       time_stemp[0] = omp_get_wtime();
       for(int i = 0; i < size; i += 200)
       {
-        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 6);
+        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 2);
         printf("Recebi:%d bytes\n", rec);
         if(rec == -1)
           puts("timeout!");
@@ -279,12 +355,12 @@ int main(int argc, char** argv)
 
       break;
     }
-    case 9://graficos
-    system("python3 etc/_pyplotter.py");
+    case OPTION::_graphic://graficos
+      system("python3 etc/_pyplotter.py");
     break;
-    case 10://dados da calibracao
+    case OPTION::_rec_coef://dados da calibracao
       bitstream = new uint8_t[1];
-      vec_float = new float[9+2];
+      vec_float = new float[9+2]; //9 coef + 2 kp
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
       rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, (9+2)*sizeof(float), 5);
@@ -295,14 +371,14 @@ int main(int argc, char** argv)
       printf("Left  Back   => a = %f , b = %f \n", vec_float[3], vec_float[4]);
       printf("Right Front  => a = %f , b = %f \n", vec_float[5], vec_float[6]);
       printf("Right Back   => a = %f , b = %f \n", vec_float[7], vec_float[8]);
-      printf("Right Back   => a = %f , b = %f \n", vec_float[7], vec_float[8]);
-      printf("Left Kp = %f , Right kp = %f \n", vec_float[9], vec_float[10]);
+      printf("Left  Kp = %.12f \n", vec_float[9]);
+      printf("Right Kp = %.12f \n", vec_float[10]);
       _pause();
 
       delete[] bitstream;
       delete[] vec_float;
       break;
-    case 11: //terminar
+    case OPTION::_close: //terminar
       run = false;
       break;
     default:
