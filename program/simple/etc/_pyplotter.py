@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-omega_max = 3204.424561
+omega_max = 2403.318359
 omega_ref = 0.5*omega_max
-
 
 def func(x,K,a):
     return K*(1.0 - np.exp(-a*x))
@@ -15,39 +14,47 @@ def func(x,K,a):
 for p,_,files in os.walk('etc'):
     pass
 files.remove('_pyplotter.py')
-
-
 if len(files) == 0:
     print("Nao ha dados para visualizar... Faça a aquisição de dados primeiro.\n")
     exit()
+
 for i in range(0,len(files)):
     print(i, '- ', files[i])
-index_file = int(input("index do arquivo para plotter?\t"))
 
-dados = open(p+'/'+files[index_file],'r').read().split(',')
-dados = list(map(float, dados))
+# OBS.: Para o caso de mais de um grafico o primeiro index informado sera o utilizado para a interpolacao
+index = list(map(lambda x:int(x), (input("index do(s) arquivo(s) para plotter?\t").split(' '))))
 
-size    = int(dados[0])
-timeout = dados[1]
+first = True
+for plotID in index:
 
-t = np.linspace(0,timeout, size)
-y = np.array(dados[3:])
+    dados = open(p+'/'+files[plotID],'r').read().split(',')
+    dados = list(map(float, dados))
 
-popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
+    size    = int(dados[0])
+    timeout = dados[1]
 
-K = popt[0]
-a = popt[1]
+    t = np.linspace(0,timeout, size)
+    y = np.array(dados[3:])
 
-y_reg = func(t, K, a);
-plt.plot(t,y, 'g', label='Omega Medido')
-plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
+    if first:
+        popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
 
-# plt.plot(t, np.full(t.size,omega_ref), 'b', label='referência')
+        K = popt[0]
+        a = popt[1]
+
+        y_reg = func(t, K, a);
+        plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
+        # first = False
+
+    plt.plot(t,y, label='Omega Medido ' + files[plotID].split('_')[0] + ' ' + files[plotID].split('_')[1])
+
+
+plt.plot(t, np.full(t.size,omega_ref), label='referência')
 
 plt.xlabel('t(s)')
 plt.ylabel(r'$\omega(rad/s)$')
 plt.grid()
 plt.legend()
-plt.title(str(files[index_file]).replace('_',' ').split('.')[0])
+# plt.title(str(files[index_file]).replace('_',' ').split('.')[0])
 plt.xlim(0,t[-1]);
 plt.show()
