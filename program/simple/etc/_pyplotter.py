@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-omega_max = 2403.318359
+omega_max = 2214.822754
 omega_ref = 0.5*omega_max
 
 def func(x,K,a):
@@ -18,6 +18,7 @@ if len(files) == 0:
     print("Nao ha dados para visualizar... Faça a aquisição de dados primeiro.\n")
     exit()
 
+files.sort()
 for i in range(0,len(files)):
     print(i, '- ', files[i])
 
@@ -46,7 +47,7 @@ for plotID in index:
         plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
         # first = False
 
-    plt.plot(t,y, label='Omega Medido ' + files[plotID].split('_')[0] + ' ' + files[plotID].split('_')[1])
+    plt.plot(t,y, label= files[plotID].replace('_', ' ').replace('.out',''))
 
 
 plt.plot(t, np.full(t.size,omega_ref), label='referência')

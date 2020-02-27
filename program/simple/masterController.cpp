@@ -314,7 +314,10 @@ int main(int argc, char** argv)
 
       rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&size, sizeof(int), 10);
       if(rec == -1)
-        puts("timeout! erro ao receber informacao do size");
+      {
+        _pause("timeout! erro ao receber informacao do size");
+        continue;
+      }
       else
         printf("Medicoes:%d\n", size);
       rec = 0;
@@ -323,7 +326,7 @@ int main(int argc, char** argv)
       time_stemp[0] = omp_get_wtime();
       for(int i = 0; i < size; i += 200)
       {
-        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 2);
+        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 10);
         printf("Recebi:%d bytes\n", rec);
         if(rec == -1)
           puts("timeout!");
