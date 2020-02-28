@@ -7,27 +7,6 @@
 #include <cmath>
 #include <omp.h>
 
-/*
-//Esquerdo
-0.000096527030
-0.000025
-0.000005
-//Direito
-0.000111663656
-0.0006
-0.00035
-0.00045
-0.0002
-0.00020
-*/
-
-/* Robo
-Left  Front  => a = 0.000272 , b = 0.089525
-Left  Back   => a = 0.000256 , b = -0.089219
-Right Front  => a = 0.000254 , b = 0.095323
-Right Back   => a = 0.000272 , b = -0.089067
-*/
-
 #define MAC_ESP_TEST   "30:AE:A4:3B:A4:26"
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
 #define MAC_ESP_ROBO_2 "30:AE:A4:13:F8:AE"
@@ -37,6 +16,9 @@ Right Back   => a = 0.000272 , b = -0.089067
 #define F_IS_NEG(x) (*(uint32_t*)&(x) >> 31)
 #define ABS_F(x) (((x)<0.0)?-(x):(x))
 
+
+//kp left: 0.001064451
+//kp right: 0.000381712
 
 //Comandos do bluetooth
 #define CMD_HEAD           0xA0
@@ -311,7 +293,6 @@ int main(int argc, char** argv)
       btAction.sendBluetoothMessage(idBt, bitstream, 2 + 1*sizeof(float));
 
       printf("Esperando...\n");
-
       rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&size, sizeof(int), 10);
       if(rec == -1)
       {
