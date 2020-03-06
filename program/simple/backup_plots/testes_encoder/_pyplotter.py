@@ -18,7 +18,7 @@ def print_analizy(name, ref, K, tau):
     print('Polo do sistema               | {0:.8f}'.format(-1.0/tau))
     print((32+len(name))*'#', '\n')
 
-for p,_,files in os.walk('etc'):
+for p,_,files in os.walk('.'):
     pass
 files.remove('_pyplotter.py')
 if len(files) == 0:

@@ -7,6 +7,7 @@
 #include <cmath>
 #include <omp.h>
 
+
 #define MAC_ESP_TEST   "30:AE:A4:3B:A4:26"
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
 #define MAC_ESP_ROBO_2 "30:AE:A4:13:F8:AE"
@@ -15,10 +16,6 @@
 
 #define F_IS_NEG(x) (*(uint32_t*)&(x) >> 31)
 #define ABS_F(x) (((x)<0.0)?-(x):(x))
-
-
-//kp left: 0.001064451
-//kp right: 0.000381712
 
 //Comandos do bluetooth
 #define CMD_HEAD           0xA0
@@ -71,7 +68,7 @@ string getDate()
   return strTime;
 }
 
-void saveToFile(const float *datas, const int size, const float timeout, const char* fileName);
+void saveToFile(const double *datas, const int size, const float timeout, const char* fileName);
 
 void bytes2float(const uint8_t *bitstream, float*f, uint32_t num_float)
 {
@@ -139,6 +136,7 @@ int main(int argc, char** argv)
   double time_stemp[2];
   uint8_t *bitstream;
   float   *vec_float;
+  double  *vec_double;
   int     idBt = -1;
   int     choice;
 
@@ -169,25 +167,25 @@ int main(int argc, char** argv)
     switch (choice){
     case OPTION::_rec_omegas://solicitar omegas
       bitstream = new uint8_t[1];
-      vec_float = new float[2];
+      vec_double = new double[2];
 
-      memset(vec_float, 0, 2*sizeof(float));
+      memset(vec_double, 0, 2*sizeof(double));
 
       bitstream[0] = CMD_HEAD | CMD_REQ_OMEGA;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, 2*sizeof(float), 2);
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_double, 2*sizeof(double), 2);
 
-      if(rec != 2*sizeof(float))
+      if(rec != 2*sizeof(double))
       {
         _pause("Erro na leitura");
         break;
       }
-      printf("   Omega Left:%f rad/s     Omega Right:%f rad/s\n", vec_float[0], vec_float[1]);
-      printf("Velocity Left:%f m/s   Velocity Right:%f m/s\n", vec_float[0]*RADIUS/REDUCTION, vec_float[1]*RADIUS/REDUCTION);
+      printf("   Omega Left:%f rad/s     Omega Right:%f rad/s\n", vec_double[0], vec_double[1]);
+      printf("Velocity Left:%f m/s   Velocity Right:%f m/s\n", vec_double[0]*RADIUS/REDUCTION, vec_double[1]*RADIUS/REDUCTION);
       _pause();
 
       delete[] bitstream;
-      delete[] vec_float;
+      delete[] vec_double;
 
       break;
     case OPTION::_connect://conectar
@@ -244,22 +242,22 @@ int main(int argc, char** argv)
 
       break;
     case OPTION::_send_kp://omegas sinal de controle
-      vec_float = new float[2];
-      bitstream = new uint8_t[1 + 2*sizeof(float)];
-      memset(bitstream, 0, (1 + 2*sizeof(uint8_t)));
-      memset(vec_float, 0, 2*sizeof(float));
-
-      printf("kp para o motor esquerdo ?\n");
-      cin >> vec_float[0];
-      printf("kp para o motor direito ? \n");
-      cin >> vec_float[1];
-
-      bitstream[0]  = CMD_HEAD  | CMD_SET_KP;
-      memcpy(bitstream+1, vec_float, 2*sizeof(float));
-      btAction.sendBluetoothMessage(idBt, bitstream, 1+2*sizeof(float));
-
-      delete[] bitstream;
-      delete[] vec_float;
+      // vec_double = new double[2];
+      // bitstream = new uint8_t[1 + 2*sizeof(double)];
+      // memset(bitstream, 0, (1 + 2*sizeof(uint8_t)));
+      // memset(vec_double, 0, 2*sizeof(double));
+      //
+      // printf("kp para o motor esquerdo ?\n");
+      // cin >> vec_double[0];
+      // printf("kp para o motor direito ? \n");
+      // cin >> vec_double[1];
+      //
+      // bitstream[0]  = CMD_HEAD  | CMD_SET_KP;
+      // memcpy(bitstream+1, vec_double, 2*sizeof(double));
+      // btAction.sendBluetoothMessage(idBt, bitstream, 1+2*sizeof(double));
+      //
+      // delete[] bitstream;
+      // delete[] vec_double;
 
       break;
     case OPTION::_calibration://calibrar
@@ -302,12 +300,12 @@ int main(int argc, char** argv)
       else
         printf("Medicoes:%d\n", size);
       rec = 0;
-      vec_float  = new float[size];
+      vec_double  = new double[size];
 
       time_stemp[0] = omp_get_wtime();
-      for(int i = 0; i < size; i += 200)
+      for(int i = 0; i < size; i += 100)
       {
-        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_float[i], 200*sizeof(float), 10);
+        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_double[i], 100*sizeof(double), 10);
         printf("Recebi:%d bytes\n", rec);
         if(rec == -1)
           puts("timeout!");
@@ -325,7 +323,7 @@ int main(int argc, char** argv)
         cout << "Que nome devo colocar no arquivo ? ";
         scanf("%50s", fileName);
 
-        saveToFile(vec_float, size, 2.0, (string("etc/") + string(fileName)).c_str() );
+        saveToFile(vec_double, size, 2.0, (string("etc/") + string(fileName)).c_str() );
         cout << "Salvando...\n";
         printf("Salvo! Em: %s\n", (string("etc/") + string(fileName)).c_str());
         _pause();
@@ -335,7 +333,7 @@ int main(int argc, char** argv)
       }
 
       delete[] bitstream;
-      delete[] vec_float;
+      delete[] vec_double;
 
       break;
     }
@@ -344,23 +342,23 @@ int main(int argc, char** argv)
     break;
     case OPTION::_rec_coef://dados da calibracao
       bitstream = new uint8_t[1];
-      vec_float = new float[9+2]; //9 coef + 2 kp
+      vec_double = new double[9+4]; //9 coef + 4 kp
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_float, (9+2)*sizeof(float), 5);
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_double, (9+4)*sizeof(double), 5);
 
       printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
-      printf("Omega Max: %f rad/s = %f m/s\n", vec_float[0], vec_float[0]*RADIUS/(REDUCTION));//reducao de 30 e 24 interrupcoes por volta
-      printf("Left  Front  => a = %f , b = %f \n", vec_float[1], vec_float[2]);
-      printf("Left  Back   => a = %f , b = %f \n", vec_float[3], vec_float[4]);
-      printf("Right Front  => a = %f , b = %f \n", vec_float[5], vec_float[6]);
-      printf("Right Back   => a = %f , b = %f \n", vec_float[7], vec_float[8]);
-      printf("Left  Kp = %.12f \n", vec_float[9]);
-      printf("Right Kp = %.12f \n", vec_float[10]);
+      printf("Omega Max: %f rad/s = %f m/s\n", vec_double[0], vec_double[0]*RADIUS/(REDUCTION));//reducao de 30 e 24 interrupcoes por volta
+      printf("Left  Front  => a = %f , b = %f \n", vec_double[1], vec_double[2]);
+      printf("Left  Back   => a = %f , b = %f \n", vec_double[3], vec_double[4]);
+      printf("Right Front  => a = %f , b = %f \n", vec_double[5], vec_double[6]);
+      printf("Right Back   => a = %f , b = %f \n", vec_double[7], vec_double[8]);
+      printf("Left  Kp_frente = %.12f, Kp_tras %.12f\n", vec_double[9], vec_double[10]);
+      printf("Right Kp_frente = %.12f, Kp_tras %.12f\n", vec_double[11], vec_double[12]);
       _pause();
 
       delete[] bitstream;
-      delete[] vec_float;
+      delete[] vec_double;
       break;
     case OPTION::_close: //terminar
       run = false;
@@ -377,7 +375,7 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void saveToFile(const float *datas, const int size, const float timeout, const char* fileName)
+void saveToFile(const double *datas, const int size, const float timeout, const char* fileName)
 {
   ofstream out(fileName);
 
