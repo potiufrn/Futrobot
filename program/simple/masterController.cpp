@@ -25,7 +25,7 @@
 
 #define CMD_CALIBRATION    0x04
 #define CMD_IDENTIFY       0x05
-#define CMD_SET_KP         0x06
+// #define CMD_SET_KP         0x06
 
 #define CMD_REF            0x0A
 #define CMD_CONTROL_SIGNAL 0x0B
@@ -42,17 +42,31 @@ enum OPTION{
   _ping        = 4,
   _send_ref    = 5,
   _send_pwm    = 6,
-  _send_kp     = 7,
-  _calibration = 8,
-  _identify    = 9,
-  _graphic     = 10,
-  _rec_coef    = 11,
-  _close       = 12
+  _calibration = 7,
+  _identify    = 8,
+  _graphic     = 9,
+  _rec_coef    = 10,
+  _close       = 11
 };
 
 using namespace std;
 
 BluetoothAction btAction;
+
+typedef struct
+{
+  double ang; //coef. angular da reta
+  double lin;  //coef. linear da reta
+}coefLine_t;
+
+typedef struct
+{
+  double omegaMax;
+  double Kp[4];        //ganho do controlador
+  double K[2];         //ganho do sistema, motor esquerdo e direito
+  double tau[2];       //constante de tempo, motor esquerdo e direito
+  coefLine_t coef[4];
+}parameters_t;
 
 string getDate()
 {
@@ -67,6 +81,7 @@ string getDate()
   strTime.replace(strTime.find(' '), 1, "_");
   return strTime;
 }
+
 
 void saveToFile(const double *datas, const int size, const float timeout, const char* fileName);
 
@@ -107,7 +122,7 @@ void _printMainMenu()
   printf("%d -> ENVIAR REFERÊNCIAS\n",OPTION::_send_ref);
   printf("%d -> ENVIAR PWM\n",OPTION::_send_pwm);
   printf("************************************\n");
-  printf("%d -> ALTERAR Kp\n", OPTION::_send_kp);
+  // printf("%d -> ALTERAR Kp\n", OPTION::_send_kp);
   printf("%d -> CALIBRAR CONTROLADOR\n",OPTION::_calibration);
   printf("%d -> IDENTIFICAÇÃO\n",OPTION::_identify);
   printf("%d -> VISUALIZAR GRAFICOS\n",OPTION::_graphic);
@@ -236,29 +251,8 @@ int main(int argc, char** argv)
       }
 
       btAction.sendBluetoothMessage(idBt, bitstream, 5*sizeof(uint8_t));
-
       delete[] bitstream;
       delete[] vec_float;
-
-      break;
-    case OPTION::_send_kp://omegas sinal de controle
-      // vec_double = new double[2];
-      // bitstream = new uint8_t[1 + 2*sizeof(double)];
-      // memset(bitstream, 0, (1 + 2*sizeof(uint8_t)));
-      // memset(vec_double, 0, 2*sizeof(double));
-      //
-      // printf("kp para o motor esquerdo ?\n");
-      // cin >> vec_double[0];
-      // printf("kp para o motor direito ? \n");
-      // cin >> vec_double[1];
-      //
-      // bitstream[0]  = CMD_HEAD  | CMD_SET_KP;
-      // memcpy(bitstream+1, vec_double, 2*sizeof(double));
-      // btAction.sendBluetoothMessage(idBt, bitstream, 1+2*sizeof(double));
-      //
-      // delete[] bitstream;
-      // delete[] vec_double;
-
       break;
     case OPTION::_calibration://calibrar
       bitstream = new uint8_t;
@@ -342,23 +336,26 @@ int main(int argc, char** argv)
     break;
     case OPTION::_rec_coef://dados da calibracao
       bitstream = new uint8_t[1];
-      vec_double = new double[9+4]; //9 coef + 4 kp
+      parameters_t parameters;
       bitstream[0] = CMD_HEAD | CMD_REQ_CAL;
       btAction.sendBluetoothMessage(idBt, bitstream, 1*sizeof(uint8_t));
-      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)vec_double, (9+4)*sizeof(double), 5);
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&parameters, sizeof(parameters_t), 5);
 
       printf("Coeficientes da calibracao tamanho total:%d bytes\n", rec);
-      printf("Omega Max: %f rad/s = %f m/s\n", vec_double[0], vec_double[0]*RADIUS/(REDUCTION));//reducao de 30 e 24 interrupcoes por volta
-      printf("Left  Front  => a = %f , b = %f \n", vec_double[1], vec_double[2]);
-      printf("Left  Back   => a = %f , b = %f \n", vec_double[3], vec_double[4]);
-      printf("Right Front  => a = %f , b = %f \n", vec_double[5], vec_double[6]);
-      printf("Right Back   => a = %f , b = %f \n", vec_double[7], vec_double[8]);
-      printf("Left  Kp_frente = %.12f, Kp_tras %.12f\n", vec_double[9], vec_double[10]);
-      printf("Right Kp_frente = %.12f, Kp_tras %.12f\n", vec_double[11], vec_double[12]);
+      printf("Omega Max: %f rad/s = %f m/s\n", parameters.omegaMax, parameters.omegaMax*RADIUS/(REDUCTION));//reducao de 30 e 24 interrupcoes por volta
+      printf("Left  Front  => a = %f , b = %f \n", parameters.coef[0].ang, parameters.coef[0].lin);
+      printf("Left  Back   => a = %f , b = %f \n", parameters.coef[1].ang, parameters.coef[1].lin);
+      printf("Right Front  => a = %f , b = %f \n", parameters.coef[2].ang, parameters.coef[2].lin);
+      printf("Right Back   => a = %f , b = %f \n", parameters.coef[3].ang, parameters.coef[3].lin);
+      printf("Left  Kp_frente = %.12f, Kp_tras %.12f\n", parameters.Kp[0], parameters.Kp[1]);
+      printf("Right Kp_frente = %.12f, Kp_tras %.12f\n", parameters.Kp[2], parameters.Kp[3]);
+      printf("Left  K = %.12f\n", parameters.K[0]);
+      printf("Right K = %.12f\n", parameters.K[1]);
+      printf("Left  tau = %.12f\n", parameters.tau[0]);
+      printf("Right tau = %.12f\n", parameters.tau[1]);
       _pause();
 
       delete[] bitstream;
-      delete[] vec_double;
       break;
     case OPTION::_close: //terminar
       run = false;
@@ -379,8 +376,7 @@ void saveToFile(const double *datas, const int size, const float timeout, const 
 {
   ofstream out(fileName);
 
-  out << size << ',' << timeout << ',';
-  out << datas[0];
+  out << size << ',' << timeout;
   for(int i = 0; i < size; i++){
     out << ',' << datas[i];
   }
