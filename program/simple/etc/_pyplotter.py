@@ -58,21 +58,22 @@ for plotID in index:
     timeout = dados[1]
     omegaRef= dados[2]
 
-    t = np.linspace(0,timeout, size-1)
+    t = np.linspace(0,timeout, size)
     y = np.array(dados[3:])
 
+    # plot do sinal no tempo
     plt.plot(t,y,label= name)
 
-    if first:
-        popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
-        K  = popt[0]
-        a  = popt[1]
-        y_reg = func(t, K, a);
-        plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
-        print_analizy(name,ref, K, 1.0/a, t, y);
-        # first = False
+    popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
+    K  = popt[0]
+    a  = popt[1]
+    print_analizy(name,ref, K, 1.0/a, t, y);
+    y_reg = func(t, K, a);
 
+    # plot da regressao
+    plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
 
+# plot da referencia
 plt.plot(t, np.full(t.size,omegaRef), label=r'$\omega_{ref} = %.3f$'%(omegaRef))
 
 plt.xlabel('t(s)')

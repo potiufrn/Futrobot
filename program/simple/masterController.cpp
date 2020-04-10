@@ -68,6 +68,12 @@ typedef struct
   coefLine_t coef[4];
 }parameters_t;
 
+typedef struct
+{
+  double  rawOmega;  //ultimo omega medido, sem filtro
+  double  omega;     //omega filtrado
+}encoder_data_t;
+
 string getDate()
 {
   time_t rawtime;
@@ -82,8 +88,7 @@ string getDate()
   return strTime;
 }
 
-
-void saveToFile(const double *datas, const int size, const float timeout, const char* fileName);
+void saveToFile(encoder_data_t vec_data[], const int size, const float timeout, const double omegaRef, const string &fileName);
 
 void bytes2float(const uint8_t *bitstream, float*f, uint32_t num_float)
 {
@@ -107,7 +112,6 @@ void encodeFloat(const float* vec_f, uint8_t *bitstream)
   bitstream[2] = (ref_b[1] & 0xFF00) >> 8;
   bitstream[3] = (ref_b[1] & 0x00FF);
 }
-
 
 
 void _printMainMenu()
@@ -148,10 +152,8 @@ void _printListMACs(){
 
 int main(int argc, char** argv)
 {
-  double time_stemp[2];
+  double  time_stemp[2];
   uint8_t *bitstream;
-  float   *vec_float;
-  double  *vec_double;
   int     idBt = -1;
   int     choice;
 
@@ -181,8 +183,9 @@ int main(int argc, char** argv)
 
     switch (choice){
     case OPTION::_rec_omegas://solicitar omegas
+    {
       bitstream = new uint8_t[1];
-      vec_double = new double[2];
+      double *vec_double = new double[2];
 
       memset(vec_double, 0, 2*sizeof(double));
 
@@ -201,8 +204,8 @@ int main(int argc, char** argv)
 
       delete[] bitstream;
       delete[] vec_double;
-
       break;
+    }
     case OPTION::_connect://conectar
       _printListMACs();
       cin >> idBt;
@@ -232,7 +235,8 @@ int main(int argc, char** argv)
       break;
     case OPTION::_send_ref://omegas ref
     case OPTION::_send_pwm://omegas sinal de controle
-      vec_float = new float[2];
+    {
+      float *vec_float = new float[2];
       bitstream = new uint8_t[5];
       memset(bitstream, 0, 5*sizeof(uint8_t));
       memset(vec_float, 0, 2*sizeof(float));
@@ -254,6 +258,7 @@ int main(int argc, char** argv)
       delete[] bitstream;
       delete[] vec_float;
       break;
+    }
     case OPTION::_calibration://calibrar
       bitstream = new uint8_t;
       bitstream[0] = CMD_HEAD | CMD_CALIBRATION;
@@ -262,6 +267,8 @@ int main(int argc, char** argv)
       break;
     case OPTION::_identify://identificar
     {
+      encoder_data_t *vec_data = NULL;
+      double omegaRef;
       uint8_t motor, typeC;
       float setpoint;
       int size;
@@ -282,24 +289,35 @@ int main(int argc, char** argv)
       bitstream[1]                   = ((motor << 7)  | typeC) & 0b10000001;
       *(float*)&bitstream[2 + 0*sizeof(float)] = setpoint;
 
+      //envia comando para iniciar a identificação
       btAction.sendBluetoothMessage(idBt, bitstream, 2 + 1*sizeof(float));
+      time_stemp[0] = omp_get_wtime();
 
       printf("Esperando...\n");
+      //aguarda receber a informação da quantidade de medições
       rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&size, sizeof(int), 10);
       if(rec == -1)
       {
         _pause("timeout! erro ao receber informacao do size");
         continue;
       }
-      else
-        printf("Medicoes:%d\n", size);
-      rec = 0;
-      vec_double  = new double[size];
-
-      time_stemp[0] = omp_get_wtime();
-      for(int i = 0; i < size; i += 100)
+      else printf("Medicoes:%d\n", size);
+      sumRec += rec;
+      vec_data = new encoder_data_t[size];
+      memset(vec_data, 0, size*sizeof(encoder_data_t));
+      //aguarda receber a informação da quantidade de medições
+      rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&omegaRef, sizeof(double), 10);
+      if(rec == -1)
       {
-        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_double[i], 100*sizeof(double), 10);
+        _pause("timeout! erro ao receber informacao do omega de referencia");
+        continue;
+      }
+      else printf("Omega ref:%lf\n", omegaRef);
+      sumRec += rec;
+
+      for(int i = 0; i < size; i += 50)
+      {
+        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_data[i], 50*sizeof(encoder_data_t), 10);
         printf("Recebi:%d bytes\n", rec);
         if(rec == -1)
           puts("timeout!");
@@ -317,7 +335,7 @@ int main(int argc, char** argv)
         cout << "Que nome devo colocar no arquivo ? ";
         scanf("%50s", fileName);
 
-        saveToFile(vec_double, size, 2.0, (string("etc/") + string(fileName)).c_str() );
+        saveToFile(vec_data, size, 2.0, omegaRef, string(fileName));
         cout << "Salvando...\n";
         printf("Salvo! Em: %s\n", (string("etc/") + string(fileName)).c_str());
         _pause();
@@ -327,8 +345,7 @@ int main(int argc, char** argv)
       }
 
       delete[] bitstream;
-      delete[] vec_double;
-
+      delete[] vec_data;
       break;
     }
     case OPTION::_graphic://graficos
@@ -372,14 +389,28 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void saveToFile(const double *datas, const int size, const float timeout, const char* fileName)
+void
+saveToFile(encoder_data_t vec_data[],
+           const int size,
+           const float timeout,
+           const double omegaRef,
+           const string &fileName)
 {
-  ofstream out(fileName);
+  string fileR = string("etc/raw_") + fileName + string(".out");
+  string fileF = string("etc/filtered_") + fileName + string(".out");
 
-  out << size << ',' << timeout;
+  ofstream outR(fileR);
+  ofstream outF(fileF);
+
+  outR << size << ',' << timeout << ',' << omegaRef;
+  outF << size << ',' << timeout << ',' << omegaRef;
+
+  cout << "Save to File\n";
   for(int i = 0; i < size; i++){
-    out << ',' << datas[i];
+    outR << ',' << vec_data[i].rawOmega;
+    outF << ',' << vec_data[i].omega;
   }
 
-  out.close();
+  outR.close();
+  outF.close();
 }
