@@ -1,12 +1,11 @@
 #include <string>
 #include <fstream>
 #include <iostream>          //cout, cerr, cin
-#include <cstdio>           //printf
+#include <cstdio>            //printf
 #include <unistd.h>          //sleep
 #include <bluetoothAction.h>
 #include <cmath>
 #include <omp.h>
-
 
 #define MAC_ESP_TEST   "30:AE:A4:3B:A4:26"
 #define MAC_ESP_ROBO_1 "30:AE:A4:20:0E:12"
@@ -25,7 +24,6 @@
 
 #define CMD_CALIBRATION    0x04
 #define CMD_IDENTIFY       0x05
-// #define CMD_SET_KP         0x06
 
 #define CMD_REF            0x0A
 #define CMD_CONTROL_SIGNAL 0x0B
@@ -55,6 +53,15 @@ BluetoothAction btAction;
 
 typedef struct
 {
+  double  rawOmega;  //ultimo omega medido, sem filtro
+  double  omega;     //omega filtrado
+  double  pOmega;    //predicted omega
+  double  kGain;     //kalman gain
+  double  p;      //preditec variance
+}encoder_data_t;
+
+typedef struct
+{
   double ang; //coef. angular da reta
   double lin;  //coef. linear da reta
 }coefLine_t;
@@ -67,12 +74,6 @@ typedef struct
   double tau[2];       //constante de tempo, motor esquerdo e direito
   coefLine_t coef[4];
 }parameters_t;
-
-typedef struct
-{
-  double  rawOmega;  //ultimo omega medido, sem filtro
-  double  omega;     //omega filtrado
-}encoder_data_t;
 
 string getDate()
 {
@@ -315,9 +316,10 @@ int main(int argc, char** argv)
       else printf("Omega ref:%lf\n", omegaRef);
       sumRec += rec;
 
-      for(int i = 0; i < size; i += 50)
+      int step = 20;
+      for(int i = 0; i < size; i += step)
       {
-        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_data[i], 50*sizeof(encoder_data_t), 10);
+        rec = btAction.recvBluetoothMessage(idBt, (uint8_t*)&vec_data[i], step*sizeof(encoder_data_t), 20);
         printf("Recebi:%d bytes\n", rec);
         if(rec == -1)
           puts("timeout!");
@@ -398,19 +400,34 @@ saveToFile(encoder_data_t vec_data[],
 {
   string fileR = string("etc/raw_") + fileName + string(".out");
   string fileF = string("etc/filtered_") + fileName + string(".out");
+  string fileP = string("etc/predicted_") + fileName + string(".out");
+  string fileG = string("etc/gain_") + fileName + string(".out");
+  string fileU = string("etc/uncertainty_") + fileName + string(".out");
 
   ofstream outR(fileR);
   ofstream outF(fileF);
+  ofstream outP(fileP);
+  ofstream outG(fileG);
+  ofstream outU(fileU);
 
   outR << size << ',' << timeout << ',' << omegaRef;
   outF << size << ',' << timeout << ',' << omegaRef;
+  outP << size << ',' << timeout << ',' << omegaRef;
+  outG << size << ',' << timeout;
+  outU << size << ',' << timeout;
 
   cout << "Save to File\n";
   for(int i = 0; i < size; i++){
     outR << ',' << vec_data[i].rawOmega;
     outF << ',' << vec_data[i].omega;
+    outP << ',' << vec_data[i].pOmega;
+    outG << ',' << vec_data[i].kGain;
+    outU << ',' << vec_data[i].p;
   }
 
   outR.close();
   outF.close();
+  outP.close();
+  outG.close();
+  outU.close();
 }

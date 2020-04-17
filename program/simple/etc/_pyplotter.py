@@ -43,7 +43,6 @@ files.sort()
 for i in range(0,len(files)):
     print(i, '- ', files[i])
 
-# OBS.: Para o caso de mais de um grafico o primeiro index informado sera o utilizado para a interpolacao
 index = list(map(lambda x:int(x), (input("index do(s) arquivo(s) para plotter?\t").split(' '))))
 
 os.system('clear')
@@ -56,28 +55,38 @@ for plotID in index:
 
     size    = int(dados[0])
     timeout = dados[1]
-    omegaRef= dados[2]
-
     t = np.linspace(0,timeout, size)
-    y = np.array(dados[3:])
 
-    # plot do sinal no tempo
-    plt.plot(t,y,label= name)
-
-    popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
-    K  = popt[0]
-    a  = popt[1]
-    print_analizy(name,ref, K, 1.0/a, t, y);
-    y_reg = func(t, K, a);
-
-    # plot da regressao
-    plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
+    if name.split(' ')[0] == 'gain':
+        y = np.array(dados[2:])
+        plt.plot(t,y, 'k-', label= name)
+        plt.ylabel('Kalman gain')
+    elif name.split(' ')[0] == 'uncertainty':
+        y = np.array(dados[2:])
+        plt.plot(t,y, 'b-', label= name)
+        plt.ylabel('Uncertainty')
+    else:# omegas
+        omegaRef= dados[2]
+        y = np.array(dados[3:])
+        if name.split(' ')[0] == 'raw':
+            plt.plot(t,y, 'b-', label= name)
+        elif name.split(' ')[0] == 'predicted':#predicao
+            plt.plot(t,y, 'm-', label= name)
+        else:#filtered
+            plt.plot(t,y, 'r-', label= name)
+        # plot do sinal no tempo
+        popt, pcov = curve_fit(func, t, y, bounds=([-10000., 0.1], [10000., 1.0/0.001]))
+        K  = popt[0]
+        a  = popt[1]
+        print_analizy(name,ref, K, 1.0/a, t, y);
+        y_reg = func(t, K, a);
+        # plot da regressao
+        plt.plot(t, y_reg, 'k--', label=r'$\omega(t) = %.3f[1 - \exp(-\frac{1}{%.3f}t)]$'%(K,1.0/a))
+        plt.ylabel(r'$\omega(rad/s)$')
 
 # plot da referencia
-plt.plot(t, np.full(t.size,omegaRef), label=r'$\omega_{ref} = %.3f$'%(omegaRef))
-
+# plt.plot(t, np.full(t.size,omegaRef), 'g-', label=r'$\omega_{ref} = %.3f$'%(omegaRef))
 plt.xlabel('t(s)')
-plt.ylabel(r'$\omega(rad/s)$')
 plt.grid()
 plt.legend()
 plt.title("")
