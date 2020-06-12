@@ -1,6 +1,0 @@
-RF: Right Front  | RB: Right Back
-LF: Left Front   | LB: Left Back
-
-M1: Omega calculada nas interrupcoes dos encoders
-M2: Omega calcula no ciclo de controle, soma_de_pulsos*k/dtController
-M3: Media entre M1 e M2

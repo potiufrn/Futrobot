@@ -7,7 +7,7 @@ CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 LDLIBS = -lbluetoothAction -lbluetooth
 
-PROGRAMS	= masterController
+PROGRAMS	= 
 
 all: simple	${PROGRAMS}
 

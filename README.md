@@ -1,7 +1,7 @@
 Universidade Federal do Rio Grande do Norte - Departamento de Engenharia de Computação e Automação - DCA
 Time Poti de Futebol de Robôs
 =================
-> Para utilização do sistema do Time Poti é necessário a utilização de um sistema operacional Linux. 
+> Para utilização do sistema do Time Poti é necessário a utilização de um sistema operacional Linux.
 
 > A manipulação do sistema é feita via Terminal do Linux, tendo a interface gráfica apenas o módulo de calibração.
 
@@ -42,10 +42,10 @@ make install
 Ir nas pastas `program/calibrador` e `program/main` e utilizar os comandos:
 ```
 make clean
-make 
+make
 ```
 
-Após essas etapas, você pode fazer a `calibração` do campo com seus objetos ou fazer um jogo. 
+Após essas etapas, você pode fazer a `calibração` do campo com seus objetos ou fazer um jogo.
 Caso opte em calibração, deve-se verificar se a câmera a ser usada está referenciada corretamente.
 ```
 ### Calibração e Jogo
@@ -55,7 +55,7 @@ Para fazer a calibração, basta executar em `program/calibrador`
 ./calibrador
 ```
 
-Ou 
+Ou
 
 Para fazer um jogo, basta executar em `program/main`
 ```

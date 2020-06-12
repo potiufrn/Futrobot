@@ -1,0 +1,3 @@
+[submodule "libsrc/bluetoothAction"]
+	path = libsrc/bluetoothAction
+	url = https://github.com/potiufrn/bluetoothAction.git
