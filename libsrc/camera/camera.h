@@ -1,3 +1,6 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <linux/videodev2.h> //struct v4l2 ...
 #include <fcntl.h>  // O_RDWR
 #include <unistd.h> //close()
@@ -19,12 +22,10 @@
 //Default
 #define WIDTH 640
 #define HEIGHT 480
-#define FPS 30
+#define FPS 100
 
-//WARNING o numero de buffer pode ser alterado
-//mas nao se sabe ate o momento, quais vantagens isso traz
-//por isso eh mantida como 1
-#define NUM_BUFFERS 1
+//WARNING numero minimo
+#define NUM_BUFFERS 2
 
 //Estrutura para auxiliar o controle dos controladores do dispositivo
 //como brilho, ganho, exposicao...
@@ -80,20 +81,9 @@ protected:
    bool capturando;
    bool encerrar;
 
-   // inline PIXEL_FORMAT getPxFormat()const{ return ImBruta.; }
-   // inline const uint8_t* getDataImage()const{ return meuBuffer[index_frame].bytes; }
-   // const unsigned getDataSize()const{ return meuBuffer[index_frame].length; }
-
-
    //WARNING O metodo captureimage(), faz um novo "pedido de imagem",ao passo que o waitforimage()
    //aguarda para poder retirar uma imagem pronta(que ja se encontra no buffer) e a deixa acessivel
-   //para usuario (sera a que aparecera na ImBruta).
-   //WARNING Para se realizar uma captura eh preciso primeiro fazer um captureimage() e em
-   //seguida fazer um waitforimage(), porem por questoes de desempenho, esta classe faz um captureimage()
-   //logo em sua inicializacao, ou seja, basta o usuario fazer um waitforimage() para ter acesso a essa
-   //captura e voltar a ordem "normal" de pedido de imagem (capture depois wait).
-   //Estes metodos retornam true em caso de saida indesejada
-   //e false caso tudo ocorreu como esperado
+   //para usuario (que estara disponivel na ImBruta).
    bool captureimage();
    bool waitforimage();
 
@@ -127,7 +117,7 @@ protected:
    bool read(std::istream &I);
    //Os metodos abaixo Retornam false caso o controler nao exista (get)
    //para o dispositivo ou ocorra falha na setagem dos parados
-   
+
    bool queryBrightness(struct controler &ctrl)const;
    int  getBrightness()const;
    bool setBrightness(int v);
@@ -168,3 +158,5 @@ protected:
    //WARNING este metodo nao funcionou como esperado
    bool queryMinBuffer(struct controler &ctrl)const;
 };
+
+#endif

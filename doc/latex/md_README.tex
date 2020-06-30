@@ -1,0 +1,73 @@
+Universidade Federal do Rio Grande do Norte -\/ Departamento de Engenharia de Computação e Automação -\/ D\+CA \section*{Time Poti de Futebol de Robôs }
+
+\begin{quote}
+Para utilização do sistema do Time Poti é necessário a utilização de um sistema operacional Linux. \end{quote}
+
+
+\begin{quote}
+A manipulação do sistema é feita via Terminal do Linux, tendo a interface gráfica apenas o módulo de calibração. \end{quote}
+
+
+\subsection*{Getting Started }
+
+\subsubsection*{Instalação de bibliotecas e pacotes}
+
+Inicialmente, é interessante que seu sistemas esteja atualizado. Para isso, deve ser utilizado o comando\+:
+
+
+\begin{DoxyCode}
+1 sudo apt-get update
+\end{DoxyCode}
+
+
+Comando para instalação de pacotes para utilização do bluetooth 
+\begin{DoxyCode}
+1 sudo apt-get install bluetooth bluez-utils blueman
+\end{DoxyCode}
+
+
+Após esse comado, verificar se na pasta include do computador está a pasta {\ttfamily /usr/include/bluetooth}. Caso não, use o comando a seguir\+: 
+\begin{DoxyCode}
+1 sudo apt-get install build-essential libbluetooth-dev libdbus-1-dev
+\end{DoxyCode}
+
+
+Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir\+: 
+\begin{DoxyCode}
+1 sudo apt-get install libqt4-dev qt4-dev-tools
+\end{DoxyCode}
+
+
+\subsubsection*{Make Make Make Make Make...}
+
+Agora, utilizar os comandos a seguir em todas as pastas da pasta {\ttfamily libsrc}\+: 
+\begin{DoxyCode}
+1 make
+2 make clean
+3 make install
+\end{DoxyCode}
+
+
+Ir nas pastas {\ttfamily program/calibrador} e {\ttfamily program/main} e utilizar os comandos\+: 
+\begin{DoxyCode}
+1 make clean
+2 make 
+\end{DoxyCode}
+
+
+Após essas etapas, você pode fazer a {\ttfamily calibração} do campo com seus objetos ou fazer um jogo. Caso opte em calibração, deve-\/se verificar se a câmera a ser usada está referenciada corretamente. ``` \subsubsection*{Calibração e Jogo}
+
+Para fazer a calibração, basta executar em {\ttfamily program/calibrador} 
+\begin{DoxyCode}
+1 ./calibrador
+\end{DoxyCode}
+
+
+Ou
+
+Para fazer um jogo, basta executar em {\ttfamily program/main} 
+\begin{DoxyCode}
+1 ./main
+\end{DoxyCode}
+ \begin{quote}
+Divirta-\/se!!\end{quote}

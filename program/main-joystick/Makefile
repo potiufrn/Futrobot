@@ -1,4 +1,4 @@
-BASEDIR = /futrobot
+BASEDIR = ../..
 
 CC = g++
 CXX = g++
@@ -7,7 +7,7 @@ CFLAGS =
 LDFLAGS = -O2 -L ${BASEDIR}/lib
 
 #Use essa opcao para compilar o sistema real e o simulado
-LDLIBS = -lcamera -ldc1394 -lraw1394 -limagem -lotim -lmatrix -lpthread -lssocket -lftdi -lusbRobot
+LDLIBS = -lcamera -lraw1394 -limagem -lotim -lmatrix -lpthread -lssocket -lftdi -lusbRobot
 
 #Use essa opcao para compilar somente o sistema simulado
 #LDLIBS = -lmatrix -lpthread -lssocket
@@ -59,12 +59,10 @@ futjoy.o: futjoy.h futjoy.cpp
 
 ##### SPECIAL TARGETS ######
 
-.PHONY: clean realclean 
+.PHONY: clean realclean
 
 clean:
-	-rm -f *.o *~ 
+	-rm -f *.o *~
 
 realclean: clean
 	-rm -f main
-
-

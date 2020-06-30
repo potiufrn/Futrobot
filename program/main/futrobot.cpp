@@ -3,6 +3,8 @@
 #include "futrobot.h"
 #include <sys/time.h>
 
+#include <system_tools.h>
+
 using namespace std;
 
 // inline void* exxport2(void *x){
@@ -73,35 +75,33 @@ void Futrobot::management()
   double myt_start, myt_end_cap, myt_end_acq, myt_end_loc, myt_end_str, myt_end_obs, myt_end_con, myt_end_tra, myt_end_exp;
   cout<<"management!"<<endl;
   if(gameState() == FINISH_STATE) cout <<"gameState() == FINISH_STATE"<<endl;
-  //  cont_teste = 0;
+
   while (gameState() != FINISH_STATE) {
     // Espera por uma nova imagem
+
     if (gameState() != FINISH_STATE && acquisitionWait()) { //VERIFICAR USO DO AND OU OR
       finish();
       cerr << "Erro na espera por nova imagem!\n";
     }
-    //  cout << "esperou imagem\n";
     myt_start = relogio();
     dt_amostr = myt_start - t_start;
     //teste para evitar divisoes por zero.
-    if(dt_amostr == 0.0) dt_amostr = FRAME_RATE_INICIAL;
+    if(dt_amostr == 0.0) dt_amostr = 1.0/FPS;
     // Lẽ a nova imagem
     if (gameState() != FINISH_STATE && acquisitionCapture()) {
       finish();
       cerr << "Erro na leitura da nova imagem!\n";
     }
+
+
     id_pos++;
-    //    cout << "Pegou imagem\n";
     myt_end_cap = relogio();
     // Fornece a pose dos robos e a posicao da
     // bola em coordenadas de mundo.
-
     if (gameState() != FINISH_STATE && acquisition()) {
       finish();
       cerr << "Erro no processamento da imagem!\n";
     }
-    //cout << "Processou imagem\n";
-    //cout << pos.ball.x() << endl << pos.ball.y() << endl << endl;
     myt_end_acq = relogio();
     //Realiza a correcao e filtragem da pose dos robos e da bola.
     if (gameState() != FINISH_STATE && localization()) {
@@ -128,8 +128,6 @@ void Futrobot::management()
       cerr << "Erro no controle dos robos!\n";
     }
     myt_end_con = relogio();
-
-
     // export_ready = true;
     // Informa as tensoes para os robos.
     if (gameState() != FINISH_STATE && transmission()) {
@@ -160,9 +158,6 @@ void Futrobot::management()
     t_end_con = myt_end_con;
     t_end_tra = myt_end_tra;
     t_end_exp = myt_end_exp;
-
-    //    cont_teste++;
-    //    cout << cont_teste << endl;
   }
   // para os robos em caso de fim de jogo
   for( int i=0; i<3; i++ ){
