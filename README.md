@@ -1,6 +1,7 @@
-Universidade Federal do Rio Grande do Norte - Departamento de Engenharia de Computação e Automação - DCA
-Time Poti de Futebol de Robôs
-=================
+# Universidade Federal do Rio Grande do Norte - Departamento de Engenharia de Computação e Automação - DCA
+
+# Time Poti de Futebol de Robôs
+
 > Para utilização do sistema do Time Poti é necessário a utilização de um sistema operacional Linux. 
 
 > A manipulação do sistema é feita via Terminal do Linux, tendo a interface gráfica apenas o módulo de calibração.
@@ -16,14 +17,14 @@ Inicialmente, é interessante que seu sistemas esteja atualizado. Para isso, dev
   sudo apt-get update
 ```
 
-Comando para instalação de pacotes para utilização do bluetooth
+Use o seguinte comando para a instalação de pacotes essenciais
 ```
-sudo apt-get install bluetooth bluez-utils blueman
+sudo apt-get install build-essential
 ```
 
-Após esse comado, verificar se na pasta include do computador está a pasta `/usr/include/bluetooth`. Caso não, use o comando a seguir:
+Comando para instalação de pacotes para utilização do bluetooth
 ```
-sudo apt-get install build-essential libbluetooth-dev libdbus-1-dev
+sudo apt-get install libbluetooth-dev
 ```
 
 Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
@@ -31,18 +32,10 @@ Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
 sudo apt-get install libqt4-dev qt4-dev-tools
 ```
 
-### Make Make Make Make Make...
-Agora, utilizar os comandos a seguir em todas as pastas da pasta `libsrc`:
+### Make ...
+Agora, utilizamos o comando a seguir para compilar o programa
 ```
 make
-make clean
-make install
-```
-
-Ir nas pastas `program/calibrador` e `program/main` e utilizar os comandos:
-```
-make clean
-make 
 ```
 
 Após essas etapas, você pode fazer a `calibração` do campo com seus objetos ou fazer um jogo. 
