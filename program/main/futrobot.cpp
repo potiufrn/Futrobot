@@ -7,32 +7,10 @@
 
 using namespace std;
 
-// inline void* exxport2(void *x){
-//   ImagemRGB img(0,0);
-//   unsigned qtd = 0;
-//   while( ((Futrobot*)x)->gameState() != FINISH_STATE){
-//
-//     if( ((Futrobot*)x)->export_ready ){
-//       qtd++;
-//       // std::cerr << "Copiando imagem" << '\n';
-//       ((Futrobot*)x)->export_ready = false;
-//       img = ((Futrobot*)x)->ImBruta;
-//       ((Futrobot*)x)->exxport((const PxRGB*)img.getRawData());
-//       if(qtd == 10){
-//
-//         img.save("imgExport.ppm");
-//       }
-//
-//     }
-//   }
-//   pthread_exit(NULL);
-// }
-
 inline void* management2( void *x )
 {
   ((Futrobot*)x)->management();
   cout << "Saiu do management2." << endl;
-
 }
 
 Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
@@ -44,7 +22,6 @@ Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
    Control(team,side,gameMode),
    Transmission(team,side,gameMode),
    Export(team,side,gameMode)
-   // ,export_ready(false)
 {
   t_start = t_end_acq = t_end_loc = t_end_str = t_end_obs =
     t_end_con = t_end_tra = t_end_exp = 0.0;
@@ -57,14 +34,12 @@ bool Futrobot::start_management()
   // start_transmission();
 #endif
   if(pthread_create(&thr_ger, NULL, management2, (void*)this)) return true;
-  // if(pthread_create(&thr_export, NULL, exxport2, (void*)this)) return true;
   return false;
 }
 
 bool Futrobot::finish_management()
 {
   pthread_join(thr_ger,NULL);
-  // pthread_join(thr_export,NULL);
   return(false);
 }
 
@@ -88,20 +63,23 @@ void Futrobot::management()
     //teste para evitar divisoes por zero.
     if(dt_amostr == 0.0) dt_amostr = 1.0/FPS;
     // Lẽ a nova imagem
-    if (gameState() != FINISH_STATE && acquisitionCapture()) {
+
+    // printf("\n **** acquisitionCapture... **** \n");
+    if (gameState() != FINISH_STATE && acquisitionCapture()){
       finish();
       cerr << "Erro na leitura da nova imagem!\n";
     }
-
 
     id_pos++;
     myt_end_cap = relogio();
     // Fornece a pose dos robos e a posicao da
     // bola em coordenadas de mundo.
-    if (gameState() != FINISH_STATE && acquisition()) {
+    // printf("\n **** acquisition... **** \n");
+    if (gameState() != FINISH_STATE && acquisition()){
       finish();
       cerr << "Erro no processamento da imagem!\n";
     }
+    
     myt_end_acq = relogio();
     //Realiza a correcao e filtragem da pose dos robos e da bola.
     if (gameState() != FINISH_STATE && localization()) {
@@ -109,6 +87,7 @@ void Futrobot::management()
       cerr << "Erro na localizacao dos robos!\n";
     }
     myt_end_loc = relogio();
+    
     // Calcula as posicoes finais dos robos.
     if (gameState() != FINISH_STATE && strategy()) {
       finish();
@@ -122,30 +101,26 @@ void Futrobot::management()
       cerr << "Erro no desvio de obstaculos!\n";
     }
     myt_end_obs = relogio();
+
     // Calcula o novo controle (ou seja, as novas tensoes dos motores)
-    if (gameState() != FINISH_STATE && control()) {
+    if (gameState() != FINISH_STATE && control()){
       finish();
       cerr << "Erro no controle dos robos!\n";
     }
     myt_end_con = relogio();
-    // export_ready = true;
+    
     // Informa as tensoes para os robos.
     if (gameState() != FINISH_STATE && transmission()) {
       finish();
       cerr << "Erro na transmissao dos dados!\n";
     }
     myt_end_tra = relogio();
-    // Modulo de exportacao dos dados
 
-    // if (gameState() != FINISH_STATE && exxport( (PxRGB*)ImagemRGB(ImBruta).getRawData()) ) {
-    //    finish();
-    //    cerr << "Erro na exportacao dos dados!\n";
-    // }
+    // Modulo de exportacao dos dados
     if (gameState() != FINISH_STATE && exxport() ) {
        finish();
        cerr << "Erro na exportacao dos dados!\n";
     }
-
 
     myt_end_exp = relogio();
 
@@ -172,70 +147,6 @@ static double format(double x)
     if (x==POSITION_UNDEFINED || fabs(x)>9.999) return 9.999;
     else return x;
 }
-
-/*
-void Futrobot::print_state()
-{
-  char buffer[6];
-  //move(0,0);
-  //clrtobot();
-
-  mvaddstr( 0,0,"+--------+--------------------------+--------------------------+--------+");
-  mvaddstr( 1,0,"| EQUIPE |           MEUS           |        ADVERSARIOS       |  BOLA  |");
-  mvaddstr( 2,0,"| ROBO   | 0 CIAN | 1 ROSA | 2 VERD | 0 CIAN | 1 ROSA | 2 VERD |        |");
-  mvaddstr( 3,0,"+--------+--------------------------+--------------------------+--------+");
-  mvaddstr( 4,0,"| Pos x  | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr( 5,0,"| Pos y  | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr( 6,0,"| Pos th | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr( 7,0,"+--------+--------------------------+--------------------------+--------+");
-  mvaddstr( 8,0,"| Ref x  | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr( 9,0,"| Ref y  | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr(10,0,"| Ref th | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr(11,0,"+--------+--------------------------+--------------------------+--------+");
-  mvaddstr(12,0,"| PWM di | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr(13,0,"| PWM es | ------ | ------ | ------ | ------ | ------ | ------ | ------ |");
-  mvaddstr(14,0,"+--------+--------------------------+--------------------------+--------+");
-  mvaddstr(15,2,  "R - Refresh");
-  mvaddstr(16,2,  "T - Finish");
-  mvaddstr(17,2,  "--> ");
-
-  for (int j=0; j<3; j++) {
-    sprintf(buffer,"%+6.3f",format(pos.me[j].x()));
-    mvaddstr(4,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pos.op[j].x()));
-    mvaddstr(4,38+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pos.me[j].y()));
-    mvaddstr(5,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pos.op[j].y()));
-    mvaddstr(5,38+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pos.me[j].theta()));
-    mvaddstr(6,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pos.op[j].theta()));
-    mvaddstr(6,38+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(ref.me[j].x()));
-    mvaddstr(8,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(ref.me[j].y()));
-    mvaddstr(9,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(ref.me[j].theta()));
-    mvaddstr(10,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pwm.me[j].right));
-    mvaddstr(12,11+9*j,buffer);
-    sprintf(buffer,"%+6.3f",format(pwm.me[j].left));
-    mvaddstr(13,11+9*j,buffer);
-  }
-  sprintf(buffer,"%+6.3f",format(pos.ball.x()));
-  mvaddstr(4,65,buffer);
-  sprintf(buffer,"%+6.3f",format(pos.ball.y()));
-  mvaddstr(5,65,buffer);
-
-  mvaddstr(19,0,"\nOpções disponíveis:\n");
-  mvaddstr(20,0,"P - Para im(P)rimir posições atuais\n");
-  mvaddstr(21,0,"T - Para (T)erminar a partida\n");
-
-  refresh();
-
-}
-*/
 
 void Futrobot::print_state() const
 {
@@ -292,20 +203,3 @@ void Futrobot::print_state() const
   cout <<   "--> " << endl;
 
 }
-
-
-// bool Futrobot::exportdat() {
-//   PACKAGEDAT pack;
-//   pack.refer = ref;
-//   pack.pwm = pwm;
-//   pack.posicao = pos;
-//   pack.goleiro = goleiro;
-//   pack.atacante = atacante;
-//   pack.zagueiro = zagueiro;
-//   pack.pap = expap();
-//   //INICIO REGIAO CRITICA
-//   pac_comp = pack;
-//   img_comp = ImBruta;
-//   //FINAL REGIAO CRITICA
-//   return false;
-// }

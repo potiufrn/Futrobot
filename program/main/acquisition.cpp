@@ -225,7 +225,8 @@ Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
 
 Acquisition::~Acquisition(){
   if(gameMode() == SIMULATED_MODE){
-    sock.close();
+    sock_cmd.close();
+    sock_acq.close();
   }
 }
 
@@ -233,12 +234,12 @@ Acquisition::~Acquisition(){
 bool Acquisition::configAcquisition(const char *str)
 {
   cout << "Configurando aquisicao..." << endl;
-  if(gameMode() == SIMULATED_MODE){
-    if(sock.connect(str, myTeam() == YELLOW_TEAM? PORTA_AMRL :
-		    PORTA_AZUL) != SOCKET_OK){
-      cerr << "Erro ao criar o socket\n";
+  if(gameMode() == SIMULATED_MODE){  
+    if(sock_acq.joinMulticastGroup(DEFAULT_MULTICAST_ADDR, PORT_MCAST) != SOCKET_OK){
+      cerr << "Ao entrar no grupo mult cast\n";
       return true;
     }
+    server_IP = str;
     return false;
   }
 #ifndef _SO_SIMULADO_
@@ -1264,63 +1265,57 @@ bool Acquisition::processGameState(){
 
 bool Acquisition::readGameState()
 {
-  static SITUACAO minhaSit;
-  SOCKET_STATUS retorno;
-  static fsocket fila;
+  static fira_message::sim_to_ref::Environment packet;
+  static fira_message::Frame detection;
+  static uint8_t dgram[MAX_DGRAM_SIZE] = {0};
 
-  // Espera por uma imagem no socket; le todas as disponoveis e guarda a ultima
-  if (!sock.connected()) {
-    cerr << "Servidor nao conectado\n";
+  if (!sock_acq.connected()) {
+    cerr << "Sock Não associado ao grupo multicast\n";
     return true;
   }
-  do {
-    retorno = sock.read((void *)&minhaSit, sizeof(SITUACAO));
-    if( retorno == SOCKET_OK ) {
-      fila.clean();
-      fila.include(sock);
-      retorno = fila.wait_read(0);
-      if( retorno != SOCKET_TIMEOUT && retorno != SOCKET_OK ) {
-	cerr << "Erro na fila interna de socket" << endl;
-	return true;
+
+  int r = sock_acq.recvFrom(dgram, MAX_DGRAM_SIZE, DEFAULT_MULTICAST_ADDR, PORT_MCAST, false);  
+  if(r >= 0){
+      packet.ParseFromArray((void*)dgram, r);
+      if(packet.has_frame()){
+        detection = packet.frame();
+      }else{
+        return false;
       }
+  }else{
+    cerr << "Falha no recebimento de dados\n";
+    return true;
+  }
+  // id_pos = minhaSit.id;
+  // if (id_pos-id_ant!=1 && id_ant!=0) {
+  //   cerr << "Quadros perdidos: anterior=" << id_ant
+	//  << " atual=" << id_pos << endl;
+  // }
+
+  for (int i=0; i < 3; i++) {
+    if (myTeam() == BLUE_TEAM){
+      pos.me[i].x() = detection.robots_blue(i).x();
+      pos.me[i].y() = detection.robots_blue(i).y();
+      pos.me[i].theta() = detection.robots_blue(i).orientation();
+
+      pos.op[i].x() = detection.robots_yellow(i).x();
+      pos.op[i].y() = detection.robots_yellow(i).y();
+      pos.op[i].theta() = detection.robots_yellow(i).orientation();
     }
     else {
-      cerr << "Erro na leitura da camera do simulador" << endl;
-      sock.close();
-      return true;
-    }
-  } while( retorno == SOCKET_OK );
-  id_pos = minhaSit.id;
-  if (id_pos-id_ant!=1 && id_ant!=0) {
-    cerr << "Quadros perdidos: anterior=" << id_ant
-	 << " atual=" << id_pos << endl;
-  }
-  for (int i=0; i<3; i++) {
-    if (myTeam() == BLUE_TEAM) {
-      pos.me[i].x() = minhaSit.pos.azul[i].x();
-      pos.me[i].y() = minhaSit.pos.azul[i].y();
-      pos.me[i].theta() = minhaSit.pos.azul[i].theta();
-      pos.op[i].x() = minhaSit.pos.amrl[i].x();
-      pos.op[i].y() = minhaSit.pos.amrl[i].y();
-      pos.op[i].theta() = minhaSit.pos.amrl[i].theta();
-    }
-    else {
-      pos.op[i].x() = minhaSit.pos.azul[i].x();
-      pos.op[i].y() = minhaSit.pos.azul[i].y();
-      pos.op[i].theta() = minhaSit.pos.azul[i].theta();
-      pos.me[i].x() = minhaSit.pos.amrl[i].x();
-      pos.me[i].y() = minhaSit.pos.amrl[i].y();
-      pos.me[i].theta() = minhaSit.pos.amrl[i].theta();
-    }
-  }
-  pos.ball.x() = minhaSit.pos.bola.x();
-  pos.ball.y() = minhaSit.pos.bola.y();
+      pos.me[i].x() = detection.robots_yellow(i).x();
+      pos.me[i].y() = detection.robots_yellow(i).y();
+      pos.me[i].theta() = detection.robots_yellow(i).orientation();
 
-  if(saveNextImage){
-    printf("Nao ha o que imprimir no modo simulado.\n");
-    saveNextImage = false;
+      pos.op[i].x() = detection.robots_blue(i).x();
+      pos.op[i].y() = detection.robots_blue(i).y();
+      pos.op[i].theta() = detection.robots_blue(i).orientation();
+    }
   }
+  pos.ball.x() = detection.ball().x();
+  pos.ball.y() = detection.ball().y();
 
+  saveNextImage = false;
   return false;
 }
 

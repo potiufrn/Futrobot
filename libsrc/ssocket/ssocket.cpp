@@ -8,17 +8,17 @@
 
 #include "ssocket.h"
 
-// A função default de tratamento de erros
+// A funï¿½ï¿½o default de tratamento de erros
 
 static void socket_msg(SOCKET_STATUS err, const char *msg)
 {
   std::cout << "socket: " << msg << '\n';
-  // Eliminar o exit se não quiser que pare nos erros...
+  // Eliminar o exit se nï¿½o quiser que pare nos erros...
   exit(err);
 }
 
-// A função que é chamada pelos métodos da classe socket quando há um erro
-// Esta função chama a função contida na variável "socket_error"
+// A funï¿½ï¿½o que ï¿½ chamada pelos mï¿½todos da classe socket quando hï¿½ um erro
+// Esta funï¿½ï¿½o chama a funï¿½ï¿½o contida na variï¿½vel "socket_error"
 
 static SOCKET_STATUS socket_error_int(SOCKET_STATUS err)
 {
@@ -29,7 +29,7 @@ static SOCKET_STATUS socket_error_int(SOCKET_STATUS err)
     case SOCKET_OK:
       return err;
     case SOCKET_JA_EM_USO:
-      msgerr = "Socket já em uso";
+      msgerr = "Socket ja em uso";
       break;
     case SOCKET_NAO_CRIADO:
       msgerr = "Erro na criacao";
@@ -87,10 +87,10 @@ static SOCKET_STATUS socket_error_int(SOCKET_STATUS err)
   return(err);
 }
 
-// Variável que contém a função tratadora de erros
-// Se o usuário quiser mudar a maneira de tratar os erros, deve definir
-// uma nova função que receba os mesmos parâmetros ("err" e "msg") e
-// em seguida atribuir esta função à variável "simul_trata_erros"
+// Variï¿½vel que contï¿½m a funï¿½ï¿½o tratadora de erros
+// Se o usuï¿½rio quiser mudar a maneira de tratar os erros, deve definir
+// uma nova funï¿½ï¿½o que receba os mesmos parï¿½metros ("err" e "msg") e
+// em seguida atribuir esta funï¿½ï¿½o ï¿½ variï¿½vel "simul_trata_erros"
 
 void (*socket_error)(SOCKET_STATUS err, const char *msg) =
 socket_msg;
@@ -119,7 +119,7 @@ SOCKET_STATUS ssocket::close()
   return(SOCKET_OK);
 }
 
-// Impressão
+// Impressï¿½o
 
 std::ostream& operator<<(std::ostream& os, const ssocket &s)
 {
@@ -140,7 +140,7 @@ std::ostream& operator<<(std::ostream& os, const ssocket &s)
 }
 
 /*********************************************
- Sockets orientados a conexão (STREAM SOCKET)
+ Sockets orientados a conexï¿½o (STREAM SOCKET)
  *********************************************/
 
 // Sockets servidores
@@ -155,7 +155,7 @@ SOCKET_STATUS tcpSocketServidor::listen(uint16_t port, int nconex)
   if (id<0) {
     return(socket_error_int(SOCKET_NAO_CRIADO));
   }
-  // Atribuição do nome do socket
+  // Atribuiï¿½ï¿½o do nome do socket
   struct sockaddr_in servidor;
 
   servidor.sin_family = AF_INET;
@@ -164,7 +164,7 @@ SOCKET_STATUS tcpSocketServidor::listen(uint16_t port, int nconex)
   if ( ::bind(id,(struct sockaddr *)&servidor,sizeof(servidor)) == -1 ) {
     return(socket_error_int(SOCKET_ERRO_BIND));
   }
-  // Definição do número de conexões
+  // Definiï¿½ï¿½o do nï¿½mero de conexï¿½es
   if ( ::listen(id,nconex) == -1) {
     return(socket_error_int(SOCKET_ERRO_LISTEN));
   }
@@ -275,7 +275,7 @@ SOCKET_STATUS udpSocket::listen(uint16_t port)
   if (id<0) {
     return(socket_error_int(SOCKET_NAO_CRIADO));
   }
-  // Atribuição do nome do socket
+  // Atribuiï¿½ï¿½o do nome do socket
   struct sockaddr_in servidor;
 
   servidor.sin_family = AF_INET;
@@ -320,9 +320,11 @@ SOCKET_STATUS udpSocket::connect(const char *name, uint16_t port)
   if (id<0) {
     return(socket_error_int(SOCKET_NAO_CRIADO));
   }
+  
   // Define o servidor
   struct sockaddr_in servidor;
   struct hostent *host;
+  
 
   servidor.sin_family = AF_INET;
   servidor.sin_port   = htons(port);
@@ -336,13 +338,108 @@ SOCKET_STATUS udpSocket::connect(const char *name, uint16_t port)
   if( ::connect(id,(struct sockaddr*)&servidor,sizeof(servidor)) == -1 ) {
     return(socket_error_int(SOCKET_ERRO_CONEXAO));
   }
+
   state = SOCKET_CONNECTED;
   // Escreve mensagem inicial
   if (write(MSG_INITIAL, strlen(MSG_INITIAL)) != SOCKET_OK) {
     state = SOCKET_IDLE;
     return(socket_error_int(SOCKET_ERRO_CONEXAO));
   }
+    
+
   return(SOCKET_OK);
+}
+
+SOCKET_STATUS udpSocket::joinMulticastGroup(const char* addr, uint16_t port)
+{
+  struct sockaddr_in address;
+  struct ip_mreq mreq;  // endereco multicast
+
+  if (id!=-1 || state!=SOCKET_IDLE) {
+    return(socket_error_int(SOCKET_JA_EM_USO));
+  }
+  
+  // Cria o socket
+  id = ::socket(AF_INET, SOCK_DGRAM, 0);
+  if (id<0) {
+    return(socket_error_int(SOCKET_NAO_CRIADO));
+  }
+
+  // permite compartilhar porta multcast
+  int reuse = 1;
+  if(setsockopt(id, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse,sizeof(reuse))!=0) {
+    fprintf(stderr,"ERROR WHEN SETTING SO_REUSEADDR ON UDP SOCKET\n");
+    fflush(stderr);
+  }
+
+  int yes = 1;
+  // allow packets to be received on this host
+  if (setsockopt(id, IPPROTO_IP, IP_MULTICAST_LOOP, (const char*)&yes, sizeof(yes))!=0) {
+      fprintf(stderr,"ERROR WHEN SETTING IP_MULTICAST_LOOP ON UDP SOCKET\n");
+      fflush(stderr);
+  }
+
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = htonl(INADDR_ANY);
+  address.sin_port = htons(port);
+
+  if( bind(id, (struct sockaddr *) &address, sizeof(address)) < 0 )
+  {
+      return(socket_error_int(SOCKET_ERRO_BIND));
+  }
+
+  mreq.imr_multiaddr.s_addr=inet_addr(addr);
+  mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+  if (setsockopt(id,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
+      // perror("setsockopt");
+      return(socket_error_int(SOCKET_ERRO_CONEXAO));
+  }
+  state = SOCKET_CONNECTED;
+  return(SOCKET_OK);
+}
+
+SOCKET_STATUS udpSocket::sendTo(const void* data, size_t size, const char* addr, uint16_t port)
+{
+  struct sockaddr_in address;
+  size_t sends = 0;
+  //ainda nÃ£o criado
+  if(id == -1)
+  { 
+     // cria um novo socket
+    if ( (id = socket(AF_INET, SOCK_DGRAM, 0) )  < 0  )
+    {
+        return(socket_error_int(SOCKET_NAO_CRIADO));
+    }
+  }
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = inet_addr(addr);
+  address.sin_port = htons(port);
+  sends = sendto(id, (void*)data, size, 0, (const sockaddr*)&address, sizeof(address));
+
+  if(sends != size){
+    return(socket_error_int(SOCKET_ERRO_ENVIO));
+  }
+
+  return(SOCKET_OK);
+}
+
+int udpSocket::recvFrom(void* data, size_t size, const char* addr, uint16_t port, bool nonblocking)
+{
+  struct sockaddr_in address;
+  int r = -1;
+  if (id == -1 || state != SOCKET_STATE::SOCKET_CONNECTED) {
+    socket_error_int(SOCKET_NAO_CRIADO);
+    return r;
+  }
+  memset(&address, 0, sizeof(sockaddr_in));
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = inet_addr(addr);
+  address.sin_port = htons(port);
+  socklen_t addr_size = sizeof(address);
+  
+  r = recvfrom(id, data, size, (nonblocking)?MSG_DONTWAIT:0, (struct sockaddr*)&address, &addr_size);
+
+  return r;
 }
 
 SOCKET_STATUS udpSocket::write(const void *dado, size_t len) const

@@ -3,6 +3,8 @@
 #include <errno.h> // EINVAL
 #include <sys/stat.h> //S_ISCHR
 
+#include "../../program/data.h"
+
 
 
 static void errno_exit (const char* s)

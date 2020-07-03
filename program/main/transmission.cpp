@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include "transmission.h"
+#include "../comunicacao.h"
 //static int cont=-100;
 //static double x[1000];
 //static double y[1000];
@@ -174,17 +175,28 @@ bool Transmission::transmission(){
   }
 
 #endif //#ifndef _SO_SIMULADO_
+  uint8_t dgram[MAX_DGRAM_SIZE];
+  fira_message::sim_to_ref::Packet packet;
+  fira_message::sim_to_ref::Command* command = packet.mutable_cmd()->add_robot_commands();
 
-
-  SINAL_RADIO mySignal;
-  mySignal.id = id_pos;
   for( int i=0; i<3; i++ ) {
-    mySignal.c.me[i] = pwm.me[i];
+
+    command->set_id(i);
+    command->set_yellowteam((bool)myTeam());
+    command->set_wheel_left(pwm.me[i].left * 100.0);
+    command->set_wheel_right(pwm.me[i].right * 100.0);
+
+    memset(dgram, 0, MAX_DGRAM_SIZE);
+    packet.SerializeToArray((void*)dgram, packet.ByteSize());
+    sock_cmd.sendTo(dgram, packet.ByteSize(), server_IP, PORT_CMD);
   }
-  if(sock.write(&mySignal,sizeof(SINAL_RADIO))){
-    cerr << "Erro na escrita no socket do simulador" << endl;
-    return true;
-  }
+  
+  
+  // if(sock_cmd.sendTo(dgram, packet.ByteSize(), SERVER_ADDR, PORT_CMD) != SOCKET_OK)
+  // {
+  //   cerr << "Erro na escrita no socket do simulador" << endl;
+  //   return true;
+  // }
 
   return false;
 

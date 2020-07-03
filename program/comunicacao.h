@@ -1,23 +1,25 @@
 /****************************************************************/
-/*   Definições dos parâmetros de comunicação entre processos   */
+/*   Definiï¿½ï¿½es dos parï¿½metros de comunicaï¿½ï¿½o entre processos   */
 /****************************************************************/
 
 #ifndef _COMUNICACAOH_
 #define _COMUNICACAOH_
 
-// Parâmetros da comunicação via socket entre
+// Parï¿½metros da comunicaï¿½ï¿½o via socket entre
 // o programa principal e o simulador
 
-#define PORTA_AMRL 0x3000
-#define PORTA_AZUL 0x4000
+#define DEFAULT_MULTICAST_ADDR "224.0.0.5"
+#define DEFAULT_SERVER_ADDR "127.0.0.1"
+#define PORT_MCAST  10020
+#define PORT_CMD    20011
 
-// Parâmetros da comunicação via memória compartilhada entre
+// Parï¿½metros da comunicaï¿½ï¿½o via memï¿½ria compartilhada entre
 // o simulador e o visualizador
 
 #define KEY_SEM_COMPART 0x2001
 #define KEY_MEM_COMPART 0x2002
 
-// Parâmetros da comunicação via memória compartilhada entre
+// Parï¿½metros da comunicaï¿½ï¿½o via memï¿½ria compartilhada entre
 // o futrobot e a interface
 
 #define KEY_SEM_BLUE 715896

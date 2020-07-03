@@ -17,12 +17,13 @@
 #include <iostream> //cerr
 #include <imagem.h>
 
+
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
 //Default
 #define WIDTH 640
 #define HEIGHT 480
-#define FPS 100
+// #define FPS 100
 
 //WARNING numero minimo
 #define NUM_BUFFERS 2

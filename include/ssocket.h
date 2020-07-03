@@ -48,11 +48,11 @@ typedef enum
   SOCKET_CONNECTED=2
 } SOCKET_STATE;
 
-// Variáveis globais
+// Variï¿½veis globais
 
 extern void (*socket_error)(SOCKET_STATUS err, const char *msg);
 
-// Predefinição das classes
+// Predefiniï¿½ï¿½o das classes
 class fsocket;
 class tcpSocket;
 class tcpSocketServidor;
@@ -74,11 +74,11 @@ class ssocket
   virtual SOCKET_TIPO type() const = 0;
   // Fecha (caso esteja aberto) um socket
   SOCKET_STATUS close();
-  // Testa se um socket é "virgem" ou foi fechado
+  // Testa se um socket ï¿½ "virgem" ou foi fechado
   inline bool closed() const {return (id==-1 && state==SOCKET_IDLE);}
-  // Testa se um socket está aberto (aceitando conexões)
+  // Testa se um socket estï¿½ aberto (aceitando conexï¿½es)
   inline bool accepting() const {return (id>=0 && state==SOCKET_ACCEPTING);}
-  // Testa se um socket está conectado (pronto para ler e escrever)
+  // Testa se um socket estï¿½ conectado (pronto para ler e escrever)
   inline bool connected() const {return (id>=0 && state==SOCKET_CONNECTED);}
   // Imprime um socket
   friend std::ostream& operator<<(std::ostream& os, const ssocket &);
@@ -90,7 +90,7 @@ class ssocket
 };
 
 /* #############################################################
-   ##  As classes dos sockets orientados a conexão (TCP)      ##
+   ##  As classes dos sockets orientados a conexï¿½o (TCP)      ##
    ############################################################# */
 
 class tcpSocketServidor: public ssocket
@@ -98,11 +98,11 @@ class tcpSocketServidor: public ssocket
  public:
   // O tipo de socket
   inline SOCKET_TIPO type() const {return SOCKET_TCP_SERV;}
-  // Abre um novo socket para esperar conexões
-  // Só pode ser usado em sockets "virgens" ou explicitamente fechados
+  // Abre um novo socket para esperar conexï¿½es
+  // Sï¿½ pode ser usado em sockets "virgens" ou explicitamente fechados
   SOCKET_STATUS listen(uint16_t port, int nconex=1);
-  // Aceita uma conexão que chegou em um socket aberto
-  // Retorna um socket conectado (não-conectado em caso de erro)
+  // Aceita uma conexï¿½o que chegou em um socket aberto
+  // Retorna um socket conectado (nï¿½o-conectado em caso de erro)
   SOCKET_STATUS accept(tcpSocket&) const;
 };
 
@@ -112,11 +112,11 @@ class tcpSocket: public ssocket
   // O tipo de socket
   inline SOCKET_TIPO type() const {return SOCKET_TCP;}
   // Se conecta a um socket aberto
-  // Só pode ser usado em sockets "virgens" ou explicitamente fechados
+  // Sï¿½ pode ser usado em sockets "virgens" ou explicitamente fechados
   SOCKET_STATUS connect(const char *name, uint16_t port);
   // Escreve em um socket conectado
   SOCKET_STATUS write(const void *, size_t) const;
-  // Lê de um socket conectado
+  // Lï¿½ de um socket conectado
   SOCKET_STATUS read(void*, size_t) const;
 };
 
@@ -131,19 +131,23 @@ class udpSocket: public ssocket
  public:
   // O tipo de socket
   inline SOCKET_TIPO type() const {return SOCKET_UDP;}
-  // Abre um novo socket para esperar conexões
-  // Só pode ser usado em sockets "virgens" ou explicitamente fechados
+  // Abre um novo socket para esperar conexï¿½es
+  // Sï¿½ pode ser usado em sockets "virgens" ou explicitamente fechados
   SOCKET_STATUS listen(uint16_t port);
-  // Aceita uma conexão que chegou em um socket aberto
-  // Muda o estado do socket se a conexão foi bem sucedida
+  // Aceita uma conexï¿½o que chegou em um socket aberto
+  // Muda o estado do socket se a conexï¿½o foi bem sucedida
   SOCKET_STATUS accept();
   // Se conecta a um socket aberto
-  // Só pode ser usado em sockets "virgens" ou explicitamente fechados
+  // Sï¿½ pode ser usado em sockets "virgens" ou explicitamente fechados
   SOCKET_STATUS connect(const char *name, uint16_t port);
   // Escreve em um socket conectado
   SOCKET_STATUS write(const void *, size_t) const;
-  // Lê de um socket conectado
+  // Lï¿½ de um socket conectado
   SOCKET_STATUS read(void*, size_t) const;
+
+  SOCKET_STATUS joinMulticastGroup(const char* addr, uint16_t port);  
+  SOCKET_STATUS sendTo(const void*, size_t, const char* addr, uint16_t port);
+  int recvFrom(void*, size_t, const char* addr, uint16_t port, bool nonblocking = true);
 };
 
 /* #############################################################
@@ -163,14 +167,14 @@ class fsocket
   SOCKET_STATUS include(const ssocket &a);
   // Retira um socket de uma fila de sockets
   SOCKET_STATUS exclude(const ssocket &a);
-  // Bloqueia até haver alguma atividade de leitura em socket da fila
+  // Bloqueia atï¿½ haver alguma atividade de leitura em socket da fila
   SOCKET_STATUS wait_read(long milisec=-1);
-  // Bloqueia até haver alguma atividade de conexão em socket da fila
+  // Bloqueia atï¿½ haver alguma atividade de conexï¿½o em socket da fila
   inline SOCKET_STATUS wait_connect(long milisec=-1) {
     return wait_read(milisec);}
-  // Bloqueia até haver alguma atividade de escrita em socket da fila
+  // Bloqueia atï¿½ haver alguma atividade de escrita em socket da fila
   SOCKET_STATUS wait_write(long milisec=-1);
-  // Testa se houve atividade em um socket específico da fila
+  // Testa se houve atividade em um socket especï¿½fico da fila
   bool had_activity(const ssocket &a);
 };
 

@@ -5,10 +5,10 @@
 #include "../comunicacao.h"
 
 
-FutData::FutData(TEAM team, SIDE side, GAME_MODE mode)
+FutData::FutData(TEAM team, SIDE side, GAME_MODE mode):
+server_IP("127.0.0.1")
 {
   dt_amostr = 1.0/FPS;
-
   start_data(team,side,mode);
   // est_jogo = JOGAR;
   game_state = PLAY_STATE;
@@ -19,7 +19,6 @@ FutData::FutData(TEAM team, SIDE side, GAME_MODE mode)
   }
 
 }
-
 
 void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
 {

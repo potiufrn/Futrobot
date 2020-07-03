@@ -1,8 +1,9 @@
 all:	makelibsrc	makeprograms
 
-makelibsrc:	clean
+makelibsrc:
 	cd lib && rm -rf *.a
 	cd include && rm -rf *.h
+	cd libsrc/pb && ${MAKE}	install
 	cd libsrc/bluetothAction && ${MAKE}	install
 	cd libsrc/ssocket && ${MAKE}	install
 	cd libsrc/matrix && ${MAKE}	install
@@ -19,8 +20,6 @@ makeprograms:
 
 .PHONY: clean realclean
 
-# clean:
-# 	cd program && ${MAKE} clean
 clean:
 	cd program && ${MAKE} realclean
 	cd libsrc/bluetothAction && ${MAKE}	realclean
@@ -29,3 +28,4 @@ clean:
 	cd libsrc/matrix && ${MAKE}	realclean
 	cd libsrc/otim && ${MAKE}	realclean
 	cd libsrc/ssocket && ${MAKE}	realclean
+	cd libsrc/pb && ${MAKE}	realclean

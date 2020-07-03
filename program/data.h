@@ -1,6 +1,11 @@
 #ifndef _DATA_H_
 #define _DATA_H_
 
+#include <command.pb.h>
+#include <common.pb.h>
+#include <packet.pb.h>
+#include <replacement.pb.h>
+
 #include <imagem.h>
 #include "parameters.h"//IMAGERWIDTH e HEIGHT
 
@@ -10,7 +15,10 @@
 //Se voce so quiser usar o simulador, pode descomentar a linha abaixo
 //e nao sera necessario instalar as bibliotecas de acesso a camera
 //firewire e de acesso ao dispositivo USB-Serial
-//#define _SO_SIMULADO_
+#define _SO_SIMULADO_
+#define MAX_DGRAM_SIZE 65536
+
+#define FPS 60
 
 // Lados do Campo
 enum SIDE {

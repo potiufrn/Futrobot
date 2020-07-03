@@ -1,7 +1,6 @@
 .vscode
 *.ppm
 *.o
-*.a
 *.map
 *.bin
 *.elf

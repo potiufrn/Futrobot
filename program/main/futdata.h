@@ -9,8 +9,6 @@
 #include <cstring>
 #include <camera.h>
 
-//#define FRAME_RATE_INICIAL 1.0/30.0
-
 // Todos os dados do jogo
 class FutData{
 private:
@@ -21,9 +19,13 @@ private:
   bool advantage;
   int shmid;
   CONFIG * mem;
-
 protected:
-  udpSocket sock;
+  const char* server_IP;
+  // socket para enviar comandos ao servidor
+  udpSocket sock_cmd;
+  // socket para recepção de dados do servidor
+  udpSocket sock_acq;
+
   IDQUADRO id_pos;
   Coord2 pointsImg[NUM_POINTS];  //Limites do campo
   CONFIG ant; //Armazena a posicao calculada na iteracao anterior,
@@ -37,7 +39,6 @@ protected:
   PWM_ROBOTS pwm;  //Contem o valor de PWM a ser transmitido para os robos.
 
   double dt_amostr;
-
 public:
   FutData(TEAM team, SIDE side, GAME_MODE mode);
   inline void setTeam(TEAM newTeam) {my_team = newTeam;}
