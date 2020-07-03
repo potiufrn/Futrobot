@@ -1342,16 +1342,8 @@ bool Acquisition::acquisition(){
 
 bool Acquisition::acquisitionCapture(){
 #ifndef _SO_SIMULADO_
-  // if(gameMode() == REAL_MODE){
-  //   if((Width() == 640) && (Height() == 480)){
-  //     return Camera::captureimage();
-  //   }
-  //   else{
-  //     cerr<<"Aquisition ERRO: Dimensoes da resolucao de camera nao suportados!"<<endl;
-  //     return true;
-  //   }
-  // }
-  return Camera::captureimage();
+  if(gameMode() == REAL_MODE)
+    return Camera::captureimage();
 #endif
   return false;
 }

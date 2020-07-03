@@ -57,8 +57,6 @@ Transmission::Transmission(TEAM team, SIDE side, GAME_MODE mode):
   struct termios port_config; //sets up termios configuration structure for the serial port
   const char *device = "/dev/ttyACM0"; //ttyACM0 sets where the serial port
 
-//   cfsetispeed(&port_config, B57600);// taxa de transmissão de dados de entrada
-//   cfsetospeed(&port_config, B57600);// taxa de transmissão de dados de saida
   cfsetispeed(&port_config, B115200);// taxa de transmissão de dados de entrada
   cfsetospeed(&port_config, B115200);// taxa de transmissão de dados de saida
 
@@ -76,7 +74,8 @@ Transmission::Transmission(TEAM team, SIDE side, GAME_MODE mode):
   //btAction.findActiveBluetoothDevice();
 
   /*faz a conecção com os bluetooths*/
-  btAction.initBluetoothDevices();
+  if(mode == REAL_MODE)
+    btAction.initBluetoothDevices();
   #endif //#ifndef _TRANSMITION_BLUETOOTH_
 #endif
 }
@@ -179,7 +178,7 @@ bool Transmission::transmission(){
   fira_message::sim_to_ref::Packet packet;
   fira_message::sim_to_ref::Command* command = packet.mutable_cmd()->add_robot_commands();
 
-  for( int i=0; i<3; i++ ) {
+  for( int i=0; i<3; i++ ){
 
     command->set_id(i);
     command->set_yellowteam((bool)myTeam());
@@ -190,14 +189,6 @@ bool Transmission::transmission(){
     packet.SerializeToArray((void*)dgram, packet.ByteSize());
     sock_cmd.sendTo(dgram, packet.ByteSize(), server_IP, PORT_CMD);
   }
-  
-  
-  // if(sock_cmd.sendTo(dgram, packet.ByteSize(), SERVER_ADDR, PORT_CMD) != SOCKET_OK)
-  // {
-  //   cerr << "Erro na escrita no socket do simulador" << endl;
-  //   return true;
-  // }
 
   return false;
-
 }

@@ -30,9 +30,6 @@ Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
 
 bool Futrobot::start_management()
 {
-#ifndef _SO_SIMULADO_
-  // start_transmission();
-#endif
   if(pthread_create(&thr_ger, NULL, management2, (void*)this)) return true;
   return false;
 }
@@ -64,7 +61,6 @@ void Futrobot::management()
     if(dt_amostr == 0.0) dt_amostr = 1.0/FPS;
     // Lẽ a nova imagem
 
-    // printf("\n **** acquisitionCapture... **** \n");
     if (gameState() != FINISH_STATE && acquisitionCapture()){
       finish();
       cerr << "Erro na leitura da nova imagem!\n";
@@ -74,7 +70,6 @@ void Futrobot::management()
     myt_end_cap = relogio();
     // Fornece a pose dos robos e a posicao da
     // bola em coordenadas de mundo.
-    // printf("\n **** acquisition... **** \n");
     if (gameState() != FINISH_STATE && acquisition()){
       finish();
       cerr << "Erro no processamento da imagem!\n";
