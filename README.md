@@ -32,6 +32,11 @@ Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
 sudo apt-get install qt4-default
 ```
 
+Para se utilizar o modo simulação é necessário instalar os recursos de dev. do protobuf
+```
+sudo apt-get install libprotobuf-dev
+```
+
 ### Make ...
 Agora, utilizamos o comando a seguir para compilar o programa
 ```
