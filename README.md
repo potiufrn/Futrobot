@@ -40,7 +40,7 @@ make
 
 Após essas etapas, você pode fazer a `calibração` do campo com seus objetos ou fazer um jogo. 
 Caso opte em calibração, deve-se verificar se a câmera a ser usada está referenciada corretamente.
-```
+
 ### Calibração e Jogo
 
 Para fazer a calibração, basta executar em `program/calibrador`
