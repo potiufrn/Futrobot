@@ -29,7 +29,7 @@ sudo apt-get install libbluetooth-dev
 
 Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
 ```
-sudo apt-get install libqt4-dev qt4-dev-tools
+sudo apt-get install qt4-default
 ```
 
 ### Make ...

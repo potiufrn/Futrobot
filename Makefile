@@ -4,7 +4,7 @@ makelibsrc:
 	cd lib && rm -rf *.a
 	cd include && rm -rf *.h
 	cd libsrc/pb && ${MAKE}	install
-	cd libsrc/bluetothAction && ${MAKE}	install
+	cd libsrc/bluetoothAction && ${MAKE}	install
 	cd libsrc/ssocket && ${MAKE}	install
 	cd libsrc/matrix && ${MAKE}	install
 	cd libsrc/otim && ${MAKE}	install
@@ -22,7 +22,7 @@ makeprograms:
 
 clean:
 	cd program && ${MAKE} realclean
-	cd libsrc/bluetothAction && ${MAKE}	realclean
+	cd libsrc/bluetoothAction && ${MAKE}	realclean
 	cd libsrc/camera && ${MAKE}	realclean
 	cd libsrc/Imagem && ${MAKE}	realclean
 	cd libsrc/matrix && ${MAKE}	realclean

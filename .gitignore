@@ -6,6 +6,7 @@
 *.elf
 *.d
 *.txt
+*.a
 doc/html
 doc/latex
 program/calibrador/calibrador
