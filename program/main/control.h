@@ -17,12 +17,10 @@
 //Equipe Jerimum
 //#define PWM_MINIMO 0.10
 //Equipe Poti
-#define PWM_MINIMO 0.08
+// #define PWM_MINIMO 0.08
 
 
 // valor abaixo do qual o sinal enviado do pwm eh zero
-//Equipe Jerimum
-//#define PWM_ZERO (1.0/127.0)
 //Equipe Poti
 #define PWM_ZERO (1.0/255.0)
 

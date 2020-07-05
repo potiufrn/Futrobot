@@ -243,7 +243,7 @@ bool Strategy::strategy()
   // analisa posiçao dos adversários
   analisa_adversarios();
   // detecta se algum dos robos esta bloqueado
-  detecta_bloqueados();
+  // detecta_bloqueados();
 
   // escolhe uma funcao (goleiro, com_bola, sem_bola) para cada jogador
   escolhe_funcoes();

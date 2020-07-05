@@ -51,7 +51,7 @@ void Futrobot::management()
   while (gameState() != FINISH_STATE) {
     // Espera por uma nova imagem
 
-    if (gameState() != FINISH_STATE && acquisitionWait()) { //VERIFICAR USO DO AND OU OR
+    if (gameState() != FINISH_STATE && acquisitionWait()){
       finish();
       cerr << "Erro na espera por nova imagem!\n";
     }
@@ -77,6 +77,7 @@ void Futrobot::management()
     
     myt_end_acq = relogio();
     //Realiza a correcao e filtragem da pose dos robos e da bola.
+    //bem como a predição da posição da bola e calculo de sua velocidade e orientação
     if (gameState() != FINISH_STATE && localization()) {
       finish();
       cerr << "Erro na localizacao dos robos!\n";
@@ -84,7 +85,7 @@ void Futrobot::management()
     myt_end_loc = relogio();
     
     // Calcula as posicoes finais dos robos.
-    if (gameState() != FINISH_STATE && strategy()) {
+    if (gameState() != FINISH_STATE && strategy()){
       finish();
       cerr << "Erro na estrategia do jogo!\n";
     }
@@ -105,7 +106,7 @@ void Futrobot::management()
     myt_end_con = relogio();
     
     // Informa as tensoes para os robos.
-    if (gameState() != FINISH_STATE && transmission()) {
+    if (gameState() != FINISH_STATE && transmission()){
       finish();
       cerr << "Erro na transmissao dos dados!\n";
     }

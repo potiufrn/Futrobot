@@ -300,7 +300,7 @@ bool Control::control()
       else pwm.me[i].right = pwm.me[i].right;
 
       pwm.me[i].left = alpha_lin-alpha_ang;
-      if (fabs(pwm.me[i].left)<1.0/127.0) pwm.me[i].left = 0.0;
+      if (fabs(pwm.me[i].left)< PWM_ZERO) pwm.me[i].left = 0.0;
       else if (pwm.me[i].left > 0.0)
 	      pwm.me[i].left = pwm.me[i].left;
       else pwm.me[i].left = pwm.me[i].left;
