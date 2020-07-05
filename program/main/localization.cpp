@@ -20,6 +20,22 @@ Localization::~Localization()
 bool Localization::localization()
 {
   double raio, theta;
+  double vbola,thetabola;
+
+  if(gameMode() == SIMULATED_MODE){
+    // calcula velocidade e orientação da bola
+    vbola = hypot(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x())/dt_amostr;
+    thetabola = arc_tang(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x());
+    
+    pos.vel_ball.mod = (pos.vel_ball.mod + vbola)/2.0;
+    pos.vel_ball.ang = (pos.vel_ball.ang + thetabola)/2.0;
+    // posição futura da bola
+    pos.future_ball.x() = pos.ball.x() + 
+                          pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt_amostr;
+    pos.future_ball.y() = pos.ball.y() + 
+                          pos.vel_ball.mod*sin(pos.vel_ball.ang)*dt_amostr;
+    return false;
+  }
 
   //**********************************************************
   //******* CORRECAO DA PARALAXE *****************************
@@ -54,13 +70,10 @@ bool Localization::localization()
   //**********************************************************
   //********** CALCULO DA VELOCIDADE DA BOLA *****************
   //**********************************************************
-  double vbola,thetabola;
 
   if (pos.ball.x() != POSITION_UNDEFINED && pos.ball.y() != POSITION_UNDEFINED) {
-    vbola = hypot(pos.ball.y()-ant.ball.y(),
-		  pos.ball.x()-ant.ball.x())/dt_amostr;
-    thetabola = arc_tang(pos.ball.y()-ant.ball.y(),
-			 pos.ball.x()-ant.ball.x());
+    vbola = hypot(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x())/dt_amostr;
+    thetabola = arc_tang(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x());
     if (vbola > VEL_BOLA_PARADA) {
       pos.vel_ball.mod = (pos.vel_ball.mod + vbola)/2.0;
       pos.vel_ball.ang = (pos.vel_ball.ang + thetabola)/2.0;
@@ -85,17 +98,16 @@ bool Localization::localization()
   }
 
   pos.future_ball.x() = pos.ball.x() + 
-    pos.vel_ball.mod*cos(pos.vel_ball.ang)*TEMPO_BOLA_FUTURA;
+                        pos.vel_ball.mod*cos(pos.vel_ball.ang)*TEMPO_BOLA_FUTURA;
   pos.future_ball.y() = pos.ball.y() + 
-    pos.vel_ball.mod*sin(pos.vel_ball.ang)*TEMPO_BOLA_FUTURA;
+                        pos.vel_ball.mod*sin(pos.vel_ball.ang)*TEMPO_BOLA_FUTURA;
 
 
   if(isnan(pos.future_ball.x()) || isnan(pos.future_ball.y())){
-    cerr<<"POS_FUT DA BOLA EH NAN!!! "
-	<<__FILE__<<" "<<__LINE__ << endl;
+    cerr<<"POS_FUT DA BOLA EH NAN!!! " <<__FILE__<<" "<<__LINE__ << endl;
     cerr<<"\t"<< pos.ball.x() << " " << pos.ball.y() << " "
-	<< pos.vel_ball.mod << " " << pos.vel_ball.ang << " "
-	<< pos.future_ball.x() << " " << pos.future_ball.y() << endl;
+	      << pos.vel_ball.mod << " " << pos.vel_ball.ang << " "
+	      << pos.future_ball.x() << " " << pos.future_ball.y() << endl;
   }
 
   return false;

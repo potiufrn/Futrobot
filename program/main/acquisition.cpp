@@ -1286,11 +1286,6 @@ bool Acquisition::readGameState()
     cerr << "Falha no recebimento de dados\n";
     return true;
   }
-  // id_pos = minhaSit.id;
-  // if (id_pos-id_ant!=1 && id_ant!=0) {
-  //   cerr << "Quadros perdidos: anterior=" << id_ant
-	//  << " atual=" << id_pos << endl;
-  // }
 
   for (int i=0; i < 3; i++) {
     if (myTeam() == BLUE_TEAM){
@@ -1322,11 +1317,9 @@ bool Acquisition::readGameState()
 bool Acquisition::acquisitionWait(){
 #ifndef _SO_SIMULADO_
   if(gameMode() == REAL_MODE){
-    //    return !WaitImage();
     return waitforimage();
   }
 #endif
-  //fazer a funcao WaitSocket();
   return false;
 }
 
