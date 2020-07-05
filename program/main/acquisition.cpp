@@ -236,7 +236,7 @@ bool Acquisition::configAcquisition(const char *str)
   cout << "Configurando aquisicao..." << endl;
   if(gameMode() == SIMULATED_MODE){  
     if(sock_acq.joinMulticastGroup(DEFAULT_MULTICAST_ADDR, PORT_MCAST) != SOCKET_OK){
-      cerr << "Ao entrar no grupo mult cast\n";
+      cerr << "Erro ao juntar-se ao grupo multcast\n";
       return true;
     }
     server_IP = str;
@@ -1287,25 +1287,34 @@ bool Acquisition::readGameState()
     return true;
   }
 
-  for (int i=0; i < 3; i++) {
-    if (myTeam() == BLUE_TEAM){
-      pos.me[i].x() = detection.robots_blue(i).x();
-      pos.me[i].y() = detection.robots_blue(i).y();
-      pos.me[i].theta() = detection.robots_blue(i).orientation();
+  for (int i=0; i < 3; i++){
+    try
+    {
+      if (myTeam() == BLUE_TEAM)
+      {
+        pos.me[i].x() = detection.robots_blue(i).x();
+        pos.me[i].y() = detection.robots_blue(i).y();
+        pos.me[i].theta() = detection.robots_blue(i).orientation();
 
-      pos.op[i].x() = detection.robots_yellow(i).x();
-      pos.op[i].y() = detection.robots_yellow(i).y();
-      pos.op[i].theta() = detection.robots_yellow(i).orientation();
-    }
-    else {
-      pos.me[i].x() = detection.robots_yellow(i).x();
-      pos.me[i].y() = detection.robots_yellow(i).y();
-      pos.me[i].theta() = detection.robots_yellow(i).orientation();
+        pos.op[i].x() = detection.robots_yellow(i).x();
+        pos.op[i].y() = detection.robots_yellow(i).y();
+        pos.op[i].theta() = detection.robots_yellow(i).orientation();
+      }else{
+        pos.me[i].x() = detection.robots_yellow(i).x();
+        pos.me[i].y() = detection.robots_yellow(i).y();
+        pos.me[i].theta() = detection.robots_yellow(i).orientation();
 
-      pos.op[i].x() = detection.robots_blue(i).x();
-      pos.op[i].y() = detection.robots_blue(i).y();
-      pos.op[i].theta() = detection.robots_blue(i).orientation();
+        pos.op[i].x() = detection.robots_blue(i).x();
+        pos.op[i].y() = detection.robots_blue(i).y();
+        pos.op[i].theta() = detection.robots_blue(i).orientation();
+      }
     }
+    catch(const std::exception& e)
+    {
+      // std::cerr << e.what() << '\n';
+      continue;
+    }
+    
   }
   pos.ball.x() = detection.ball().x();
   pos.ball.y() = detection.ball().y();
