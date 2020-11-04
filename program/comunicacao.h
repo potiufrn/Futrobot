@@ -10,7 +10,7 @@
 
 #define DEFAULT_MULTICAST_ADDR "224.0.0.5"
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
-#define PORT_MCAST  10020
+#define PORT_MCAST  10002
 #define PORT_CMD    20011
 
 // Par�metros da comunica��o via mem�ria compartilhada entre

@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QtWidgets>
 #include "animacao.h"
 #include <cmath>
 #include <iostream>

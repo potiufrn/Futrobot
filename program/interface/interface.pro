@@ -2,8 +2,10 @@
 # Project created by QtCreator 2010-08-10T09:28:53
 # -------------------------------------------------
 QT += opengl
+QT += widgets
 TARGET = interface
 TEMPLATE = app
+RESOURCES += resources.qrc
 SOURCES += main.cpp \
     mainwindow.cpp \ # field.cpp \
     startwindow.cpp \

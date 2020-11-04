@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include <QtGui>
+#include <QtWidgets>
 #include <stdio.h>
 
 #define BUTWIDTH 75
@@ -11,6 +11,8 @@ MainWindow::MainWindow(int te, QWidget *parent)
     smeid(0),
     pt (NULL)
 {
+    setWindowIcon(QIcon(":poti.ico"));
+
     playButton = new QPushButton(tr("PLAY"));
     playButton->setEnabled(true);
     playButton->setFixedWidth(BUTWIDTH);
@@ -80,7 +82,7 @@ MainWindow::MainWindow(int te, QWidget *parent)
 
 
     tempor = new QTimer(this);
-    tempor->start(200);
+    tempor->start(60);
 
     frame = new Animacao (my_team, this);
     frame ->show();
@@ -147,15 +149,15 @@ MainWindow::MainWindow(int te, QWidget *parent)
     connect(inicialPositionButton, SIGNAL (clicked()), this, SLOT(setInicialPosition()));
     connect(tempor, SIGNAL (timeout()), this, SLOT(setUpdate()));
 
-
+    //TODO verificar datatable_timerID
     //Import
-   // datatable_timerID = datatable->startTimer(500); //inicia o timer da tabela. Executa timerEvent() a cada 500ms.
+    //datatable_timerID = datatable->startTimer(200); //inicia o timer da tabela. Executa timerEvent() a cada 500ms.
     //SEMAFORO
     semdo.sem_num = 0;
     semdo.sem_flg = SEM_UNDO;
 
     semid = semget ((my_team==1)? KEY_SEM_YELLOW : KEY_SEM_BLUE, 1, 0666/*|IPC_EXCL|*/);
-	//	printf("\n%d\n", semid);
+    //	printf("\n%d\n", semid);
     if (semid < 0) {
       //nao conseguiu criar semaforo
       printf ("[Import]:Nao foi possivel encontrar o semaforo!\n");
@@ -294,7 +296,7 @@ void MainWindow::setInicialPosition(){
 
 void MainWindow::setUpdate(){
 
-    //INICIO REGIAO CIRTICA
+    //INICIO REGIAO CRITICA
     semdo.sem_op = -1;
     semop (semid, &semdo, 1);
 
@@ -361,5 +363,8 @@ void MainWindow::setUpdate(){
 }
 
 void MainWindow::cleanFutRobot(){
-    killTimer(datatable_timerID);
+    //killTimer(datatable_timerID);
+    QCoreApplication::quit();
+    //sem_destroy(&sem);
+    std::cerr<<"Interface finalizada."<<std::endl;
 }
