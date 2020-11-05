@@ -8,8 +8,8 @@
 #include <iostream>
 using namespace std;
 
-pixmap_label::pixmap_label( QWidget * parent, const char * name, Qt::WFlags f )
-    : QLabel( parent, name, f ),	
+pixmap_label::pixmap_label( const char * name, QWidget * parent, Qt::WindowFlags f )
+    : QLabel( name, parent, f ),
     PxMap(width(),height())
 {
     setScaledContents(true);

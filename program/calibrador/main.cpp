@@ -1,4 +1,4 @@
-#include <qapplication.h>
+#include <QApplication>
 #include "calibrador.h"
 #include "calibratorprocessor.h"
 #include "variaveisglobais.h"

@@ -47,7 +47,7 @@ class calibrador : public QMainWindow
 
 public:
 
-  calibrador( QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = Qt::WType_TopLevel );
+  calibrador( const char* name = 0, QWidget* parent = 0,  Qt::WindowFlags fl = Qt::WindowFlags());
     ~calibrador();
 
     QSlider* sliderVOffset;
