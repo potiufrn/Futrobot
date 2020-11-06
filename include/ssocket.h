@@ -143,7 +143,7 @@ class udpSocket: public ssocket
   // Escreve em um socket conectado
   SOCKET_STATUS write(const void *, size_t) const;
   // L� de um socket conectado
-  SOCKET_STATUS read(void*, size_t) const;
+  int read(void*, size_t, bool nonblocking = false) const;
 
   SOCKET_STATUS joinMulticastGroup(const char* addr, uint16_t port);  
   SOCKET_STATUS sendTo(const void*, size_t, const char* addr, uint16_t port);

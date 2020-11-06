@@ -176,24 +176,6 @@ class Ball : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   double z() const;
   void set_z(double value);
 
-  // double vx = 4;
-  void clear_vx();
-  static const int kVxFieldNumber = 4;
-  double vx() const;
-  void set_vx(double value);
-
-  // double vy = 5;
-  void clear_vy();
-  static const int kVyFieldNumber = 5;
-  double vy() const;
-  void set_vy(double value);
-
-  // double vz = 6;
-  void clear_vz();
-  static const int kVzFieldNumber = 6;
-  double vz() const;
-  void set_vz(double value);
-
   // @@protoc_insertion_point(class_scope:fira_message.Ball)
  private:
 
@@ -201,9 +183,6 @@ class Ball : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   double x_;
   double y_;
   double z_;
-  double vx_;
-  double vy_;
-  double vz_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_common_2eproto::TableStruct;
 };
@@ -314,24 +293,6 @@ class Robot : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   double orientation() const;
   void set_orientation(double value);
 
-  // double vx = 5;
-  void clear_vx();
-  static const int kVxFieldNumber = 5;
-  double vx() const;
-  void set_vx(double value);
-
-  // double vy = 6;
-  void clear_vy();
-  static const int kVyFieldNumber = 6;
-  double vy() const;
-  void set_vy(double value);
-
-  // double vorientation = 7;
-  void clear_vorientation();
-  static const int kVorientationFieldNumber = 7;
-  double vorientation() const;
-  void set_vorientation(double value);
-
   // uint32 robot_id = 1;
   void clear_robot_id();
   static const int kRobotIdFieldNumber = 1;
@@ -345,9 +306,6 @@ class Robot : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   double x_;
   double y_;
   double orientation_;
-  double vx_;
-  double vy_;
-  double vorientation_;
   ::google::protobuf::uint32 robot_id_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_common_2eproto::TableStruct;
@@ -664,48 +622,6 @@ inline void Ball::set_z(double value) {
   // @@protoc_insertion_point(field_set:fira_message.Ball.z)
 }
 
-// double vx = 4;
-inline void Ball::clear_vx() {
-  vx_ = 0;
-}
-inline double Ball::vx() const {
-  // @@protoc_insertion_point(field_get:fira_message.Ball.vx)
-  return vx_;
-}
-inline void Ball::set_vx(double value) {
-  
-  vx_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.Ball.vx)
-}
-
-// double vy = 5;
-inline void Ball::clear_vy() {
-  vy_ = 0;
-}
-inline double Ball::vy() const {
-  // @@protoc_insertion_point(field_get:fira_message.Ball.vy)
-  return vy_;
-}
-inline void Ball::set_vy(double value) {
-  
-  vy_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.Ball.vy)
-}
-
-// double vz = 6;
-inline void Ball::clear_vz() {
-  vz_ = 0;
-}
-inline double Ball::vz() const {
-  // @@protoc_insertion_point(field_get:fira_message.Ball.vz)
-  return vz_;
-}
-inline void Ball::set_vz(double value) {
-  
-  vz_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.Ball.vz)
-}
-
 // -------------------------------------------------------------------
 
 // Robot
@@ -764,48 +680,6 @@ inline void Robot::set_orientation(double value) {
   
   orientation_ = value;
   // @@protoc_insertion_point(field_set:fira_message.Robot.orientation)
-}
-
-// double vx = 5;
-inline void Robot::clear_vx() {
-  vx_ = 0;
-}
-inline double Robot::vx() const {
-  // @@protoc_insertion_point(field_get:fira_message.Robot.vx)
-  return vx_;
-}
-inline void Robot::set_vx(double value) {
-  
-  vx_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.Robot.vx)
-}
-
-// double vy = 6;
-inline void Robot::clear_vy() {
-  vy_ = 0;
-}
-inline double Robot::vy() const {
-  // @@protoc_insertion_point(field_get:fira_message.Robot.vy)
-  return vy_;
-}
-inline void Robot::set_vy(double value) {
-  
-  vy_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.Robot.vy)
-}
-
-// double vorientation = 7;
-inline void Robot::clear_vorientation() {
-  vorientation_ = 0;
-}
-inline double Robot::vorientation() const {
-  // @@protoc_insertion_point(field_get:fira_message.Robot.vorientation)
-  return vorientation_;
-}
-inline void Robot::set_vorientation(double value) {
-  
-  vorientation_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.Robot.vorientation)
 }
 
 // -------------------------------------------------------------------

@@ -99,8 +99,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::sim_to_ref::Environment, step_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::sim_to_ref::Environment, frame_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::sim_to_ref::Environment, field_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::sim_to_ref::Environment, goals_blue_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::sim_to_ref::Environment, goals_yellow_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::fira_message::sim_to_ref::Packet)},
@@ -138,16 +136,15 @@ void AddDescriptorsImpl() {
       "n.proto\"o\n\006Packet\022.\n\003cmd\030\001 \001(\0132!.fira_me"
       "ssage.sim_to_ref.Commands\0225\n\007replace\030\002 \001"
       "(\0132$.fira_message.sim_to_ref.Replacement"
-      "\"\215\001\n\013Environment\022\014\n\004step\030\001 \001(\r\022\"\n\005frame\030"
-      "\002 \001(\0132\023.fira_message.Frame\022\"\n\005field\030\003 \001("
-      "\0132\023.fira_message.Field\022\022\n\ngoals_blue\030\004 \001"
-      "(\r\022\024\n\014goals_yellow\030\005 \001(\r2_\n\010Simulate\022S\n\010"
-      "Simulate\022\037.fira_message.sim_to_ref.Packe"
-      "t\032$.fira_message.sim_to_ref.Environment\""
-      "\000b\006proto3"
+      "\"c\n\013Environment\022\014\n\004step\030\001 \001(\r\022\"\n\005frame\030\002"
+      " \001(\0132\023.fira_message.Frame\022\"\n\005field\030\003 \001(\013"
+      "2\023.fira_message.Field2_\n\010Simulate\022S\n\010Sim"
+      "ulate\022\037.fira_message.sim_to_ref.Packet\032$"
+      ".fira_message.sim_to_ref.Environment\"\000b\006"
+      "proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 449);
+      descriptor, 406);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "packet.proto", &protobuf_RegisterTypes);
   ::protobuf_command_2eproto::AddDescriptors();
@@ -490,8 +487,6 @@ void Environment::clear_field() {
 const int Environment::kStepFieldNumber;
 const int Environment::kFrameFieldNumber;
 const int Environment::kFieldFieldNumber;
-const int Environment::kGoalsBlueFieldNumber;
-const int Environment::kGoalsYellowFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Environment::Environment()
@@ -515,16 +510,14 @@ Environment::Environment(const Environment& from)
   } else {
     field_ = NULL;
   }
-  ::memcpy(&step_, &from.step_,
-    static_cast<size_t>(reinterpret_cast<char*>(&goals_yellow_) -
-    reinterpret_cast<char*>(&step_)) + sizeof(goals_yellow_));
+  step_ = from.step_;
   // @@protoc_insertion_point(copy_constructor:fira_message.sim_to_ref.Environment)
 }
 
 void Environment::SharedCtor() {
   ::memset(&frame_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&goals_yellow_) -
-      reinterpret_cast<char*>(&frame_)) + sizeof(goals_yellow_));
+      reinterpret_cast<char*>(&step_) -
+      reinterpret_cast<char*>(&frame_)) + sizeof(step_));
 }
 
 Environment::~Environment() {
@@ -565,9 +558,7 @@ void Environment::Clear() {
     delete field_;
   }
   field_ = NULL;
-  ::memset(&step_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&goals_yellow_) -
-      reinterpret_cast<char*>(&step_)) + sizeof(goals_yellow_));
+  step_ = 0u;
   _internal_metadata_.Clear();
 }
 
@@ -619,34 +610,6 @@ bool Environment::MergePartialFromCodedStream(
         break;
       }
 
-      // uint32 goals_blue = 4;
-      case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &goals_blue_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // uint32 goals_yellow = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(40u /* 40 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &goals_yellow_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -690,16 +653,6 @@ void Environment::SerializeWithCachedSizes(
       3, this->_internal_field(), output);
   }
 
-  // uint32 goals_blue = 4;
-  if (this->goals_blue() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->goals_blue(), output);
-  }
-
-  // uint32 goals_yellow = 5;
-  if (this->goals_yellow() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->goals_yellow(), output);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -731,16 +684,6 @@ void Environment::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         3, this->_internal_field(), deterministic, target);
-  }
-
-  // uint32 goals_blue = 4;
-  if (this->goals_blue() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->goals_blue(), target);
-  }
-
-  // uint32 goals_yellow = 5;
-  if (this->goals_yellow() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->goals_yellow(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -781,20 +724,6 @@ size_t Environment::ByteSizeLong() const {
         this->step());
   }
 
-  // uint32 goals_blue = 4;
-  if (this->goals_blue() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->goals_blue());
-  }
-
-  // uint32 goals_yellow = 5;
-  if (this->goals_yellow() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->goals_yellow());
-  }
-
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -831,12 +760,6 @@ void Environment::MergeFrom(const Environment& from) {
   if (from.step() != 0) {
     set_step(from.step());
   }
-  if (from.goals_blue() != 0) {
-    set_goals_blue(from.goals_blue());
-  }
-  if (from.goals_yellow() != 0) {
-    set_goals_yellow(from.goals_yellow());
-  }
 }
 
 void Environment::CopyFrom(const ::google::protobuf::Message& from) {
@@ -866,8 +789,6 @@ void Environment::InternalSwap(Environment* other) {
   swap(frame_, other->frame_);
   swap(field_, other->field_);
   swap(step_, other->step_);
-  swap(goals_blue_, other->goals_blue_);
-  swap(goals_yellow_, other->goals_yellow_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 

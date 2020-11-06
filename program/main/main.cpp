@@ -111,14 +111,30 @@ int main(int argc, char **argv)
   //le arquivo de calibracao
   if (mode == SIMULATED_MODE)
   {
+    bool r = fut.configAcquisition(DEFAULT_SERVER_ADDR,
+                                   DEFAULT_MULTICAST_ADDR,
+                                   PORT_CMD,
+                                   PORT_VISION,
+                                   PORT_REFEREE,
+                                   PORT_REPLACER);
+    if (r)
+    {
+      std::cerr << "Erro ao conectar com o simulador\n";
+      exit(1);
+    }
+    /*
     char ip[80];
-    cout << "Informe a maquina do simulador (ip ou nome): ";
+    unsigned port;
+    printf("Informe o IP da maquina do simulador (enter para usar o default: %s): ", DEFAULT_SERVER_ADDR);
     cin >> ip;
+    printf("Agora informe a porta (default:%d):",PORT_CMD);
+    cin >> port;
     if (fut.configAcquisition(ip))
     {
       cout << "Erro ao conectar com o simulador\n";
       exit(1);
     }
+    */
   }
   else
   {

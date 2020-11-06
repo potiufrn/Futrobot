@@ -132,10 +132,21 @@ public:
   ~Acquisition();
   /**
    * [configAcquisition description]
-   * @param  str [description]
-   * @return     [description]
+   * @param  str caminho para arquivo de configuração
+   * @return     true caso de falha na configuracao, false caso contrario
    */
   bool configAcquisition(const char *str);
+  /**
+   * @param  server_address
+   * @param  multicast_address
+   * @param  cmd_port
+   * @param  vision_port
+   * @param  referee_port 
+   * @param  replacer_port 
+   * @return true caso de falha na configuracao, false caso contrario
+   */
+  bool configAcquisition(const char *server_address, const char *multicast_address, 
+                         const unsigned cmd_port, const unsigned vision_port, const unsigned referee_port, const unsigned replacer_port);
   /**
    * [acquisitionWait description]
    * @return [description]

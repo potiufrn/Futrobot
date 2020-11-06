@@ -308,18 +308,6 @@ class Environment : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::uint32 step() const;
   void set_step(::google::protobuf::uint32 value);
 
-  // uint32 goals_blue = 4;
-  void clear_goals_blue();
-  static const int kGoalsBlueFieldNumber = 4;
-  ::google::protobuf::uint32 goals_blue() const;
-  void set_goals_blue(::google::protobuf::uint32 value);
-
-  // uint32 goals_yellow = 5;
-  void clear_goals_yellow();
-  static const int kGoalsYellowFieldNumber = 5;
-  ::google::protobuf::uint32 goals_yellow() const;
-  void set_goals_yellow(::google::protobuf::uint32 value);
-
   // @@protoc_insertion_point(class_scope:fira_message.sim_to_ref.Environment)
  private:
 
@@ -327,8 +315,6 @@ class Environment : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::fira_message::Frame* frame_;
   ::fira_message::Field* field_;
   ::google::protobuf::uint32 step_;
-  ::google::protobuf::uint32 goals_blue_;
-  ::google::protobuf::uint32 goals_yellow_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_packet_2eproto::TableStruct;
 };
@@ -551,34 +537,6 @@ inline void Environment::set_allocated_field(::fira_message::Field* field) {
   }
   field_ = field;
   // @@protoc_insertion_point(field_set_allocated:fira_message.sim_to_ref.Environment.field)
-}
-
-// uint32 goals_blue = 4;
-inline void Environment::clear_goals_blue() {
-  goals_blue_ = 0u;
-}
-inline ::google::protobuf::uint32 Environment::goals_blue() const {
-  // @@protoc_insertion_point(field_get:fira_message.sim_to_ref.Environment.goals_blue)
-  return goals_blue_;
-}
-inline void Environment::set_goals_blue(::google::protobuf::uint32 value) {
-  
-  goals_blue_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.sim_to_ref.Environment.goals_blue)
-}
-
-// uint32 goals_yellow = 5;
-inline void Environment::clear_goals_yellow() {
-  goals_yellow_ = 0u;
-}
-inline ::google::protobuf::uint32 Environment::goals_yellow() const {
-  // @@protoc_insertion_point(field_get:fira_message.sim_to_ref.Environment.goals_yellow)
-  return goals_yellow_;
-}
-inline void Environment::set_goals_yellow(::google::protobuf::uint32 value) {
-  
-  goals_yellow_ = value;
-  // @@protoc_insertion_point(field_set:fira_message.sim_to_ref.Environment.goals_yellow)
 }
 
 #ifdef __GNUC__

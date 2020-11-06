@@ -4,20 +4,19 @@
 #include "futdata.h"
 #include "../comunicacao.h"
 
-
-FutData::FutData(TEAM team, SIDE side, GAME_MODE mode):
-server_IP("127.0.0.1")
+FutData::FutData(TEAM team, SIDE side, GAME_MODE mode) : server_IP(DEFAULT_SERVER_ADDR),
+                                                         server_multicast_IP(DEFAULT_MULTICAST_ADDR)
 {
-  dt_amostr = 1.0/FPS;
-  start_data(team,side,mode);
+  dt_amostr = 1.0 / FPS;
+  start_data(team, side, mode);
   // est_jogo = JOGAR;
   game_state = PLAY_STATE;
   advantage = true;
-  for(int i=0; i < 3; i++){
+  for (int i = 0; i < 3; i++)
+  {
     bloqueado[i] = false;
     bypassControl[i] = false;
   }
-
 }
 
 void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
@@ -42,13 +41,13 @@ void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
   ant.op[0].y() = pos.op[0].y() = 0.5;
   ant.op[0].theta() = pos.op[0].theta() = M_PI;
 
-  ant.op[1].x() =  pos.op[1].x() = 0.6;
-  ant.op[1].y() =  pos.op[1].y() = 0.0;
-  ant.op[1].theta() =  pos.op[1].theta() = M_PI_2;
+  ant.op[1].x() = pos.op[1].x() = 0.6;
+  ant.op[1].y() = pos.op[1].y() = 0.0;
+  ant.op[1].theta() = pos.op[1].theta() = M_PI_2;
 
-  ant.op[2].x() =  pos.op[2].x() = 0.6;
-  ant.op[2].y() =  pos.op[2].y() = -0.5;
-  ant.op[2].theta() =  pos.op[2].theta() = M_PI;
+  ant.op[2].x() = pos.op[2].x() = 0.6;
+  ant.op[2].y() = pos.op[2].y() = -0.5;
+  ant.op[2].theta() = pos.op[2].theta() = M_PI;
 
   ant.ball.x() = pos.ball.x() = 0.0;
   ant.ball.y() = pos.ball.y() = 0.0;
@@ -59,7 +58,8 @@ void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
   pos.vel_ball.mod = 0.0;
   pos.vel_ball.ang = 0.0;
 
-  for (int i=0; i<3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     ref.me[i].x() = pos.me[i].x();
     ref.me[i].y() = pos.me[i].y();
     ref.me[i].theta() = pos.me[i].theta();

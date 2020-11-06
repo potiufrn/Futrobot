@@ -9,7 +9,7 @@
 #include "../comunicacao.h"
 #include "../functions.h"
 
-using namespace::std;
+using namespace ::std;
 
 #ifndef _SO_SIMULADO_
 //PARAMETROS DE CONFIGURACAO
@@ -20,14 +20,13 @@ using namespace::std;
 #define MIN_PIXELS 20 //CHECAR
 #define LINE_THRESHOLD 45
 
-
 #define ROBOT_EDGE_PIXELS 35 //CHECAR
 
 //Keep this value up to date with the number
 //of colors in REG_COLOR
 #define NUM_COLORS 11
 
-#define RADIUS 12 //CHECAR
+#define RADIUS 12     //CHECAR
 #define MIN_RADIUS 12 //CHECAR
 #define MAX_RADIUS 25 //CHECAR
 #define RADIUS_STEP 1 //CHECAR
@@ -44,9 +43,10 @@ private:
   int X[MAX_STACK_SIZE];
   int Y[MAX_STACK_SIZE];
   int size;
+
 public:
-  inline STACK() {empty();}
-  inline void empty() {size=0;}
+  inline STACK() { empty(); }
+  inline void empty() { size = 0; }
   bool push(unsigned int x, unsigned int y);
   bool pop(unsigned int &x, unsigned int &y);
 };
@@ -54,16 +54,18 @@ public:
 // Returns false if error
 bool STACK::push(unsigned int x, unsigned int y)
 {
-  if (size>=MAX_STACK_SIZE) return false;
-  X[size]=x;
-  Y[size++]=y;
+  if (size >= MAX_STACK_SIZE)
+    return false;
+  X[size] = x;
+  Y[size++] = y;
   return true;
 }
 
 // return false if error
 bool STACK::pop(unsigned int &x, unsigned int &y)
 {
-  if (size==0) return false;
+  if (size == 0)
+    return false;
   x = X[--size];
   y = Y[size];
   return true;
@@ -73,20 +75,24 @@ bool STACK::pop(unsigned int &x, unsigned int &y)
 // classe é construída usando field bits para tornar mais rápida a
 // inicialização com um mesmo valor
 
-struct BinaryBools {
-  bool b15:1,b14:1,b13:1,b12:1,b11:1,b10:1,b9:1,b8:1,
-    b7:1,b6:1,b5:1,b4:1,b3:1,b2:1,b1:1,b0:1;
+struct BinaryBools
+{
+  bool b15 : 1, b14 : 1, b13 : 1, b12 : 1, b11 : 1, b10 : 1, b9 : 1, b8 : 1,
+      b7 : 1, b6 : 1, b5 : 1, b4 : 1, b3 : 1, b2 : 1, b1 : 1, b0 : 1;
 };
 
-union BinaryInt {
+union BinaryInt
+{
   uint16_t i;
   BinaryBools b;
 };
 
-class BinaryMap {
+class BinaryMap
+{
 private:
-  unsigned Ncol,Nlin,N;
+  unsigned Ncol, Nlin, N;
   BinaryInt *m;
+
 public:
   BinaryMap(unsigned width, unsigned height);
   ~BinaryMap();
@@ -95,17 +101,19 @@ public:
   void setAllValues(bool value);
 };
 
-BinaryMap::BinaryMap(unsigned width, unsigned height):
-  Ncol(width),Nlin(height)
+BinaryMap::BinaryMap(unsigned width, unsigned height) : Ncol(width), Nlin(height)
 {
-  if (Ncol*Nlin == 0) {
+  if (Ncol * Nlin == 0)
+  {
     cerr << "Mapa binario de dimensao nula\n";
     exit(1);
   }
-  N = (Ncol*Nlin)/16;           // Divisao inteira: despreza o resto
-  while (16*N < Ncol*Nlin) N++; // So deve fazer no maximo uma vez
+  N = (Ncol * Nlin) / 16; // Divisao inteira: despreza o resto
+  while (16 * N < Ncol * Nlin)
+    N++; // So deve fazer no maximo uma vez
   m = new BinaryInt[N];
-  if (m == NULL) {
+  if (m == NULL)
+  {
     cerr << "Problema na alocacao do mapa binario\n";
     exit(1);
   }
@@ -118,26 +126,43 @@ BinaryMap::~BinaryMap()
 
 bool BinaryMap::operator()(unsigned col, unsigned lin)
 {
-  unsigned i = Ncol*lin + col;
-  unsigned n = i/16;
-  i -= 16*n;
-  switch(i) {
-  case 0: return m[n].b.b0;
-  case 1: return m[n].b.b1;
-  case 2: return m[n].b.b2;
-  case 3: return m[n].b.b3;
-  case 4: return m[n].b.b4;
-  case 5: return m[n].b.b5;
-  case 6: return m[n].b.b6;
-  case 7: return m[n].b.b7;
-  case 8: return m[n].b.b8;
-  case 9: return m[n].b.b9;
-  case 10: return m[n].b.b10;
-  case 11: return m[n].b.b11;
-  case 12: return m[n].b.b12;
-  case 13: return m[n].b.b13;
-  case 14: return m[n].b.b14;
-  case 15: return m[n].b.b15;
+  unsigned i = Ncol * lin + col;
+  unsigned n = i / 16;
+  i -= 16 * n;
+  switch (i)
+  {
+  case 0:
+    return m[n].b.b0;
+  case 1:
+    return m[n].b.b1;
+  case 2:
+    return m[n].b.b2;
+  case 3:
+    return m[n].b.b3;
+  case 4:
+    return m[n].b.b4;
+  case 5:
+    return m[n].b.b5;
+  case 6:
+    return m[n].b.b6;
+  case 7:
+    return m[n].b.b7;
+  case 8:
+    return m[n].b.b8;
+  case 9:
+    return m[n].b.b9;
+  case 10:
+    return m[n].b.b10;
+  case 11:
+    return m[n].b.b11;
+  case 12:
+    return m[n].b.b12;
+  case 13:
+    return m[n].b.b13;
+  case 14:
+    return m[n].b.b14;
+  case 15:
+    return m[n].b.b15;
   }
   cerr << "Erro misterioso 1!\n";
   return false;
@@ -145,26 +170,59 @@ bool BinaryMap::operator()(unsigned col, unsigned lin)
 
 void BinaryMap::setValue(unsigned col, unsigned lin, bool value)
 {
-  unsigned i = Ncol*lin + col;
-  unsigned n = i/16;
-  i -= 16*n;
-  switch(i) {
-  case 0: m[n].b.b0 = value; return;
-  case 1: m[n].b.b1 = value; return;
-  case 2: m[n].b.b2 = value; return;
-  case 3: m[n].b.b3 = value; return;
-  case 4: m[n].b.b4 = value; return;
-  case 5: m[n].b.b5 = value; return;
-  case 6: m[n].b.b6 = value; return;
-  case 7: m[n].b.b7 = value; return;
-  case 8: m[n].b.b8 = value; return;
-  case 9: m[n].b.b9 = value; return;
-  case 10: m[n].b.b10 = value; return;
-  case 11: m[n].b.b11 = value; return;
-  case 12: m[n].b.b12 = value; return;
-  case 13: m[n].b.b13 = value; return;
-  case 14: m[n].b.b14 = value; return;
-  case 15: m[n].b.b15 = value; return;
+  unsigned i = Ncol * lin + col;
+  unsigned n = i / 16;
+  i -= 16 * n;
+  switch (i)
+  {
+  case 0:
+    m[n].b.b0 = value;
+    return;
+  case 1:
+    m[n].b.b1 = value;
+    return;
+  case 2:
+    m[n].b.b2 = value;
+    return;
+  case 3:
+    m[n].b.b3 = value;
+    return;
+  case 4:
+    m[n].b.b4 = value;
+    return;
+  case 5:
+    m[n].b.b5 = value;
+    return;
+  case 6:
+    m[n].b.b6 = value;
+    return;
+  case 7:
+    m[n].b.b7 = value;
+    return;
+  case 8:
+    m[n].b.b8 = value;
+    return;
+  case 9:
+    m[n].b.b9 = value;
+    return;
+  case 10:
+    m[n].b.b10 = value;
+    return;
+  case 11:
+    m[n].b.b11 = value;
+    return;
+  case 12:
+    m[n].b.b12 = value;
+    return;
+  case 13:
+    m[n].b.b13 = value;
+    return;
+  case 14:
+    m[n].b.b14 = value;
+    return;
+  case 15:
+    m[n].b.b15 = value;
+    return;
   }
   cerr << "Erro misterioso 2!\n";
 }
@@ -172,42 +230,48 @@ void BinaryMap::setValue(unsigned col, unsigned lin, bool value)
 void BinaryMap::setAllValues(bool value)
 {
   uint16_t Value = (value ? 0xFFFF : 0x0000);
-  for (unsigned i=0; i<N; i++) {
+  for (unsigned i = 0; i < N; i++)
+  {
     m[i].i = Value;
   }
 }
 
 //***********************************************************
 //static bool analisedPixel[IMAGE_WIDTH][IMAGE_HEIGHT];
-static BinaryMap analisedPixel(IMAGE_WIDTH,IMAGE_HEIGHT);
+static BinaryMap analisedPixel(IMAGE_WIDTH, IMAGE_HEIGHT);
 //static HPG_LIMITS colorLimit[NUM_COLORS];
 
-
-static std::ostream& operator<<(std::ostream& os, REGION &r){
+static std::ostream &operator<<(std::ostream &os, REGION &r)
+{
   os << r.center << " C-> " << r.colorID << " N-> " << r.nPixel;
   return os;
 }
 
 //Retorna a media entre 2 angulos
-static double media_ang(double t1, double t2){
-  if(fabs(t1 - t2) > M_PI){
-    if(t1 < 0){
-      t1 += 2*M_PI;
-    }else{
-      t2 += 2*M_PI;
+static double media_ang(double t1, double t2)
+{
+  if (fabs(t1 - t2) > M_PI)
+  {
+    if (t1 < 0)
+    {
+      t1 += 2 * M_PI;
+    }
+    else
+    {
+      t2 += 2 * M_PI;
     }
   }
 
-  return ang_equiv((t1 + t2)/2.0);
+  return ang_equiv((t1 + t2) / 2.0);
 }
 
 #endif
 
-Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
-  FutData(team,side,mode)
+Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) : FutData(team, side, mode)
 #ifndef _SO_SIMULADO_
-  ,Camera(),
-  RDistortion(getWidth(),getHeight())
+                                                                 ,
+                                                                 Camera(),
+                                                                 RDistortion(getWidth(), getHeight())
 #endif
 {
   id_pos = id_ant = 0;
@@ -223,25 +287,58 @@ Acquisition::Acquisition(TEAM team, SIDE side, GAME_MODE mode) :
 #endif
 }
 
-Acquisition::~Acquisition(){
-  if(gameMode() == SIMULATED_MODE){
+Acquisition::~Acquisition()
+{
+  if (gameMode() == SIMULATED_MODE)
+  {
     sock_cmd.close();
-    sock_acq.close();
+    sock_vision.close();
+    sock_referee.close();
+    sock_replacer.close();
   }
 }
 
+bool Acquisition::configAcquisition(const char *server_address, const char *multicast_address,
+                                    const unsigned cmd_port, const unsigned vision_port, const unsigned referee_port, const unsigned replacer_port)
+
+{
+  std::cout << "Configurando aquisicao..." << endl;
+  if(gameMode() != GAME_MODE::SIMULATED_MODE)
+  {
+    std::cerr << "ERROR: Não está no modo simulado!\n";
+    return true;
+  }
+
+  if(sock_cmd.connect(server_address, cmd_port) != SOCKET_STATUS::SOCKET_OK)
+  {
+    std::cerr << "Falha ao tentar conectar com o servidor\n";
+    return true;
+  }
+
+  if(sock_vision.joinMulticastGroup(multicast_address, vision_port) != SOCKET_STATUS::SOCKET_OK)
+  {
+    std::cerr << "Falha ao tentar se juntar ao grupo multicast da visão\n";
+    return true;
+  }
+  
+  if(sock_referee.joinMulticastGroup(multicast_address, referee_port) != SOCKET_STATUS::SOCKET_OK)
+  {
+    std::cerr << "Falha ao tentar se conectar ao Referee\n";
+    return true;
+  }
+
+  if(sock_replacer.joinMulticastGroup(multicast_address, replacer_port) != SOCKET_STATUS::SOCKET_OK)
+  {
+    std::cerr << "Falha ao tentar se conectar ao Replacer\n";
+    return true;
+  }
+  
+  return false;
+}
 //TODO: Casar essa leitura com a nova escrita dos parametros do calibrador
 bool Acquisition::configAcquisition(const char *str)
 {
   cout << "Configurando aquisicao..." << endl;
-  if(gameMode() == SIMULATED_MODE){  
-    if(sock_acq.joinMulticastGroup(DEFAULT_MULTICAST_ADDR, PORT_MCAST) != SOCKET_OK){
-      cerr << "Erro ao juntar-se ao grupo multcast\n";
-      return true;
-    }
-    server_IP = str;
-    return false;
-  }
 #ifndef _SO_SIMULADO_
   unsigned i;
   string key;
@@ -249,195 +346,226 @@ bool Acquisition::configAcquisition(const char *str)
   unsigned index = 0;
   std::ifstream I(str);
 
-  if(!I.is_open())return true;
+  if (!I.is_open())
+    return true;
 
-  cout << "\tConfigurando Camera..."<<endl;
+  cout << "\tConfigurando Camera..." << endl;
 
-  do{
+  do
+  {
     numDevices = Camera::listDevices(true);
-    if(numDevices == 0){
+    if (numDevices == 0)
+    {
       std::cerr << "\nWARNING: Nenhum Dispositivo de video conectado" << '\n';
       exit(1);
     }
     std::cout << "\nInforme o index da Camera : " << '\n';
     std::cin >> index;
-    std::cin.ignore(1,'\n');
-  }while(index >= numDevices);
-  if(Camera::Open(index) == false){
+    std::cin.ignore(1, '\n');
+  } while (index >= numDevices);
+  if (Camera::Open(index) == false)
+  {
     std::cerr << "Config. Acquisition ERRO: Falha ao abrir dispositivo" << '\n';
     I.close();
     exit(1);
   }
 
   //seta os parametros da camera
-  getline(I,key,'\n');
-  if(key != "Parametros da Camera"){
+  getline(I, key, '\n');
+  if (key != "Parametros da Camera")
+  {
     I.close();
     return true;
   }
 
-  if(Camera::read(I)){
+  if (Camera::read(I))
+  {
     printf("Error Loading Camera Parameters!\n");
     I.close();
     return true;
   };
 
-  I.ignore(1,'\n');
-  getline(I,key,'\n');
-  if(key != "Parametros de Calibracao")return true;
+  I.ignore(1, '\n');
+  getline(I, key, '\n');
+  if (key != "Parametros de Calibracao")
+    return true;
   //SetParameters(cameraParam);
-  cout << "\tConfigurando calibracao..."<<endl;
+  cout << "\tConfigurando calibracao..." << endl;
 
-  if(calibracaoParam.read(I)){
+  if (calibracaoParam.read(I))
+  {
     printf("Error Loading Calibration Parameters!\n");
     return true;
   }
-  cout << "\tLeu Parametros"<<endl;
+  cout << "\tLeu Parametros" << endl;
 
   //testa se o arquivo lido tem as dimensoes corretas de pontos
-  if(calibracaoParam.nPontosNotaveis != NUM_POINTS ||
-     calibracaoParam.nCores != NUM_COLORS){
+  if (calibracaoParam.nPontosNotaveis != NUM_POINTS ||
+      calibracaoParam.nCores != NUM_COLORS)
+  {
     printf("nPontosNotaveis: %d -- NUM_POINTS: %d\n",
-	   calibracaoParam.nPontosNotaveis, NUM_POINTS);
+           calibracaoParam.nPontosNotaveis, NUM_POINTS);
     printf("nCores: %d -- NUM_COLORS: %d\n",
-	   calibracaoParam.nCores, NUM_COLORS);
+           calibracaoParam.nCores, NUM_COLORS);
     return true;
   }
 
   printf("Parameters Loaded from File!\n");
-  for(i = 0; i < calibracaoParam.nPontosNotaveis; i++) {
-    if(calibracaoParam.pontosImagem[i].u() < MinU)
+  for (i = 0; i < calibracaoParam.nPontosNotaveis; i++)
+  {
+    if (calibracaoParam.pontosImagem[i].u() < MinU)
       MinU = (unsigned int)floor(calibracaoParam.pontosImagem[i].u());
-    if(calibracaoParam.pontosImagem[i].u() > MaxU)
+    if (calibracaoParam.pontosImagem[i].u() > MaxU)
       MaxU = (unsigned int)ceil(calibracaoParam.pontosImagem[i].u());
-    if(calibracaoParam.pontosImagem[i].v() < MinV)
+    if (calibracaoParam.pontosImagem[i].v() < MinV)
       MinV = (unsigned int)floor(calibracaoParam.pontosImagem[i].v());
-    if(calibracaoParam.pontosImagem[i].v() > MaxV)
+    if (calibracaoParam.pontosImagem[i].v() > MaxV)
       MaxV = (unsigned int)ceil(calibracaoParam.pontosImagem[i].v());
   }
 
   //CALCULO DE DISTORCAO RADIAL E HOMOGRAFIA
-  cout << "\tConfigurando Distorcao Radial..."<<endl;
+  cout << "\tConfigurando Distorcao Radial..." << endl;
 
   // Retas horizontais
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[2],
-				 calibracaoParam.pontosImagem[1],
-				 calibracaoParam.pontosImagem[0]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[2],
+                                calibracaoParam.pontosImagem[1],
+                                calibracaoParam.pontosImagem[0]))
+  {
     cerr << "Reta superior foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[4],
-				 calibracaoParam.pontosImagem[22],
-				 calibracaoParam.pontosImagem[20]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[4],
+                                calibracaoParam.pontosImagem[22],
+                                calibracaoParam.pontosImagem[20]))
+  {
     cerr << "Reta area-superior1 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[4],
-				 calibracaoParam.pontosImagem[26],
-				 calibracaoParam.pontosImagem[20]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[4],
+                                calibracaoParam.pontosImagem[26],
+                                calibracaoParam.pontosImagem[20]))
+  {
     cerr << "Reta area-superior2 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[5],
-				 calibracaoParam.pontosImagem[24],
-				 calibracaoParam.pontosImagem[19]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[5],
+                                calibracaoParam.pontosImagem[24],
+                                calibracaoParam.pontosImagem[19]))
+  {
     cerr << "Reta centro-superior foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[8],
-				 calibracaoParam.pontosImagem[25],
-				 calibracaoParam.pontosImagem[16]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[8],
+                                calibracaoParam.pontosImagem[25],
+                                calibracaoParam.pontosImagem[16]))
+  {
     cerr << "Reta centro-inferior foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[9],
-				 calibracaoParam.pontosImagem[23],
-				 calibracaoParam.pontosImagem[15]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[9],
+                                calibracaoParam.pontosImagem[23],
+                                calibracaoParam.pontosImagem[15]))
+  {
     cerr << "Reta area-inferior1 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[9],
-				 calibracaoParam.pontosImagem[27],
-				 calibracaoParam.pontosImagem[15]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[9],
+                                calibracaoParam.pontosImagem[27],
+                                calibracaoParam.pontosImagem[15]))
+  {
     cerr << "Reta area-inferior2 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[11],
-				 calibracaoParam.pontosImagem[12],
-				 calibracaoParam.pontosImagem[13]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[11],
+                                calibracaoParam.pontosImagem[12],
+                                calibracaoParam.pontosImagem[13]))
+  {
     cerr << "Reta inferior foi desprezada\n";
   }
   // Retas verticais
   //ATENCAO: ESTA RETA ESTAVA COMENTADA
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
- 				 calibracaoParam.pontosImagem[4],
- 				 calibracaoParam.pontosImagem[10]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
+                                calibracaoParam.pontosImagem[4],
+                                calibracaoParam.pontosImagem[10]))
+  {
     cerr << "Reta esquerda1 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
-				 calibracaoParam.pontosImagem[5],
-				 calibracaoParam.pontosImagem[10]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
+                                calibracaoParam.pontosImagem[5],
+                                calibracaoParam.pontosImagem[10]))
+  {
     cerr << "Reta esquerda2 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
-				 calibracaoParam.pontosImagem[8],
-				 calibracaoParam.pontosImagem[10]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
+                                calibracaoParam.pontosImagem[8],
+                                calibracaoParam.pontosImagem[10]))
+  {
     cerr << "Reta esquerda3 foi desprezada\n";
   }
   //ATENCAO: ESTA RETA ESTAVA COMENTADA
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
- 				 calibracaoParam.pontosImagem[9],
- 				 calibracaoParam.pontosImagem[10]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[3],
+                                calibracaoParam.pontosImagem[9],
+                                calibracaoParam.pontosImagem[10]))
+  {
     cerr << "Reta esquerda4 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[1],
-				 calibracaoParam.pontosImagem[24],
-				 calibracaoParam.pontosImagem[12]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[1],
+                                calibracaoParam.pontosImagem[24],
+                                calibracaoParam.pontosImagem[12]))
+  {
     cerr << "Reta central1 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[1],
-				 calibracaoParam.pontosImagem[25],
-				 calibracaoParam.pontosImagem[12]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[1],
+                                calibracaoParam.pontosImagem[25],
+                                calibracaoParam.pontosImagem[12]))
+  {
     cerr << "Reta central2 foi desprezada\n";
   }
   //ATENCAO: ESTA RETA ESTAVA COMENTADA
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
- 				 calibracaoParam.pontosImagem[20],
- 				 calibracaoParam.pontosImagem[14]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
+                                calibracaoParam.pontosImagem[20],
+                                calibracaoParam.pontosImagem[14]))
+  {
     cerr << "Reta direita1 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
-				 calibracaoParam.pontosImagem[19],
-				 calibracaoParam.pontosImagem[14]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
+                                calibracaoParam.pontosImagem[19],
+                                calibracaoParam.pontosImagem[14]))
+  {
     cerr << "Reta direita2 foi desprezada\n";
   }
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
-				 calibracaoParam.pontosImagem[16],
-				 calibracaoParam.pontosImagem[14]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
+                                calibracaoParam.pontosImagem[16],
+                                calibracaoParam.pontosImagem[14]))
+  {
     cerr << "Reta direita3 foi desprezada\n";
   }
   //ATENCAO: ESTA RETA ESTAVA COMENTADA
-  if ( RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
- 				 calibracaoParam.pontosImagem[15],
- 				 calibracaoParam.pontosImagem[14]) ) {
+  if (RDistortion.incluirPontos(calibracaoParam.pontosImagem[21],
+                                calibracaoParam.pontosImagem[15],
+                                calibracaoParam.pontosImagem[14]))
+  {
     cerr << "Reta direita4 foi desprezada\n";
   }
 
-  cout << "\tCalibrando distorcao..."<<endl;
+  cout << "\tCalibrando distorcao..." << endl;
 
   RDistortion.calibrar();
   RDistortion.ajustar(false);
 
-  cout << "\tCorrigindo distorcao..."<<endl;
+  cout << "\tCorrigindo distorcao..." << endl;
 
   Coord2 PImgCorrig[calibracaoParam.nPontosNotaveis];
-  for (i=0; i<calibracaoParam.nPontosNotaveis; i++) {
+  for (i = 0; i < calibracaoParam.nPontosNotaveis; i++)
+  {
     PImgCorrig[i] = RDistortion.corrigir(calibracaoParam.pontosImagem[i]);
-    if(isnan(PImgCorrig[i].x()) ||
-       isnan(PImgCorrig[i].y()) ){
-      cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-	  <<__FILE__<<" "<<__LINE__ <<endl;
+    if (isnan(PImgCorrig[i].x()) ||
+        isnan(PImgCorrig[i].y()))
+    {
+      cerr << "CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
+           << __FILE__ << " " << __LINE__ << endl;
     }
   }
-  cout << "\tConfigurando Homografia..."<<endl;
+  cout << "\tConfigurando Homografia..." << endl;
 
-  for (i=0; i<calibracaoParam.nPontosNotaveis; i++) {
-    Homography.incluirPonto(calibracaoParam.pontosReais[i],PImgCorrig[i]);
+  for (i = 0; i < calibracaoParam.nPontosNotaveis; i++)
+  {
+    Homography.incluirPonto(calibracaoParam.pontosReais[i], PImgCorrig[i]);
   }
-  cout << "\tCalibrando Homografia..."<<endl;
+  cout << "\tCalibrando Homografia..." << endl;
 
   Homography.calibrar();
 
@@ -450,131 +578,159 @@ bool Acquisition::configAcquisition(const char *str)
 
 #ifndef _SO_SIMULADO_
 
-bool Acquisition::canBePainted(REG_COLOR colorID, unsigned u, unsigned v){
-  float H,P,G;
-  ImBruta.atHPG(v,u, H,P,G);
-  return (!analisedPixel(u,v) && calibracaoParam.getHardColor(H,P,G) == colorID);
+bool Acquisition::canBePainted(REG_COLOR colorID, unsigned u, unsigned v)
+{
+  float H, P, G;
+  ImBruta.atHPG(v, u, H, P, G);
+  return (!analisedPixel(u, v) && calibracaoParam.getHardColor(H, P, G) == colorID);
 }
 
-REGION Acquisition::seedFill( REG_COLOR colorID, unsigned int u, unsigned int v){
+REGION Acquisition::seedFill(REG_COLOR colorID, unsigned int u, unsigned int v)
+{
   static STACK s;
   REGION region;
 
-  double su=0, sv=0, suu=0, svv=0, suv=0;
-  int nPixel=0;
+  double su = 0, sv = 0, suu = 0, svv = 0, suv = 0;
+  int nPixel = 0;
   unsigned int v1;
-  unsigned int vMax=0,vMin=ImBruta.getHeight();
-  unsigned int uMax=0,uMin=ImBruta.getWidth();
+  unsigned int vMax = 0, vMin = ImBruta.getHeight();
+  unsigned int uMax = 0, uMin = ImBruta.getWidth();
   bool expanLeft, expanRight;
 
-  region.nPixel=0;
+  region.nPixel = 0;
   region.colorID = colorID;
 
-  if ( !canBePainted(colorID,u,v) )return region;
+  if (!canBePainted(colorID, u, v))
+    return region;
   s.empty();
 
-  if (!s.push(u,v)) {
+  if (!s.push(u, v))
+  {
     cerr << "Buffer estourou 1!\n";
     return region;
   }
 
-  while(s.pop(u,v)) {
+  while (s.pop(u, v))
+  {
     v1 = v;
 
-    while(v1>0 && canBePainted(colorID,u,v1-1)) v1--;
+    while (v1 > 0 && canBePainted(colorID, u, v1 - 1))
+      v1--;
 
     expanLeft = expanRight = false;
 
-    while(v1<ImBruta.getHeight() && canBePainted(colorID,u,v1) ) {
-      analisedPixel.setValue(u,v1,true);
-      if(v1 < vMin) vMin = v1;
-      if(v1 > vMax) vMax = v1;
-      if(u < uMin) uMin = u;
-      if(u > uMax) uMax = u;
+    while (v1 < ImBruta.getHeight() && canBePainted(colorID, u, v1))
+    {
+      analisedPixel.setValue(u, v1, true);
+      if (v1 < vMin)
+        vMin = v1;
+      if (v1 > vMax)
+        vMax = v1;
+      if (u < uMin)
+        uMin = u;
+      if (u > uMax)
+        uMax = u;
 
-
-      su += u; sv += v1; suu += u*u; svv += v1*v1; suv += u*v1;
+      su += u;
+      sv += v1;
+      suu += u * u;
+      svv += v1 * v1;
+      suv += u * v1;
       nPixel++;
 
-      if(!expanLeft && u>0 && canBePainted(colorID,u-1,v1)) {
-        if(!s.push(u-1,v1)) {
+      if (!expanLeft && u > 0 && canBePainted(colorID, u - 1, v1))
+      {
+        if (!s.push(u - 1, v1))
+        {
           cerr << "Buffer estourou 2!\n";
           return region;
         }
         expanLeft = true;
-      }else if(expanLeft && u>0 && !canBePainted(colorID,u-1,v1)) {
+      }
+      else if (expanLeft && u > 0 && !canBePainted(colorID, u - 1, v1))
+      {
         expanLeft = false;
       }
 
-      if(!expanRight && u<(ImBruta.getWidth()-1) && canBePainted(colorID,u+1,v1)){
-        if(!s.push(u+1,v1)) {
+      if (!expanRight && u < (ImBruta.getWidth() - 1) && canBePainted(colorID, u + 1, v1))
+      {
+        if (!s.push(u + 1, v1))
+        {
           cerr << "Buffer estourou 3!\n";
           return region;
         }
         expanRight = true;
       }
-    else if(expanRight && u<(ImBruta.getWidth()-1) &&
-	      !canBePainted(colorID,u+1,v1)) {
+      else if (expanRight && u < (ImBruta.getWidth() - 1) &&
+               !canBePainted(colorID, u + 1, v1))
+      {
         expanRight = false;
       }
       v1++;
     }
-
   }
   //testa se a regiao é uma linha vertical ou horizontal
-  if((vMax-vMin) > LINE_THRESHOLD ||
-     (uMax-uMin) > LINE_THRESHOLD)
+  if ((vMax - vMin) > LINE_THRESHOLD ||
+      (uMax - uMin) > LINE_THRESHOLD)
     return region;
 
-  region.center.u() = su/nPixel;
-  region.center.v() = sv/nPixel;
+  region.center.u() = su / nPixel;
+  region.center.v() = sv / nPixel;
   region.nPixel = nPixel;
 
-  double varu,  varv,  varuv;
+  double varu, varv, varuv;
 
-  varu  = suu/nPixel - (su/nPixel)*(su/nPixel); //a
-  varv  = svv/nPixel - (sv/nPixel)*(sv/nPixel); //c
-  varuv = suv/nPixel - (su/nPixel)*(sv/nPixel); //b
+  varu = suu / nPixel - (su / nPixel) * (su / nPixel);  //a
+  varv = svv / nPixel - (sv / nPixel) * (sv / nPixel);  //c
+  varuv = suv / nPixel - (su / nPixel) * (sv / nPixel); //b
 
   //testa se a regiao eh simetrica, ou seja, nao tem como calcular o angulo do segundo momento.
   double lim_zero = 0.001;
-  if(fabs(varuv) < lim_zero && fabs(varu-varv) < lim_zero){
+  if (fabs(varuv) < lim_zero && fabs(varu - varv) < lim_zero)
+  {
     //a figura é simetrica
     region.symetric = true;
     region.orientation = 0.0;
-  }else{
+  }
+  else
+  {
     region.symetric = false;
-    region.orientation = -atan2(varuv,varu-varv)/2.0;
+    region.orientation = -atan2(varuv, varu - varv) / 2.0;
   }
   return region;
 }
 
 bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam,
-					     int &index, POS_ROBO &teamPose){
+                                             int &index, POS_ROBO &teamPose)
+{
   //Não achou marca auxiliar. Utiliza informação da posicao anterior
   //para definir qual o ID do robo e o angulo de correcão.
-  regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
+  regTeam.center = (RDistortion.corrigir(regTeam.center)) / Homography;
   teamPose.x() = regTeam.center.x();
   teamPose.y() = regTeam.center.y();
 
   double dist, dist_min, dist2_min;
   int id_min = 0;
   dist_min = hypot(teamPose.y() - ant.me[0].y(),
-		   teamPose.x() - ant.me[0].x());
-  dist2_min = 1000*dist_min;
-  for(int i = 1; i < 3; i++){
+                   teamPose.x() - ant.me[0].x());
+  dist2_min = 1000 * dist_min;
+  for (int i = 1; i < 3; i++)
+  {
     dist = hypot(teamPose.y() - ant.me[i].y(),
-		 teamPose.x() - ant.me[i].x());
-    if(dist < dist_min){
+                 teamPose.x() - ant.me[i].x());
+    if (dist < dist_min)
+    {
       dist2_min = dist_min;
       dist_min = dist;
       id_min = i;
     }
-    else if(dist < dist2_min){
+    else if (dist < dist2_min)
+    {
       dist2_min = dist;
     }
   }
-  if(dist_min < dist2_min/2.0){
+  if (dist_min < dist2_min / 2.0)
+  {
     index = id_min;
     double orient1 = ang_equiv(regTeam.orientation + M_PI_4);
     double orient2 = ang_equiv(orient1 - M_PI);
@@ -582,13 +738,16 @@ bool Acquisition::calculaMinhaPoseAproximada(REGION regTeam,
     double diff1 = fabs(ang_equiv(orient1 - ant.me[index].theta()));
     double diff2 = fabs(ang_equiv(orient2 - ant.me[index].theta()));
 
-    if(diff1 < diff2/2.0){
+    if (diff1 < diff2 / 2.0)
+    {
       teamPose.theta() = orient1;
     }
-    else if(diff2 < diff1/2.0){
+    else if (diff2 < diff1 / 2.0)
+    {
       teamPose.theta() = orient2;
     }
-    else{
+    else
+    {
       teamPose.theta() = POSITION_UNDEFINED;
     }
     return false;
@@ -799,9 +958,7 @@ bool Acquisition::calculaMinhaPose(REGION regTeam,
   //     break;
   //   }
 
-
   //   theta1 = ang_equiv(regTeam.orientation + M_PI_4);
-
 
   //   if (fabs(ang_equiv(theta2-theta1)) > M_PI_2)
   //   {
@@ -915,20 +1072,17 @@ bool Acquisition::calculaMinhaPose(REGION regTeam,
     teamPose.x() = regTeam.center.x();
     teamPose.y() = regTeam.center.y();
 
-    double theta1,theta2 = 0.0;
-
+    double theta1, theta2 = 0.0;
 
     theta2 = ang_equiv(arc_tang(regionAux.center.y() - regTeam.center.y(),
                                 regionAux.center.x() - regTeam.center.x()) -
-                        M_PI_4);
-
+                       M_PI_4);
 
     theta1 = ang_equiv(regTeam.orientation + M_PI_4);
 
-
-    if (fabs(ang_equiv(theta2-theta1)) > M_PI_2)
+    if (fabs(ang_equiv(theta2 - theta1)) > M_PI_2)
     {
-      theta1 = ang_equiv(theta1+M_PI);
+      theta1 = ang_equiv(theta1 + M_PI);
     }
 
     teamPose.theta() = media_ang(theta1, theta2);
@@ -938,8 +1092,9 @@ bool Acquisition::calculaMinhaPose(REGION regTeam,
   return true;
 }
 
-bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
-				 double corrX, double corrY, double corrTheta){
+bool Acquisition::calculaPoseAdv(REGION regTeam, int &index, POS_ROBO &teamPose,
+                                 double corrX, double corrY, double corrTheta)
+{
   //REGION regAux;
   //   double min_dist,ang,dist;
   //   int u,v;
@@ -990,11 +1145,12 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //     break;
   //   }
   //   if(index != -1){
-  regTeam.center = (RDistortion.corrigir(regTeam.center))/Homography;
-  if(isnan(regTeam.center.x()) ||
-     isnan(regTeam.center.y()) ){
-    cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-	<<__FILE__<<" "<<__LINE__ <<endl;
+  regTeam.center = (RDistortion.corrigir(regTeam.center)) / Homography;
+  if (isnan(regTeam.center.x()) ||
+      isnan(regTeam.center.y()))
+  {
+    cerr << "CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
+         << __FILE__ << " " << __LINE__ << endl;
   }
 
   //     regAux.center = (RDistortion.corrigir(regAux.center))/Homography;
@@ -1020,13 +1176,13 @@ bool Acquisition::calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
   //     teamPose.y() = teamPose.y() + corrY;
   //     teamPose.theta() = ang_equiv(teamPose.theta() + corrTheta);
 
-
   return false; //sem erro
   //   }
   //   return true; //com erro
 }
 
-bool Acquisition::processGameState(){
+bool Acquisition::processGameState()
+{
 
   //para cada cor está sendo criado um vetor de tamanho igual ao dobro
   //do numero de regioes esperadas daquela cor, pensando na
@@ -1048,15 +1204,16 @@ bool Acquisition::processGameState(){
   REG_COLOR colorID;
   int r;
   unsigned qtdDiff;
-  int u,v;
+  int u, v;
   int i;
-  float H,P,G;
+  float H, P, G;
 
   //inicio da procura dos robos
 
   analisedPixel.setAllValues(false);
 
-  for( i = 0; i < 3; i++){
+  for (i = 0; i < 3; i++)
+  {
     pos.me[i].x() = POSITION_UNDEFINED;
     pos.me[i].y() = POSITION_UNDEFINED;
     pos.me[i].theta() = POSITION_UNDEFINED;
@@ -1064,51 +1221,62 @@ bool Acquisition::processGameState(){
     pos.op[i].x() = POSITION_UNDEFINED;
     pos.op[i].y() = POSITION_UNDEFINED;
     pos.op[i].theta() = POSITION_UNDEFINED;
-
   }
 
   pos.ball.x() = POSITION_UNDEFINED;
   pos.ball.y() = POSITION_UNDEFINED;
 
   //PASSO 1: Busca por regiões amarelas e azuis
-  for( v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v+=6 ){
-    for( u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u+=6 ){
+  for (v = MinV; v <= (int)MaxV && nRegionsFound < MAX_REGIONS; v += 6)
+  {
+    for (u = MinU; u <= (int)MaxU && nRegionsFound < MAX_REGIONS; u += 6)
+    {
       //WARNING usando informacoes do campo vazio
-      r = calibracaoParam.isDiff(v,u,ImBruta.atByte(v,u));//compara o byte com o do campo vazio.
+      r = calibracaoParam.isDiff(v, u, ImBruta.atByte(v, u)); //compara o byte com o do campo vazio.
       qtdDiff = 0;
       //Trata caso em que nao foi possivel determina se o byte eh do campo ou nao
       //testa os pixels(byte na img bruta), conta quantos deles sao, com certeza, nao campo(objeto).
-      if(r == IS_UNDEF){
-        if(IS_VALID(v-1,u-1))
-          qtdDiff += (calibracaoParam.isDiff(v-1,u-1,ImBruta.atByte(v-1,u-1)) == IS_OBJECT)?1:0;
-        if(IS_VALID(v-1,u+1))
-          qtdDiff += (calibracaoParam.isDiff(v-1,u+1,ImBruta.atByte(v-1,u+1)) == IS_OBJECT)?1:0;
-        if(IS_VALID(v+1,u+1))
-          qtdDiff += (calibracaoParam.isDiff(v+1,u+1,ImBruta.atByte(v+1,u+1)) == IS_OBJECT)?1:0;
-        if(IS_VALID(v+1,u-1))
-          qtdDiff += (calibracaoParam.isDiff(v+1,u-1,ImBruta.atByte(v+1,u-1)) == IS_OBJECT)?1:0;
+      if (r == IS_UNDEF)
+      {
+        if (IS_VALID(v - 1, u - 1))
+          qtdDiff += (calibracaoParam.isDiff(v - 1, u - 1, ImBruta.atByte(v - 1, u - 1)) == IS_OBJECT) ? 1 : 0;
+        if (IS_VALID(v - 1, u + 1))
+          qtdDiff += (calibracaoParam.isDiff(v - 1, u + 1, ImBruta.atByte(v - 1, u + 1)) == IS_OBJECT) ? 1 : 0;
+        if (IS_VALID(v + 1, u + 1))
+          qtdDiff += (calibracaoParam.isDiff(v + 1, u + 1, ImBruta.atByte(v + 1, u + 1)) == IS_OBJECT) ? 1 : 0;
+        if (IS_VALID(v + 1, u - 1))
+          qtdDiff += (calibracaoParam.isDiff(v + 1, u - 1, ImBruta.atByte(v + 1, u - 1)) == IS_OBJECT) ? 1 : 0;
       }
       //Caso em que o pixel nao eh considerado como do campo vazio, ou seja, deve pertence a algum
       //dos robos ou da bola.
-      if(r == IS_OBJECT || qtdDiff > 2){
-        ImBruta.atHPG(v,u,H,P,G);
-        colorID = (REG_COLOR)calibracaoParam.getHardColor(H,P,G);
+      if (r == IS_OBJECT || qtdDiff > 2)
+      {
+        ImBruta.atHPG(v, u, H, P, G);
+        colorID = (REG_COLOR)calibracaoParam.getHardColor(H, P, G);
 
         // eliminar os pixels sem cor
-        if( colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE ){
+        if (colorID == REG_COLOR_YELLOW || colorID == REG_COLOR_BLUE || colorID == REG_COLOR_ORANGE)
+        {
 
-          region = seedFill(colorID,u,v);
+          region = seedFill(colorID, u, v);
 
-          if ( region.nPixel >= MIN_PIXELS ) {
-            switch(colorID){
-              case REG_COLOR_BLUE:
-              if(nRegBlue < 3){
+          if (region.nPixel >= MIN_PIXELS)
+          {
+            switch (colorID)
+            {
+            case REG_COLOR_BLUE:
+              if (nRegBlue < 3)
+              {
 
                 regBlue[nRegBlue] = region;
                 nRegBlue++;
-              }else{
-                for(i = 0; i < 3; i++){
-                  if(region.nPixel > regBlue[i].nPixel){
+              }
+              else
+              {
+                for (i = 0; i < 3; i++)
+                {
+                  if (region.nPixel > regBlue[i].nPixel)
+                  {
                     region_aux = regBlue[i];
                     regBlue[i] = region;
                     region = region_aux;
@@ -1116,14 +1284,19 @@ bool Acquisition::processGameState(){
                 }
               }
               break;
-              case REG_COLOR_YELLOW:
-              if(nRegYellow < 3){
+            case REG_COLOR_YELLOW:
+              if (nRegYellow < 3)
+              {
 
                 regYellow[nRegYellow] = region;
                 nRegYellow++;
-              }else{
-                for(i = 0; i < 3; i++){
-                  if(region.nPixel > regYellow[i].nPixel){
+              }
+              else
+              {
+                for (i = 0; i < 3; i++)
+                {
+                  if (region.nPixel > regYellow[i].nPixel)
+                  {
                     region_aux = regYellow[i];
                     regYellow[i] = region;
                     region = region_aux;
@@ -1131,57 +1304,69 @@ bool Acquisition::processGameState(){
                 }
               }
               break;
-              case REG_COLOR_ORANGE:
+            case REG_COLOR_ORANGE:
 
-              if(nRegOrange < 1){
+              if (nRegOrange < 1)
+              {
 
                 regOrange = region;
                 nRegOrange++;
-              }else{
-                if(region.nPixel > regOrange.nPixel){
+              }
+              else
+              {
+                if (region.nPixel > regOrange.nPixel)
+                {
                   regOrange = region;
                 }
               }
               break;
-              default:
-              cerr<<"Nao deveria chegar aqui 1!";
+            default:
+              cerr << "Nao deveria chegar aqui 1!";
               return true;
               break;
             }
           }
-
-      }
+        }
       }
     }
   }
 
   //PASSO 2: Calcula a pose dos meus robos
-  REG_COLOR  mycolor = ((myTeam() == YELLOW_TEAM)? REG_COLOR_YELLOW : REG_COLOR_BLUE);
+  REG_COLOR mycolor = ((myTeam() == YELLOW_TEAM) ? REG_COLOR_YELLOW : REG_COLOR_BLUE);
   POS_ROBO teamPose;
   int index = 0;
 
-  switch(mycolor){
+  switch (mycolor)
+  {
   case REG_COLOR_YELLOW:
-    for(i = 0; i < nRegYellow; i++){
-      if(!calculaMinhaPose(regYellow[i],index,teamPose)){
-      	pos.me[index] = teamPose;
-      }else if(!calculaMinhaPoseAproximada(regYellow[i],index,teamPose)){
+    for (i = 0; i < nRegYellow; i++)
+    {
+      if (!calculaMinhaPose(regYellow[i], index, teamPose))
+      {
+        pos.me[index] = teamPose;
+      }
+      else if (!calculaMinhaPoseAproximada(regYellow[i], index, teamPose))
+      {
         pos.me[index] = teamPose;
       }
     }
     break;
   case REG_COLOR_BLUE:
-    for(i = 0; i < nRegBlue; i++){
-      if(!calculaMinhaPose(regBlue[i],index,teamPose)){
-	      pos.me[index] = teamPose;
-      }else if(!calculaMinhaPoseAproximada(regBlue[i],index,teamPose)){
-      	pos.me[index] = teamPose;
+    for (i = 0; i < nRegBlue; i++)
+    {
+      if (!calculaMinhaPose(regBlue[i], index, teamPose))
+      {
+        pos.me[index] = teamPose;
+      }
+      else if (!calculaMinhaPoseAproximada(regBlue[i], index, teamPose))
+      {
+        pos.me[index] = teamPose;
       }
     }
     break;
   default:
     //nuca deve chegar aqui...
-    cerr <<"COR INVALIDA PARA ROTULO PRINCIPAL\n";
+    cerr << "COR INVALIDA PARA ROTULO PRINCIPAL\n";
     return true;
     break;
   }
@@ -1189,68 +1374,75 @@ bool Acquisition::processGameState(){
   //restante com o unico robô não identificado.
 
   //PASSO 3: Calcula a pose dos robôs adversários
-  switch(mycolor){
+  switch (mycolor)
+  {
   case REG_COLOR_YELLOW:
     //se sou o time amarelo, os meus adversarios são os azuis
-    for(i = 0; i < nRegBlue; i++) {
-      if(!calculaPoseAdv(regBlue[i],index,teamPose,0.0,0.0,0.0)){
-	//	pos.op[index] = teamPose;
-	pos.op[i] = teamPose;
-
+    for (i = 0; i < nRegBlue; i++)
+    {
+      if (!calculaPoseAdv(regBlue[i], index, teamPose, 0.0, 0.0, 0.0))
+      {
+        //	pos.op[index] = teamPose;
+        pos.op[i] = teamPose;
       }
     }
     break;
   case REG_COLOR_BLUE:
     //se sou o time azul, os meus adversarios são os amarelos
-    for(i = 0; i < nRegYellow; i++) {
-      if(!calculaPoseAdv(regYellow[i],index,teamPose,0.0,0.0,0.0)){
-	//pos.op[index] = teamPose;
-	pos.op[i] = teamPose;
+    for (i = 0; i < nRegYellow; i++)
+    {
+      if (!calculaPoseAdv(regYellow[i], index, teamPose, 0.0, 0.0, 0.0))
+      {
+        //pos.op[index] = teamPose;
+        pos.op[i] = teamPose;
       }
     }
     break;
   default:
     //nuca deve chegar aqui...
-    cerr <<"COR INVALIDA PARA ROTULO PRINCIPAL\n";
+    cerr << "COR INVALIDA PARA ROTULO PRINCIPAL\n";
     return true;
     break;
   }
 
-
   //############################################################
-  if(nRegOrange > 0) {
-    regOrange.center = (RDistortion.corrigir(regOrange.center))/Homography;
-    if(isnan(regOrange.center.x()) ||
-       isnan(regOrange.center.y()) ) {
-      cerr<<"CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
-	  <<__FILE__<<" "<<__LINE__ <<endl;
+  if (nRegOrange > 0)
+  {
+    regOrange.center = (RDistortion.corrigir(regOrange.center)) / Homography;
+    if (isnan(regOrange.center.x()) ||
+        isnan(regOrange.center.y()))
+    {
+      cerr << "CORRECAO DE DISTORCAO RADIAL GERANDO NANs!!! "
+           << __FILE__ << " " << __LINE__ << endl;
     }
 
     pos.ball.x() = regOrange.center.x();
     pos.ball.y() = regOrange.center.y();
-
   }
 
-
-  if(saveNextImage){
+  if (saveNextImage)
+  {
     cout << "Regioes encontradas:\n";
-    cout << "Orange: "<< nRegOrange << endl;
-    cout << "Azul: "<< nRegBlue << endl;
-    cout << "Amarelo: "<< nRegYellow << endl;
+    cout << "Orange: " << nRegOrange << endl;
+    cout << "Azul: " << nRegBlue << endl;
+    cout << "Amarelo: " << nRegYellow << endl;
 
-
-    for(i = 0; i < nRegBlue; i++){
+    for (i = 0; i < nRegBlue; i++)
+    {
       cout << "Azul " << i << "\t" << regBlue[i];
-      if(regAuxBlue[i].colorID != REG_COLOR_UNDEFINED){
-	       cout << "\t" << regAuxBlue[i];
+      if (regAuxBlue[i].colorID != REG_COLOR_UNDEFINED)
+      {
+        cout << "\t" << regAuxBlue[i];
       }
       cout << endl;
     }
 
-    for(i = 0; i < nRegYellow; i++) {
+    for (i = 0; i < nRegYellow; i++)
+    {
       cout << "Amarelo " << i << "\t" << regYellow[i];
-      if(regAuxYellow[i].colorID != REG_COLOR_UNDEFINED){
-	        cout << "\t" << regAuxYellow[i];
+      if (regAuxYellow[i].colorID != REG_COLOR_UNDEFINED)
+      {
+        cout << "\t" << regAuxYellow[i];
       }
       cout << endl;
     }
@@ -1269,25 +1461,32 @@ bool Acquisition::readGameState()
   static fira_message::Frame detection;
   static uint8_t dgram[MAX_DGRAM_SIZE] = {0};
 
-  if (!sock_acq.connected()) {
+  if (!sock_vision.connected())
+  {
     cerr << "Sock Não associado ao grupo multicast\n";
     return true;
   }
-
-  int r = sock_acq.recvFrom(dgram, MAX_DGRAM_SIZE, DEFAULT_MULTICAST_ADDR, PORT_MCAST, false);  
-  if(r >= 0){
-      packet.ParseFromArray((void*)dgram, r);
-      if(packet.has_frame()){
-        detection = packet.frame();
-      }else{
-        return false;
-      }
-  }else{
+  int r = sock_vision.read(dgram, MAX_DGRAM_SIZE, false);
+  if (r > 0)
+  {
+    packet.ParseFromArray((void *)dgram, r);
+    if (packet.has_frame())
+    {
+      detection = packet.frame();
+    }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
     cerr << "Falha no recebimento de dados\n";
     return true;
   }
 
-  for (int i=0; i < 3; i++){
+  for (int i = 0; i < 3; i++)
+  {
     try
     {
       if (myTeam() == BLUE_TEAM)
@@ -1299,7 +1498,9 @@ bool Acquisition::readGameState()
         pos.op[i].x() = detection.robots_yellow(i).x();
         pos.op[i].y() = detection.robots_yellow(i).y();
         pos.op[i].theta() = detection.robots_yellow(i).orientation();
-      }else{
+      }
+      else
+      {
         pos.me[i].x() = detection.robots_yellow(i).x();
         pos.me[i].y() = detection.robots_yellow(i).y();
         pos.me[i].theta() = detection.robots_yellow(i).orientation();
@@ -1309,12 +1510,11 @@ bool Acquisition::readGameState()
         pos.op[i].theta() = detection.robots_blue(i).orientation();
       }
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
       // std::cerr << e.what() << '\n';
       continue;
     }
-    
   }
   pos.ball.x() = detection.ball().x();
   pos.ball.y() = detection.ball().y();
@@ -1323,28 +1523,32 @@ bool Acquisition::readGameState()
   return false;
 }
 
-bool Acquisition::acquisitionWait(){
+bool Acquisition::acquisitionWait()
+{
 #ifndef _SO_SIMULADO_
-  if(gameMode() == REAL_MODE){
+  if (gameMode() == REAL_MODE)
+  {
     return waitforimage();
   }
 #endif
   return false;
 }
 
-
-bool Acquisition::acquisition(){
+bool Acquisition::acquisition()
+{
 #ifndef _SO_SIMULADO_
-  if(gameMode() == REAL_MODE){
+  if (gameMode() == REAL_MODE)
+  {
     return processGameState();
   }
 #endif
   return readGameState();
 }
 
-bool Acquisition::acquisitionCapture(){
+bool Acquisition::acquisitionCapture()
+{
 #ifndef _SO_SIMULADO_
-  if(gameMode() == REAL_MODE)
+  if (gameMode() == REAL_MODE)
     return Camera::captureimage();
 #endif
   return false;

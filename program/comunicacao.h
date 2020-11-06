@@ -6,12 +6,16 @@
 #define _COMUNICACAOH_
 
 // Par�metros da comunica��o via socket entre
-// o programa principal e o simulador
+// o programa principal e o simulador (FIRASim)
 
-#define DEFAULT_MULTICAST_ADDR "224.0.0.5"
+#define DEFAULT_MULTICAST_ADDR "224.5.23.2"
+#define PORT_VISION   10002  //porta para recepcao da "visao" do simulador FIRASim
+#define PORT_REFEREE  10003  //porta para comunicao com o juiz (read only)
+#define PORT_REPLACER 10004  //porta para reposicionamento dos robos (write only)
+
+//canal de comunicao para envio dos sinais de controle
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
-#define PORT_MCAST  10020
-#define PORT_CMD    20011
+#define PORT_CMD      20011
 
 // Par�metros da comunica��o via mem�ria compartilhada entre
 // o simulador e o visualizador

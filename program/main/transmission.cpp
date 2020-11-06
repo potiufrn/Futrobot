@@ -187,7 +187,8 @@ bool Transmission::transmission(){
 
     memset(dgram, 0, MAX_DGRAM_SIZE);
     packet.SerializeToArray((void*)dgram, packet.ByteSize());
-    sock_cmd.sendTo(dgram, packet.ByteSize(), server_IP, PORT_CMD);
+    // sock_cmd.sendTo(dgram, packet.ByteSize(), server_IP, PORT_CMD);
+    sock_cmd.write(dgram, packet.ByteSize());
   }
 
   return false;

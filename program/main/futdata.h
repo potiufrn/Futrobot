@@ -21,10 +21,13 @@ private:
   CONFIG * mem;
 protected:
   const char* server_IP;
+  const char* server_multicast_IP;
   // socket para enviar comandos ao servidor
   udpSocket sock_cmd;
   // socket para recepção de dados do servidor
-  udpSocket sock_acq;
+  udpSocket sock_vision;
+  udpSocket sock_referee;
+  udpSocket sock_replacer;
 
   IDQUADRO id_pos;
   Coord2 pointsImg[NUM_POINTS];  //Limites do campo

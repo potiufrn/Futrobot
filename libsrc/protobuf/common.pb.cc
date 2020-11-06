@@ -122,9 +122,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Ball, x_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Ball, y_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Ball, z_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Ball, vx_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Ball, vy_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Ball, vz_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -134,9 +131,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, x_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, y_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, orientation_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, vx_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, vy_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Robot, vorientation_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::fira_message::Field, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -157,9 +151,9 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::fira_message::Ball)},
-  { 11, -1, sizeof(::fira_message::Robot)},
-  { 23, -1, sizeof(::fira_message::Field)},
-  { 32, -1, sizeof(::fira_message::Frame)},
+  { 8, -1, sizeof(::fira_message::Robot)},
+  { 17, -1, sizeof(::fira_message::Field)},
+  { 26, -1, sizeof(::fira_message::Frame)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -190,20 +184,18 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\014common.proto\022\014fira_message\"K\n\004Ball\022\t\n\001"
-      "x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\022\n\n\002vx\030\004 \001("
-      "\001\022\n\n\002vy\030\005 \001(\001\022\n\n\002vz\030\006 \001(\001\"r\n\005Robot\022\020\n\010ro"
-      "bot_id\030\001 \001(\r\022\t\n\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\023\n\013or"
-      "ientation\030\004 \001(\001\022\n\n\002vx\030\005 \001(\001\022\n\n\002vy\030\006 \001(\001\022"
-      "\024\n\014vorientation\030\007 \001(\001\"N\n\005Field\022\r\n\005width\030"
-      "\001 \001(\001\022\016\n\006length\030\002 \001(\001\022\022\n\ngoal_width\030\003 \001("
-      "\001\022\022\n\ngoal_depth\030\004 \001(\001\"\177\n\005Frame\022 \n\004ball\030\001"
-      " \001(\0132\022.fira_message.Ball\022*\n\rrobots_yello"
-      "w\030\002 \003(\0132\023.fira_message.Robot\022(\n\013robots_b"
-      "lue\030\003 \003(\0132\023.fira_message.Robotb\006proto3"
+      "\n\014common.proto\022\014fira_message\"\'\n\004Ball\022\t\n\001"
+      "x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\"D\n\005Robot\022\020"
+      "\n\010robot_id\030\001 \001(\r\022\t\n\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\023"
+      "\n\013orientation\030\004 \001(\001\"N\n\005Field\022\r\n\005width\030\001 "
+      "\001(\001\022\016\n\006length\030\002 \001(\001\022\022\n\ngoal_width\030\003 \001(\001\022"
+      "\022\n\ngoal_depth\030\004 \001(\001\"\177\n\005Frame\022 \n\004ball\030\001 \001"
+      "(\0132\022.fira_message.Ball\022*\n\rrobots_yellow\030"
+      "\002 \003(\0132\023.fira_message.Robot\022(\n\013robots_blu"
+      "e\030\003 \003(\0132\023.fira_message.Robotb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 438);
+      descriptor, 356);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "common.proto", &protobuf_RegisterTypes);
 }
@@ -229,9 +221,6 @@ void Ball::InitAsDefaultInstance() {
 const int Ball::kXFieldNumber;
 const int Ball::kYFieldNumber;
 const int Ball::kZFieldNumber;
-const int Ball::kVxFieldNumber;
-const int Ball::kVyFieldNumber;
-const int Ball::kVzFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Ball::Ball()
@@ -246,15 +235,15 @@ Ball::Ball(const Ball& from)
       _internal_metadata_(NULL) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&x_, &from.x_,
-    static_cast<size_t>(reinterpret_cast<char*>(&vz_) -
-    reinterpret_cast<char*>(&x_)) + sizeof(vz_));
+    static_cast<size_t>(reinterpret_cast<char*>(&z_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(z_));
   // @@protoc_insertion_point(copy_constructor:fira_message.Ball)
 }
 
 void Ball::SharedCtor() {
   ::memset(&x_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&vz_) -
-      reinterpret_cast<char*>(&x_)) + sizeof(vz_));
+      reinterpret_cast<char*>(&z_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(z_));
 }
 
 Ball::~Ball() {
@@ -286,8 +275,8 @@ void Ball::Clear() {
   (void) cached_has_bits;
 
   ::memset(&x_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&vz_) -
-      reinterpret_cast<char*>(&x_)) + sizeof(vz_));
+      reinterpret_cast<char*>(&z_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(z_));
   _internal_metadata_.Clear();
 }
 
@@ -343,48 +332,6 @@ bool Ball::MergePartialFromCodedStream(
         break;
       }
 
-      // double vx = 4;
-      case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(33u /* 33 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vx_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // double vy = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(41u /* 41 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vy_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // double vz = 6;
-      case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(49u /* 49 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vz_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -426,21 +373,6 @@ void Ball::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->z(), output);
   }
 
-  // double vx = 4;
-  if (this->vx() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->vx(), output);
-  }
-
-  // double vy = 5;
-  if (this->vy() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->vy(), output);
-  }
-
-  // double vz = 6;
-  if (this->vz() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->vz(), output);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -468,21 +400,6 @@ void Ball::SerializeWithCachedSizes(
   // double z = 3;
   if (this->z() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->z(), target);
-  }
-
-  // double vx = 4;
-  if (this->vx() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->vx(), target);
-  }
-
-  // double vy = 5;
-  if (this->vy() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(5, this->vy(), target);
-  }
-
-  // double vz = 6;
-  if (this->vz() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(6, this->vz(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -514,21 +431,6 @@ size_t Ball::ByteSizeLong() const {
 
   // double z = 3;
   if (this->z() != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double vx = 4;
-  if (this->vx() != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double vy = 5;
-  if (this->vy() != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double vz = 6;
-  if (this->vz() != 0) {
     total_size += 1 + 8;
   }
 
@@ -568,15 +470,6 @@ void Ball::MergeFrom(const Ball& from) {
   if (from.z() != 0) {
     set_z(from.z());
   }
-  if (from.vx() != 0) {
-    set_vx(from.vx());
-  }
-  if (from.vy() != 0) {
-    set_vy(from.vy());
-  }
-  if (from.vz() != 0) {
-    set_vz(from.vz());
-  }
 }
 
 void Ball::CopyFrom(const ::google::protobuf::Message& from) {
@@ -606,9 +499,6 @@ void Ball::InternalSwap(Ball* other) {
   swap(x_, other->x_);
   swap(y_, other->y_);
   swap(z_, other->z_);
-  swap(vx_, other->vx_);
-  swap(vy_, other->vy_);
-  swap(vz_, other->vz_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
@@ -627,9 +517,6 @@ const int Robot::kRobotIdFieldNumber;
 const int Robot::kXFieldNumber;
 const int Robot::kYFieldNumber;
 const int Robot::kOrientationFieldNumber;
-const int Robot::kVxFieldNumber;
-const int Robot::kVyFieldNumber;
-const int Robot::kVorientationFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Robot::Robot()
@@ -755,48 +642,6 @@ bool Robot::MergePartialFromCodedStream(
         break;
       }
 
-      // double vx = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(41u /* 41 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vx_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // double vy = 6;
-      case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(49u /* 49 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vy_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // double vorientation = 7;
-      case 7: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(57u /* 57 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vorientation_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -843,21 +688,6 @@ void Robot::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->orientation(), output);
   }
 
-  // double vx = 5;
-  if (this->vx() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->vx(), output);
-  }
-
-  // double vy = 6;
-  if (this->vy() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->vy(), output);
-  }
-
-  // double vorientation = 7;
-  if (this->vorientation() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->vorientation(), output);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -892,21 +722,6 @@ void Robot::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->orientation(), target);
   }
 
-  // double vx = 5;
-  if (this->vx() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(5, this->vx(), target);
-  }
-
-  // double vy = 6;
-  if (this->vy() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(6, this->vy(), target);
-  }
-
-  // double vorientation = 7;
-  if (this->vorientation() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->vorientation(), target);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -936,21 +751,6 @@ size_t Robot::ByteSizeLong() const {
 
   // double orientation = 4;
   if (this->orientation() != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double vx = 5;
-  if (this->vx() != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double vy = 6;
-  if (this->vy() != 0) {
-    total_size += 1 + 8;
-  }
-
-  // double vorientation = 7;
-  if (this->vorientation() != 0) {
     total_size += 1 + 8;
   }
 
@@ -997,15 +797,6 @@ void Robot::MergeFrom(const Robot& from) {
   if (from.orientation() != 0) {
     set_orientation(from.orientation());
   }
-  if (from.vx() != 0) {
-    set_vx(from.vx());
-  }
-  if (from.vy() != 0) {
-    set_vy(from.vy());
-  }
-  if (from.vorientation() != 0) {
-    set_vorientation(from.vorientation());
-  }
   if (from.robot_id() != 0) {
     set_robot_id(from.robot_id());
   }
@@ -1038,9 +829,6 @@ void Robot::InternalSwap(Robot* other) {
   swap(x_, other->x_);
   swap(y_, other->y_);
   swap(orientation_, other->orientation_);
-  swap(vx_, other->vx_);
-  swap(vy_, other->vy_);
-  swap(vorientation_, other->vorientation_);
   swap(robot_id_, other->robot_id_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }

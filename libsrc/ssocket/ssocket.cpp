@@ -464,7 +464,7 @@ SOCKET_STATUS udpSocket::write(const void *dado, size_t len) const
   return(SOCKET_OK);
 }
 
-SOCKET_STATUS udpSocket::read(void *dado, size_t len) const
+int udpSocket::read(void *dado, size_t len, bool nonblocking) const
 {
   if (!connected()) {
     return(socket_error_int(SOCKET_NAO_CONECTADO));
@@ -472,18 +472,23 @@ SOCKET_STATUS udpSocket::read(void *dado, size_t len) const
   if (len==0) {
     return(socket_error_int(SOCKET_DADO_VAZIO));
   }
-  int recebidos;
-  do {
-    recebidos = ::recv(id,dado,len,0);
-    if (recebidos <= 0) {
-      return(socket_error_int(SOCKET_ERRO_RECEPCAO));
-    }
-    len -= recebidos;
-    if (len > 0) {
-      dado = (void*)((char*)dado+recebidos);
-    }
-  } while (len>0);
-  return(SOCKET_OK);
+  int r;
+  r = ::recv(id,dado,len,(nonblocking)?MSG_DONTWAIT:0);
+  return r;  
+  // if(recebidos >= 0);
+  //   return(SOCKET_OK);
+  // return(socket_error_int(SOCKET_ERRO_RECEPCAO));
+  // do {
+  //   recebidos = ::recv(id,dado,len,(nonblocking)?MSG_DONTWAIT:0);
+  //   if (recebidos <= 0) {
+  //     return(socket_error_int(SOCKET_ERRO_RECEPCAO));
+  //   }
+  //   len -= recebidos;
+  //   if (len > 0) {
+  //     dado = (void*)((char*)dado+recebidos);
+  //   }
+  // } while (len>0);
+  // return(SOCKET_OK);
 }
 
 /*********************************************
