@@ -23,7 +23,7 @@ makemainold: makeprogram
 	cd main && ${MAKE} old
 
 makecalibrador: makeprogram
-	cd calibrador && ${MAKE}
+	#cd calibrador && ${MAKE}
 
 makeinterface: makeprogram makemain
 	cd interface && ${MAKE}
@@ -47,13 +47,13 @@ dados_calibracao.o: dados_calibracao.h dados_calibracao.cpp
 clean:
 	-rm -f *.o *~
 	cd main && ${MAKE} clean
-	cd calibrador && ${MAKE} clean
+	#cd calibrador && ${MAKE} clean
 	cd interface && ${MAKE} clean
 	cd simple && ${MAKE} clean
 
 realclean: clean
 	cd main && ${MAKE} realclean
-	cd calibrador && rm -f calibrador
-	cd calibrador && ${MAKE} clean
+	#cd calibrador && rm -f calibrador
+	#cd calibrador && ${MAKE} clean
 	cd interface && ${MAKE} clean
 	cd simple && ${MAKE} realclean
