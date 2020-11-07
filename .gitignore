@@ -13,3 +13,15 @@ program/calibrador/calibrador
 program/main/main
 program/interface/interface
 program/simple/simple
+
+program/calibrador/.moc/
+program/calibrador/.obj/
+program/calibrador/.ui/
+
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+
+*.pro.user
+*.pro.user.*
