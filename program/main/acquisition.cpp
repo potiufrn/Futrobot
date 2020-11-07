@@ -302,7 +302,15 @@ bool Acquisition::configAcquisition(const char *server_address, const char *mult
                                     const unsigned cmd_port, const unsigned vision_port, const unsigned referee_port, const unsigned replacer_port)
 
 {
+  this->_multicast_address = multicast_address;
+  this->_server_address    = server_address;
+  this->_vision_port       = vision_port;
+  this->_command_port      = cmd_port;
+  this->_referee_port      = referee_port;
+  this->_replacer_port     = replacer_port;
+
   std::cout << "Configurando aquisicao..." << endl;
+
   if(gameMode() != GAME_MODE::SIMULATED_MODE)
   {
     std::cerr << "ERROR: Não está no modo simulado!\n";
@@ -321,16 +329,18 @@ bool Acquisition::configAcquisition(const char *server_address, const char *mult
     return true;
   }
   
+  //se não conectar ao árbitro não tem problema
   if(sock_referee.joinMulticastGroup(multicast_address, referee_port) != SOCKET_STATUS::SOCKET_OK)
   {
     std::cerr << "Falha ao tentar se conectar ao Referee\n";
-    return true;
+    // return true;
   }
 
-  if(sock_replacer.joinMulticastGroup(multicast_address, replacer_port) != SOCKET_STATUS::SOCKET_OK)
+  //se não conectar com o replacer nao tem problema
+  if(sock_replacer.connect(multicast_address, replacer_port) != SOCKET_STATUS::SOCKET_OK)
   {
     std::cerr << "Falha ao tentar se conectar ao Replacer\n";
-    return true;
+    // return true;
   }
   
   return false;
@@ -1481,7 +1491,7 @@ bool Acquisition::readGameState()
   }
   else
   {
-    cerr << "Falha no recebimento de dados\n";
+    std::cerr << "Falha no recebimento de dados\n";
     return true;
   }
 

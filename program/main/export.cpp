@@ -102,7 +102,6 @@ Export::~Export (){
    shmctl (smeid, IPC_RMID, 0);
 }
 
-// bool Export::exxport(const PxRGB *data)
 bool Export::exxport()
 {
 
@@ -113,8 +112,8 @@ bool Export::exxport()
   //////////////////////
   //LEITURA NA MEMORIA//
   //////////////////////
-
-   setAdvantage(pt->adv);
+  if(!sock_referee.connected()) 
+    setAdvantage(pt->adv);
    //ret_game contem o comando da interface
    //
    if (pt->game != pt->ret_game) {

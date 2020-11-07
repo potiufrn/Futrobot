@@ -20,8 +20,12 @@ private:
   int shmid;
   CONFIG * mem;
 protected:
-  const char* server_IP;
-  const char* server_multicast_IP;
+  const char *_multicast_address;
+  const char *_server_address;
+  unsigned int _vision_port;
+  unsigned int _command_port;
+  unsigned int _referee_port;
+  unsigned int _replacer_port;
   // socket para enviar comandos ao servidor
   udpSocket sock_cmd;
   // socket para recepção de dados do servidor

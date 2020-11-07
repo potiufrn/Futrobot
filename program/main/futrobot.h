@@ -3,6 +3,7 @@
 
 
 //#include <pthread.h>
+#include <thread>
 
 #include "futdata.h"
 #include "acquisition.h"
@@ -25,7 +26,8 @@ class Futrobot
   public Export,
   public virtual FutData
 {
-  pthread_t thr_ger;
+  std::thread thr_ger;
+  std::thread thr_referee_comm;  
   // pthread_t thr_export;
   // bool export_ready;
 
@@ -38,6 +40,7 @@ class Futrobot
   bool start_management();
   bool finish_management();
   void management();
+  void referee_comunication();
   void print_state() const;
 
   //metodos de consulta

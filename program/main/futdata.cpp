@@ -4,8 +4,7 @@
 #include "futdata.h"
 #include "../comunicacao.h"
 
-FutData::FutData(TEAM team, SIDE side, GAME_MODE mode) : server_IP(DEFAULT_SERVER_ADDR),
-                                                         server_multicast_IP(DEFAULT_MULTICAST_ADDR)
+FutData::FutData(TEAM team, SIDE side, GAME_MODE mode)
 {
   dt_amostr = 1.0 / FPS;
   start_data(team, side, mode);
