@@ -28,3 +28,5 @@ ui_*.h
 
 *.pro.user
 *.pro.user.*
+
+program/interface/.qmake.stash
