@@ -18,7 +18,9 @@ SOURCES	+= main.cpp \
 	calibratorprocessor.cpp
 
 #The following line was changed from FORMS to FORMS3 by qt3to4
-#FORMS3	= calibrador.ui
+FORMS	+= calibrador.ui
+
+DEFINES += QT_DEPRECATED_WARNINGS
 
 #IMAGES	= images/filenew \
 #	images/fileopen \
@@ -43,5 +45,5 @@ unix {
 #The following line was inserted by qt3to4
 #QT +=  qt3support
 #The following line was inserted by qt3to4
-#CONFIG += uic3
+#CONFIG += uic c++11
 
