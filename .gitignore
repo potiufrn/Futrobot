@@ -23,5 +23,8 @@ moc_*.h
 qrc_*.cpp
 ui_*.h
 
+/.qmake.cache
+/.qmake.stash
+
 *.pro.user
 *.pro.user.*
