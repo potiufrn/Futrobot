@@ -1,7 +1,8 @@
 #ifndef PIXMAP_LABEL_H
 #define PIXMAP_LABEL_H
 
-#include <qlabel.h>
+//#include <qlabel.h>
+#include <QLabel>
 #include <qpixmap.h>
 //Added by qt3to4:
 #include <QPaintEvent>
@@ -13,7 +14,7 @@ class pixmap_label : public QLabel{
     QPoint mousePos;
     QPixmap PxMap;
   public:
-    pixmap_label(QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0);
+    pixmap_label( const char * name = 0, QWidget * parent = 0, Qt::WindowFlags f = 0);
     ~pixmap_label() {}
     void redesenhe();
     inline void loadFromData( const uchar * buf, uint len, const char * format){

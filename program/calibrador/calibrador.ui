@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI><UI version="4.0" stdsetdef="1">
   <class>calibrador</class>
   <widget class="QMainWindow">
     <property name="name">
@@ -1687,7 +1687,7 @@
                   <height>16</height>
                 </rect>
               </property>
-	      <property name="minValue">
+              <property name="minValue">
                 <number>-64</number>
               </property>
               <property name="maxValue">
@@ -1937,7 +1937,7 @@
                   <width>53</width>
                   <height>25</height>
                 </rect>
-	      </property>
+              </property>
               <property name="minValue">
                 <number>-64</number>
               </property>

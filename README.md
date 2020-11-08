@@ -27,9 +27,9 @@ Comando para instalação de pacotes para utilização do bluetooth
 sudo apt-get install libbluetooth-dev
 ```
 
-Deve ser instalada a versão 4 do Qt, logo, basta utilizar o comando a seguir:
+Deve ser instalada a versão 5 do Qt, logo, basta utilizar o comando a seguir:
 ```
-sudo apt-get install qt4-default
+sudo apt-get install qt5-default
 ```
 
 Para se utilizar o modo simulação é necessário instalar os recursos de dev. do protobuf

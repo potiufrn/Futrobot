@@ -1,12 +1,13 @@
-TEMPLATE	= app
-LANGUAGE	= C++
+TEMPLATE = app
+TARGET = calibrador
 
 CONFIG	+= qt warn_on release
 
-LIBS	+= -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem -ldc1394
+LIBS	+= -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem
 
-INCLUDEPATH	+= ../../include /usr/include/qt3/
+INCLUDEPATH	+= ../../include
 
+QT += widgets
 
 HEADERS	+= pixmap_label.h \
 	variaveisglobais.h \
@@ -17,7 +18,9 @@ SOURCES	+= main.cpp \
 	calibratorprocessor.cpp
 
 #The following line was changed from FORMS to FORMS3 by qt3to4
-FORMS3	= calibrador.ui
+FORMS	+= calibrador.ui
+
+DEFINES += QT_DEPRECATED_WARNINGS
 
 #IMAGES	= images/filenew \
 #	images/fileopen \
@@ -40,7 +43,7 @@ unix {
 
 
 #The following line was inserted by qt3to4
-QT +=  qt3support 
+#QT +=  qt3support
 #The following line was inserted by qt3to4
-CONFIG += uic3
+#CONFIG += uic c++11
 
