@@ -3,7 +3,7 @@ all:	makelibsrc	makeprograms
 makelibsrc:
 	cd lib && rm -rf *.a
 	cd include && rm -rf *.h
-	cd libsrc/pb && ${MAKE}	install
+	cd libsrc/protobuf && ${MAKE}	install
 	cd libsrc/bluetoothAction && ${MAKE}	install
 	cd libsrc/ssocket && ${MAKE}	install
 	cd libsrc/matrix && ${MAKE}	install
@@ -28,4 +28,4 @@ clean:
 	cd libsrc/matrix && ${MAKE}	realclean
 	cd libsrc/otim && ${MAKE}	realclean
 	cd libsrc/ssocket && ${MAKE}	realclean
-	cd libsrc/pb && ${MAKE}	realclean
+	cd libsrc/protobuf && ${MAKE}	realclean
