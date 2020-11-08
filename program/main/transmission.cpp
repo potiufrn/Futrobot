@@ -191,7 +191,7 @@ bool Transmission::transmission()
   {
     command->set_id(i);
     command->set_yellowteam((bool)myTeam());
-    command->set_wheel_left(pwm.me[i].left * 100.0);
+    command->set_wheel_left(pwm.me[i].left   * 100.0);
     command->set_wheel_right(pwm.me[i].right * 100.0);
 
     memset(dgram, 0, MAX_DGRAM_SIZE);

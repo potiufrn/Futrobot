@@ -1476,7 +1476,8 @@ bool Acquisition::readGameState()
     cerr << "Sock Não associado ao grupo multicast\n";
     return true;
   }
-  int r = sock_vision.read(dgram, MAX_DGRAM_SIZE, false);
+  // int r = sock_vision.read(dgram, MAX_DGRAM_SIZE, false);
+  int r = sock_vision.recvFrom(dgram, MAX_DGRAM_SIZE, _multicast_address, _vision_port,false);
   if (r > 0)
   {
     packet.ParseFromArray((void *)dgram, r);

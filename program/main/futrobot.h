@@ -27,9 +27,7 @@ class Futrobot
   public virtual FutData
 {
   std::thread thr_ger;
-  std::thread thr_referee_comm;  
-  // pthread_t thr_export;
-  // bool export_ready;
+  std::thread thr_referee_comm;
 
   double t_start, t_end_cap, t_end_acq,
     t_end_loc, t_end_str, t_end_obs,
@@ -48,19 +46,10 @@ class Futrobot
   inline REFERENCES getRef() const { return FutData::ref; }
   inline PWM_ROBOTS getPwm() const { return FutData::pwm; }
   inline double getDtAmostr() const { return FutData::dt_amostr; }
-  //myTeam() -> em futdata.h
-  //mySide() -> em futdata.h
-  //gameState() -> em futdata.h
 
   //metodos de modificação
   inline void setRef(const REFERENCES &newRef){ FutData::ref = newRef; };
-  //setTeam() -> em futdata.h
-  //setSide() -> em futdata.h
-  //setAdvantage() ?  -> em futdata.h
-  //setGameState() ?  -> em futdata.h
 
-  // private:
-  //  bool exportdat();
   friend void* exxport2(void *x);
 };
 

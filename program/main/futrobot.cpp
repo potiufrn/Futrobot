@@ -54,10 +54,9 @@ bool Futrobot::finish_management()
 {
   if(thr_ger.joinable())
     thr_ger.join();
-  
   if(thr_referee_comm.joinable())
     thr_referee_comm.join();
-
+    
   if(sock_cmd.connected())
     sock_cmd.close();
   if(sock_referee.connected())
@@ -66,6 +65,7 @@ bool Futrobot::finish_management()
     sock_vision.close();
   if(sock_replacer.connected())
     sock_replacer.close();
+
   return (false);
 }
 
@@ -81,7 +81,6 @@ void Futrobot::management()
   while (gameState() != FINISH_STATE)
   {
     // Espera por uma nova imagem
-
     if (gameState() != FINISH_STATE && acquisitionWait())
     {
       finish();
@@ -254,6 +253,7 @@ std::string getHalfNameById(VSSRef::Half half)
 
 void Futrobot::referee_comunication()
 {
+  std::cerr << "referee_comunication on!\n";
   VSSRef::ref_to_team::VSSRef_Command command;
   VSSRef::team_to_ref::VSSRef_Placement placementCommand;
   VSSRef::Frame *placementFrame = new VSSRef::Frame();
@@ -333,6 +333,7 @@ void Futrobot::referee_comunication()
       std::cerr << "Falha ao enviar mensagem para o replacer!\n";
   }
   delete placementFrame;
+  std::cerr << "referee_comunication off!\n";
 }
 
 static double format(double x)
