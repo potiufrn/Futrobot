@@ -16,7 +16,7 @@ makeprograms:
 	cd program && ${MAKE}	clean && ${MAKE}
 	cd program/main && ${MAKE}	clean && ${MAKE}
 	#cd program/calibrador	&& ${MAKE}	clean && ${MAKE}
-	cd program/interface && ${MAKE}	clean && ${MAKE}
+	cd program/interface && ${MAKE}	
 
 .PHONY: clean realclean
 
