@@ -270,7 +270,7 @@ void Futrobot::referee_comunication()
 
   while (thr_ger.joinable())
   {
-    packet_size = sock_referee.recvFrom(buffer, MAX_DGRAM_SIZE, _multicast_address, _referee_port, true);
+    packet_size = sock_referee.recvFrom(buffer, MAX_DGRAM_SIZE, _multicast_address.c_str(), _referee_port, true);
     if (packet_size <= 0)
     {
       std::this_thread::yield();
@@ -329,7 +329,7 @@ void Futrobot::referee_comunication()
       robot->set_orientation(ref.me[i].theta());
     }
     placementCommand.SerializeToArray(msg_to_replacer, MAX_DGRAM_SIZE);
-    if(sock_replacer.sendTo(msg_to_replacer, placementCommand.ByteSize(), _multicast_address, _replacer_port) != SOCKET_OK)
+    if(sock_replacer.sendTo(msg_to_replacer, placementCommand.ByteSize(), _multicast_address.c_str(), _replacer_port) != SOCKET_OK)
       std::cerr << "Falha ao enviar mensagem para o replacer!\n";
   }
   delete placementFrame;

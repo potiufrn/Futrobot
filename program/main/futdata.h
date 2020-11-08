@@ -20,8 +20,8 @@ private:
   int shmid;
   CONFIG * mem;
 protected:
-  const char *_multicast_address;
-  const char *_server_address;
+  std::string _multicast_address;
+  std::string _server_address;
   unsigned int _vision_port;
   unsigned int _command_port;
   unsigned int _referee_port;

@@ -53,7 +53,6 @@ private:
   bool saveNextImage;
   //FUNCTIONS
 #ifndef _SO_SIMULADO_
-
 /**
  * Verifica se o pixel na posicao (u,v) pertence ao intervalo definido para a cor ColorID
  * @param  colorID Testa se pixel pode ser considerado dessa cor.
@@ -120,8 +119,9 @@ private:
    */
   bool calculaPoseAdv(REGION regTeam, int &index,POS_ROBO &teamPose,
 			     double corrX, double corrY, double corrTheta);
-
+  
 public:
+  bool readNetWorkFile(const char* network_file);
   /**
    * [Acquisition description]
    * @param team [description]
@@ -145,7 +145,7 @@ public:
    * @param  replacer_port 
    * @return true caso de falha na configuracao, false caso contrario
    */
-  bool configAcquisition(const char *server_address, const char *multicast_address, 
+  bool configAcquisition(const char* server_address, const char* multicast_address, 
                          const unsigned cmd_port, const unsigned vision_port, const unsigned referee_port, const unsigned replacer_port);
   /**
    * [acquisitionWait description]

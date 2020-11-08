@@ -298,12 +298,75 @@ Acquisition::~Acquisition()
   }
 }
 
-bool Acquisition::configAcquisition(const char *server_address, const char *multicast_address,
+bool Acquisition::readNetWorkFile(const char* network_file)
+{
+  std::ifstream ifs(network_file, std::fstream::in);
+  std::string keyword;
+  unsigned int number;
+
+  if(ifs.is_open() == false) return true;
+
+  //read multicast address
+  std::getline(ifs, keyword, ':');
+  if(keyword != "MULTICAST_ADDRESS")return true;
+  ifs.ignore(256, '"');
+  std::getline(ifs, keyword, '"');
+  
+  _multicast_address = keyword;
+
+  //read server/sim address
+  ifs.ignore(256, '\n');
+  std::getline(ifs, keyword, ':');
+  if(keyword != "SERVER_ADDRESS")return true;
+  ifs.ignore(256, '"');
+  std::getline(ifs, keyword, '"');
+
+  _server_address = keyword;
+
+  //read command port
+  ifs.ignore(256, '\n');
+  std::getline(ifs, keyword, ':');
+  if(keyword != "COMMAND_PORT")return true;
+  ifs >> number;
+
+  _command_port = number;
+
+  //read vision port
+  ifs.ignore(256, '\n');
+  std::getline(ifs, keyword, ':');
+  if(keyword != "VISION_PORT")return true;
+  ifs >> number;
+
+  _vision_port = number;
+
+  //read referee port
+  ifs.ignore(256, '\n');
+  std::getline(ifs, keyword, ':');
+  if(keyword != "REFEREE_PORT")return true;
+  ifs >> number;
+
+  _referee_port = number;
+
+  //read replacer port
+  ifs.ignore(256, '\n');
+  std::getline(ifs, keyword, ':');
+  if(keyword != "REPLACER_PORT")return true;
+  ifs >> number;
+
+  _replacer_port = number;
+
+  ifs.close();  
+
+  bool r = configAcquisition(_server_address.c_str(), _multicast_address.c_str(), _command_port, _vision_port, _referee_port, _replacer_port);
+  return r;
+}
+
+bool Acquisition::configAcquisition(const char *server_address, const char* multicast_address,
                                     const unsigned cmd_port, const unsigned vision_port, const unsigned referee_port, const unsigned replacer_port)
 
 {
-  this->_multicast_address = multicast_address;
-  this->_server_address    = server_address;
+  this->_multicast_address = std::string(multicast_address);
+  this->_server_address    = std::string(server_address);
   this->_vision_port       = vision_port;
   this->_command_port      = cmd_port;
   this->_referee_port      = referee_port;
@@ -343,6 +406,7 @@ bool Acquisition::configAcquisition(const char *server_address, const char *mult
     // return true;
   }
   
+  std::cout << "Configuração bem sucedida!\n";
   return false;
 }
 //TODO: Casar essa leitura com a nova escrita dos parametros do calibrador
@@ -1477,7 +1541,7 @@ bool Acquisition::readGameState()
     return true;
   }
   // int r = sock_vision.read(dgram, MAX_DGRAM_SIZE, false);
-  int r = sock_vision.recvFrom(dgram, MAX_DGRAM_SIZE, _multicast_address, _vision_port,false);
+  int r = sock_vision.recvFrom(dgram, MAX_DGRAM_SIZE, _multicast_address.c_str(), _vision_port,false);
   if (r > 0)
   {
     packet.ParseFromArray((void *)dgram, r);
