@@ -1541,6 +1541,7 @@ bool Acquisition::readGameState()
     return true;
   }
   // int r = sock_vision.read(dgram, MAX_DGRAM_SIZE, false);
+  memset(dgram, 0, MAX_DGRAM_SIZE);
   int r = sock_vision.recvFrom(dgram, MAX_DGRAM_SIZE, _multicast_address.c_str(), _vision_port,false);
   if (r > 0)
   {

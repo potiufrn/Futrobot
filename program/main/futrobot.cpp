@@ -36,15 +36,15 @@ Futrobot::Futrobot(TEAM team, SIDE side, GAME_MODE gameMode)
 
 bool Futrobot::start_management()
 {
-  thr_ger = std::thread(management2, static_cast<void*>(this));
+  thr_ger = std::thread(management2, static_cast<void *>(this));
 
-  if(thr_ger.joinable() == false)
+  if (thr_ger.joinable() == false)
     return true;
-  
+
   if (sock_referee.connected())
   {
-    thr_referee_comm = std::thread(referee_communication2, static_cast<void*>(this));
-    if(thr_referee_comm.joinable() == false)
+    thr_referee_comm = std::thread(referee_communication2, static_cast<void *>(this));
+    if (thr_referee_comm.joinable() == false)
       return true;
   }
   return false;
@@ -52,18 +52,18 @@ bool Futrobot::start_management()
 
 bool Futrobot::finish_management()
 {
-  if(thr_ger.joinable())
+  if (thr_ger.joinable())
     thr_ger.join();
-  if(thr_referee_comm.joinable())
+  if (thr_referee_comm.joinable())
     thr_referee_comm.join();
-    
-  if(sock_cmd.connected())
+
+  if (sock_cmd.connected())
     sock_cmd.close();
-  if(sock_referee.connected())
+  if (sock_referee.connected())
     sock_referee.close();
-  if(sock_vision.connected())
+  if (sock_vision.connected())
     sock_vision.close();
-  if(sock_replacer.connected())
+  if (sock_replacer.connected())
     sock_replacer.close();
 
   return (false);
@@ -197,8 +197,16 @@ void Futrobot::referee_comunication()
   placementCommand.set_allocated_world(placementFrame);
 
   while (thr_ger.joinable())
-  {
-    packet_size = sock_referee.recvFrom(buffer, MAX_DGRAM_SIZE, _multicast_address.c_str(), _referee_port, true);
+  { 
+    try{
+      memset(buffer, 0, MAX_DGRAM_SIZE);
+      packet_size = sock_referee.recvFrom(buffer, MAX_DGRAM_SIZE, _multicast_address.c_str(), _referee_port, true);
+    }catch(...)
+    {
+      std::cerr << "Erro no recebimento de pacotes do referee!\n";
+      continue;
+    }
+
     if (packet_size <= 0)
     {
       std::this_thread::yield();
@@ -221,43 +229,54 @@ void Futrobot::referee_comunication()
       continue;
       break;
     case VSSRef::Foul::KICKOFF:
-      this->setAdvantage( my_team == command.teamcolor() );
+      this->setAdvantage(my_team == command.teamcolor());
       this->setGameState(GAME_STATE::INICIALPOSITION_STATE);
       break;
     case VSSRef::Foul::FREE_BALL:
-      continue;//deixa o referee posicionar
+      continue; //deixa o referee posicionar
       // this->setAdvantage( my_team == command.teamcolor() );
       // this->setGameState(GAME_STATE::FREEBALL_STATE);
     case VSSRef::Foul::PENALTY_KICK:
-      this->setAdvantage( my_team == command.teamcolor() );
+      this->setAdvantage(my_team == command.teamcolor());
       this->setGameState(GAME_STATE::PENALTY_STATE);
       break;
     case VSSRef::Foul::FREE_KICK:
-      this->setAdvantage( my_team == command.teamcolor() );
+      this->setAdvantage(my_team == command.teamcolor());
       this->setGameState(GAME_STATE::FREEKICK_STATE);
       break;
     case VSSRef::Foul::GOAL_KICK:
-      this->setAdvantage( my_team == command.teamcolor() );
+      this->setAdvantage(my_team == command.teamcolor());
       this->setGameState(GAME_STATE::GOALKICK_STATE);
       break;
     default:
       continue;
       break;
     }
-    //tempo para atualizar as referencias de posicao para passar pro referee
-    usleep(0.5*1000000);
-    //para garantir envia as referencias de posicao para o referee
-    placementFrame->clear_robots();
-    for(int i = 0; i < 3; i++)
+
+    try
     {
-      VSSRef::Robot *robot = placementFrame->add_robots();
-      robot->set_robot_id(static_cast<uint32_t>(i));
-      robot->set_x(ref.me[i].x());
-      robot->set_y(ref.me[i].y());
-      robot->set_orientation(ref.me[i].theta());
+      //tempo para atualizar as referencias de posicao para passar pro referee
+      usleep(2.5 * 1000000);
+      //para garantir envia as referencias de posicao para o referee
+      placementFrame->clear_robots();
+      for (int i = 0; i < 3; i++)
+      {
+        VSSRef::Robot *robot = placementFrame->add_robots();
+        robot->set_robot_id(static_cast<uint32_t>(i));
+        robot->set_x(ref.me[i].x());
+        robot->set_y(ref.me[i].y());
+        robot->set_orientation(ref.me[i].theta());
+      }
+      memset(msg_to_replacer, 0, MAX_DGRAM_SIZE);
+      placementCommand.SerializeToArray(msg_to_replacer, MAX_DGRAM_SIZE);
     }
-    placementCommand.SerializeToArray(msg_to_replacer, MAX_DGRAM_SIZE);
-    if(sock_replacer.sendTo(msg_to_replacer, placementCommand.ByteSize(), _multicast_address.c_str(), _replacer_port) != SOCKET_OK)
+    catch (...)
+    {
+      std::cerr << "Problema na comunicação com o referee!\n";
+      continue;
+    }
+
+    if (sock_replacer.sendTo(msg_to_replacer, placementCommand.ByteSize(), _multicast_address.c_str(), _replacer_port) != SOCKET_OK)
       std::cerr << "Falha ao enviar mensagem para o replacer!\n";
   }
   delete placementFrame;
