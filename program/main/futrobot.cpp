@@ -266,7 +266,7 @@ void Futrobot::referee_comunication()
         robot->set_robot_id(static_cast<uint32_t>(i));
         robot->set_x(ref.me[i].x());
         robot->set_y(ref.me[i].y());
-        robot->set_orientation(ref.me[i].theta());
+        robot->set_orientation( ref.me[i].theta() * (180.0/M_PI) );
       }
       memset(msg_to_replacer, 0, MAX_DGRAM_SIZE);
       placementCommand.SerializeToArray(msg_to_replacer, MAX_DGRAM_SIZE);
