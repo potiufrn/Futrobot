@@ -130,7 +130,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdang = 0.0;//0.0;
 
   // FPS 100
-  double klin = 0.90;
+  double klin = 1.5;
   double tilin = 10000000.0; //10000;
   double tdlin = 0.0;        //0.0;
 
