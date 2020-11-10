@@ -909,7 +909,7 @@ void Strategy::acao_com_bola(int id)
   case PENALTY_STATE:
     if (estado_penalty == 1)
     {
-      papeis.me[id].acao = (getAdvantage() ? (aleatorio() ? POS_PENALTY1 : POS_PENALTY2) : IR_MEIO_CAMPO);
+      papeis.me[id].acao = (getAdvantage() ? (aleatorio() ? POS_PENALTY1 : POS_PENALTY2) : POS_PENALTY3);
     }
     break;
   case FREEKICK_STATE:
@@ -1118,7 +1118,7 @@ void Strategy::acao_sem_bola(int id)
   case PENALTY_STATE:
     if (estado_penalty == 1)
     {
-      papeis.me[id].acao = getAdvantage() ? (papeis.me[com_bola()].acao == POS_PENALTY1 ? POS_PENALTY2 : POS_PENALTY1):IR_MEIO_CAMPO;
+      papeis.me[id].acao = getAdvantage() ? (papeis.me[com_bola()].acao == POS_PENALTY1 ? POS_PENALTY2 : POS_PENALTY1):POS_PENALTY3;
     }
     break;
   case FREEKICK_STATE:
@@ -1220,9 +1220,13 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].theta() = POSITION_UNDEFINED; // M_PI_2;
     break;
   case POS_PENALTY1:
-    ref.me[id].x() = -sinal * ROBOT_EDGE / 2.0;
-    ref.me[id].y() = CIRCLE_RADIUS - ROBOT_EDGE / 2.0;
-    ref.me[id].theta() = (sinal > 0.0 ? -M_PI / 8.0 : -M_PI + M_PI / 8.0);
+    // ref.me[id].x() = -sinal * ROBOT_EDGE / 2.0;
+    // ref.me[id].y() = CIRCLE_RADIUS - ROBOT_EDGE / 2.0;
+    // ref.me[id].theta() = (sinal > 0.0 ? -M_PI / 8.0 : -M_PI + M_PI / 8.0);
+
+    ref.me[id].x() = -sinal * (ROBOT_EDGE + ROBOT_EDGE/2.0);
+    ref.me[id].y() = (FIELD_HEIGHT/2.0-0.25);
+    ref.me[id].theta() = (sinal > 0.0 ? 0.0: -M_PI);
     break;
   case POS_PENALTY2:
     ang_gol_penalty = arc_tang(PK_Y - (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS),
@@ -1231,6 +1235,15 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].y() = (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS) + ((FIELD_WIDTH / 2.0 - CIRCLE_RADIUS / 2.0) * sin(ang_gol_penalty));
     ref.me[id].theta() = ang_equiv(ang_gol_penalty + M_PI);
     break;
+
+  case POS_PENALTY3:
+    ref.me[id].x() = sinal * (ROBOT_EDGE + ROBOT_EDGE/2.0);
+    if(sinal == 1)
+      ref.me[id].y() = (com_bola() == id)? -sinal*(FIELD_HEIGHT/2.0-0.25) : sinal*(FIELD_HEIGHT/2.0-ROBOT_EDGE -0.325);
+    else
+      ref.me[id].y() = (com_bola() == id)? sinal*(FIELD_HEIGHT/2.0-0.25) : -sinal*(FIELD_HEIGHT/2.0-ROBOT_EDGE -0.325);
+    ref.me[id].theta() = (sinal > 0.0 ? 0.0: -M_PI);
+    break;    
   case G_DEFENDER:
     ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH / 2.0);
     // Usar a estimativa de posição da bola qdo bola estiver rápida...
