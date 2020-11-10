@@ -175,7 +175,7 @@ enum ACTION {
   // As acoes que servem para sem_bola e com_bola
   IR_MEIO_CAMPO=11, FORMAR_BARREIRA=12, CIRCULO_CENTRAL=13, COMEMORAR=14,
   // As acoes que servem para goleiro e com_bola
-  ISOLAR_BOLA=21, LADO_AREA=22, IR_BOLA=23, POS_PENALTY1=24, POS_PENALTY2=25,
+  ISOLAR_BOLA=21, LADO_AREA=22, IR_BOLA=23, POS_PENALTY1=24, POS_PENALTY2=25,POS_PENALTY3=26,
   // As acoes do goleiro
   G_DEFENDER=101, G_CENTRO_GOL=102,
   // As acoes do jogador com bola
