@@ -20,6 +20,10 @@ Obstacles::~Obstacles()
 
 bool Obstacles::obstacles()
 {
+  //desviar de obstaculos apenas no estado de play e no modo simulado
+  if(gameMode() == SIMULATED_MODE && gameState() != PLAY_STATE)
+    return false;
+
   bool ignora_meu[3], ignora_adv[3];
   double dist, xc, yc, raio, gama, delta_gama;
   int i, j, k;
