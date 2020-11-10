@@ -26,7 +26,7 @@ static const unsigned COM_BOLA_DEFAULT(0);
 static const unsigned SEM_BOLA_DEFAULT(2);
 static const unsigned GOLEIRO_DEFAULT(1);
 //static const unsigned LIMITE_CONT_PARADO(20);
-static const unsigned LIMITE_CONT_PARADO(FPS);
+static const unsigned LIMITE_CONT_PARADO(5*FPS); //equivalente a 5 segundos
 //static const unsigned LIMITE_CONT_PERDIDO(10);
 static const unsigned LIMITE_CONT_PERDIDO(FPS/3);
 
@@ -243,7 +243,7 @@ bool Strategy::strategy()
   // analisa posiçao dos adversários
   analisa_adversarios();
   // detecta se algum dos robos esta bloqueado
-  // detecta_bloqueados();
+  detecta_bloqueados();
 
   // escolhe uma funcao (goleiro, com_bola, sem_bola) para cada jogador
   escolhe_funcoes();
@@ -543,7 +543,8 @@ void Strategy::detecta_bloqueados()
 {
   int id;
   // Se o jogo nao esta em execucao normal, nao existem robos bloqueados...
-  if (gameState() != PLAY_STATE)
+  // nao trocar quando estiver na defesa, para evitar facilitar para o adversario
+  if (gameState() != PLAY_STATE || !bola_no_ataque)
   {
     for (id = 0; id < 3; id++)
     {
@@ -554,6 +555,7 @@ void Strategy::detecta_bloqueados()
     }
     return;
   }
+
   double distlin_ref, distlin_ant, distang_ref, distang_ant;
   bool nao_andou;
   for (id = 0; id < 3; id++)
@@ -1449,12 +1451,8 @@ POS_ROBO Strategy::posicao_para_descolar_bola()
 {
   // Calcula a origem do sistema de coordenadas da parede
   POS_ROBO origem = calcula_origem_parede();
-  //cout << "Origem: ";
-  //cout << origem.x() << ',' << origem.y() << ',' << origem.theta() << endl;
 
   // Altera posicao da bola para o lado de cima e atacando para direita
-  //cout << "pos_ball: ";
-  //cout << pos.ball.x() << ',' << pos.ball.y() << endl;
   POS_BOLA new_pos_ball;
   new_pos_ball.x() = sinal * pos.ball.x(); // sempre sinal>0
   new_pos_ball.y() = fabs(pos.ball.y());   // sempre ybol>0

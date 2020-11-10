@@ -21,19 +21,20 @@ bool Localization::localization()
 {
   double raio, theta;
   double vbola,thetabola;
-
+  double dt;
   if(gameMode() == SIMULATED_MODE){
+    dt = dt_amostr*5.0;//usando a predição para 5 amostras na frente
     // calcula velocidade e orientação da bola
-    vbola = hypot(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x())/dt_amostr;
+    vbola = hypot(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x())/dt;
     thetabola = arc_tang(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x());
     
     pos.vel_ball.mod = (pos.vel_ball.mod + vbola)/2.0;
     pos.vel_ball.ang = (pos.vel_ball.ang + thetabola)/2.0;
     // posição futura da bola
     pos.future_ball.x() = pos.ball.x() + 
-                          pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt_amostr;
+                          pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt;
     pos.future_ball.y() = pos.ball.y() + 
-                          pos.vel_ball.mod*sin(pos.vel_ball.ang)*dt_amostr;
+                          pos.vel_ball.mod*sin(pos.vel_ball.ang)*dt;
     return false;
   }
 

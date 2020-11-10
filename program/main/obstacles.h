@@ -3,8 +3,11 @@
 
 #include "futdata.h"
 
-#define ZONA_INFL_MIN 0.05
-#define ZONA_INFL_MAX 0.10
+
+#define ZONA_INFL_MIN 0.075
+#define ZONA_INFL_MAX 0.15
+// #define ZONA_INFL_MIN 0.05
+// #define ZONA_INFL_MAX 0.10
 
 class Obstacles : public virtual FutData
 {
