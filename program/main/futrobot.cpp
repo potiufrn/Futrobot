@@ -257,7 +257,7 @@ void Futrobot::referee_comunication()
     try
     {
       //tempo para atualizar as referencias de posicao para passar pro referee
-      usleep(2.5 * 1000000);
+      usleep(0.5 * 1000000);
       //para garantir envia as referencias de posicao para o referee
       placementFrame->clear_robots();
       for (int i = 0; i < 3; i++)
