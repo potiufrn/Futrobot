@@ -245,9 +245,10 @@ void Futrobot::referee_comunication()
       this->setGameState(GAME_STATE::FREEKICK_STATE);
       break;
     case VSSRef::Foul::GOAL_KICK:
-      this->setAdvantage(my_team == command.teamcolor());
-      this->setGameState(GAME_STATE::GOALKICK_STATE);
-      break;
+      continue;
+      // this->setAdvantage(my_team == command.teamcolor());
+      // this->setGameState(GAME_STATE::GOALKICK_STATE);
+      // break;
     default:
       continue;
       break;
