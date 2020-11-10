@@ -18,11 +18,6 @@ Obstacles::~Obstacles()
 {
 }
 
-// bool Obstacles::obstacles()
-// {
-//   return false;
-// }
-
 bool Obstacles::obstacles()
 {
   bool ignora_meu[3], ignora_adv[3];
