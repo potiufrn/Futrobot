@@ -1118,7 +1118,7 @@ void Strategy::acao_sem_bola(int id)
   case PENALTY_STATE:
     if (estado_penalty == 1)
     {
-      papeis.me[id].acao = (papeis.me[com_bola()].acao == POS_PENALTY1 ? POS_PENALTY2 : POS_PENALTY1);
+      papeis.me[id].acao = getAdvantage() ? (papeis.me[com_bola()].acao == POS_PENALTY1 ? POS_PENALTY2 : POS_PENALTY1):IR_MEIO_CAMPO;
     }
     break;
   case FREEKICK_STATE:
@@ -1154,7 +1154,7 @@ void Strategy::calcula_referencias(int id)
     pwm.me[id].right = 0.0;
     break;
   case IR_MEIO_CAMPO:
-    ref.me[id].x() = -sinal * ROBOT_RADIUS;
+    ref.me[id].x() = (getAdvantage()?-sinal:sinal) * ROBOT_RADIUS;
     ref.me[id].y() = (id == 0 ? 0.0 : (id == 1 ? +1.0 : -1.0) * (CIRCLE_RADIUS + ROBOT_RADIUS));
     ref.me[id].theta() = POSITION_UNDEFINED; //0.0;
     break;
