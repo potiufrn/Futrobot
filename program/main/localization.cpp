@@ -23,7 +23,7 @@ bool Localization::localization()
   double vbola,thetabola;
   double dt;
   if(gameMode() == SIMULATED_MODE){
-    dt = dt_amostr*5.0;//usando a predição para 5 amostras na frente
+    dt = 1.0;//usado na LARC 2020 (jogos simulados a 60FPS)
     // calcula velocidade e orientação da bola
     vbola = hypot(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x())/dt;
     thetabola = arc_tang(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x());
