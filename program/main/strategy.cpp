@@ -1385,7 +1385,7 @@ void Strategy::calcula_referencias(int id)
   case A_LEVAR_BOLA:
   {
     Coord2 future_ball_tmp;
-    double dt = dt_amostr*10.0;//usando a predição para 5 amostras na frente
+    double dt = 1.0;//usando a predição para 5 amostras na frente
     // posição futura da bola
     future_ball_tmp.x() = pos.ball.x() + 
                           pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt;
