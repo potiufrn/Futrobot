@@ -1034,7 +1034,6 @@ void Strategy::acao_com_bola_play(int id)
   {
     if (bola_no_ataque && !bola_lateral && !bola_frente)
     {
-
       if (meu_alinhado_chutar[id] && (papeis.me[id].acao == A_CHUTAR_GOL ||
                                       meu_bem_alinhado_chutar[id]))
       {
@@ -1125,7 +1124,7 @@ void Strategy::acao_sem_bola(int id)
   case PENALTY_STATE:
     if (estado_penalty == 1)
     {
-      papeis.me[id].acao = getAdvantage() ? (papeis.me[com_bola()].acao == POS_PENALTY1 ? POS_PENALTY2 : POS_PENALTY1):POS_PENALTY3;
+      papeis.me[id].acao = getAdvantage() ? (papeis.me[com_bola()].acao == POS_PENALTY1 ? POS_PENALTY2 : POS_PENALTY1) : POS_PENALTY3;
     }
     break;
   case FREEKICK_STATE:
@@ -1231,9 +1230,9 @@ void Strategy::calcula_referencias(int id)
     // ref.me[id].y() = CIRCLE_RADIUS - ROBOT_EDGE / 2.0;
     // ref.me[id].theta() = (sinal > 0.0 ? -M_PI / 8.0 : -M_PI + M_PI / 8.0);
 
-    ref.me[id].x() = -sinal * (ROBOT_EDGE + ROBOT_EDGE/2.0);
-    ref.me[id].y() = (FIELD_HEIGHT/2.0-0.25);
-    ref.me[id].theta() = (sinal > 0.0 ? 0.0: -M_PI);
+    ref.me[id].x() = -sinal * (ROBOT_EDGE + ROBOT_EDGE / 2.0);
+    ref.me[id].y() = (FIELD_HEIGHT / 2.0 - 0.25);
+    ref.me[id].theta() = (sinal > 0.0 ? 0.0 : -M_PI);
     break;
   case POS_PENALTY2:
     ang_gol_penalty = arc_tang(PK_Y - (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS),
@@ -1244,13 +1243,13 @@ void Strategy::calcula_referencias(int id)
     break;
 
   case POS_PENALTY3:
-    ref.me[id].x() = sinal * (ROBOT_EDGE + ROBOT_EDGE/2.0);
-    if(sinal == 1)
-      ref.me[id].y() = (com_bola() == id)? -sinal*(FIELD_HEIGHT/2.0-0.25) : sinal*(FIELD_HEIGHT/2.0-ROBOT_EDGE -0.325);
+    ref.me[id].x() = sinal * (ROBOT_EDGE + ROBOT_EDGE / 2.0);
+    if (sinal == 1)
+      ref.me[id].y() = (com_bola() == id) ? -sinal * (FIELD_HEIGHT / 2.0 - 0.25) : sinal * (FIELD_HEIGHT / 2.0 - ROBOT_EDGE - 0.325);
     else
-      ref.me[id].y() = (com_bola() == id)? sinal*(FIELD_HEIGHT/2.0-0.25) : -sinal*(FIELD_HEIGHT/2.0-ROBOT_EDGE -0.325);
-    ref.me[id].theta() = (sinal > 0.0 ? 0.0: -M_PI);
-    break;    
+      ref.me[id].y() = (com_bola() == id) ? sinal * (FIELD_HEIGHT / 2.0 - 0.25) : -sinal * (FIELD_HEIGHT / 2.0 - ROBOT_EDGE - 0.325);
+    ref.me[id].theta() = (sinal > 0.0 ? 0.0 : -M_PI);
+    break;
   case G_DEFENDER:
     ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH / 2.0);
     // Usar a estimativa de posição da bola qdo bola estiver rápida...
@@ -1397,18 +1396,18 @@ void Strategy::calcula_referencias(int id)
   case A_LEVAR_BOLA:
   {
     Coord2 future_ball_tmp;
-    double dt = 1.0;//usando a predição para 5 amostras na frente
+    double dt = 1.0; //usando a predição para 5 amostras na frente
     // posição futura da bola
-    future_ball_tmp.x() = pos.ball.x() + 
-                          pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt;
-    future_ball_tmp.y() = pos.ball.y() + 
-                          pos.vel_ball.mod*sin(pos.vel_ball.ang)*dt;
-    
+    future_ball_tmp.x() = pos.ball.x() +
+                          pos.vel_ball.mod * cos(pos.vel_ball.ang) * dt;
+    future_ball_tmp.y() = pos.ball.y() +
+                          pos.vel_ball.mod * sin(pos.vel_ball.ang) * dt;
+
     double ang = arc_tang(future_ball_tmp.y() - pos.me[id].y(),
                           future_ball_tmp.x() - pos.me[id].x());
 
-    ref.me[id].theta() = arc_tang( -future_ball_tmp.y(),
-                                  sinal * (FIELD_WIDTH/2.0 + GOAL_FIELD_WIDTH) - future_ball_tmp.x());
+    ref.me[id].theta() = arc_tang(-future_ball_tmp.y(),
+                                  sinal * (FIELD_WIDTH / 2.0 + 0.01) - future_ball_tmp.x());
     ref.me[id].x() = future_ball_tmp.x() + (BALL_RADIUS)*cos(ang);
     ref.me[id].y() = future_ball_tmp.y() + (BALL_RADIUS)*sin(ang);
     break;
@@ -1418,8 +1417,10 @@ void Strategy::calcula_referencias(int id)
     double ang = arc_tang(pos.ball.y() - pos.me[id].y(),
                           pos.ball.x() - pos.me[id].x());
     ref.me[id].theta() = POSITION_UNDEFINED;
-    ref.me[id].x() = sinal * FIELD_WIDTH / 2.0;
-    ref.me[id].y() = mytan(ang) * (sinal * FIELD_WIDTH / 2.0 - pos.me[id].x()) + pos.me[id].y();
+    ref.me[id].x() = pos.ball.x() + FIELD_WIDTH*cos(ang);
+    ref.me[id].y() = pos.ball.y() + FIELD_WIDTH*sin(ang);
+    // ref.me[id].x() = sinal * FIELD_WIDTH/2.0;
+    // ref.me[id].y() = mytan(ang) * (sinal * FIELD_WIDTH / 2.0 - pos.me[id].x()) + pos.me[id].y();
   }
   break;
 
@@ -1472,7 +1473,6 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].y() = r.y();
     ref.me[id].theta() = 0.0;
   }
-  //    cout << "fim D_NAO_ATRAPALHAR\n"; cout.flush();
   break;
   case IMPOSSIVEL:
     printf("Acao em situacao Impossivel foi chamada!\n");
