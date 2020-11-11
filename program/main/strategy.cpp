@@ -935,7 +935,6 @@ void Strategy::acao_com_bola(int id)
     break;
   case PLAY_STATE:
     acao_com_bola_play(id);
-    // papeis.me[id].acao = A_LEVAR_BOLA;
     break;
   }
 }
