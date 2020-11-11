@@ -935,6 +935,7 @@ void Strategy::acao_com_bola(int id)
     break;
   case PLAY_STATE:
     acao_com_bola_play(id);
+    // papeis.me[id].acao = A_LEVAR_BOLA;
     break;
   }
 }
@@ -1383,12 +1384,21 @@ void Strategy::calcula_referencias(int id)
     break;
   case A_LEVAR_BOLA:
   {
-    double ang = arc_tang(pos.future_ball.y() - pos.me[id].y(),
-                          pos.future_ball.x() - pos.me[id].x());
-    ref.me[id].theta() = arc_tang(pos.me[id].y(),
-                                  sinal * (FIELD_WIDTH/2.0 + GOAL_FIELD_WIDTH) - pos.me[id].x());
-    ref.me[id].x() = pos.future_ball.x();
-    ref.me[id].y() = pos.future_ball.y();
+    Coord2 future_ball_tmp;
+    double dt = dt_amostr*10.0;//usando a predição para 5 amostras na frente
+    // posição futura da bola
+    future_ball_tmp.x() = pos.ball.x() + 
+                          pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt;
+    future_ball_tmp.y() = pos.ball.y() + 
+                          pos.vel_ball.mod*sin(pos.vel_ball.ang)*dt;
+    
+    double ang = arc_tang(future_ball_tmp.y() - pos.me[id].y(),
+                          future_ball_tmp.x() - pos.me[id].x());
+
+    ref.me[id].theta() = arc_tang( -future_ball_tmp.y(),
+                                  sinal * (FIELD_WIDTH/2.0 + GOAL_FIELD_WIDTH) - future_ball_tmp.x());
+    ref.me[id].x() = future_ball_tmp.x() + (BALL_RADIUS)*cos(ang);
+    ref.me[id].y() = future_ball_tmp.y() + (BALL_RADIUS)*sin(ang);
     break;
   }
   case A_CHUTAR_GOL:
