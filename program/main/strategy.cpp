@@ -26,12 +26,13 @@ static const unsigned COM_BOLA_DEFAULT(0);
 static const unsigned SEM_BOLA_DEFAULT(2);
 static const unsigned GOLEIRO_DEFAULT(1);
 //static const unsigned LIMITE_CONT_PARADO(20);
-static const unsigned LIMITE_CONT_PARADO(5*FPS); //equivalente a 5 segundos
+static const unsigned LIMITE_CONT_PARADO(5 * FPS); //equivalente a 5 segundos
 //static const unsigned LIMITE_CONT_PERDIDO(10);
-static const unsigned LIMITE_CONT_PERDIDO(FPS/3);
+static const unsigned LIMITE_CONT_PERDIDO(FPS / 3);
 
 // Classes locais
-class Repulsao{
+class Repulsao
+{
 private:
   unsigned cell[9][10];
   POS_BOLA calculaCentro(unsigned i, unsigned j) const;
@@ -450,9 +451,12 @@ void Strategy::analisa_bola()
 
   bola_quina_fundo =
       fabs(pos.ball.y()) > (FIELD_HEIGHT / 2.0 - CORNER_DIMENSION - sqrt(2.0) * DIST_COLADA +
-                            sinal * pos.ball.x() + FIELD_WIDTH / 2.0) + MARGEM_HISTERESE || //MAIS RESTRITIVO;
+                            sinal * pos.ball.x() + FIELD_WIDTH / 2.0) +
+                               MARGEM_HISTERESE || //MAIS RESTRITIVO;
       (fabs(pos.ball.y()) > (FIELD_HEIGHT / 2.0 - CORNER_DIMENSION - sqrt(2.0) * DIST_COLADA +
-                            sinal * pos.ball.x() + FIELD_WIDTH / 2.0) - MARGEM_HISTERESE && bola_quina_fundo);
+                             sinal * pos.ball.x() + FIELD_WIDTH / 2.0) -
+                                MARGEM_HISTERESE &&
+       bola_quina_fundo);
   if (bola_quina_fundo)
   {
     bola_dentro_gol = bola_area_defesa = bola_frente_area =
@@ -1038,7 +1042,8 @@ void Strategy::acao_com_bola_play(int id)
       }
       else
       {
-        papeis.me[id].acao = A_ALINHAR_GOL;
+        // papeis.me[id].acao = A_ALINHAR_GOL;
+        papeis.me[id].acao = A_LEVAR_BOLA;
       }
     }
     else
@@ -1156,7 +1161,7 @@ void Strategy::calcula_referencias(int id)
     pwm.me[id].right = 0.0;
     break;
   case IR_MEIO_CAMPO:
-    ref.me[id].x() = (getAdvantage()?-sinal:sinal) * ROBOT_RADIUS;
+    ref.me[id].x() = (getAdvantage() ? -sinal : sinal) * ROBOT_RADIUS;
     ref.me[id].y() = (id == 0 ? 0.0 : (id == 1 ? +1.0 : -1.0) * (CIRCLE_RADIUS + ROBOT_RADIUS));
     ref.me[id].theta() = POSITION_UNDEFINED; //0.0;
     break;
@@ -1389,6 +1394,25 @@ void Strategy::calcula_referencias(int id)
       ref.me[id].theta() = POSITION_UNDEFINED;
     }
     break;
+  case A_LEVAR_BOLA:
+  {
+    Coord2 future_ball_tmp;
+    double dt = 1.0;//usando a predição para 5 amostras na frente
+    // posição futura da bola
+    future_ball_tmp.x() = pos.ball.x() + 
+                          pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt;
+    future_ball_tmp.y() = pos.ball.y() + 
+                          pos.vel_ball.mod*sin(pos.vel_ball.ang)*dt;
+    
+    double ang = arc_tang(future_ball_tmp.y() - pos.me[id].y(),
+                          future_ball_tmp.x() - pos.me[id].x());
+
+    ref.me[id].theta() = arc_tang( -future_ball_tmp.y(),
+                                  sinal * (FIELD_WIDTH/2.0 + GOAL_FIELD_WIDTH) - future_ball_tmp.x());
+    ref.me[id].x() = future_ball_tmp.x() + (BALL_RADIUS)*cos(ang);
+    ref.me[id].y() = future_ball_tmp.y() + (BALL_RADIUS)*sin(ang);
+    break;
+  }
   case A_CHUTAR_GOL:
   {
     double ang = arc_tang(pos.ball.y() - pos.me[id].y(),
