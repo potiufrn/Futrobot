@@ -1491,8 +1491,8 @@ POS_ROBO Strategy::posicao_para_descolar_bola()
 
   // Altera posicao da bola para o lado de cima e atacando para direita
   POS_BOLA new_pos_ball;
-  new_pos_ball.x() = sinal * pos.future_ball.x(); // sempre sinal>0
-  new_pos_ball.y() = fabs(pos.future_ball.y());   // sempre ybol>0
+  new_pos_ball.x() = sinal * pos.ball.x(); // sempre sinal>0
+  new_pos_ball.y() = fabs(pos.ball.y());   // sempre ybol>0
 
   // Calcula posição relativa da nova bola em relação à parede
   new_pos_ball = posicao_relativa(new_pos_ball, origem);
