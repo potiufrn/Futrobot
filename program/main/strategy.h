@@ -24,7 +24,7 @@ private:
   // predicados para os meus robos
   //a principio os booleanos dos jogadores tem uso especifico, mas mesmo assim foram criados para os tres jogadores
 
-  bool meu_lado_area[3], meu_atras_gol[3];;
+  bool meu_lado_area[3], meu_atras_gol[3];
 
   bool meu_na_area[3];
 
@@ -36,7 +36,6 @@ private:
   bool meu_alinhado_para_gol_tabelado[3];
   // Analise da situacao da bola
   bool bola_parada, bola_no_ataque, bola_area_lateral;
-
   // Soh um desses predicados pode ser true ao mesmo tempo
   bool bola_dentro_gol, bola_area_defesa, bola_frente_area, bola_lado_area,
     bola_parede_fundo, bola_quina_fundo, bola_fundo, bola_parede_lateral,
@@ -52,20 +51,13 @@ private:
 
   // Lado do campo
   int sinal;
-
-  //ACTION resp_com_bola[512];
-  //ACTION resp_sem_bola[1024];
-
-  //void preenchimento();
-
   int estado_penalty;
  private:
-  //bool setint (FUNCTION f, const char * binario, ACTION resp, bool silence);
-  //bool full_table (FUNCTION f);
   void analisa_jogadores();
   void analisa_adversarios();
   void analisa_bola();
   PWM_WHEEL descolar_parede(int id);
+  PWM_WHEEL rodar_para_campo_adversario(int id);
   POS_ROBO posicao_para_descolar_bola();
   POS_ROBO calcula_origem_parede();
   
@@ -79,6 +71,8 @@ private:
   void acao_com_bola_play(int id);
   void acao_sem_bola(int id);
   void calcula_referencias(int id);
+
+  void debugAction(int id);
 public:
   Strategy(TEAM time, SIDE lado, GAME_MODE gameMode);
   ~Strategy();

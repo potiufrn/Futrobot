@@ -30,6 +30,7 @@ static const unsigned LIMITE_CONT_PARADO(5 * FPS); //equivalente a 5 segundos
 //static const unsigned LIMITE_CONT_PERDIDO(10);
 static const unsigned LIMITE_CONT_PERDIDO(FPS / 3);
 
+
 // Classes locais
 class Repulsao
 {
@@ -260,6 +261,7 @@ bool Strategy::strategy()
   for (i = 0; i < 3; i++)
   {
     calcula_referencias(i);
+    debugAction(i);
   }
 
   // guarda dados atuais para o proximo ciclo
@@ -968,7 +970,8 @@ void Strategy::acao_com_bola_play(int id)
     }
     else
     {
-      papeis.me[id].acao = A_POSICIONAR_PARA_DESCOLAR;
+      // papeis.me[id].acao = A_POSICIONAR_PARA_DESCOLAR;
+      papeis.me[id].acao = A_LEVAR_BOLA;
     }
     return;
   }
@@ -1094,7 +1097,6 @@ void Strategy::acao_com_bola_play(int id)
     }
   }
 }
-
 void Strategy::acao_sem_bola(int id)
 {
   if (pos.ball.undef() || perdido[id] || bloqueado[id])
@@ -1297,20 +1299,20 @@ void Strategy::calcula_referencias(int id)
   {
     pwm.me[id] = descolar_parede(id);
 
-    POS_ROBO ref;
-    double ang = M_PI_2 / 2.0;
-    if ((sinal * pos.me[id].y()) > 0.0)
-    {
-      ref.x() = pos.me[id].x() + (ROBOT_EDGE / 2.0) * cos(pos.me[id].theta() - ang);
-      ref.y() = pos.me[id].y() + (ROBOT_EDGE / 2.0) * sin(pos.me[id].theta() - ang);
-      ref.theta() = pos.me[id].theta() - ang;
-    }
-    else
-    {
-      ref.x() = pos.me[id].x() + (ROBOT_EDGE / 2.0) * cos(pos.me[id].theta() + ang);
-      ref.y() = pos.me[id].y() + (ROBOT_EDGE / 2.0) * sin(pos.me[id].theta() + ang);
-      ref.theta() = pos.me[id].theta() + ang;
-    }
+    // POS_ROBO ref;
+    // double ang = M_PI_2 / 2.0;
+    // if ((sinal * pos.me[id].y()) > 0.0)
+    // {
+    //   ref.x() = pos.me[id].x() + (ROBOT_EDGE / 2.0) * cos(pos.me[id].theta() - ang);
+    //   ref.y() = pos.me[id].y() + (ROBOT_EDGE / 2.0) * sin(pos.me[id].theta() - ang);
+    //   ref.theta() = pos.me[id].theta() - ang;
+    // }
+    // else
+    // {
+    //   ref.x() = pos.me[id].x() + (ROBOT_EDGE / 2.0) * cos(pos.me[id].theta() + ang);
+    //   ref.y() = pos.me[id].y() + (ROBOT_EDGE / 2.0) * sin(pos.me[id].theta() + ang);
+    //   ref.theta() = pos.me[id].theta() + ang;
+    // }
   }
   break;
   case A_POSICIONAR_PARA_DESCOLAR:
@@ -1491,8 +1493,8 @@ POS_ROBO Strategy::posicao_para_descolar_bola()
 
   // Altera posicao da bola para o lado de cima e atacando para direita
   POS_BOLA new_pos_ball;
-  new_pos_ball.x() = sinal * pos.ball.x(); // sempre sinal>0
-  new_pos_ball.y() = fabs(pos.ball.y());   // sempre ybol>0
+  new_pos_ball.x() = sinal * pos.future_ball.x(); // sempre sinal>0
+  new_pos_ball.y() = fabs(pos.future_ball.y());   // sempre ybol>0
 
   // Calcula posição relativa da nova bola em relação à parede
   new_pos_ball = posicao_relativa(new_pos_ball, origem);
@@ -1711,4 +1713,93 @@ PWM_WHEEL Strategy::descolar_parede(int id)
     ret.right = temp;
   }
   return ret;
+}
+
+PWM_WHEEL Strategy::rodar_para_campo_adversario(int id)
+{
+  PWM_WHEEL ret;
+  
+  if(pos.me[id].y() < pos.ball.y()) // bola acima do robo
+  {
+    ret.left  = sinal * 1.0;
+    ret.right = sinal * -1.0;
+  }else{
+    ret.left  = sinal * -1.0;
+    ret.right = sinal * 1.0;
+  }
+  bypassControl[id] = true;
+  return ret;
+}
+
+void Strategy::debugAction(int id)
+{
+  std::cout << "ROBO("<<id<<") | ACAO:";
+  switch (papeis.me[id].acao)
+  {
+  case ACTION::ESTACIONAR:
+    std::cout << "ESTACIONAR";
+    break;
+  case ACTION::A_DESCOLAR:
+    std::cout << "A_DESCOLAR";
+    break;
+  case ACTION::A_CONTORNAR:
+    std::cout << "A_CONTORNAR";
+    break;
+  case ACTION::A_CONTORNAR_POR_DENTRO:
+    std::cout << "A_CONTORNAR_POR_DENTRO";
+    break;
+  case ACTION::A_POSICIONAR_FRENTE_AREA:
+    std::cout << "A_POSICIONAR_FRENTE_AREA";
+    break;
+  case ACTION::A_LEVAR_BOLA:
+    std::cout << "A_LEVAR_BOLA";
+    break;
+  case ACTION::A_POSICIONAR_PARA_DESCOLAR:
+    std::cout << "A_POSICIONAR_PARA_DESCOLAR";
+    break;
+  case ACTION::CIRCULO_CENTRAL:
+    std::cout << "CIRCULO_CENTRAL";
+    break;
+  case ACTION::FORMAR_BARREIRA:
+    std::cout << "FORMAR_BARREIRA";
+    break;
+  case ACTION::G_CENTRO_GOL:
+    std::cout << "G_CENTRO_GOL";
+    break;
+  case ACTION::G_DEFENDER:
+    std::cout << "G_DEFENDER";
+    break;
+  case ACTION::NAO_DEFINIDO:
+    std::cout << "NAO_DEFINIDO";
+    break;
+  case ACTION::A_ALINHAR_GOL:
+    std::cout << "A_ALINHAR_GOL";
+    break;
+  case ACTION::A_ALINHAR_SEM_ORIENTACAO:
+    std::cout << "A_ALINHAR_SEM_ORIENTACAO";
+    break;
+  case ACTION::A_CHUTAR_GOL:
+    std::cout << "A_CHUTAR_GOL";
+    break;
+  case ACTION::A_BOLA_CENTRO:
+    std::cout << "A_BOLA_CENTRO";
+    break;
+  case ACTION::A_IR_MARCA:
+    std::cout << "A_IR_MARCA";
+    break;
+  case ACTION::D_NAO_ATRAPALHAR:
+    std::cout << "D_NAO_ATRAPALHAR";
+    break;
+  case ACTION::IR_BOLA:
+    std::cout << "IR_BOLA";
+    break;
+  case ACTION::IR_MEIO_CAMPO:
+    std::cout << "IR_MEIO_CAMPO";
+    break;
+
+  default:
+    break;
+  }  
+
+  std::cout << '\n';
 }

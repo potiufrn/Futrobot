@@ -19,17 +19,21 @@ Localization::~Localization()
 
 bool Localization::localization()
 {
-  double raio, theta;
-  double vbola,thetabola;
-  double dt;
-  if(gameMode() == SIMULATED_MODE){
-    dt = dt_amostr*5.0;//usado na LARC 2020 (jogos simulados a 60FPS)
+  static double raio, theta;
+  static double vbola,thetabola;
+  static double dt, dist;
+
+  if(gameMode() == SIMULATED_MODE)
+  {
+    dist = hypot(pos.me[com_bola()].y() - pos.ball.y(), pos.me[com_bola()].x() - pos.ball.x());
+    dt = 1.0*dist;//usado na LARC 2020 (jogos simulados a 60FPS)
     // calcula velocidade e orientação da bola
     vbola = hypot(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x())/dt;
     thetabola = arc_tang(pos.ball.y()-ant.ball.y(), pos.ball.x()-ant.ball.x());
     
     pos.vel_ball.mod = (pos.vel_ball.mod + vbola)/2.0;
     pos.vel_ball.ang = (pos.vel_ball.ang + thetabola)/2.0;
+    
     // posição futura da bola
     pos.future_ball.x() = pos.ball.x() + 
                           pos.vel_ball.mod*cos(pos.vel_ball.ang)*dt;
