@@ -10,10 +10,10 @@
 using namespace ::std;
 
 // As constantes numericasla usados na estrategia
-static const double EPSILON_L(0.005);                           //CHECAR
-static const double EPSILON_ANG(0.087);                         //5graus//CHECAR
-static const double LONGE_L(4 * EPSILON_L);                     //CHECAR
-static const double LONGE_ANG(4 * EPSILON_ANG);                 //CHECAR
+static const double EPSILON_L(0.005);                       //CHECAR
+static const double EPSILON_ANG(0.087);                     //5graus//CHECAR
+static const double LONGE_L(4 * EPSILON_L);                 //CHECAR
+static const double LONGE_ANG(4 * EPSILON_ANG);             //CHECAR
 static const double DIST_CHUTE(ROBOT_RADIUS + BALL_RADIUS); // (ROBOT_RADIUS+BALL_RADIUS-0.075-0.018) LARC 2016
 static const double VEL_BOLA_LENTA(0.2);
 static const double DIST_COLADA(3.0 * BALL_RADIUS);
@@ -310,21 +310,15 @@ void Strategy::analisa_jogadores()
                                pos.future_ball.x() - pos.me[i].x());
     // posicao onde a bola bateria se seguisse rumo ao fundo do campo de
     // acordo com a reta que vem do robo
-    ypos_fut[i] = mytan(thetapos_fut[i]) *
-                      (sinal * FIELD_WIDTH / 2.0 - pos.me[i].x()) +
-                  pos.me[i].y();
+    ypos_fut[i] = mytan(thetapos_fut[i]) * (sinal * FIELD_WIDTH / 2.0 - pos.me[i].x()) + pos.me[i].y();
     // posicao onde o robô com o alinhamento atual bateria no fundo do
     // campo se seguisse reto rumo ao fundo do campo
-    yalin[i] = mytan(pos.me[i].theta()) *
-                   (sinal * FIELD_WIDTH / 2.0 - pos.me[i].x()) +
-               pos.me[i].y();
+    yalin[i] = mytan(pos.me[i].theta()) * (sinal * FIELD_WIDTH / 2.0 - pos.me[i].x()) + pos.me[i].y();
     meu_alinhado_chutar[i] =
-        fabs(ypos_fut[i]) < GOAL_FIELD_HEIGHT / 2.0 &&
-        fabs(yalin[i]) < GOAL_FIELD_HEIGHT / 2.0;
+        (fabs(ypos_fut[i]) < GOAL_FIELD_HEIGHT / 2.0) &&
+        (fabs(yalin[i]) < GOAL_FIELD_HEIGHT / 2.0);
 
-    meu_bem_alinhado_chutar[i] =
-        fabs(ypos_fut[i]) < GOAL_HEIGHT / 2.0 &&
-        fabs(yalin[i]) < GOAL_HEIGHT / 2.0;
+    meu_alinhado_para_gol_tabelado[i] = detecta_gol_tabelado(i);
 
     bola_frente_y_do_meu[i] =
         fabs(pos.me[i].y()) < fabs(pos.ball.y()) ||
@@ -761,7 +755,9 @@ void Strategy::escolhe_funcoes()
             // B - o sem_bola estiver bem mais proximo (1.25) da bola; e
             // C - o com_bola nao estiver alinhado para o gol.
             // neste caso, troca de funcoes com o com_bola
-            if (dist_sem < dist_com)
+            // deixando dist_com maior para evitar instabilidade caso ambas as distancias sejam muito proximas
+            // e para insentivar a troca de atacante
+            if (dist_sem < dist_com*1.01)
             {
               // sem_bola estah bem mais proximo da bola
 
@@ -1038,8 +1034,7 @@ void Strategy::acao_com_bola_play(int id)
   {
     if (bola_no_ataque && !bola_lateral && !bola_frente)
     {
-      if (meu_alinhado_chutar[id] && (papeis.me[id].acao == A_CHUTAR_GOL ||
-                                      meu_bem_alinhado_chutar[id]))
+      if (meu_alinhado_chutar[id])
       {
         papeis.me[id].acao = A_CHUTAR_GOL;
       }
@@ -1606,6 +1601,69 @@ static POS_ROBO posicao_absoluta(POS_ROBO pos, POS_ROBO origem)
   dy += dist_repulsao*sin(ang);
   }
 */
+
+bool Strategy::detecta_gol_tabelado(int i)
+{
+  static double m, n = -1.0, c; //parametros de uma reta
+  static double dist, denominador, xc, yc;
+  static const double delta_error_ang = 0.02; //eq. 1 grau
+  static double x_lateral, y_pos_reflex;
+  static bool previsao_de_gol = false;
+
+  m = mytan(thetapos_fut[i]);
+  c = pos.me[i].y() - pos.me[i].x();
+  //ignorar caso o robo nao esteja tangente com a reta robo -> bola
+  if (fabs(pos.me[i].theta() - thetapos_fut[i]) > delta_error_ang)
+    return false;
+
+  /*testa refletir/rebater a bola na parede/lateral superior*/
+  //x onde a reta robo->bola bate na parede superior
+  x_lateral = (1.0 / mytan(thetapos_fut[i])) * (FIELD_HEIGHT / 2.0 - pos.me[i].y()) + pos.me[i].x();
+  //y apos reflexao da bola na lateral
+  y_pos_reflex = mytan(-thetapos_fut[i]) * (sinal * FIELD_WIDTH / 2.0 - x_lateral) + FIELD_HEIGHT / 2.0;
+  previsao_de_gol = (fabs(y_pos_reflex) < FIELD_HEIGHT / 2.0) && (fabs(x_lateral) < FIELD_WIDTH / 2.0);
+
+  /*testa refletir/rebater a bola na parede/lateral inferior*/
+  if (previsao_de_gol == false)
+  {
+    //x onde a reta robo->bola bate na parede superior
+    x_lateral = (1.0 / mytan(thetapos_fut[i])) * (-FIELD_HEIGHT / 2.0 - pos.me[i].y()) + pos.me[i].x();
+    //y apos reflexao da bola na lateral
+    y_pos_reflex = mytan(-thetapos_fut[i]) * (sinal * FIELD_WIDTH / 2.0 - x_lateral) + FIELD_HEIGHT / 2.0;
+    previsao_de_gol = (fabs(y_pos_reflex) < FIELD_HEIGHT / 2.0) && (fabs(x_lateral) < FIELD_WIDTH / 2.0);
+  }
+
+  //evita os proximos passos caso nao hava previsao de gol com a reflexao
+  if (previsao_de_gol == false)
+    return false;
+
+  //verificar se essa reta colidi com algum dos adversarios
+  denominador = sqrt(m * m + n * n);
+  for (int ad = 0; ad < 3; ad++)
+  {
+    xc = pos.op[ad].x();
+    yc = pos.op[ad].y();
+    dist = fabs(m * xc + n * yc + c) / denominador;
+    if (dist <= ROBOT_RADIUS) //secante ou tangente ao circulo
+      return false;
+  }
+
+  //verificar se essa reta colidi com algum dos meus robos
+  for (int ob = 0; ob < 3; ob++)
+  {
+    //ignora o i-robo da vez
+    if (ob == i)
+      continue;
+
+    xc = pos.op[ob].x();
+    yc = pos.op[ob].y();
+    dist = fabs(m * xc + n * yc + c) / denominador;
+    if (dist <= ROBOT_RADIUS) //secante ou tangente ao circulo
+      return false;
+  }
+
+  return true;
+}
 
 PWM_WHEEL Strategy::descolar_parede(int id)
 {

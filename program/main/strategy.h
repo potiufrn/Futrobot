@@ -33,7 +33,7 @@ private:
      meu_alinhado_chutar[3], meu_bem_alinhado_chutar[3], bola_frente_y_do_meu[3],
      meu_posicionado_isolar[3],
      meu_alinhado_isolar[3], meu_bem_alinhado_isolar[3];
-
+  bool meu_alinhado_para_gol_tabelado[3];
   // Analise da situacao da bola
   bool bola_parada, bola_no_ataque, bola_area_lateral;
 
@@ -68,6 +68,9 @@ private:
   PWM_WHEEL descolar_parede(int id);
   POS_ROBO posicao_para_descolar_bola();
   POS_ROBO calcula_origem_parede();
+  
+  bool detecta_gol_tabelado(int i);
+  
   void detecta_bloqueados();
   void escolhe_funcoes();
   void acao_goleiro(int id);
