@@ -48,7 +48,7 @@
 #define BALL_HEIGHT 0.03
 
 // Período de amostragem
-//#define T_AMOSTR 0.033
 #define VEL_BOLA_PARADA 0.025 //CHECAR
+#define CONSTANTE_BOLA_FUTURA 3.55 // [s]/[m]
 
 #endif

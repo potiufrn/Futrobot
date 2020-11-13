@@ -74,7 +74,7 @@ struct CONFIG {
   TPOS_ROBO me;
   TPOS_ROBO op;
   POS_BOLA ball;
-  POS_BOLA future_ball;
+  POS_BOLA future_ball[3];
   VELOCITY vel_ball;
 };
 
