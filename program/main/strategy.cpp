@@ -25,10 +25,8 @@ static const double MARGEM_HISTERESE(0.01); // 1cm
 static const unsigned COM_BOLA_DEFAULT(0);
 static const unsigned SEM_BOLA_DEFAULT(2);
 static const unsigned GOLEIRO_DEFAULT(1);
-//static const unsigned LIMITE_CONT_PARADO(20);
-static const unsigned LIMITE_CONT_PARADO(5 * FPS); //equivalente a 5 segundos
-//static const unsigned LIMITE_CONT_PERDIDO(10);
-static const unsigned LIMITE_CONT_PERDIDO(FPS / 3);
+static const unsigned LIMITE_CONT_PARADO(5 * FPS);  //equivalente a 5 segundos bloqueado/parado
+static const unsigned LIMITE_CONT_PERDIDO(FPS / 3); //equivalente a 5 segundos perdidos
 
 // Classes locais
 class Repulsao
@@ -247,6 +245,10 @@ bool Strategy::strategy()
   // escolhe uma funcao (goleiro, com_bola, sem_bola) para cada jogador
   escolhe_funcoes();
 
+  /************* TESTE!! *********/
+  // papeis.me[0].funcao = COM_BOLA;
+  /******************************/
+
   // escolhe uma acao para cada jogador
   acao_goleiro(goleiro());
   acao_com_bola(com_bola());
@@ -254,14 +256,17 @@ bool Strategy::strategy()
   // do atacante e do goleiro, para que o defensor possa evitá-los
   acao_sem_bola(sem_bola());
 
-  papeis.me[0].acao = G_DEFENDER;
-  papeis.me[1].acao = ESTACIONAR;
-  papeis.me[2].acao = ESTACIONAR;
+  /************* TESTE!! *********/
+  // papeis.me[2].acao = ESTACIONAR;
+  // papeis.me[1].acao = ESTACIONAR;
+  // debugAction(0);
+  /******************************/
+
   // calcula as referencias a partir das acoes
   for (i = 0; i < 3; i++)
   {
     calcula_referencias(i);
-    // debugAction(i);
+    debugAction(i);
   }
 
   // guarda dados atuais para o proximo ciclo
@@ -320,6 +325,11 @@ void Strategy::analisa_jogadores()
         (fabs(yalin[i]) < GOAL_FIELD_HEIGHT / 2.0);
 
     meu_alinhado_para_gol_tabelado[i] = detecta_gol_tabelado(i);
+
+    meu_proximo_para_chute_rotativo[i] = hypot(pos.me[i].y() - pos.ball.y(), pos.me[i].x() - pos.ball.x()) <= (ROBOT_RADIUS + BALL_RADIUS);
+
+    //robo apontando +- ao longo do eixo y
+    meu_paralelo_ao_gol[i] = (fabs(pos.me[i].theta()) > M_PI * (20.0 / 180.0)) && (fabs(pos.me[i].theta()) < M_PI * ((20.0 + 90.0) / 180.0));
 
     bola_frente_y_do_meu[i] =
         fabs(pos.me[i].y()) < fabs(pos.ball.y()) ||
@@ -542,8 +552,7 @@ void Strategy::detecta_bloqueados()
 {
   int id;
   // Se o jogo nao esta em execucao normal, nao existem robos bloqueados...
-  // nao trocar quando estiver na defesa, para evitar facilitar para o adversario
-  if (gameState() != PLAY_STATE || !bola_no_ataque)
+  if (gameState() != PLAY_STATE)
   {
     for (id = 0; id < 3; id++)
     {
@@ -691,16 +700,6 @@ void Strategy::escolhe_funcoes()
     papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
     break;
   case PLAY_STATE:
-
-    // Se quiser eliminar a atribuicao dinamica de funcoes, descomente...
-
-    /*
-    papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
-    papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
-    papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
-    break;
-    */
-
     if (bloqueado[id_gol] || perdido[id_gol])
     {
       // Nunca muda o goleiro qdo a bola estiver no campo de defesa
@@ -712,7 +711,6 @@ void Strategy::escolhe_funcoes()
         if (!bloqueado[id_sem] && !perdido[id_sem])
         {
           papeis.me[id_sem].funcao = GOLEIRO;
-          //papeis.me[id_com].funcao = COM_BOLA;  // Tautologia...
         }
         else
         {
@@ -787,7 +785,6 @@ void Strategy::escolhe_funcoes()
           {
             // sem bola atras, com bola na frente da bola
             // Nesse caso, geralmente troca, a nao ser que o com_bola esteja bem mais perto (2.0)
-
             if (dist_sem < 2.0 * dist_com)
             { //|| dist_sem < 4*ROBOT_RADIUS tiramos para o jogo das oitavas
               papeis.me[id_sem].funcao = COM_BOLA;
@@ -850,11 +847,13 @@ void Strategy::acao_goleiro_play(int id)
       papeis.me[id].acao = LADO_AREA;
     }
   }
+
   // testar se o goleiro estah preso atras do gol
   else if (meu_atras_gol[id])
   {
     papeis.me[id].acao = G_CENTRO_GOL;
   }
+
   // BOLA NA AREA
   else if (bola_area_defesa)
   {
@@ -885,6 +884,12 @@ void Strategy::acao_goleiro_play(int id)
   else
   {
     papeis.me[id].acao = G_DEFENDER;
+  }
+
+  //alta prioridade
+  if (meu_proximo_para_chute_rotativo[id])
+  {
+    papeis.me[id].acao = A_GIRAR_PARA_FRENTE;
   }
 }
 
@@ -957,70 +962,30 @@ void Strategy::acao_com_bola_play(int id)
     return;
   }
 
-  // Bola nas paredes
+  //Maior prioridade
+  //Tirar a bola nas paredes ou cantos
   if (bola_parede_fundo || bola_quina_fundo ||
       bola_parede_lateral || bola_quina_frente ||
       bola_parede_frente)
   {
-
-    if (meu_posicionado_descolar[id] || (papeis.me[id].acao == A_DESCOLAR && !meu_furou[id]))
+    if (meu_proximo_para_chute_rotativo[id])
     {
-      papeis.me[id].acao = A_DESCOLAR;
+      papeis.me[id].acao = A_GIRAR_PARA_FRENTE;
+      return;
+    }
+
+    if (!meu_na_frente_bola[id])
+    {
+      papeis.me[id].acao = IR_BOLA;
     }
     else
     {
-      // papeis.me[id].acao = A_POSICIONAR_PARA_DESCOLAR;
-      papeis.me[id].acao = A_LEVAR_BOLA;
+      papeis.me[id].acao = A_CONTORNAR;
     }
     return;
   }
 
-  // Bola dentro da area
-  if (bola_area_defesa)
-  {
-    papeis.me[id].acao = LADO_AREA;
-    return;
-  }
-  // Bola na frente da area
-  if (bola_frente_area)
-  {
-
-    if (meu_frente_area[id] && (papeis.me[id].acao == ISOLAR_BOLA ||
-                                !meu_na_frente_bola[id]))
-    { // predicado bola bola_na_minha_frente
-      papeis.me[id].acao = ISOLAR_BOLA;
-    }
-    else
-    {
-      papeis.me[id].acao = A_POSICIONAR_FRENTE_AREA;
-    }
-    //    }
-    return;
-  }
-
-  // Bola no lado da area
-  if (bola_lado_area)
-  {
-    if (meu_na_area[id])
-    {
-      if (meu_atras_gol[id])
-      {
-        papeis.me[id].acao = G_CENTRO_GOL;
-      }
-      else
-      {
-        papeis.me[id].acao = ISOLAR_BOLA;
-      }
-    }
-    else
-    {
-      papeis.me[id].acao = LADO_AREA;
-    }
-    return;
-  }
-
-  // Bola nas outras regiões do campo:
-  // bola_fundo, bola_lateral, bola_frente ou região normal
+  // Posicionar-se atras da bola
   if (meu_na_frente_bola[id])
   {
     if (bola_fundo || bola_lateral || bola_frente)
@@ -1031,70 +996,24 @@ void Strategy::acao_com_bola_play(int id)
     {
       papeis.me[id].acao = A_CONTORNAR;
     }
+    return;
+  }
+
+  //Empurrar a bola para o lado adversario e/ou tentar fazer o gol
+  if (meu_alinhado_chutar[id])
+  {
+    papeis.me[id].acao = A_CHUTAR_GOL;
+  }
+  else if (meu_proximo_para_chute_rotativo[id] && meu_paralelo_ao_gol[id])
+  {
+    papeis.me[id].acao = A_GIRAR_PARA_FRENTE;
   }
   else
   {
-    if (bola_no_ataque && !bola_lateral && !bola_frente)
-    {
-      if (meu_alinhado_chutar[id])
-      {
-        papeis.me[id].acao = A_CHUTAR_GOL;
-      }
-      else
-      {
-        // papeis.me[id].acao = A_ALINHAR_GOL;
-        papeis.me[id].acao = A_LEVAR_BOLA;
-      }
-    }
-    else
-    {
-      if (bola_fundo)
-      {
-        papeis.me[id].acao = ISOLAR_BOLA;
-        return;
-      }
-      //      bool nao_passou = fabs (pos.me[id].y()) < fabs(pos.ball.y());
-      //      bool nao_bem_passado = fabs (pos.me[id].y()) < fabs(pos.ball.y())+MARGEM_HIS;
-      if (bola_lateral)
-      {
-        if (bola_frente_y_do_meu[id])
-        {
-          papeis.me[id].acao = A_ALINHAR_SEM_ORIENTACAO;
-        }
-        else
-        {
-          papeis.me[id].acao = ISOLAR_BOLA;
-        }
-        return;
-      }
-      if (bola_frente)
-      {
-
-        if (meu_posicionado_isolar[id])
-        {
-          papeis.me[id].acao = ISOLAR_BOLA;
-        }
-        else
-        {
-          papeis.me[id].acao = A_ALINHAR_SEM_ORIENTACAO;
-        }
-        return;
-      }
-      // Usa um criterio de "alinhamento" bem mais
-      // simples para priorizar o chute. Alem disso, apos "alinhado",
-      // simplesmente chuta a bola para frente
-
-      if (meu_alinhado_isolar[id] && (papeis.me[id].acao == ISOLAR_BOLA ||
-                                      meu_bem_alinhado_isolar[id]))
-      {
-        papeis.me[id].acao = ISOLAR_BOLA;
-      }
-      else
-      {
-        papeis.me[id].acao = A_ALINHAR_SEM_ORIENTACAO;
-      }
-    }
+    papeis.me[id].acao = A_LEVAR_BOLA;
   }
+
+  return;
 }
 void Strategy::acao_sem_bola(int id)
 {
@@ -1206,8 +1125,8 @@ void Strategy::calcula_referencias(int id)
   }
   break;
   case IR_BOLA:
-    ref.me[id].x() = pos.ball.x();
-    ref.me[id].y() = pos.ball.y();
+    ref.me[id].x() = pos.future_ball[id].x();
+    ref.me[id].y() = pos.future_ball[id].y();
     ref.me[id].theta() = POSITION_UNDEFINED;
     break;
   case LADO_AREA:
@@ -1252,9 +1171,8 @@ void Strategy::calcula_referencias(int id)
     }
     else
     {
-      // ref.me[id].y() = pos.ball.y() +
-      //                  tan(pos.vel_ball.ang) * (ref.me[id].x() - pos.ball.x());
-      ref.me[id].y() = pos.future_ball[id].y();
+      ref.me[id].y() = pos.ball.y() +
+                       tan(pos.vel_ball.ang) * (ref.me[id].x() - pos.ball.x());
     }
 
     if (fabs(ref.me[id].y()) > (GOAL_HEIGHT - ROBOT_EDGE / 2.0) / 2.0)
@@ -1294,6 +1212,7 @@ void Strategy::calcula_referencias(int id)
     ref.me[id] = posicao_para_descolar_bola(id);
     break;
   case A_POSICIONAR_FRENTE_AREA:
+  {
     ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
     if (pos.ball.y() > 0.0)
     {
@@ -1307,43 +1226,61 @@ void Strategy::calcula_referencias(int id)
     }
     ref.me[id].theta() = POSITION_UNDEFINED;
     break;
+  }
   case A_CONTORNAR_POR_DENTRO:
-    ref.me[id].x() = pos.ball.x() - sinal * DIST_CHUTE;
-    ref.me[id].y() = pos.ball.y() - sgn(pos.ball.y()) * (BALL_RADIUS + 1.5 * ROBOT_RADIUS);
-    ref.me[id].theta() = POSITION_UNDEFINED;
+    ref.me[id].x() = pos.future_ball[id].x() - sinal * DIST_CHUTE;
+    ref.me[id].y() = pos.future_ball[id].y() - sgn(pos.ball.y()) * (BALL_RADIUS + 1.5 * ROBOT_RADIUS);
+    ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
     break;
   case A_CONTORNAR:
-    // A referência "x" pode sair do campo,
-    // mas não tem pb porque ele muda de estado antes
-    ref.me[id].x() = pos.ball.x() - sinal * DIST_CHUTE;
-    if (pos.ball.y() > pos.me[id].y())
+  {
+
+    //um teste para tentar evitar empurrar a bola para tras ao contornar
+    if ((pos.me[id].y() > (pos.ball.y() + ROBOT_EDGE)) || (pos.me[id].y() < (pos.ball.y() - ROBOT_EDGE)))
     {
-      //esta abaixo da bola
-      ref.me[id].y() = pos.ball.y() - DIST_CHUTE;
-      if (ref.me[id].y() < -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
-      {
-        ref.me[id].y() = -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
-      }
+      ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
+                                    sinal * (FIELD_WIDTH / 2.0 + 0.01) - pos.future_ball[id].x());
+      ref.me[id].x() = pos.future_ball[id].x() - sinal * (ROBOT_RADIUS);
+      ref.me[id].y() = pos.future_ball[id].y();
     }
     else
     {
-      //esta acima da bola
-      ref.me[id].y() = pos.ball.y() + DIST_CHUTE;
-      if (ref.me[id].y() > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+      // A referência "x" pode sair do campo,
+      // mas não tem pb porque ele muda de estado antes
+      ref.me[id].x() = pos.future_ball[id].x() - sinal * ROBOT_EDGE;
+      if (pos.future_ball[id].y() > pos.me[id].y())
       {
-        ref.me[id].y() = (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        //esta abaixo da bola
+        ref.me[id].y() = pos.future_ball[id].y() - 2.0 * ROBOT_EDGE;
+        if (ref.me[id].y() < -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+        {
+          ref.me[id].y() = -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        }
       }
+      else
+      {
+        //esta acima da bola
+        ref.me[id].y() = pos.future_ball[id].y() + 2.0 * ROBOT_EDGE;
+        if (ref.me[id].y() > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+        {
+          ref.me[id].y() = (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        }
+      }
+      ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
     }
-    ref.me[id].theta() = POSITION_UNDEFINED;
 
+    //limita x para dentro do campo e fora da regiao do goleiro
     if (sinal * ref.me[id].x() < -(FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH) &&
         fabs(ref.me[id].y()) < GOAL_FIELD_HEIGHT / 2.0)
     {
       ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH);
     }
+
     break;
+  }
   case A_ALINHAR_SEM_ORIENTACAO:
   case A_ALINHAR_GOL:
+  {
     ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
                                   sinal * FIELD_WIDTH / 2.0 - pos.future_ball[id].x());
     ref.me[id].x() = pos.future_ball[id].x() - DIST_CHUTE * cos(ref.me[id].theta());
@@ -1373,6 +1310,7 @@ void Strategy::calcula_referencias(int id)
       ref.me[id].theta() = POSITION_UNDEFINED;
     }
     break;
+  }
   case A_LEVAR_BOLA:
   {
     double ang = arc_tang(pos.future_ball[id].y() - pos.me[id].y(),
@@ -1391,9 +1329,13 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].theta() = POSITION_UNDEFINED;
     ref.me[id].x() = pos.ball.x() + FIELD_WIDTH * cos(ang);
     ref.me[id].y() = pos.ball.y() + FIELD_WIDTH * sin(ang);
+    break;
   }
-  break;
-
+  case A_GIRAR_PARA_FRENTE:
+  {
+    pwm.me[id] = girar_para_campo_adversario(id);
+    break;
+  }
   case D_NAO_ATRAPALHAR:
   {
     R.iniciar();
@@ -1663,7 +1605,7 @@ PWM_WHEEL Strategy::descolar_parede(int id)
   return ret;
 }
 
-PWM_WHEEL Strategy::rodar_para_campo_adversario(int id)
+PWM_WHEEL Strategy::girar_para_campo_adversario(int id)
 {
   PWM_WHEEL ret;
 
@@ -1746,7 +1688,9 @@ void Strategy::debugAction(int id)
   case ACTION::IR_MEIO_CAMPO:
     std::cout << "IR_MEIO_CAMPO";
     break;
-
+  case ACTION::LADO_AREA:
+    std::cout << "LADO_AREA";
+    break;
   default:
     break;
   }

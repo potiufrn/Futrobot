@@ -33,7 +33,9 @@ private:
       meu_alinhado_chutar[3], meu_bem_alinhado_chutar[3], bola_frente_y_do_meu[3],
       meu_posicionado_isolar[3],
       meu_alinhado_isolar[3], meu_bem_alinhado_isolar[3];
-  bool meu_alinhado_para_gol_tabelado[3];
+  bool meu_alinhado_para_gol_tabelado[3], 
+       meu_proximo_para_chute_rotativo[3],
+       meu_paralelo_ao_gol[3];
   // Analise da situacao da bola
   bool bola_parada, bola_no_ataque, bola_area_lateral;
   // Soh um desses predicados pode ser true ao mesmo tempo
@@ -57,10 +59,10 @@ private:
   void analisa_jogadores();
   void analisa_adversarios();
   void analisa_bola();
-  PWM_WHEEL descolar_parede(int id);
-  PWM_WHEEL rodar_para_campo_adversario(int id);
   POS_ROBO posicao_para_descolar_bola(int id);
   POS_ROBO calcula_origem_parede();
+  PWM_WHEEL descolar_parede(int id);
+  PWM_WHEEL girar_para_campo_adversario(int id);
 
   bool detecta_gol_tabelado(int i);
 
@@ -74,7 +76,7 @@ private:
   void calcula_referencias(int id);
 
   void debugAction(int id);
-
+  void acao_de_contornar(int id);
 public:
   Strategy(TEAM time, SIDE lado, GAME_MODE gameMode);
   ~Strategy();

@@ -49,6 +49,6 @@
 
 // Período de amostragem
 #define VEL_BOLA_PARADA 0.025 //CHECAR
-#define CONSTANTE_BOLA_FUTURA 3.55 // [s]/[m]
+#define CONSTANTE_BOLA_FUTURA 1.25 // [s]/[m]
 
 #endif
