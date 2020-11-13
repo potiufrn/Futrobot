@@ -1253,6 +1253,7 @@ void Strategy::calcula_referencias(int id)
         fabs(ref.me[id].y()) < GOAL_FIELD_HEIGHT / 2.0)
     {
       ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH);
+      ref.me[id].theta() = POSITION_UNDEFINED;
     }
 
     break;
@@ -1616,7 +1617,10 @@ void Strategy::tratar_bloqueados()
       ref.me[i].theta() = POSITION_UNDEFINED;    
       th[i] += step_th;
     }else{
-      th[i] = 0.0;
+      if(pos.me[i].theta() != POSITION_UNDEFINED)
+        th[i] = pos.me[i].theta() + M_PI;
+      else
+        th[i] = 0.0;
     }
   }
 }
