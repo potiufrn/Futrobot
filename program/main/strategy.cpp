@@ -30,7 +30,6 @@ static const unsigned LIMITE_CONT_PARADO(5 * FPS); //equivalente a 5 segundos
 //static const unsigned LIMITE_CONT_PERDIDO(10);
 static const unsigned LIMITE_CONT_PERDIDO(FPS / 3);
 
-
 // Classes locais
 class Repulsao
 {
@@ -218,8 +217,6 @@ Strategy::Strategy(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, sid
 
   sinal = (mySide() == LEFT_SIDE ? 1 : -1);
 
-  //PREENCHIMENTO DA TABELA V. DO COM_BOLA
-  //preenchimento();
   estado_penalty = 0; // Não é penalty
 }
 
@@ -257,11 +254,14 @@ bool Strategy::strategy()
   // do atacante e do goleiro, para que o defensor possa evitá-los
   acao_sem_bola(sem_bola());
 
+  papeis.me[0].acao = G_DEFENDER;
+  papeis.me[1].acao = ESTACIONAR;
+  papeis.me[2].acao = ESTACIONAR;
   // calcula as referencias a partir das acoes
   for (i = 0; i < 3; i++)
   {
     calcula_referencias(i);
-    debugAction(i);
+    // debugAction(i);
   }
 
   // guarda dados atuais para o proximo ciclo
@@ -274,7 +274,6 @@ void Strategy::analisa_jogadores()
 {
   for (int i = 0; i < 3; i++)
   {
-
     // O roboh estah dentro da sua area do gol
     meu_na_area[i] =
         (sinal * pos.me[i].x() < -(FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH) ||
@@ -293,7 +292,7 @@ void Strategy::analisa_jogadores()
         (sinal * pos.me[i].x() - sinal * pos.ball.x() > 0.0) ||
         (sinal * pos.me[i].x() - sinal * pos.ball.x() > -MARGEM_HISTERESE && meu_na_frente_bola[i]);
 
-    ref_desc[i] = posicao_para_descolar_bola();
+    ref_desc[i] = posicao_para_descolar_bola(i);
     dlin_desc[i] = hypot(ref_desc[i].y() - pos.me[i].y(),
                          ref_desc[i].x() - pos.me[i].x());
     dang_desc[i] = ang_equiv2(ref_desc[i].theta() - pos.me[i].theta());
@@ -308,8 +307,8 @@ void Strategy::analisa_jogadores()
         fabs(pos.me[i].y()) < GOAL_FIELD_HEIGHT / 2.0;
 
     // Angulo do robo para a bola
-    thetapos_fut[i] = arc_tang(pos.future_ball.y() - pos.me[i].y(),
-                               pos.future_ball.x() - pos.me[i].x());
+    thetapos_fut[i] = arc_tang(pos.future_ball[i].y() - pos.me[i].y(),
+                               pos.future_ball[i].x() - pos.me[i].x());
     // posicao onde a bola bateria se seguisse rumo ao fundo do campo de
     // acordo com a reta que vem do robo
     ypos_fut[i] = mytan(thetapos_fut[i]) * (sinal * FIELD_WIDTH / 2.0 - pos.me[i].x()) + pos.me[i].y();
@@ -742,12 +741,12 @@ void Strategy::escolhe_funcoes()
         // neste caso, pode trocar de funcoes com o com_bola
         //uso da informação da pos.future_ball na LARC 2020 com jogos simulados e ajustes empiricos,
         //repensar o uso disso caso outras condições
-        bool sem_bola_atras_da_bola = sinal * pos.me[id_sem].x() < sinal * pos.future_ball.x();
-        bool com_bola_atras_da_bola = sinal * pos.me[id_com].x() < sinal * pos.future_ball.x();
-        double dist_com = hypot(pos.future_ball.x() - pos.me[id_com].x(),
-                                pos.future_ball.y() - pos.me[id_com].y());
-        double dist_sem = hypot(pos.future_ball.x() - pos.me[id_sem].x(),
-                                pos.future_ball.y() - pos.me[id_sem].y());
+        bool sem_bola_atras_da_bola = sinal * pos.me[id_sem].x() < sinal * pos.future_ball[id_sem].x();
+        bool com_bola_atras_da_bola = sinal * pos.me[id_com].x() < sinal * pos.future_ball[id_com].x();
+        double dist_com = hypot(pos.future_ball[id_com].x() - pos.me[id_com].x(),
+                                pos.future_ball[id_com].y() - pos.me[id_com].y());
+        double dist_sem = hypot(pos.future_ball[id_sem].x() - pos.me[id_sem].x(),
+                                pos.future_ball[id_sem].y() - pos.me[id_sem].y());
 
         if (sem_bola_atras_da_bola)
         {
@@ -759,15 +758,15 @@ void Strategy::escolhe_funcoes()
             // neste caso, troca de funcoes com o com_bola
             // deixando dist_com maior para evitar instabilidade caso ambas as distancias sejam muito proximas
             // e para insentivar a troca de atacante
-            if (dist_sem < dist_com*1.01)
+            if (dist_sem < dist_com * 1.01)
             {
               // sem_bola estah bem mais proximo da bola
 
               // Calcula se o robo com_bola esta alinhado
 
               // Angulo do robo para a bola
-              double thetapos_fut = arc_tang(pos.future_ball.y() - pos.me[id_com].y(),
-                                             pos.future_ball.x() - pos.me[id_com].x());
+              double thetapos_fut = arc_tang(pos.future_ball[id_com].y() - pos.me[id_com].y(),
+                                             pos.future_ball[id_com].x() - pos.me[id_com].x());
               // posicao onde a bola bateria se seguisse rumo ao fundo do campo de
               // acordo com a reta que vem do robo com_bola
               double ypos_fut = mytan(thetapos_fut) *
@@ -1193,14 +1192,6 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].x() = 1.0 * CIRCLE_RADIUS * cos(ang_circulo);
     ref.me[id].y() = 1.0 * CIRCLE_RADIUS * sin(ang_circulo);
     ref.me[id].theta() = ang_circulo + M_PI_2;
-
-    /*bypassControl[id] = true;
-      ref.me[id].x() = pos.me[id].x();
-      ref.me[id].y() = pos.me[id].y();
-      ref.me[id].theta() = pos.me[id].theta();
-      pwm.me[id].left = 0.0;
-      pwm.me[id].right = 0.0;
-	*/
   }
   break;
   case ISOLAR_BOLA:
@@ -1218,7 +1209,6 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].x() = pos.ball.x();
     ref.me[id].y() = pos.ball.y();
     ref.me[id].theta() = POSITION_UNDEFINED;
-    //x*p[] y*p[] t*p[]
     break;
   case LADO_AREA:
     ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
@@ -1262,8 +1252,9 @@ void Strategy::calcula_referencias(int id)
     }
     else
     {
-      ref.me[id].y() = pos.ball.y() +
-                       tan(pos.vel_ball.ang) * (ref.me[id].x() - pos.ball.x());
+      // ref.me[id].y() = pos.ball.y() +
+      //                  tan(pos.vel_ball.ang) * (ref.me[id].x() - pos.ball.x());
+      ref.me[id].y() = pos.future_ball[id].y();
     }
 
     if (fabs(ref.me[id].y()) > (GOAL_HEIGHT - ROBOT_EDGE / 2.0) / 2.0)
@@ -1282,7 +1273,6 @@ void Strategy::calcula_referencias(int id)
   case A_IR_MARCA:
     ref.me[id].x() = sinal * (PK_X - 1.5 * DIST_CHUTE);
     ref.me[id].y() = PK_Y;
-    // FALTA: fazer pequenos movimentos angulares para despistar
     ref.me[id].theta() = POSITION_UNDEFINED;
     break;
   case A_FREE_BALL:
@@ -1298,25 +1288,10 @@ void Strategy::calcula_referencias(int id)
   case A_DESCOLAR:
   {
     pwm.me[id] = descolar_parede(id);
-
-    // POS_ROBO ref;
-    // double ang = M_PI_2 / 2.0;
-    // if ((sinal * pos.me[id].y()) > 0.0)
-    // {
-    //   ref.x() = pos.me[id].x() + (ROBOT_EDGE / 2.0) * cos(pos.me[id].theta() - ang);
-    //   ref.y() = pos.me[id].y() + (ROBOT_EDGE / 2.0) * sin(pos.me[id].theta() - ang);
-    //   ref.theta() = pos.me[id].theta() - ang;
-    // }
-    // else
-    // {
-    //   ref.x() = pos.me[id].x() + (ROBOT_EDGE / 2.0) * cos(pos.me[id].theta() + ang);
-    //   ref.y() = pos.me[id].y() + (ROBOT_EDGE / 2.0) * sin(pos.me[id].theta() + ang);
-    //   ref.theta() = pos.me[id].theta() + ang;
-    // }
   }
   break;
   case A_POSICIONAR_PARA_DESCOLAR:
-    ref.me[id] = posicao_para_descolar_bola();
+    ref.me[id] = posicao_para_descolar_bola(id);
     break;
   case A_POSICIONAR_FRENTE_AREA:
     ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
@@ -1369,11 +1344,11 @@ void Strategy::calcula_referencias(int id)
     break;
   case A_ALINHAR_SEM_ORIENTACAO:
   case A_ALINHAR_GOL:
-    ref.me[id].theta() = arc_tang(-pos.future_ball.y(),
-                                  sinal * FIELD_WIDTH / 2.0 - pos.future_ball.x());
-    ref.me[id].x() = pos.future_ball.x() - DIST_CHUTE * cos(ref.me[id].theta());
-    ref.me[id].y() = pos.future_ball.y() - DIST_CHUTE * sin(ref.me[id].theta());
-    //ef.me[id].theta() = POSITION_UNDEFINED;
+    ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
+                                  sinal * FIELD_WIDTH / 2.0 - pos.future_ball[id].x());
+    ref.me[id].x() = pos.future_ball[id].x() - DIST_CHUTE * cos(ref.me[id].theta());
+    ref.me[id].y() = pos.future_ball[id].y() - DIST_CHUTE * sin(ref.me[id].theta());
+
     // testa se o alinhamento fica fora dos limites laterais
     if (fabs(ref.me[id].y()) > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
     {
@@ -1400,21 +1375,13 @@ void Strategy::calcula_referencias(int id)
     break;
   case A_LEVAR_BOLA:
   {
-    Coord2 future_ball_tmp;
-    double dt = 1.0; //usando a predição para 5 amostras na frente
-    // posição futura da bola
-    future_ball_tmp.x() = pos.ball.x() +
-                          pos.vel_ball.mod * cos(pos.vel_ball.ang) * dt;
-    future_ball_tmp.y() = pos.ball.y() +
-                          pos.vel_ball.mod * sin(pos.vel_ball.ang) * dt;
+    double ang = arc_tang(pos.future_ball[id].y() - pos.me[id].y(),
+                          pos.future_ball[id].x() - pos.me[id].x());
 
-    double ang = arc_tang(future_ball_tmp.y() - pos.me[id].y(),
-                          future_ball_tmp.x() - pos.me[id].x());
-
-    ref.me[id].theta() = arc_tang(-future_ball_tmp.y(),
-                                  sinal * (FIELD_WIDTH / 2.0 + 0.01) - future_ball_tmp.x());
-    ref.me[id].x() = future_ball_tmp.x() + (BALL_RADIUS)*cos(ang);
-    ref.me[id].y() = future_ball_tmp.y() + (BALL_RADIUS)*sin(ang);
+    ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
+                                  sinal * (FIELD_WIDTH / 2.0 + 0.01) - pos.future_ball[id].x());
+    ref.me[id].x() = pos.future_ball[id].x() + (BALL_RADIUS)*cos(ang);
+    ref.me[id].y() = pos.future_ball[id].y() + (BALL_RADIUS)*sin(ang);
     break;
   }
   case A_CHUTAR_GOL:
@@ -1424,21 +1391,17 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].theta() = POSITION_UNDEFINED;
     ref.me[id].x() = pos.ball.x() + FIELD_WIDTH * cos(ang);
     ref.me[id].y() = pos.ball.y() + FIELD_WIDTH * sin(ang);
-    // ref.me[id].x() = sinal * FIELD_WIDTH/2.0;
-    // ref.me[id].y() = mytan(ang) * (sinal * FIELD_WIDTH / 2.0 - pos.me[id].x()) + pos.me[id].y();
   }
   break;
 
   case D_NAO_ATRAPALHAR:
   {
-    //      cout << "inicio D_NAO_ATRAPALHAR\n"; cout.flush();
     R.iniciar();
     // Incluir bola para se afastar
     if (!pos.ball.undef())
     {
       R.incluirObstaculo(pos.ball);
     }
-    //      cout << "quase meio D_NAO_ATRAPALHAR\n"; cout.flush();
     // Incluir colegas para se afastar
     for (int i = 0; i < 3; i++)
     {
@@ -1447,7 +1410,6 @@ void Strategy::calcula_referencias(int id)
         R.incluirObstaculo(pos.me[i]);
       }
     }
-    //      cout << "quase quase meio D_NAO_ATRAPALHAR\n"; cout.flush();
     // Incluir referencias dos colegas para se afastar
     for (int i = 0; i < 3; i++)
     {
@@ -1486,15 +1448,15 @@ void Strategy::calcula_referencias(int id)
   }
 }
 
-POS_ROBO Strategy::posicao_para_descolar_bola()
+POS_ROBO Strategy::posicao_para_descolar_bola(int id)
 {
   // Calcula a origem do sistema de coordenadas da parede
   POS_ROBO origem = calcula_origem_parede();
 
   // Altera posicao da bola para o lado de cima e atacando para direita
   POS_BOLA new_pos_ball;
-  new_pos_ball.x() = sinal * pos.future_ball.x(); // sempre sinal>0
-  new_pos_ball.y() = fabs(pos.future_ball.y());   // sempre ybol>0
+  new_pos_ball.x() = sinal * pos.future_ball[id].x(); // sempre sinal>0
+  new_pos_ball.y() = fabs(pos.future_ball[id].y());   // sempre ybol>0
 
   // Calcula posição relativa da nova bola em relação à parede
   new_pos_ball = posicao_relativa(new_pos_ball, origem);
@@ -1589,20 +1551,6 @@ static POS_ROBO posicao_absoluta(POS_ROBO pos, POS_ROBO origem)
   new_pos_t.theta() = new_pos_rot.theta();
   return new_pos_t;
 }
-
-/*
-  static void repulsao(double &dx, double &dy, double dist, double ang)
-  {
-  if (dist < 0.0) {
-  dist = -dist;
-  ang += M_PI;
-  }
-  if (dist > 3*DIST_CHUTE) return;
-  double dist_repulsao = 3*DIST_CHUTE-dist;
-  dx += dist_repulsao*cos(ang);
-  dy += dist_repulsao*sin(ang);
-  }
-*/
 
 bool Strategy::detecta_gol_tabelado(int i)
 {
@@ -1718,13 +1666,15 @@ PWM_WHEEL Strategy::descolar_parede(int id)
 PWM_WHEEL Strategy::rodar_para_campo_adversario(int id)
 {
   PWM_WHEEL ret;
-  
-  if(pos.me[id].y() < pos.ball.y()) // bola acima do robo
+
+  if (pos.me[id].y() < pos.ball.y()) // bola acima do robo
   {
-    ret.left  = sinal * 1.0;
+    ret.left = sinal * 1.0;
     ret.right = sinal * -1.0;
-  }else{
-    ret.left  = sinal * -1.0;
+  }
+  else
+  {
+    ret.left = sinal * -1.0;
     ret.right = sinal * 1.0;
   }
   bypassControl[id] = true;
@@ -1733,7 +1683,7 @@ PWM_WHEEL Strategy::rodar_para_campo_adversario(int id)
 
 void Strategy::debugAction(int id)
 {
-  std::cout << "ROBO("<<id<<") | ACAO:";
+  std::cout << "ROBO(" << id << ") | ACAO:";
   switch (papeis.me[id].acao)
   {
   case ACTION::ESTACIONAR:
@@ -1799,7 +1749,7 @@ void Strategy::debugAction(int id)
 
   default:
     break;
-  }  
+  }
 
   std::cout << '\n';
 }

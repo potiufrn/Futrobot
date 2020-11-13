@@ -29,18 +29,18 @@ private:
   bool meu_na_area[3];
 
   bool meu_na_frente_bola[3],
-     meu_posicionado_descolar[3], meu_furou[3], meu_frente_area[3],
-     meu_alinhado_chutar[3], meu_bem_alinhado_chutar[3], bola_frente_y_do_meu[3],
-     meu_posicionado_isolar[3],
-     meu_alinhado_isolar[3], meu_bem_alinhado_isolar[3];
+      meu_posicionado_descolar[3], meu_furou[3], meu_frente_area[3],
+      meu_alinhado_chutar[3], meu_bem_alinhado_chutar[3], bola_frente_y_do_meu[3],
+      meu_posicionado_isolar[3],
+      meu_alinhado_isolar[3], meu_bem_alinhado_isolar[3];
   bool meu_alinhado_para_gol_tabelado[3];
   // Analise da situacao da bola
   bool bola_parada, bola_no_ataque, bola_area_lateral;
   // Soh um desses predicados pode ser true ao mesmo tempo
   bool bola_dentro_gol, bola_area_defesa, bola_frente_area, bola_lado_area,
-    bola_parede_fundo, bola_quina_fundo, bola_fundo, bola_parede_lateral,
-    bola_lateral, bola_quina_frente, bola_parede_frente, bola_frente,
-    bola_regiao_central;
+      bola_parede_fundo, bola_quina_fundo, bola_fundo, bola_parede_lateral,
+      bola_lateral, bola_quina_frente, bola_parede_frente, bola_frente,
+      bola_regiao_central;
 
   // Para determinar jogadores bloqueados
   unsigned contador_parado[3];
@@ -52,17 +52,18 @@ private:
   // Lado do campo
   int sinal;
   int estado_penalty;
- private:
+
+private:
   void analisa_jogadores();
   void analisa_adversarios();
   void analisa_bola();
   PWM_WHEEL descolar_parede(int id);
   PWM_WHEEL rodar_para_campo_adversario(int id);
-  POS_ROBO posicao_para_descolar_bola();
+  POS_ROBO posicao_para_descolar_bola(int id);
   POS_ROBO calcula_origem_parede();
-  
+
   bool detecta_gol_tabelado(int i);
-  
+
   void detecta_bloqueados();
   void escolhe_funcoes();
   void acao_goleiro(int id);
@@ -73,11 +74,11 @@ private:
   void calcula_referencias(int id);
 
   void debugAction(int id);
+
 public:
   Strategy(TEAM time, SIDE lado, GAME_MODE gameMode);
   ~Strategy();
   bool strategy();
-
 };
 
 #endif

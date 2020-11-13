@@ -51,8 +51,7 @@ void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
   ant.ball.x() = pos.ball.x() = 0.0;
   ant.ball.y() = pos.ball.y() = 0.0;
 
-  ant.future_ball.x() = pos.future_ball.x() = 0.0;
-  ant.future_ball.y() = pos.future_ball.y() = 0.0;
+  memset(ant.future_ball, 0, sizeof(POS_BOLA)*3);
 
   pos.vel_ball.mod = 0.0;
   pos.vel_ball.ang = 0.0;

@@ -3,9 +3,6 @@
 
 #include "futdata.h"
 
-//#define VEL_BOLA_PARADA 0.025 //CHECAR
-#define TEMPO_BOLA_FUTURA 0.1
-
 class Localization : public virtual FutData
 {
 private:
