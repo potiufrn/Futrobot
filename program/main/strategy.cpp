@@ -25,8 +25,8 @@ static const double MARGEM_HISTERESE(0.01); // 1cm
 static const unsigned COM_BOLA_DEFAULT(0);
 static const unsigned SEM_BOLA_DEFAULT(2);
 static const unsigned GOLEIRO_DEFAULT(1);
-static const unsigned LIMITE_CONT_PARADO(5 * FPS);  //equivalente a 5 segundos bloqueado/parado
-static const unsigned LIMITE_CONT_PERDIDO(FPS / 3); //equivalente a 5 segundos perdidos
+static const unsigned LIMITE_CONT_PARADO(2 * FPS);  //equivalente a 2 segundos bloqueado/parado
+static const unsigned LIMITE_CONT_PERDIDO(FPS / 3);
 
 // Classes locais
 class Repulsao
@@ -245,33 +245,23 @@ bool Strategy::strategy()
   // escolhe uma funcao (goleiro, com_bola, sem_bola) para cada jogador
   escolhe_funcoes();
 
-  /************* TESTE!! *********/
-  // papeis.me[0].funcao = COM_BOLA;
-  /******************************/
-
   // escolhe uma acao para cada jogador
   acao_goleiro(goleiro());
   acao_com_bola(com_bola());
+
   // A função de cálculo da acao do defensor deve ser chamada depois
   // do atacante e do goleiro, para que o defensor possa evitá-los
   acao_sem_bola(sem_bola());
-
-  /************* TESTE!! *********/
-  // papeis.me[2].acao = ESTACIONAR;
-  // papeis.me[1].acao = ESTACIONAR;
-  // debugAction(0);
-  /******************************/
 
   // calcula as referencias a partir das acoes
   for (i = 0; i < 3; i++)
   {
     calcula_referencias(i);
-    // debugAction(i);
   }
-
+  tratar_bloqueados();
+  
   // guarda dados atuais para o proximo ciclo
   ant = pos;
-
   return false;
 }
 
@@ -329,9 +319,8 @@ void Strategy::analisa_jogadores()
     meu_proximo_para_chute_rotativo[i] = hypot(pos.me[i].y() - pos.ball.y(), pos.me[i].x() - pos.ball.x()) <= (ROBOT_RADIUS + BALL_RADIUS);
 
     //robo apontando +- ao longo do eixo y
-    // meu_paralelo_ao_gol[i] = false;
-    meu_paralelo_ao_gol[i] = (fabs(pos.me[i].theta()) > ( M_PI_2 - 15.0*M_PI/180.0 )) &&
-                             (fabs(pos.me[i].theta()) < ( M_PI_2 + 15.0*M_PI/180.0 ));
+    meu_paralelo_ao_gol[i] = (fabs(pos.me[i].theta()) > ( M_PI_2 - 30.0*M_PI/180.0 )) &&
+                             (fabs(pos.me[i].theta()) < ( M_PI_2 + 30.0*M_PI/180.0 ));
 
     bola_frente_y_do_meu[i] =
         fabs(pos.me[i].y()) < fabs(pos.ball.y()) ||
@@ -729,8 +718,8 @@ void Strategy::escolhe_funcoes()
       if (bloqueado[id_com] || perdido[id_com])
       {
         // Inverte com_bola e sem_bola
-        papeis.me[id_com].funcao = SEM_BOLA;
-        papeis.me[id_sem].funcao = COM_BOLA;
+        // papeis.me[id_com].funcao = SEM_BOLA;
+        // papeis.me[id_sem].funcao = COM_BOLA;
       }
       else if (!bloqueado[id_sem] && !perdido[id_sem])
       {
@@ -758,7 +747,7 @@ void Strategy::escolhe_funcoes()
             // neste caso, troca de funcoes com o com_bola
             // deixando dist_com maior para evitar instabilidade caso ambas as distancias sejam muito proximas
             // e para insentivar a troca de atacante
-            if (dist_sem < dist_com * 1.01)
+            if (dist_sem < dist_com * 1.2)
             {
               // sem_bola estah bem mais proximo da bola
 
@@ -787,7 +776,7 @@ void Strategy::escolhe_funcoes()
           {
             // sem bola atras, com bola na frente da bola
             // Nesse caso, geralmente troca, a nao ser que o com_bola esteja bem mais perto (2.0)
-            if (dist_sem < 2.0 * dist_com)
+            if (dist_sem < 4.0 * dist_com)
             { //|| dist_sem < 4*ROBOT_RADIUS tiramos para o jogo das oitavas
               papeis.me[id_sem].funcao = COM_BOLA;
               papeis.me[id_com].funcao = SEM_BOLA;
@@ -1611,6 +1600,25 @@ PWM_WHEEL Strategy::girar_para_campo_adversario(int id)
   }
   bypassControl[id] = true;
   return ret;
+}
+
+void Strategy::tratar_bloqueados()
+{
+  static double th[3] = {0,0,0};
+  static const double step_th = 2.0*M_PI/(FPS);
+
+  for(int i = 0; i < 3; i++)
+  {
+    if(bloqueado[i])
+    {
+      ref.me[i].x() = pos.me[i].x() + (FIELD_WIDTH)*cos(th[i]);
+      ref.me[i].y() = pos.me[i].y() + (FIELD_WIDTH)*sin(th[i]);
+      ref.me[i].theta() = POSITION_UNDEFINED;    
+      th[i] += step_th;
+    }else{
+      th[i] = 0.0;
+    }
+  }
 }
 
 void Strategy::debugAction(int id)

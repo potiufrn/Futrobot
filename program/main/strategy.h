@@ -75,6 +75,7 @@ private:
   void acao_sem_bola(int id);
   void calcula_referencias(int id);
 
+  void tratar_bloqueados();
   void debugAction(int id);
   void acao_de_contornar(int id);
 public:
