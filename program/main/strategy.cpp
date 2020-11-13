@@ -266,7 +266,7 @@ bool Strategy::strategy()
   for (i = 0; i < 3; i++)
   {
     calcula_referencias(i);
-    debugAction(i);
+    // debugAction(i);
   }
 
   // guarda dados atuais para o proximo ciclo
@@ -329,7 +329,9 @@ void Strategy::analisa_jogadores()
     meu_proximo_para_chute_rotativo[i] = hypot(pos.me[i].y() - pos.ball.y(), pos.me[i].x() - pos.ball.x()) <= (ROBOT_RADIUS + BALL_RADIUS);
 
     //robo apontando +- ao longo do eixo y
-    meu_paralelo_ao_gol[i] = (fabs(pos.me[i].theta()) > M_PI * (20.0 / 180.0)) && (fabs(pos.me[i].theta()) < M_PI * ((20.0 + 90.0) / 180.0));
+    // meu_paralelo_ao_gol[i] = false;
+    meu_paralelo_ao_gol[i] = (fabs(pos.me[i].theta()) > ( M_PI_2 - 15.0*M_PI/180.0 )) &&
+                             (fabs(pos.me[i].theta()) < ( M_PI_2 + 15.0*M_PI/180.0 ));
 
     bola_frente_y_do_meu[i] =
         fabs(pos.me[i].y()) < fabs(pos.ball.y()) ||
@@ -1000,7 +1002,7 @@ void Strategy::acao_com_bola_play(int id)
   }
 
   //Empurrar a bola para o lado adversario e/ou tentar fazer o gol
-  if (meu_alinhado_chutar[id])
+  if (meu_alinhado_chutar[id] && !bola_area_defesa)
   {
     papeis.me[id].acao = A_CHUTAR_GOL;
   }
@@ -1234,40 +1236,28 @@ void Strategy::calcula_referencias(int id)
     break;
   case A_CONTORNAR:
   {
-
-    //um teste para tentar evitar empurrar a bola para tras ao contornar
-    if ((pos.me[id].y() > (pos.ball.y() + ROBOT_EDGE)) || (pos.me[id].y() < (pos.ball.y() - ROBOT_EDGE)))
+    // A referência "x" pode sair do campo,
+    // mas não tem pb porque ele muda de estado antes
+    ref.me[id].x() = pos.future_ball[id].x() - sinal * ROBOT_EDGE;
+    if (pos.future_ball[id].y() > pos.me[id].y())
     {
-      ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
-                                    sinal * (FIELD_WIDTH / 2.0 + 0.01) - pos.future_ball[id].x());
-      ref.me[id].x() = pos.future_ball[id].x() - sinal * (ROBOT_RADIUS);
-      ref.me[id].y() = pos.future_ball[id].y();
+      //esta abaixo da bola
+      ref.me[id].y() = pos.future_ball[id].y() - 2.0 * ROBOT_EDGE;
+      if (ref.me[id].y() < -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+      {
+        ref.me[id].y() = -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+      }
     }
     else
     {
-      // A referência "x" pode sair do campo,
-      // mas não tem pb porque ele muda de estado antes
-      ref.me[id].x() = pos.future_ball[id].x() - sinal * ROBOT_EDGE;
-      if (pos.future_ball[id].y() > pos.me[id].y())
+      //esta acima da bola
+      ref.me[id].y() = pos.future_ball[id].y() + 2.0 * ROBOT_EDGE;
+      if (ref.me[id].y() > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
       {
-        //esta abaixo da bola
-        ref.me[id].y() = pos.future_ball[id].y() - 2.0 * ROBOT_EDGE;
-        if (ref.me[id].y() < -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
-        {
-          ref.me[id].y() = -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
-        }
+        ref.me[id].y() = (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
       }
-      else
-      {
-        //esta acima da bola
-        ref.me[id].y() = pos.future_ball[id].y() + 2.0 * ROBOT_EDGE;
-        if (ref.me[id].y() > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
-        {
-          ref.me[id].y() = (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
-        }
-      }
-      ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
     }
+    ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
 
     //limita x para dentro do campo e fora da regiao do goleiro
     if (sinal * ref.me[id].x() < -(FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH) &&
