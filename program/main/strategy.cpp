@@ -534,7 +534,8 @@ void Strategy::analisa_bola()
             bola_fundo = bola_parede_lateral = bola_quina_frente =
                 bola_parede_frente = bola_frente = bola_regiao_central = false;
     return;
-  }
+  }  
+
   // Se chegou aqui, nao estah em nenhuma regiao "especial"
   bola_regiao_central = true;
 }
@@ -1227,7 +1228,7 @@ void Strategy::calcula_referencias(int id)
   {
     // A referência "x" pode sair do campo,
     // mas não tem pb porque ele muda de estado antes
-    ref.me[id].x() = pos.future_ball[id].x() - sinal * ROBOT_EDGE;
+    ref.me[id].x() = pos.future_ball[id].x() - sinal * 1.5 *ROBOT_EDGE;
     if (pos.future_ball[id].y() > pos.me[id].y())
     {
       //esta abaixo da bola
