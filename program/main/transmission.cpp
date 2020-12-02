@@ -47,6 +47,21 @@ static uint8_t pwm2Byte8bits(double pwm)
   uint8_t retorno = (uint8_t)(256.0 * pwm);
   return retorno;
 }
+
+static void pwm2Bitstream(const float &left_f, const float &right_f, uint8_t *bitstream)
+{
+  static uint16_t ref_b[2];
+
+  ref_b[0] = ((left_f > 0) << 15) | (uint16_t)(fabs(left_f) * 32767.0);
+  ref_b[1] = ((right_f > 0) << 15) | (uint16_t)(fabs(right_f) * 32767.0);
+
+  // bitstream[0] reservado para o HAED e CMD
+  bitstream[1] = (ref_b[0] & 0xFF00) >> 8;
+  bitstream[2] = (ref_b[0] & 0x00FF);
+  bitstream[3] = (ref_b[1] & 0xFF00) >> 8;
+  bitstream[4] = (ref_b[1] & 0x00FF);
+}
+
 #endif //#ifndef _TRANSMITION_BLUETOOTH_
 
 #endif //#ifdef _SO_SIMULADO_
@@ -119,63 +134,22 @@ bool Transmission::transmission()
     }
 #else //#ifndef _TRANSMITION_BLUETOOTH_
 #define LEN_BUFFER 3
-    static uint8_t dados[LEN_BUFFER];
+    //1 byte: HEAD | CMD |  2 bytes (pwm esquerdo) | 2 bytes (pwm motor direito)
+    static uint8_t bitstream[5];
+    // HEAD  | CMD
+    // 0xA0  | 0x0B. Para enviar sinal de controle (sem controlador)
+    bitstream[0] = 0xAB;
+    // 0xA0  | 0x0A. Para enviar setpoint (com controlador)
+    // bitstream[0] = 0xAA;
     for (int i = 0; i < 3; i++)
     {
-      // os seis primeiros bits do primeiro byte são 1010 10xx = 0xA8
-      dados[0] = 0xA8;
-      // o sétimo bit do primeiro byte é o sentido do motor left
-      // 1= para frente , 0= para trás.
-      if (pwm.me[i].left >= 0.0)
-      {
-        dados[0] += 0x02;
-      }
-      // o oitavo bit do primeiro byte é o sentido do motor right
-      // 1= para frente , 0= para trás.
-      if (pwm.me[i].right >= 0.0)
-      {
-        dados[0] += 0x01;
-      }
-      // o segundo byte é a velocidade do motor left
-      dados[1] = pwm2Byte8bits(pwm.me[i].left);
-      // o terceiro byte é a velocidade do motor right
-      dados[2] = pwm2Byte8bits(pwm.me[i].right);
+      pwm2Bitstream(pwm.me[i].left, pwm.me[i].right, bitstream);
 
-      if (btAction.sendBluetoothMessage(i, dados))
+      if( btAction.sendBluetoothMessage(i, bitstream, 5 * sizeof(uint8_t)) )
       {
-        //cerr << "Erro na escrita no dispositivo bluetooth " << i << endl;
+        cerr << "Erro na escrita no dispositivo bluetooth " << i << endl;
         //return true;
       }
-      /* // identificação Equipe poti 2017
-      if(i==0 && cont<1000)
-      {
-	  if(cont>=0)
-	  {
-	    x[cont]=pos.me[i].x();
-	    y[cont]=pos.me[i].y();
-	    tetta[cont]=pos.me[i].theta();
-	    pwmr[cont]=pwm.me[0].right;
-	    pwml[cont]=pwm.me[0].left;
-	  }
-	  cont++;
-
-      }
-      if(i==0 && cont==1000)
-      {
-	ofstream myfile("amostras.txt");
-	for(int ii=0;ii<1000;ii++)
-	{
-	   if(myfile.is_open())
-	   {
-	     myfile<<x[ii]<<'\t'<< y[ii]<<'\t'<< tetta[ii]<<'\t'<< pwmr[ii]<<'\t'<< pwml[ii]<<endl;
-
-	   }
-	 }
-         myfile.close();
-	cout<<"Feito arquivo"<<endl;
-         cont++;
-      }
-      */
     }
 #endif //#ifndef _TRANSMITION_BLUETOOTH_
 
