@@ -1,300 +1,107 @@
-/****************************************************************************
-** Form interface generated from reading ui file 'calibrador.ui'
-**
-** Created by User Interface Compiler
-**
-** WARNING! All changes made in this file will be lost!
-****************************************************************************/
-
 #ifndef CALIBRADOR_H
 #define CALIBRADOR_H
-#include <qmessagebox.h>
-#include <qvariant.h>
-#include <qpixmap.h>
-#include <qmainwindow.h>
-#include <qfiledialog.h>
-#include <qpixmap.h>
-#include <qtimer.h>
+
+#include <QMainWindow>
+#include <QFileDialog>
 #include <iostream>
-#include <qapplication.h>
-#include "pixmap_label.h"
 #include "calibratorprocessor.h"
 #include "variaveisglobais.h"
+#include "pixmap_label.h"
 
-class QVBoxLayout;
-class QHBoxLayout;
-class QGridLayout;
-class QSpacerItem;
-class QAction;
-class QActionGroup;
-class QToolBar;
-class QPopupMenu;
-class pixmap_label;
-class QSlider;
-class QCheckBox;
-class QWidgetStack;
-class QWidget;
-class QLabel;
-class QLCDNumber;
-class QSpinBox;
-class QPushButton;
-class QComboBox;
+#define NUM_AMOSTRAS 100 //amostrar para calcular a média do campo vazio
 
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+    class calibrador;
+}
+QT_END_NAMESPACE
 
 class calibrador : public QMainWindow
 {
     Q_OBJECT
 
 public:
-
-  calibrador( const char* name = 0, QWidget* parent = 0,  Qt::WindowFlags fl = Qt::WindowFlags());
+    calibrador(QWidget *parent = nullptr, /*const char* name = 0,*/ Qt::WindowFlags fl = Qt::WindowFlags());
     ~calibrador();
 
-    QSlider* sliderVOffset;
-    pixmap_label* pixmap_label1;
-    QSlider* sliderUOffset;
-    QCheckBox* checkShooting;
-    QWidgetStack* widgetStack1;
-    QWidget* tela1;
-    QLabel* labelRGB;
-    QLCDNumber* lcdRGB_R;
-    QLCDNumber* lcdRGB_G;
-    QLCDNumber* lcdRGB_B;
-    QLabel* labelHGP;
-    QLCDNumber* lcdHGP_H;
-    QLCDNumber* lcdHGP_P;
-    QLCDNumber* lcdHGP_G;
-    QLabel* labelX;
-    QLCDNumber* lcdX;
-    QLabel* labelY;
-    QLCDNumber* lcdY;
-    QCheckBox* checkExibirGrade;
-    QCheckBox* checkExibirImagemProcessada;
-    QLabel* labelLimiarPInf;
-    QSpinBox* spinLimiarPInf;
-    QSlider* sliderLimiarPInf;
-    QLabel* labelLimiarPSup;
-    QSpinBox* spinLimiarPSup;
-    QSlider* sliderLimiarPSup;
-    QPushButton* pushVoltarTela1;
-    QPushButton* pushAvancarTela1;
-    QWidget* tela2;
-    QLabel* textLabel1;
-    QComboBox* comboExibicao1;
-    QLabel* labelCor;
-    QComboBox* comboCores;
-    QLabel* labelHMin;
-    QSpinBox* spinHGP_Hmin;
-    QSlider* sliderHGP_Hmin;
-    QLabel* labelHMax;
-    QSpinBox* spinHGP_Hmax;
-    QSlider* sliderHGP_Hmax;
-    QLabel* labelPMin;
-    QSpinBox* spinHGP_Pmin;
-    QSlider* sliderHGP_Pmin;
-    QLabel* labelPMax;
-    QSpinBox* spinHGP_Pmax;
-    QSlider* sliderHGP_Pmax;
-    QLabel* labelGMin;
-    QSpinBox* spinHGP_Gmin;
-    QSlider* sliderHGP_Gmin;
-    QLabel* labelGMax;
-    QSpinBox* spinHGP_Gmax;
-    QSlider* sliderHGP_Gmax;
-    QLabel* labelX2;
-    QLCDNumber* lcdX2;
-    QLabel* labelRGB2;
-    QLCDNumber* lcdRGB_R2;
-    QLCDNumber* lcdRGB_G2;
-    QLCDNumber* lcdRGB_B2;
-    QLabel* labelY2;
-    QLCDNumber* lcdY2;
-    QLabel* labelHGP2;
-    QLCDNumber* lcdHGP_H2;
-    QLCDNumber* lcdHGP_P2;
-    QLCDNumber* lcdHGP_G2;
-    QPushButton* pushVoltarTela2;
-    QPushButton* pushFim;
-    QWidget* tela0;
-    QSpinBox* spinHue;
-    QLabel* textLabel1_2_2_2_2_2;
-    QSlider* sliderGamma;
-    QSlider* sliderBrightness;
-    QSpinBox* spinGamma;
-    QSpinBox* spinContrast;
-    QLabel* textLabel1_2_2_2_2_2_2;
-    QLabel* textLabel1_2_2_2_2;
-    QSlider* sliderContrast;
-    QLabel* textLabel1_2;
-    QLabel* textLabel1_2_2_2_2_2_4;
-    QSpinBox* spinGain;
-    QSlider* sliderGain;
-    QSlider* sliderSaturation;
-    QSlider* sliderHue;
+    pixmap_label *pixmap_label1;
+    bool carregaInterface();
 
-    QLabel*  labelExposure;
-    QSlider* sliderExposure;
-    QSpinBox* spinExposure;
+private slots:
 
-    QSpinBox* spinShutter;
-    QSpinBox* spinSaturation;
-    QSpinBox* spinBrightness;
-    QLabel* textLabel1_2_2;
-    QLabel* textLabel1_2_2_2_2_2_3;
-    QLabel* textLabel3;
-    QSlider* sliderShutter;
-    QPushButton* pushAvancarTela0;
-    QMenuBar *MenuBar;
-    QPopupMenu *File;
-    QPopupMenu *Image;
-    QPopupMenu *Camera;
-    QAction* fileNewAction;
-    QAction* fileOpenAction;
-    QAction* fileSaveAction;
-    QAction* fileSaveAsAction;
-    QAction* fileExitAction;
-    QAction* imageLoadAction;
-    QAction* imageSnapshotAction;
-    QAction* imageSaveAction;
-    QActionGroup* screenActionGroup;
-    QAction* screenSelectOneAction;
-    QAction* screenSelectTwoAction;
-    QAction* cameraLoad_ParametersAction;
-    QAction* cameraSave_ParametersAction;
-    QAction* cameraSave_Parameters_asAction;
-    QAction* cameraNewAction;
+    void setCamera();
 
-    virtual bool carregaInterface();
+    void showPage0();
+    void showPage1();
+    void showPage2();
 
-public slots:
-    virtual void fileNew();
-    virtual void fileOpen();
-    virtual void fileSave();
-    virtual void fileSaveAs();
-    virtual void fileExit();
-    virtual void cameraLoadParam();
-    virtual void cameraNew();
-    virtual void cameraSaveParam();
-    virtual void cameraSaveAsParam();
-    virtual void mouseMove( QPoint Point );
-    virtual void mousePress( QPoint Point );
-    virtual void mouseRelease( QPoint Point );
-    virtual void imageOpen();
-    virtual void imageSave();
-    virtual void sliderLimiarPInfValueChanged( int valor );
-    virtual void spinLimiarPInfValueChanged( int valor );
-    virtual void sliderLimiarPSupValueChanged( int valor );
-    virtual void spinLimiarPSupValueChanged( int valor );
-    virtual void BrightnessValueChanged( int valor );
-    virtual void ExposureValueChanged( int valor );
-    // virtual void ExposureAbsValueChanged( int valor );
+    void fileNew();
+    void fileOpen();
+    void fileSave();
+    void fileSaveAs();
+    void fileExit();
 
-    virtual void HueValueChanged( int valor );
-    virtual void SaturationValueChanged( int valor );
-    virtual void GammaValueChanged( int valor );
-    virtual void ShutterValueChanged( int valor );
-    virtual void GainValueChanged( int valor );
-    virtual void HMinValueChanged( int valor );
-    virtual void HMaxValueChanged( int valor );
-    virtual void GMinValueChanged( int valor );
-    virtual void GMaxValueChanged( int valor );
-    virtual void PMinValueChanged( int valor );
-    virtual void PMaxValueChanged( int valor );
-    virtual void atualizarLimitesHGP( int item );
-    virtual void atualizarCameraParam();
-    virtual void mostrarTela0();
-    virtual void mostrarTela1();
-    virtual void mostrarTela2();
-    virtual void novosParametrosCamera();
-    virtual void processarImagem();
-    virtual void setarModo();
-    virtual void ShootingChanged( bool value );
-    virtual void redesenharImagem();
-    virtual void atualizarParametrosCamera();
-    virtual void atualizarCamera();
-    virtual void changeUOffset( int new_offset );
-    virtual void changeVOffset( int new_offset );
+    void quitProgram();
 
-protected:
-    QHBoxLayout* layout55;
-    QHBoxLayout* layout54;
-    QVBoxLayout* layout53;
-    QSpacerItem* spacer25;
-    QVBoxLayout* layout48;
-    QHBoxLayout* layout47;
-    QVBoxLayout* layout45;
-    QSpacerItem* spacer9;
-    QSpacerItem* spacer9_2;
-    QSpacerItem* spacer11;
-    QVBoxLayout* layout9;
-    QHBoxLayout* layout1;
-    QHBoxLayout* layout2;
-    QHBoxLayout* layout7;
-    QSpacerItem* spacer3;
-    QHBoxLayout* layout8;
-    QSpacerItem* spacer4;
-    QHBoxLayout* layout31;
-    QSpacerItem* spacer8;
-    QVBoxLayout* layout10;
-    QVBoxLayout* layout27;
-    QHBoxLayout* layout26;
-    QSpacerItem* spacer5_2;
-    QHBoxLayout* layout14;
-    QVBoxLayout* layout29;
-    QHBoxLayout* layout28;
-    QSpacerItem* spacer5;
-    QHBoxLayout* layout15;
-    QHBoxLayout* layout43;
-    QVBoxLayout* layout44;
-    QSpacerItem* spacer45;
-    QSpacerItem* spacer48;
-    QHBoxLayout* layout43_2;
-    QSpacerItem* spacer41;
-    QHBoxLayout* layout55_2;
-    QSpacerItem* spacer32;
-    QHBoxLayout* layout67;
-    QSpacerItem* spacer42;
-    QHBoxLayout* layout56;
-    QSpacerItem* spacer33;
-    QVBoxLayout* layout123;
-    QHBoxLayout* layout58;
-    QSpacerItem* spacer34;
-    QHBoxLayout* layout106;
-    QHBoxLayout* layout60;
-    QSpacerItem* spacer36;
-    QHBoxLayout* layout105;
-    QHBoxLayout* layout122;
-    QSpacerItem* spacer39;
-    QHBoxLayout* layout121;
-    QHBoxLayout* layout64;
-    QSpacerItem* spacer40;
-    QHBoxLayout* layout98;
-    QHBoxLayout* layout61;
-    QSpacerItem* spacer37;
-    QHBoxLayout* layout104;
-    QHBoxLayout* layout62;
-    QSpacerItem* spacer38;
-    QHBoxLayout* layout103;
-    QHBoxLayout* layout73;
-    QSpacerItem* spacer43;
-    QHBoxLayout* layout69;
-    QHBoxLayout* layout71;
-    QHBoxLayout* layout42;
-    QSpacerItem* spacer44;
-    QHBoxLayout* layout70;
-    QHBoxLayout* layout41;
-    QHBoxLayout* layout76;
+    void setMode();
 
-protected slots:
-    virtual void languageChange();
+    void cameraLoadParam();
+    void cameraNew();
+    void cameraSaveParam();
+    void cameraSaveAsParam();
+
+    void mouseMove(QPoint Point);
+    void mousePress(QPoint Point);
+    void mouseRelease(QPoint Point);
+    void imageOpen();
+    void imageSave();
+
+    void sliderLimiarPInfValueChanged(int valor);
+    void spinLimiarPInfValueChanged(int valor);
+    void sliderLimiarPSupValueChanged(int valor);
+    void spinLimiarPSupValueChanged(int valor);
+
+    void BrightnessValueChanged(int valor);
+    void ExposureValueChanged(int valor);
+    void ContrastValueChanged(int valor);
+    void HueValueChanged(int valor);
+    void SaturationValueChanged(int valor);
+    void GammaValueChanged(int valor);
+    void ExposureAbsValueChanged(int valor);
+
+    void GainValueChanged(int valor);
+    void HMinValueChanged(int valor);
+    void HMaxValueChanged(int valor);
+    void GMinValueChanged(int valor);
+    void GMaxValueChanged(int valor);
+    void PMinValueChanged(int valor);
+    void PMaxValueChanged(int valor);
+
+    void atualizarLimitesHGP(int item);
+    void atualizarCameraParam();
+
+    void novosParametrosCamera();
+    void processarImagem();
+
+    void shootingChanged(bool value);
+    void redesenharImagem();
+    void atualizarParametrosCamera();
+    void atualizarCamera();
+
+    //void changeUOffset( int new_offset );
+    //virtual void changeVOffset( int new_offset );
 
 private:
+    Ui::calibrador *ui;
+    //CalibratorProcessor X; // Descomentar isso depois de retirar do main.cpp
+
     bool novosParametros, novosLimites;
     int ponto_selecionado;
     QString arquivo, arquivo_cameraParam;
     int MouseX, MouseY;
     PxRGB pixel;
-    int telaAtual;
+    //int telaAtual;
     QTimer *Timer;
     bool ponto_dragged;
     int R, G1, B, H, P, G2;
@@ -303,9 +110,7 @@ private:
 
     void init();
     void destroy();
-    virtual void atualizarDisplays();
-    virtual void atualizarLimitesP();
-
+    void atualizarDisplays();
+    void atualizarLimitesP();
 };
-
 #endif // CALIBRADOR_H

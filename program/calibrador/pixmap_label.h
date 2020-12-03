@@ -9,22 +9,23 @@
 #include <QMouseEvent>
 
 class pixmap_label : public QLabel{
-  Q_OBJECT;
-  private:
+    Q_OBJECT;
+private:
     QPoint mousePos;
     QPixmap PxMap;
-  public:
+public:
     pixmap_label( const char * name = 0, QWidget * parent = 0, Qt::WindowFlags f = 0);
     ~pixmap_label() {}
     void redesenhe();
     inline void loadFromData( const uchar * buf, uint len, const char * format){
-	     PxMap.loadFromData(buf,len,format);
+        PxMap.loadFromData(buf,len,format);
     }
-  signals:
+signals:
     void mouseMoved(QPoint);
     void mousePressed(QPoint);
     void mouseReleased(QPoint);
-  protected:
+
+protected:
     virtual void mouseMoveEvent(QMouseEvent *m);
     virtual void mousePressEvent(QMouseEvent *m);
     virtual void mouseReleaseEvent(QMouseEvent *m);
