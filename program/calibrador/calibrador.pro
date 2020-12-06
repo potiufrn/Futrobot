@@ -34,11 +34,11 @@ HEADERS += \
 FORMS += \
     calibrador.ui
 
-unix {
-  UI_DIR = .ui
-  MOC_DIR = .moc
-  OBJECTS_DIR = .obj
-}
+#unix {
+#  UI_DIR = .ui
+#  MOC_DIR = .moc
+#  OBJECTS_DIR = .obj
+#}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
