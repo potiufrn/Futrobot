@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I../../include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I.moc -I.ui -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I../../include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = calibrador1.0.0
-DISTDIR = /home/daniel/git/CBR/Futrobot/program/calibrador/.obj/calibrador1.0.0
+DISTDIR = /home/daniel/git/CBR/Futrobot/program/calibrador/.tmp/calibrador1.0.0
 LINK          = g++
 LFLAGS        = 
 LIBS          = $(SUBLIBS) -g ../dados_calibracao.o -L../../lib -lcamera -lmatrix -limagem /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Core.so /usr/lib/x86_64-linux-gnu/libGL.so -lpthread   
@@ -48,21 +48,21 @@ STRIP         = strip
 
 ####### Output directory
 
-OBJECTS_DIR   = .obj/
+OBJECTS_DIR   = ./
 
 ####### Files
 
 SOURCES       = main.cpp \
 		calibrador.cpp \
 		pixmap_label.cpp \
-		calibratorprocessor.cpp .moc/moc_calibrador.cpp \
-		.moc/moc_pixmap_label.cpp
-OBJECTS       = .obj/main.o \
-		.obj/calibrador.o \
-		.obj/pixmap_label.o \
-		.obj/calibratorprocessor.o \
-		.obj/moc_calibrador.o \
-		.obj/moc_pixmap_label.o
+		calibratorprocessor.cpp moc_calibrador.cpp \
+		moc_pixmap_label.cpp
+OBJECTS       = main.o \
+		calibrador.o \
+		pixmap_label.o \
+		calibratorprocessor.o \
+		moc_calibrador.o \
+		moc_pixmap_label.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -157,7 +157,7 @@ TARGET        = calibrador
 first: all
 ####### Build rules
 
-calibrador: .ui/ui_calibrador.h $(OBJECTS)  
+calibrador: ui_calibrador.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: calibrador.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -364,16 +364,16 @@ benchmark: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_predefs_make_all: .moc/moc_predefs.h
+compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
-	-$(DEL_FILE) .moc/moc_predefs.h
-.moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
-	g++ -pipe -g -std=gnu++11 -Wall -W -dM -E -o .moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+	-$(DEL_FILE) moc_predefs.h
+moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+	g++ -pipe -g -std=gnu++11 -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: .moc/moc_calibrador.cpp .moc/moc_pixmap_label.cpp
+compiler_moc_header_make_all: moc_calibrador.cpp moc_pixmap_label.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) .moc/moc_calibrador.cpp .moc/moc_pixmap_label.cpp
-.moc/moc_calibrador.cpp: calibrador.h \
+	-$(DEL_FILE) moc_calibrador.cpp moc_pixmap_label.cpp
+moc_calibrador.cpp: calibrador.h \
 		calibratorprocessor.h \
 		../../include/imagem.h \
 		../../include/matrix.h \
@@ -381,25 +381,25 @@ compiler_moc_header_clean:
 		../dados_calibracao.h \
 		variaveisglobais.h \
 		pixmap_label.h \
-		.moc/moc_predefs.h \
+		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/daniel/git/CBR/Futrobot/program/calibrador/.moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/daniel/git/CBR/Futrobot/program/calibrador -I/home/daniel/git/CBR/Futrobot/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include calibrador.h -o .moc/moc_calibrador.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/daniel/git/CBR/Futrobot/program/calibrador/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/daniel/git/CBR/Futrobot/program/calibrador -I/home/daniel/git/CBR/Futrobot/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include calibrador.h -o moc_calibrador.cpp
 
-.moc/moc_pixmap_label.cpp: pixmap_label.h \
-		.moc/moc_predefs.h \
+moc_pixmap_label.cpp: pixmap_label.h \
+		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/daniel/git/CBR/Futrobot/program/calibrador/.moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/daniel/git/CBR/Futrobot/program/calibrador -I/home/daniel/git/CBR/Futrobot/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include pixmap_label.h -o .moc/moc_pixmap_label.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/daniel/git/CBR/Futrobot/program/calibrador/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/daniel/git/CBR/Futrobot/program/calibrador -I/home/daniel/git/CBR/Futrobot/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/9 -I/usr/include/x86_64-linux-gnu/c++/9 -I/usr/include/c++/9/backward -I/usr/lib/gcc/x86_64-linux-gnu/9/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include pixmap_label.h -o moc_pixmap_label.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: .ui/ui_calibrador.h
+compiler_uic_make_all: ui_calibrador.h
 compiler_uic_clean:
-	-$(DEL_FILE) .ui/ui_calibrador.h
-.ui/ui_calibrador.h: calibrador.ui \
+	-$(DEL_FILE) ui_calibrador.h
+ui_calibrador.h: calibrador.ui \
 		/usr/lib/qt5/bin/uic
-	/usr/lib/qt5/bin/uic calibrador.ui -o .ui/ui_calibrador.h
+	/usr/lib/qt5/bin/uic calibrador.ui -o ui_calibrador.h
 
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
@@ -411,7 +411,7 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 
 ####### Compile
 
-.obj/main.o: main.cpp calibrador.h \
+main.o: main.cpp calibrador.h \
 		calibratorprocessor.h \
 		../../include/imagem.h \
 		../../include/matrix.h \
@@ -419,9 +419,9 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 		../dados_calibracao.h \
 		variaveisglobais.h \
 		pixmap_label.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/main.o main.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-.obj/calibrador.o: calibrador.cpp calibrador.h \
+calibrador.o: calibrador.cpp calibrador.h \
 		calibratorprocessor.h \
 		../../include/imagem.h \
 		../../include/matrix.h \
@@ -429,25 +429,25 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 		../dados_calibracao.h \
 		variaveisglobais.h \
 		pixmap_label.h \
-		.ui/ui_calibrador.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/calibrador.o calibrador.cpp
+		ui_calibrador.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o calibrador.o calibrador.cpp
 
-.obj/pixmap_label.o: pixmap_label.cpp pixmap_label.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/pixmap_label.o pixmap_label.cpp
+pixmap_label.o: pixmap_label.cpp pixmap_label.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pixmap_label.o pixmap_label.cpp
 
-.obj/calibratorprocessor.o: calibratorprocessor.cpp calibratorprocessor.h \
+calibratorprocessor.o: calibratorprocessor.cpp calibratorprocessor.h \
 		../../include/imagem.h \
 		../../include/matrix.h \
 		../../include/camera.h \
 		../dados_calibracao.h \
 		variaveisglobais.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/calibratorprocessor.o calibratorprocessor.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o calibratorprocessor.o calibratorprocessor.cpp
 
-.obj/moc_calibrador.o: .moc/moc_calibrador.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/moc_calibrador.o .moc/moc_calibrador.cpp
+moc_calibrador.o: moc_calibrador.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_calibrador.o moc_calibrador.cpp
 
-.obj/moc_pixmap_label.o: .moc/moc_pixmap_label.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o .obj/moc_pixmap_label.o .moc/moc_pixmap_label.cpp
+moc_pixmap_label.o: moc_pixmap_label.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_pixmap_label.o moc_pixmap_label.cpp
 
 ####### Install
 
