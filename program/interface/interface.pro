@@ -2,7 +2,11 @@
 # Project created by QtCreator 2010-08-10T09:28:53
 # -------------------------------------------------
 QT += opengl
-QT += widgets
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += c++11
+
 TARGET = interface
 TEMPLATE = app
 RESOURCES += resources.qrc

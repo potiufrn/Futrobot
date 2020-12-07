@@ -4,7 +4,7 @@ INSTALLDIR = ${BASEDIR}
 
 CC = g++
 CXX = g++
-CPPFLAGS = -Wall -O2 
+CPPFLAGS = -std=c++11 -Wall -O2 
 CFLAGS =
 LDFLAGS =
 LDLIBS = -O2 -lpthread

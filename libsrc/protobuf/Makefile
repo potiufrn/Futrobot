@@ -3,7 +3,7 @@ INSTALLDIR = ${BASEDIR}
 
 CC = g++
 CXX = g++
-CPPFLAGS = -Wall -O2 
+CPPFLAGS = -std=c++11 -Wall -O2 
 CFLAGS =
 LDFLAGS =	`pkg-config --cflags protobuf`
 LDLIBS = -O2 -lprotobuf	-lssocket `pkg-config --libs protobuf`
