@@ -69,4 +69,52 @@ static inline double sature(double value, double min, double max)
 
 //Função que gera um valor aleatório baseado na distribuição gaussiana
 double rnd_gauss(const double &med, const double &desv);
+
+//Função que gera um número aleatório -1, 0 ou 1
+static inline double rnd_maxmin(void)
+{
+  //srand(time(NULL));   //INICIALIZAR ANTES DE CHAMAR ESTA FUNCAO
+  int r = rand() % 3;
+  double aux = 0;
+
+  switch (r)
+  {
+  case 0:
+    aux = 0.0;
+    break;
+  case 1:
+    aux = 1.0;
+    break;
+  case 2:
+    aux = -1.0;
+    break;
+  default:
+    break;
+  }
+
+  return aux;
+}
+
+//Função que gera um número aleatório -1 ou 1
+static inline double rnd_maxmin2(void)
+{
+  //srand(time(NULL));   //INICIALIZAR ANTES DE CHAMAR ESTA FUNCAO
+  int r = rand() % 2;
+  double aux = 0;
+
+  switch (r)
+  {
+  case 0:
+    aux = 1.0;
+    break;
+  case 1:
+    aux = -1.0;
+    break;
+
+  default:
+    break;
+  }
+
+  return aux;
+}
 #endif

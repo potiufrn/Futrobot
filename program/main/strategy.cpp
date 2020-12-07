@@ -28,6 +28,11 @@ static const unsigned GOLEIRO_DEFAULT(1);
 static const unsigned LIMITE_CONT_PARADO(2 * FPS);  //equivalente a 2 segundos bloqueado/parado
 static const unsigned LIMITE_CONT_PERDIDO(FPS / 3);
 
+bool statebypassControl;
+static int contperiodo = 0;
+double pwm_l = rnd_maxmin2()*0.5;
+double pwm_r = rnd_maxmin2()*0.5;
+
 // Classes locais
 class Repulsao
 {
@@ -787,6 +792,25 @@ void Strategy::escolhe_funcoes()
       }
     }
     break;
+
+  case TEST_STATE:
+    // nesses casos, retorna a atribuicao de funcoes inicial
+    // Identificacao de atraso
+    papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
+    papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
+    papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
+    break;
+
+  case IDENTIFICATION_STATE:
+    // Identificacao do sistema
+    papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
+    papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
+    papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
+    break;
+
+  default:
+    break;
+
   }
 }
 
@@ -819,6 +843,16 @@ void Strategy::acao_goleiro(int id)
   case PLAY_STATE:
     acao_goleiro_play(id);
     break;
+
+  case TEST_STATE:
+    papeis.me[id].acao = TEST_ACTION;
+    break;
+  case IDENTIFICATION_STATE:
+    papeis.me[id].acao = IDENTIFICATION_ACTION;
+    break;
+
+  default:
+    break;    
   }
 }
 
@@ -933,6 +967,16 @@ void Strategy::acao_com_bola(int id)
   case PLAY_STATE:
     acao_com_bola_play(id);
     break;
+
+  case TEST_STATE:
+    papeis.me[id].acao = TEST_ACTION;
+    break;
+  case IDENTIFICATION_STATE:
+    papeis.me[id].acao = IDENTIFICATION_ACTION;
+    break;
+
+  default:
+    break;    
   }
 }
 
@@ -1053,6 +1097,16 @@ void Strategy::acao_sem_bola(int id)
   case PLAY_STATE:
     papeis.me[id].acao = D_NAO_ATRAPALHAR;
     break;
+
+  case TEST_STATE:
+    papeis.me[id].acao = TEST_ACTION;
+    break;
+  case IDENTIFICATION_STATE:
+    papeis.me[id].acao = IDENTIFICATION_ACTION;
+    break;
+
+  default:
+    break;    
   }
 }
 
@@ -1367,6 +1421,227 @@ void Strategy::calcula_referencias(int id)
     ref.me[id].y() = POSITION_UNDEFINED;
     ref.me[id].theta() = POSITION_UNDEFINED;
     break;
+
+    case TEST_ACTION:
+    {
+      //Fazer o teste de theta e l
+
+      // ref.me[id].theta() = POSITION_UNDEFINED;
+      // ref.me[id].x() = sinal*FIELD_WIDTH / 2.0-0.1;
+      // ref.me[id].y() = 0.0;
+
+      // //Fazer o teste de theta e l
+
+      // ref.me[id].theta() = M_PI_2;
+      // ref.me[id].x() = 0.0;
+      // ref.me[id].y() = CIRCLE_RADIUS;
+
+
+      //TESTE DE TEMPO DE ATRASO
+
+      bypassControl[id] = true;
+      // //ref.me[id].theta() = M_PI_2;
+      // pwm.me[id].left = 0.0;
+      // pwm.me[id].right = 0.5 ;
+
+      if(id==1)
+      {
+        //motor esquerdo
+        if(contperiodo<10)
+        {
+          pwm.me[id].left = 0.0;
+          pwm.me[id].right = 0.0;
+
+          contperiodo++;
+        }
+        else if(contperiodo<35)
+        {
+          pwm.me[id].left = 0.5;
+          pwm.me[id].right = 0.0;
+
+          contperiodo++;
+        }
+        else if(contperiodo<60)
+        {
+          pwm.me[id].left = 0.0;
+          pwm.me[id].right = 0.0;
+
+          contperiodo++;
+        }
+        else if(contperiodo<85)
+        {
+          pwm.me[id].left = -0.5;
+          pwm.me[id].right = 0.0;
+
+          contperiodo++;
+        }
+        else if(contperiodo<109)
+        {
+          pwm.me[id].left = 0.0;
+          pwm.me[id].right = 0.0;
+
+          contperiodo++;          
+        }
+        else
+        {
+          contperiodo = 0;
+        }
+
+
+
+        // motor direito
+        // if(contperiodo<10)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<35)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.5;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<60)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<85)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = -0.5;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<109)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
+
+        //   contperiodo++;          
+        // }
+        // else
+        // {
+        //   contperiodo = 0;
+        // }
+
+
+        // giro do robo
+        // if(contperiodo<10)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<35)
+        // {
+        //   pwm.me[id].left = 0.5;
+        //   pwm.me[id].right = -0.5;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<60)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<85)
+        // {
+        //   pwm.me[id].left = -0.5;
+        //   pwm.me[id].right = 0.5;
+
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<109)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
+
+        //   contperiodo++;          
+        // }
+        // else
+        // {
+        //   contperiodo = 0;
+        // }                    
+      }  
+
+        //cout << "ID " << id << " | contperiodo " << contperiodo << endl;
+        
+    }
+    break;
+
+    case IDENTIFICATION_ACTION:
+    {
+      //srand(time(NULL));
+
+      double distx, disty;
+      distx = sqrt(pow(pos.me[id].x(), 2.0));
+      disty = sqrt(pow(pos.me[id].y(), 2.0));
+
+      if ((distx > 2.0 || disty > 2.0))
+        break;
+
+      if ((distx > (FIELD_WIDTH / 2.0) - 0.2) || (disty > (FIELD_HEIGHT / 2.0) - 0.2))
+      {
+        statebypassControl = false;
+
+        ref.me[id].x() = 0.0;
+        ref.me[id].y() = 0.0;
+        ref.me[id].theta() = POSITION_UNDEFINED;
+      }
+      else
+      {
+        if((contperiodo%20)==0){
+          pwm_l = rnd_maxmin2()*0.5;
+        }
+        if (((contperiodo+10)%20)==0){
+          pwm_r = rnd_maxmin2()*0.5;
+        }
+
+        if(!statebypassControl)
+        {
+          if ((sqrt(pow(pos.me[id].x(), 2.0) + pow(pos.me[id].y(), 2.0))) < 0.05) //se o robo tiver dentro do circulo de raio menor que 5cm, entao controlbypass() = true
+          {
+            bypassControl[id] = true;
+            statebypassControl = true;
+
+            pwm.me[id].left  = pwm_l + rnd_maxmin()*0.1;
+            pwm.me[id].right = pwm_r + rnd_maxmin()*0.1;
+
+            //contperiodo++;
+          }
+          else
+          {
+            ref.me[id].x() = 0.0;
+            ref.me[id].y() = 0.0;
+            ref.me[id].theta() = POSITION_UNDEFINED;
+          }
+        }
+        else
+        {
+          bypassControl[id] = true;
+          pwm.me[id].left  = pwm_l + rnd_maxmin()*0.1;
+          pwm.me[id].right = pwm_r + rnd_maxmin()*0.1;
+
+          //contperiodo++;
+        }
+      }
+
+      contperiodo++;
+      //cout << pwm.me[id].left << " -- " << pwm.me[id].right << "--" << statebypassControl<< endl;
+    }
+      break;
+
+    default:
+      break;    
   }
 }
 

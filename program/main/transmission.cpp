@@ -3,17 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
+#include <string>
 #include "transmission.h"
 #include "../comunicacao.h"
-//static int cont=-100;
-//static double x[1000];
-//static double y[1000];
-//static double tetta[1000];
-//static double pwml[1000];
-//static double pwmr[1000];
 
-//const double treshold = 1.0/8.0;
-//const double limiarZero = 0.00781;
+//Variaveis para identificacao
+
+//#define TAM 110 //atraso
+//#define TAM 500
+#define TAM 1000
+static int IDROBO = 1;
+
+static int cont = 0;
+static double x[TAM];
+static double y[TAM];
+static double tetta[TAM];
+static double pwml[TAM];
+static double pwmr[TAM];
 
 using namespace ::std;
 
@@ -150,6 +156,45 @@ bool Transmission::transmission()
         cerr << "Erro na escrita no dispositivo bluetooth " << i << endl;
         //return true;
       }
+
+
+      // IDENTIFICACAO DE SISTEMA
+      if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
+      {
+        if (i == IDROBO && cont < TAM)
+        {
+          x[cont] = pos.me[i].x();
+          y[cont] = pos.me[i].y();
+          tetta[cont] = pos.me[i].theta();
+          pwmr[cont] = pwm.me[i].right;
+          pwml[cont] = pwm.me[i].left;
+          cont++;
+        }
+
+        if (i == IDROBO && cont == TAM)
+        {
+          setGameState(PAUSE_STATE);
+
+          string nome;
+          nome.append("amostras/identificacao/robo_");
+          nome.append(to_string(IDROBO));
+          nome.append("/robo_");
+          nome.append(to_string(IDROBO));
+          nome.append("_.txt");    
+
+          ofstream myfile(nome);
+          for (int ii = 0; ii < TAM; ii++)
+          {
+            if (myfile.is_open())
+            {
+              myfile << x[ii] << '\t' << y[ii] << '\t' << tetta[ii] << '\t' << pwmr[ii] << '\t' << pwml[ii] << endl;
+            }
+          }
+          myfile.close();
+          cout << "Arquivo feito!" << endl;
+          cont = 0;
+        }
+      }
     }
 #endif //#ifndef _TRANSMITION_BLUETOOTH_
 
@@ -174,6 +219,44 @@ bool Transmission::transmission()
     {
       std::cerr << "Falha ao enviar comando para o simulador!\n";
       return true;
+    }
+
+    // IDENTIFICACAO DE SISTEMA
+    if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
+    {
+      if (i == IDROBO && cont < TAM)
+      {
+        x[cont] = pos.me[i].x();
+        y[cont] = pos.me[i].y();
+        tetta[cont] = pos.me[i].theta();
+        pwmr[cont] = pwm.me[i].right;
+        pwml[cont] = pwm.me[i].left;
+        cont++;
+      }
+
+      if (i == IDROBO && cont == TAM)
+      {
+        setGameState(PAUSE_STATE);
+
+        string nome;
+        nome.append("amostras/identificacao/robo_");
+        nome.append(to_string(IDROBO));
+        nome.append("/robo_");
+        nome.append(to_string(IDROBO));
+        nome.append("_.txt");
+
+        ofstream myfile(nome);
+        for (int ii = 0; ii < TAM; ii++)
+        {
+          if (myfile.is_open())
+          {
+            myfile << x[ii] << '\t' << y[ii] << '\t' << tetta[ii] << '\t' << pwmr[ii] << '\t' << pwml[ii] << endl;
+          }
+        }
+        myfile.close();
+        cout << "Arquivo feito!" << endl;
+        cont = 0;
+      }
     }
   }
 

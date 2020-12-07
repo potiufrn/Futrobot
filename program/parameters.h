@@ -35,13 +35,13 @@
 #define IMAGE_WIDTH 640
 #define IMAGE_HEIGHT 480
 
-#define CAMERA_HEIGHT 2.10
+#define CAMERA_HEIGHT 1.93
 
 // Dimensões dos objetos (m)
 // Robô
 #define ROBOT_EDGE 0.075
 #define ROBOT_RADIUS (ROBOT_EDGE/sqrt(2.0))
-#define ROBOT_HEIGHT 0.075
+#define ROBOT_HEIGHT 0.0625 //0.075
 
 // Bola
 #define BALL_RADIUS 0.02135

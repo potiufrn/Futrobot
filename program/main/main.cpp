@@ -22,11 +22,14 @@ void print_menu_botoes()
   cout << "6 - INICIAL POSITION" << endl;
   cout << "7 - CELEBRATE" << endl;
   cout << "8 - PLAY" << endl;
+  cout << "9 - TEST" << endl;
+  cout << "0 - IDENTIFICATION" << endl;
   cout << ">> ";
 }
 
 int main(int argc, char **argv)
 {
+  srand(time(NULL));
 
   TEAM myTeam;
   SIDE mySide;
@@ -206,6 +209,12 @@ int main(int argc, char **argv)
       case '8':
         fut.setGameState(PLAY_STATE);
         break;
+      case '9':
+        fut.setGameState(TEST_STATE);
+        break;
+      case '0':
+        fut.setGameState(IDENTIFICATION_STATE);
+        break;        
       default:
         cout << "Funcao Invalida." << endl;
         break;

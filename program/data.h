@@ -118,7 +118,9 @@ enum GAME_STATE {
   FREEBALL_STATE, //5
   INICIALPOSITION_STATE, //6
   CELEBRATION_STATE,     //7
-  PLAY_STATE //8
+  PLAY_STATE, //8
+  TEST_STATE, //9
+  IDENTIFICATION_STATE //10  
 };
 //Variaveis necessarias para a simulacao
 
@@ -175,7 +177,7 @@ enum ACTION {
   // As acoes que servem para sem_bola e com_bola
   IR_MEIO_CAMPO=11, FORMAR_BARREIRA=12, CIRCULO_CENTRAL=13, COMEMORAR=14,
   // As acoes que servem para goleiro e com_bola
-  ISOLAR_BOLA=21, LADO_AREA=22, IR_BOLA=23, POS_PENALTY1=24, POS_PENALTY2=25,POS_PENALTY3=26,
+  ISOLAR_BOLA=21, LADO_AREA=22, IR_BOLA=23, POS_PENALTY1=24, POS_PENALTY2=25, POS_PENALTY3=26,
   // As acoes do goleiro
   G_DEFENDER=101, G_CENTRO_GOL=102,
   // As acoes do jogador com bola
@@ -188,8 +190,9 @@ enum ACTION {
   // As acoes do jogador sem bola
   D_NAO_ATRAPALHAR=301,
   // As acoes impossiveis
-  IMPOSSIVEL=-1, NAO_DEFINIDO=0
-
+  IMPOSSIVEL=-1, NAO_DEFINIDO=0,
+  // Acoes para todos os robos teste 
+  TEST_ACTION = 500, IDENTIFICATION_ACTION = 501
 };
 
 struct ROLE_JOGADOR {
