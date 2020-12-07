@@ -79,9 +79,6 @@ int main(int argc, char *argv[])
     //    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
     //    a.setPalette(darkPalette);
 
-
-    //a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-
     QObject::connect(&a, SIGNAL(aboutToQuit()), &w, SLOT(quitProgram()));
 
     //return a.exec();

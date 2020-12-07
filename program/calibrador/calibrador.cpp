@@ -226,7 +226,6 @@ bool calibrador::carregaInterface()
     for (unsigned i = 0; i < X.getNumCores(); i++)
     {
         ColorName = X.getNomeCor(i);
-        //cout << ColorName.toStdString() << endl;
         ui->combo_color->addItem(ColorName);
     }
 
@@ -276,8 +275,6 @@ void calibrador::showPage1()
     else
     {
         infoText = QString("Deseja realizar uma nova captura do campo Vazio ?");
-        // setarModo();
-        // return;
     }
 
     msgBox.setText("Captura do Campo Vazio");
@@ -300,8 +297,6 @@ void calibrador::showPage1()
         ui->bt_next_1->setText("Next");
         ui->check_viewimage->setEnabled(true);
     }
-
-    //setMode();
 }
 
 void calibrador::showPage2()
@@ -322,16 +317,16 @@ void calibrador::fileNew()
 
 void calibrador::fileOpen()
 {
-    cout << "---> Entrou em fileOpen()." << endl;
-
     QString text;
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setDirectory("../../etc");
-    fd->setFileMode(QFileDialog::ExistingFile);
-    fd->show();
-    if (fd->exec() == QDialog::Accepted)
+    QFileDialog fd(this);
+    fd.setDirectory("../../etc");
+    fd.setFileMode(QFileDialog::ExistingFile);
+    fd.setViewMode(QFileDialog::Detail);
+    fd.setAcceptMode(QFileDialog::AcceptOpen);
+    fd.show();
+    if (fd.exec() == QDialog::Accepted)
     {
-        text = fd->selectedFiles().at(0);
+        text = fd.selectedFiles().first();
         if (!text.isEmpty() && !X.fileOpen(text.toStdString().c_str()))
         {
             arquivo = text;
@@ -363,13 +358,15 @@ void calibrador::fileSave()
 void calibrador::fileSaveAs()
 {
     QString text;
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setDirectory("../../etc");
-    fd->setFileMode(QFileDialog::AnyFile);
-    fd->show();
-    if (fd->exec() == QDialog::Accepted)
+    QFileDialog fd(this);
+    fd.setDirectory("../../etc");
+    fd.setFileMode(QFileDialog::AnyFile);
+    fd.setViewMode(QFileDialog::Detail);
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    fd.show();
+    if (fd.exec() == QDialog::Accepted)
     {
-        text = fd->selectedFiles().at(0);
+        text = fd.selectedFiles().first();
         if (!text.isEmpty())
         {
             arquivo = text;
@@ -387,10 +384,7 @@ void calibrador::fileExit()
     //TODO: Exibir pop-up aqui, caso os parametros nao estejam salvos ainda.
 
     fileSaveAs();
-    //    X.terminar();
-    //    close();
-    QCoreApplication::quit();
-    //quitProgram();
+    quitProgram();
 }
 
 void calibrador::quitProgram()
@@ -462,13 +456,15 @@ void calibrador::setMode()
 void calibrador::cameraLoadParam()
 {
     QString text;
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setDirectory("../../etc");
-    fd->setFileMode(QFileDialog::ExistingFile);
-    fd->show();
-    if (fd->exec() == QDialog::Accepted)
+    QFileDialog fd(this);
+    fd.setDirectory("../../etc");
+    fd.setFileMode(QFileDialog::ExistingFile);
+    fd.setViewMode(QFileDialog::Detail);
+    fd.setAcceptMode(QFileDialog::AcceptOpen);
+    fd.show();
+    if (fd.exec() == QDialog::Accepted)
     {
-        text = fd->selectedFiles().at(0);
+        text = fd.selectedFiles().first();
         if (!text.isEmpty() && !X.loadCameraParam(text.toStdString().c_str()))
         {
             arquivo_cameraParam = text;
@@ -502,13 +498,15 @@ void calibrador::cameraSaveParam()
 void calibrador::cameraSaveAsParam()
 {
     QString text;
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setDirectory("../../etc");
-    fd->setFileMode(QFileDialog::AnyFile);
-    fd->show();
-    if (fd->exec() == QDialog::Accepted)
+    QFileDialog fd(this);
+    fd.setDirectory("../../etc");
+    fd.setFileMode(QFileDialog::AnyFile);
+    fd.setViewMode(QFileDialog::Detail);
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    fd.show();
+    if (fd.exec() == QDialog::Accepted)
     {
-        text = fd->selectedFiles().at(0);
+        text = fd.selectedFiles().first();
         if (!text.isEmpty() && !X.saveCameraParam(text.toStdString().c_str()))
         {
             arquivo_cameraParam = text;
@@ -523,12 +521,16 @@ void calibrador::cameraSaveAsParam()
 void calibrador::imageOpen()
 {
     QString text;
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setFilter(QDir::Dirs);
-    fd->show();
-    if (fd->exec() == QDialog::Accepted)
+    QFileDialog fd(this);
+    fd.setFilter(QDir::Dirs);
+    fd.setFileMode(QFileDialog::ExistingFile);
+    fd.setViewMode(QFileDialog::Detail);
+    fd.setNameFilter(tr("Images (*.png *.jpg *.xpm *.bmp *.ppm)"));
+    fd.setAcceptMode(QFileDialog::AcceptOpen);
+    fd.show();
+    if (fd.exec() == QDialog::Accepted)
     {
-        text = fd->selectedFiles().at(0);
+        text = fd.selectedFiles().first();
         if (X.loadImage(text.toStdString().c_str()))
         {
             //pop-up de erro!
@@ -540,12 +542,14 @@ void calibrador::imageOpen()
 void calibrador::imageSave()
 {
     QString text;
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setFileMode(QFileDialog::AnyFile);
-    fd->show();
-    if (fd->exec() == QDialog::Accepted)
+    QFileDialog fd(this);
+    fd.setFileMode(QFileDialog::AnyFile);
+    fd.setViewMode(QFileDialog::Detail);
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    fd.show();
+    if (fd.exec() == QDialog::Accepted)
     {
-        text = fd->selectedFiles().at(0);
+        text = fd.selectedFiles().first();
         if (!text.isEmpty())
         {
             X.saveImage(text.toStdString().c_str());
