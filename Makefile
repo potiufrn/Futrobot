@@ -14,9 +14,10 @@ makelibsrc:
 
 makeprograms:
 	cd program && ${MAKE}	clean && ${MAKE}
+	cd program/interface && qmake && ${MAKE} clean
 	cd program/main && ${MAKE}	clean && ${MAKE}
-	cd program/calibrador	&& ${MAKE}	clean && ${MAKE}
-	cd program/interface && ${MAKE}	
+	cd program/calibrador && qmake	&& ${MAKE}	clean && ${MAKE}
+	cd program/interface && ${MAKE}
 
 .PHONY: clean realclean
 
