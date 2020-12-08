@@ -1115,312 +1115,312 @@ void Strategy::calcula_referencias(int id)
   double ang_gol_penalty;
   switch (papeis.me[id].acao)
   {
-  case ESTACIONAR:
-    bypassControl[id] = true;
-    ref.me[id].x() = pos.me[id].x();
-    ref.me[id].y() = pos.me[id].y();
-    ref.me[id].theta() = POSITION_UNDEFINED; // pos.me.[id].theta();
-    pwm.me[id].left = 0.0;
-    pwm.me[id].right = 0.0;
+    case ESTACIONAR:
+      bypassControl[id] = true;
+      ref.me[id].x() = pos.me[id].x();
+      ref.me[id].y() = pos.me[id].y();
+      ref.me[id].theta() = POSITION_UNDEFINED; // pos.me.[id].theta();
+      pwm.me[id].left = 0.0;
+      pwm.me[id].right = 0.0;
+      break;
+    case IR_MEIO_CAMPO:
+      ref.me[id].x() = (getAdvantage() ? -sinal : sinal) * ROBOT_RADIUS;
+      ref.me[id].y() = (id == 0 ? 0.0 : (id == 1 ? +1.0 : -1.0) * (CIRCLE_RADIUS + ROBOT_RADIUS));
+      ref.me[id].theta() = POSITION_UNDEFINED; //0.0;
+      break;
+    case FORMAR_BARREIRA:
+      ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
+      ref.me[id].y() = (id == com_bola() ? ARC_HEIGHT / 2.0 + ROBOT_RADIUS : -(ARC_HEIGHT / 2.0 + ROBOT_RADIUS));
+      ref.me[id].theta() = M_PI_2;
+      break;
+    case CIRCULO_CENTRAL:
+      if (id == com_bola())
+      {
+        ref.me[id].x() = -sinal * (CIRCLE_RADIUS + ROBOT_RADIUS);
+        ref.me[id].y() = 0.0;
+        ref.me[id].theta() = 0.0;
+      }
+      else
+      {
+        ref.me[id].x() = -sinal * (CIRCLE_RADIUS + ROBOT_RADIUS) * 0.707;
+        ref.me[id].y() = (CIRCLE_RADIUS + ROBOT_RADIUS) * 0.707;
+        ref.me[id].theta() = POSITION_UNDEFINED;
+      }
+      break;
+    case COMEMORAR:
+    { // :-)
+
+      double tempo_volta = 3.0; // Uma volta em 5 segundos
+      double ang_circulo = ang_equiv(2.0 * M_PI * id_pos / (FPS * tempo_volta));
+      ang_circulo += id * 2.0 * M_PI / 3.0;
+      ref.me[id].x() = 1.0 * CIRCLE_RADIUS * cos(ang_circulo);
+      ref.me[id].y() = 1.0 * CIRCLE_RADIUS * sin(ang_circulo);
+      ref.me[id].theta() = ang_circulo + M_PI_2;
+    }
     break;
-  case IR_MEIO_CAMPO:
-    ref.me[id].x() = (getAdvantage() ? -sinal : sinal) * ROBOT_RADIUS;
-    ref.me[id].y() = (id == 0 ? 0.0 : (id == 1 ? +1.0 : -1.0) * (CIRCLE_RADIUS + ROBOT_RADIUS));
-    ref.me[id].theta() = POSITION_UNDEFINED; //0.0;
-    break;
-  case FORMAR_BARREIRA:
-    ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
-    ref.me[id].y() = (id == com_bola() ? ARC_HEIGHT / 2.0 + ROBOT_RADIUS : -(ARC_HEIGHT / 2.0 + ROBOT_RADIUS));
-    ref.me[id].theta() = M_PI_2;
-    break;
-  case CIRCULO_CENTRAL:
-    if (id == com_bola())
+    case ISOLAR_BOLA:
     {
-      ref.me[id].x() = -sinal * (CIRCLE_RADIUS + ROBOT_RADIUS);
+      double dist = hypot(pos.ball.y() - pos.me[id].y(),
+                          pos.ball.x() - pos.me[id].x());
+      double ang = arc_tang(pos.ball.y() - pos.me[id].y(),
+                            pos.ball.x() - pos.me[id].x());
+      ref.me[id].x() = pos.me[id].x() + (dist + DIST_CHUTE) * cos(ang);
+      ref.me[id].y() = pos.me[id].y() + (dist + DIST_CHUTE) * sin(ang);
+      ref.me[id].theta() = POSITION_UNDEFINED;
+    }
+    break;
+    case IR_BOLA:
+      ref.me[id].x() = pos.future_ball[id].x();
+      ref.me[id].y() = pos.future_ball[id].y();
+      ref.me[id].theta() = POSITION_UNDEFINED;
+      break;
+    case LADO_AREA:
+      ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
+      ref.me[id].y() = sgn(pos.me[id].y()) * //MELHORAR DEPOIS
+                      (GOAL_FIELD_HEIGHT / 2.0 + ROBOT_EDGE / 2.0);
+      ref.me[id].theta() = POSITION_UNDEFINED; // M_PI_2;
+      break;
+    case POS_PENALTY1:
+      // ref.me[id].x() = -sinal * ROBOT_EDGE / 2.0;
+      // ref.me[id].y() = CIRCLE_RADIUS - ROBOT_EDGE / 2.0;
+      // ref.me[id].theta() = (sinal > 0.0 ? -M_PI / 8.0 : -M_PI + M_PI / 8.0);
+
+      ref.me[id].x() = -sinal * (ROBOT_EDGE + ROBOT_EDGE / 2.0);
+      ref.me[id].y() = (FIELD_HEIGHT / 2.0 - 0.25);
+      ref.me[id].theta() = (sinal > 0.0 ? 0.0 : -M_PI);
+      break;
+    case POS_PENALTY2:
+      ang_gol_penalty = arc_tang(PK_Y - (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS),
+                                sinal * PK_X - sinal * FIELD_WIDTH / 2.0);
+      ref.me[id].x() = sinal * FIELD_WIDTH / 2.0 + ((FIELD_WIDTH / 2.0 - CIRCLE_RADIUS / 2.0) * cos(ang_gol_penalty));
+      ref.me[id].y() = (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS) + ((FIELD_WIDTH / 2.0 - CIRCLE_RADIUS / 2.0) * sin(ang_gol_penalty));
+      ref.me[id].theta() = ang_equiv(ang_gol_penalty + M_PI);
+      break;
+
+    case POS_PENALTY3:
+      ref.me[id].x() = sinal * (ROBOT_EDGE + ROBOT_EDGE / 2.0);
+      if (sinal == 1)
+        ref.me[id].y() = (com_bola() == id) ? -sinal * (FIELD_HEIGHT / 2.0 - 0.25) : sinal * (FIELD_HEIGHT / 2.0 - ROBOT_EDGE - 0.325);
+      else
+        ref.me[id].y() = (com_bola() == id) ? sinal * (FIELD_HEIGHT / 2.0 - 0.25) : -sinal * (FIELD_HEIGHT / 2.0 - ROBOT_EDGE - 0.325);
+      ref.me[id].theta() = (sinal > 0.0 ? 0.0 : -M_PI);
+      break;
+    case G_DEFENDER:
+      ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH / 2.0);
+      // Usar a estimativa de posição da bola qdo bola estiver rápida...
+      if (pos.vel_ball.mod < VEL_BOLA_LENTA ||
+          (mySide() == LEFT_SIDE && cos(pos.vel_ball.ang) >= 0.0) ||
+          (mySide() == RIGHT_SIDE && cos(pos.vel_ball.ang) <= 0.0))
+      {
+        ref.me[id].y() = pos.ball.y();
+      }
+      else
+      {
+        ref.me[id].y() = pos.ball.y() +
+                        tan(pos.vel_ball.ang) * (ref.me[id].x() - pos.ball.x());
+      }
+
+      if (fabs(ref.me[id].y()) > (GOAL_HEIGHT - ROBOT_EDGE / 2.0) / 2.0)
+      {
+        ref.me[id].y() = sgn(ref.me[id].y()) * (GOAL_HEIGHT - ROBOT_EDGE / 2.0) / 2.0;
+      }
+
+      ref.me[id].theta() = M_PI_2;
+
+      break;
+    case G_CENTRO_GOL:
+      ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH / 2.0);
+      ref.me[id].y() = 0.0;
+      ref.me[id].theta() = M_PI_2;
+      break;
+    case A_IR_MARCA:
+      ref.me[id].x() = sinal * (PK_X - 1.5 * DIST_CHUTE);
+      ref.me[id].y() = PK_Y;
+      ref.me[id].theta() = POSITION_UNDEFINED;
+      break;
+    case A_FREE_BALL:
+      ref.me[id].x() = sgn(pos.ball.x()) * FB_X - sinal * DIST_FB;
+      ref.me[id].y() = PK_Y;
+      ref.me[id].theta() = 0.0;
+      break;
+    case A_BOLA_CENTRO:
+      ref.me[id].x() = -sinal * 2.0 * ROBOT_RADIUS;
       ref.me[id].y() = 0.0;
       ref.me[id].theta() = 0.0;
-    }
-    else
+      break;
+    case A_DESCOLAR:
     {
-      ref.me[id].x() = -sinal * (CIRCLE_RADIUS + ROBOT_RADIUS) * 0.707;
-      ref.me[id].y() = (CIRCLE_RADIUS + ROBOT_RADIUS) * 0.707;
+      pwm.me[id] = descolar_parede(id);
+    }
+    break;
+    case A_POSICIONAR_PARA_DESCOLAR:
+      ref.me[id] = posicao_para_descolar_bola(id);
+      break;
+    case A_POSICIONAR_FRENTE_AREA:
+    {
+      ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
+      if (pos.ball.y() > 0.0)
+      {
+        //tenta isolar para cima (y>0)
+        ref.me[id].y() = pos.ball.y() - 2.0 * DIST_CHUTE;
+      }
+      else
+      {
+        //isola para baixo (y<0)
+        ref.me[id].y() = pos.ball.y() + 2.0 * DIST_CHUTE;
+      }
       ref.me[id].theta() = POSITION_UNDEFINED;
+      break;
     }
-    break;
-  case COMEMORAR:
-  { // :-)
-
-    double tempo_volta = 3.0; // Uma volta em 5 segundos
-    double ang_circulo = ang_equiv(2.0 * M_PI * id_pos / (FPS * tempo_volta));
-    ang_circulo += id * 2.0 * M_PI / 3.0;
-    ref.me[id].x() = 1.0 * CIRCLE_RADIUS * cos(ang_circulo);
-    ref.me[id].y() = 1.0 * CIRCLE_RADIUS * sin(ang_circulo);
-    ref.me[id].theta() = ang_circulo + M_PI_2;
-  }
-  break;
-  case ISOLAR_BOLA:
-  {
-    double dist = hypot(pos.ball.y() - pos.me[id].y(),
-                        pos.ball.x() - pos.me[id].x());
-    double ang = arc_tang(pos.ball.y() - pos.me[id].y(),
-                          pos.ball.x() - pos.me[id].x());
-    ref.me[id].x() = pos.me[id].x() + (dist + DIST_CHUTE) * cos(ang);
-    ref.me[id].y() = pos.me[id].y() + (dist + DIST_CHUTE) * sin(ang);
-    ref.me[id].theta() = POSITION_UNDEFINED;
-  }
-  break;
-  case IR_BOLA:
-    ref.me[id].x() = pos.future_ball[id].x();
-    ref.me[id].y() = pos.future_ball[id].y();
-    ref.me[id].theta() = POSITION_UNDEFINED;
-    break;
-  case LADO_AREA:
-    ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
-    ref.me[id].y() = sgn(pos.me[id].y()) * //MELHORAR DEPOIS
-                     (GOAL_FIELD_HEIGHT / 2.0 + ROBOT_EDGE / 2.0);
-    ref.me[id].theta() = POSITION_UNDEFINED; // M_PI_2;
-    break;
-  case POS_PENALTY1:
-    // ref.me[id].x() = -sinal * ROBOT_EDGE / 2.0;
-    // ref.me[id].y() = CIRCLE_RADIUS - ROBOT_EDGE / 2.0;
-    // ref.me[id].theta() = (sinal > 0.0 ? -M_PI / 8.0 : -M_PI + M_PI / 8.0);
-
-    ref.me[id].x() = -sinal * (ROBOT_EDGE + ROBOT_EDGE / 2.0);
-    ref.me[id].y() = (FIELD_HEIGHT / 2.0 - 0.25);
-    ref.me[id].theta() = (sinal > 0.0 ? 0.0 : -M_PI);
-    break;
-  case POS_PENALTY2:
-    ang_gol_penalty = arc_tang(PK_Y - (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS),
-                               sinal * PK_X - sinal * FIELD_WIDTH / 2.0);
-    ref.me[id].x() = sinal * FIELD_WIDTH / 2.0 + ((FIELD_WIDTH / 2.0 - CIRCLE_RADIUS / 2.0) * cos(ang_gol_penalty));
-    ref.me[id].y() = (GOAL_HEIGHT / 2.0 - 4.0 * BALL_RADIUS) + ((FIELD_WIDTH / 2.0 - CIRCLE_RADIUS / 2.0) * sin(ang_gol_penalty));
-    ref.me[id].theta() = ang_equiv(ang_gol_penalty + M_PI);
-    break;
-
-  case POS_PENALTY3:
-    ref.me[id].x() = sinal * (ROBOT_EDGE + ROBOT_EDGE / 2.0);
-    if (sinal == 1)
-      ref.me[id].y() = (com_bola() == id) ? -sinal * (FIELD_HEIGHT / 2.0 - 0.25) : sinal * (FIELD_HEIGHT / 2.0 - ROBOT_EDGE - 0.325);
-    else
-      ref.me[id].y() = (com_bola() == id) ? sinal * (FIELD_HEIGHT / 2.0 - 0.25) : -sinal * (FIELD_HEIGHT / 2.0 - ROBOT_EDGE - 0.325);
-    ref.me[id].theta() = (sinal > 0.0 ? 0.0 : -M_PI);
-    break;
-  case G_DEFENDER:
-    ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH / 2.0);
-    // Usar a estimativa de posição da bola qdo bola estiver rápida...
-    if (pos.vel_ball.mod < VEL_BOLA_LENTA ||
-        (mySide() == LEFT_SIDE && cos(pos.vel_ball.ang) >= 0.0) ||
-        (mySide() == RIGHT_SIDE && cos(pos.vel_ball.ang) <= 0.0))
+    case A_CONTORNAR_POR_DENTRO:
+      ref.me[id].x() = pos.future_ball[id].x() - sinal * DIST_CHUTE;
+      ref.me[id].y() = pos.future_ball[id].y() - sgn(pos.ball.y()) * (BALL_RADIUS + 1.5 * ROBOT_RADIUS);
+      ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
+      break;
+    case A_CONTORNAR:
     {
-      ref.me[id].y() = pos.ball.y();
-    }
-    else
-    {
-      ref.me[id].y() = pos.ball.y() +
-                       tan(pos.vel_ball.ang) * (ref.me[id].x() - pos.ball.x());
-    }
-
-    if (fabs(ref.me[id].y()) > (GOAL_HEIGHT - ROBOT_EDGE / 2.0) / 2.0)
-    {
-      ref.me[id].y() = sgn(ref.me[id].y()) * (GOAL_HEIGHT - ROBOT_EDGE / 2.0) / 2.0;
-    }
-
-    ref.me[id].theta() = M_PI_2;
-
-    break;
-  case G_CENTRO_GOL:
-    ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH / 2.0);
-    ref.me[id].y() = 0.0;
-    ref.me[id].theta() = M_PI_2;
-    break;
-  case A_IR_MARCA:
-    ref.me[id].x() = sinal * (PK_X - 1.5 * DIST_CHUTE);
-    ref.me[id].y() = PK_Y;
-    ref.me[id].theta() = POSITION_UNDEFINED;
-    break;
-  case A_FREE_BALL:
-    ref.me[id].x() = sgn(pos.ball.x()) * FB_X - sinal * DIST_FB;
-    ref.me[id].y() = PK_Y;
-    ref.me[id].theta() = 0.0;
-    break;
-  case A_BOLA_CENTRO:
-    ref.me[id].x() = -sinal * 2.0 * ROBOT_RADIUS;
-    ref.me[id].y() = 0.0;
-    ref.me[id].theta() = 0.0;
-    break;
-  case A_DESCOLAR:
-  {
-    pwm.me[id] = descolar_parede(id);
-  }
-  break;
-  case A_POSICIONAR_PARA_DESCOLAR:
-    ref.me[id] = posicao_para_descolar_bola(id);
-    break;
-  case A_POSICIONAR_FRENTE_AREA:
-  {
-    ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH - ROBOT_RADIUS);
-    if (pos.ball.y() > 0.0)
-    {
-      //tenta isolar para cima (y>0)
-      ref.me[id].y() = pos.ball.y() - 2.0 * DIST_CHUTE;
-    }
-    else
-    {
-      //isola para baixo (y<0)
-      ref.me[id].y() = pos.ball.y() + 2.0 * DIST_CHUTE;
-    }
-    ref.me[id].theta() = POSITION_UNDEFINED;
-    break;
-  }
-  case A_CONTORNAR_POR_DENTRO:
-    ref.me[id].x() = pos.future_ball[id].x() - sinal * DIST_CHUTE;
-    ref.me[id].y() = pos.future_ball[id].y() - sgn(pos.ball.y()) * (BALL_RADIUS + 1.5 * ROBOT_RADIUS);
-    ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
-    break;
-  case A_CONTORNAR:
-  {
-    // A referência "x" pode sair do campo,
-    // mas não tem pb porque ele muda de estado antes
-    ref.me[id].x() = pos.future_ball[id].x() - sinal * ROBOT_EDGE;
-    if (pos.future_ball[id].y() > pos.me[id].y())
-    {
-      //esta abaixo da bola
-      ref.me[id].y() = pos.future_ball[id].y() - 2.0 * ROBOT_EDGE;
-      if (ref.me[id].y() < -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+      // A referência "x" pode sair do campo,
+      // mas não tem pb porque ele muda de estado antes
+      ref.me[id].x() = pos.future_ball[id].x() - sinal * ROBOT_EDGE;
+      if (pos.future_ball[id].y() > pos.me[id].y())
       {
-        ref.me[id].y() = -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        //esta abaixo da bola
+        ref.me[id].y() = pos.future_ball[id].y() - 2.0 * ROBOT_EDGE;
+        if (ref.me[id].y() < -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+        {
+          ref.me[id].y() = -(FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        }
       }
-    }
-    else
-    {
-      //esta acima da bola
-      ref.me[id].y() = pos.future_ball[id].y() + 2.0 * ROBOT_EDGE;
-      if (ref.me[id].y() > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+      else
       {
-        ref.me[id].y() = (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        //esta acima da bola
+        ref.me[id].y() = pos.future_ball[id].y() + 2.0 * ROBOT_EDGE;
+        if (ref.me[id].y() > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+        {
+          ref.me[id].y() = (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+        }
       }
-    }
-    ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
+      ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI;
 
-    //limita x para dentro do campo e fora da regiao do goleiro
-    if (sinal * ref.me[id].x() < -(FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH) &&
-        fabs(ref.me[id].y()) < GOAL_FIELD_HEIGHT / 2.0)
+      //limita x para dentro do campo e fora da regiao do goleiro
+      if (sinal * ref.me[id].x() < -(FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH) &&
+          fabs(ref.me[id].y()) < GOAL_FIELD_HEIGHT / 2.0)
+      {
+        ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH);
+        ref.me[id].theta() = POSITION_UNDEFINED;
+      }
+
+      break;
+    }
+    case A_ALINHAR_SEM_ORIENTACAO:
+    case A_ALINHAR_GOL:
     {
-      ref.me[id].x() = -sinal * (FIELD_WIDTH / 2.0 - GOAL_FIELD_WIDTH);
+      ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
+                                    sinal * FIELD_WIDTH / 2.0 - pos.future_ball[id].x());
+      ref.me[id].x() = pos.future_ball[id].x() - DIST_CHUTE * cos(ref.me[id].theta());
+      ref.me[id].y() = pos.future_ball[id].y() - DIST_CHUTE * sin(ref.me[id].theta());
+
+      // testa se o alinhamento fica fora dos limites laterais
+      if (fabs(ref.me[id].y()) > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
+      {
+        ref.me[id].y() = sgn(ref.me[id].y()) * (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
+      }
+      // testa se o alinhamento fica fora dos limites de fundo
+      if (fabs(ref.me[id].x()) > (FIELD_WIDTH / 2.0 - ROBOT_RADIUS))
+      {
+        ref.me[id].x() = sgn(ref.me[id].x()) * (FIELD_WIDTH / 2.0 - ROBOT_RADIUS);
+      }
+      // testa se o alinhamento bate nas quinas
+      if (fabs(ref.me[id].y()) > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION) &&
+          fabs(ref.me[id].x()) > (FIELD_WIDTH / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION))
+      {
+        ref.me[id].x() = sgn(ref.me[id].x()) *
+                        (FIELD_WIDTH / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION / 2.0);
+        ref.me[id].y() = sgn(ref.me[id].y()) *
+                        (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION / 2.0);
+      }
+      if (papeis.me[id].acao == A_ALINHAR_SEM_ORIENTACAO)
+      {
+        ref.me[id].theta() = POSITION_UNDEFINED;
+      }
+      break;
+    }
+    case A_LEVAR_BOLA:
+    {
+      double ang = arc_tang(pos.future_ball[id].y() - pos.me[id].y(),
+                            pos.future_ball[id].x() - pos.me[id].x());
+
+      ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
+                                    sinal * (FIELD_WIDTH / 2.0 + 0.01) - pos.future_ball[id].x());
+      ref.me[id].x() = pos.future_ball[id].x() + (BALL_RADIUS)*cos(ang);
+      ref.me[id].y() = pos.future_ball[id].y() + (BALL_RADIUS)*sin(ang);
+      break;
+    }
+    case A_CHUTAR_GOL:
+    {
+      double ang = arc_tang(pos.ball.y() - pos.me[id].y(),
+                            pos.ball.x() - pos.me[id].x());
       ref.me[id].theta() = POSITION_UNDEFINED;
+      ref.me[id].x() = pos.ball.x() + FIELD_WIDTH * cos(ang);
+      ref.me[id].y() = pos.ball.y() + FIELD_WIDTH * sin(ang);
+      break;
     }
-
+    case A_GIRAR_PARA_FRENTE:
+    {
+      pwm.me[id] = girar_para_campo_adversario(id);
+      break;
+    }
+    case D_NAO_ATRAPALHAR:
+    {
+      R.iniciar();
+      // Incluir bola para se afastar
+      if (!pos.ball.undef())
+      {
+        R.incluirObstaculo(pos.ball);
+      }
+      // Incluir colegas para se afastar
+      for (int i = 0; i < 3; i++)
+      {
+        if (i != id && !pos.me[i].undef())
+        {
+          R.incluirObstaculo(pos.me[i]);
+        }
+      }
+      // Incluir referencias dos colegas para se afastar
+      for (int i = 0; i < 3; i++)
+      {
+        if (i != id && !ref.me[i].undef())
+        {
+          R.incluirObstaculo(ref.me[i]);
+        }
+      }
+      //ESCOLHA DA POSICAO PREFERENCIAL
+      POS_BOLA r;
+      if (sinal * pos.ball.x() < 0.0 ||
+          sinal * pos.me[com_bola()].x() < 0.0)
+      {
+        r.x() = pos.me[com_bola()].x() + sinal * DIST_CHUTE;
+        r.y() = 0.0;
+        r = R.calculaPosicao(r);
+      }
+      else
+      {
+        r.x() = pos.me[com_bola()].x() - sinal * DIST_CHUTE;
+        r.y() = 0.0;
+        r = R.calculaPosicao(r);
+      }
+      ref.me[id].x() = r.x() + sinal * (ROBOT_EDGE - DIST_CHUTE);
+      ref.me[id].y() = r.y();
+      ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI; //para apontar para o gol adversario
+    }
     break;
-  }
-  case A_ALINHAR_SEM_ORIENTACAO:
-  case A_ALINHAR_GOL:
-  {
-    ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
-                                  sinal * FIELD_WIDTH / 2.0 - pos.future_ball[id].x());
-    ref.me[id].x() = pos.future_ball[id].x() - DIST_CHUTE * cos(ref.me[id].theta());
-    ref.me[id].y() = pos.future_ball[id].y() - DIST_CHUTE * sin(ref.me[id].theta());
-
-    // testa se o alinhamento fica fora dos limites laterais
-    if (fabs(ref.me[id].y()) > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS))
-    {
-      ref.me[id].y() = sgn(ref.me[id].y()) * (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS);
-    }
-    // testa se o alinhamento fica fora dos limites de fundo
-    if (fabs(ref.me[id].x()) > (FIELD_WIDTH / 2.0 - ROBOT_RADIUS))
-    {
-      ref.me[id].x() = sgn(ref.me[id].x()) * (FIELD_WIDTH / 2.0 - ROBOT_RADIUS);
-    }
-    // testa se o alinhamento bate nas quinas
-    if (fabs(ref.me[id].y()) > (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION) &&
-        fabs(ref.me[id].x()) > (FIELD_WIDTH / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION))
-    {
-      ref.me[id].x() = sgn(ref.me[id].x()) *
-                       (FIELD_WIDTH / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION / 2.0);
-      ref.me[id].y() = sgn(ref.me[id].y()) *
-                       (FIELD_HEIGHT / 2.0 - ROBOT_RADIUS - CORNER_DIMENSION / 2.0);
-    }
-    if (papeis.me[id].acao == A_ALINHAR_SEM_ORIENTACAO)
-    {
+    case IMPOSSIVEL:
+      printf("Acao em situacao Impossivel foi chamada!\n");
+    case NAO_DEFINIDO:
+      ref.me[id].x() = POSITION_UNDEFINED;
+      ref.me[id].y() = POSITION_UNDEFINED;
       ref.me[id].theta() = POSITION_UNDEFINED;
-    }
-    break;
-  }
-  case A_LEVAR_BOLA:
-  {
-    double ang = arc_tang(pos.future_ball[id].y() - pos.me[id].y(),
-                          pos.future_ball[id].x() - pos.me[id].x());
-
-    ref.me[id].theta() = arc_tang(-pos.future_ball[id].y(),
-                                  sinal * (FIELD_WIDTH / 2.0 + 0.01) - pos.future_ball[id].x());
-    ref.me[id].x() = pos.future_ball[id].x() + (BALL_RADIUS)*cos(ang);
-    ref.me[id].y() = pos.future_ball[id].y() + (BALL_RADIUS)*sin(ang);
-    break;
-  }
-  case A_CHUTAR_GOL:
-  {
-    double ang = arc_tang(pos.ball.y() - pos.me[id].y(),
-                          pos.ball.x() - pos.me[id].x());
-    ref.me[id].theta() = POSITION_UNDEFINED;
-    ref.me[id].x() = pos.ball.x() + FIELD_WIDTH * cos(ang);
-    ref.me[id].y() = pos.ball.y() + FIELD_WIDTH * sin(ang);
-    break;
-  }
-  case A_GIRAR_PARA_FRENTE:
-  {
-    pwm.me[id] = girar_para_campo_adversario(id);
-    break;
-  }
-  case D_NAO_ATRAPALHAR:
-  {
-    R.iniciar();
-    // Incluir bola para se afastar
-    if (!pos.ball.undef())
-    {
-      R.incluirObstaculo(pos.ball);
-    }
-    // Incluir colegas para se afastar
-    for (int i = 0; i < 3; i++)
-    {
-      if (i != id && !pos.me[i].undef())
-      {
-        R.incluirObstaculo(pos.me[i]);
-      }
-    }
-    // Incluir referencias dos colegas para se afastar
-    for (int i = 0; i < 3; i++)
-    {
-      if (i != id && !ref.me[i].undef())
-      {
-        R.incluirObstaculo(ref.me[i]);
-      }
-    }
-    //ESCOLHA DA POSICAO PREFERENCIAL
-    POS_BOLA r;
-    if (sinal * pos.ball.x() < 0.0 ||
-        sinal * pos.me[com_bola()].x() < 0.0)
-    {
-      r.x() = pos.me[com_bola()].x() + sinal * DIST_CHUTE;
-      r.y() = 0.0;
-      r = R.calculaPosicao(r);
-    }
-    else
-    {
-      r.x() = pos.me[com_bola()].x() - sinal * DIST_CHUTE;
-      r.y() = 0.0;
-      r = R.calculaPosicao(r);
-    }
-    ref.me[id].x() = r.x() + sinal * (ROBOT_EDGE - DIST_CHUTE);
-    ref.me[id].y() = r.y();
-    ref.me[id].theta() = (sinal > 0) ? 0.0 : M_PI; //para apontar para o gol adversario
-  }
-  break;
-  case IMPOSSIVEL:
-    printf("Acao em situacao Impossivel foi chamada!\n");
-  case NAO_DEFINIDO:
-    ref.me[id].x() = POSITION_UNDEFINED;
-    ref.me[id].y() = POSITION_UNDEFINED;
-    ref.me[id].theta() = POSITION_UNDEFINED;
-    break;
+      break;
 
     case TEST_ACTION:
     {
@@ -1439,53 +1439,54 @@ void Strategy::calcula_referencias(int id)
 
       //TESTE DE TEMPO DE ATRASO
 
-      bypassControl[id] = true;
+      //bypassControl[id] = true;
+
       // //ref.me[id].theta() = M_PI_2;
       // pwm.me[id].left = 0.0;
       // pwm.me[id].right = 0.5 ;
 
-      if(id==1)
-      {
+      // if(id==1)
+      // {
         //motor esquerdo
-        if(contperiodo<10)
-        {
-          pwm.me[id].left = 0.0;
-          pwm.me[id].right = 0.0;
+        // if(contperiodo<10)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
 
-          contperiodo++;
-        }
-        else if(contperiodo<35)
-        {
-          pwm.me[id].left = 0.5;
-          pwm.me[id].right = 0.0;
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<35)
+        // {
+        //   pwm.me[id].left = 0.5;
+        //   pwm.me[id].right = 0.0;
 
-          contperiodo++;
-        }
-        else if(contperiodo<60)
-        {
-          pwm.me[id].left = 0.0;
-          pwm.me[id].right = 0.0;
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<60)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
 
-          contperiodo++;
-        }
-        else if(contperiodo<85)
-        {
-          pwm.me[id].left = -0.5;
-          pwm.me[id].right = 0.0;
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<85)
+        // {
+        //   pwm.me[id].left = -0.5;
+        //   pwm.me[id].right = 0.0;
 
-          contperiodo++;
-        }
-        else if(contperiodo<109)
-        {
-          pwm.me[id].left = 0.0;
-          pwm.me[id].right = 0.0;
+        //   contperiodo++;
+        // }
+        // else if(contperiodo<109)
+        // {
+        //   pwm.me[id].left = 0.0;
+        //   pwm.me[id].right = 0.0;
 
-          contperiodo++;          
-        }
-        else
-        {
-          contperiodo = 0;
-        }
+        //   contperiodo++;          
+        // }
+        // else
+        // {
+        //   contperiodo = 0;
+        // }
 
 
 
@@ -1571,9 +1572,14 @@ void Strategy::calcula_referencias(int id)
         // {
         //   contperiodo = 0;
         // }                    
-      }  
+      // }  
 
         //cout << "ID " << id << " | contperiodo " << contperiodo << endl;
+
+
+        ref.me[id].x() = 0.0;
+        ref.me[id].y() = 0.0;
+        ref.me[id].theta() = 0.0;
         
     }
     break;
@@ -1638,7 +1644,7 @@ void Strategy::calcula_referencias(int id)
       contperiodo++;
       //cout << pwm.me[id].left << " -- " << pwm.me[id].right << "--" << statebypassControl<< endl;
     }
-      break;
+    break;
 
     default:
       break;    

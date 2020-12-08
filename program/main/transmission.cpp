@@ -12,7 +12,7 @@
 //#define TAM 110 //atraso
 //#define TAM 500
 #define TAM 1000
-static int IDROBO = 1;
+static int IDROBO = 0;
 
 static int cont = 0;
 static double x[TAM];
@@ -153,13 +153,13 @@ bool Transmission::transmission()
 
       if( btAction.sendBluetoothMessage(i, bitstream, 5 * sizeof(uint8_t)) )
       {
-        cerr << "Erro na escrita no dispositivo bluetooth " << i << endl;
+        //cerr << "Erro na escrita no dispositivo bluetooth " << i << endl;
         //return true;
       }
 
 
       // IDENTIFICACAO DE SISTEMA
-      if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
+      if (gameState() == IDENTIFICATION_STATE /*|| gameState() == TEST_STATE*/)
       {
         if (i == IDROBO && cont < TAM)
         {
@@ -176,7 +176,9 @@ bool Transmission::transmission()
           setGameState(PAUSE_STATE);
 
           string nome;
-          nome.append("amostras/identificacao/robo_");
+          nome.append("amostras/identificacao/robo_novo_");
+          nome.append(to_string(FPS));
+          nome.append("_ncl/robo_");
           nome.append(to_string(IDROBO));
           nome.append("/robo_");
           nome.append(to_string(IDROBO));
@@ -222,7 +224,7 @@ bool Transmission::transmission()
     }
 
     // IDENTIFICACAO DE SISTEMA
-    if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
+    if (gameState() == IDENTIFICATION_STATE /*|| gameState() == TEST_STATE*/)
     {
       if (i == IDROBO && cont < TAM)
       {
@@ -239,7 +241,9 @@ bool Transmission::transmission()
         setGameState(PAUSE_STATE);
 
         string nome;
-        nome.append("amostras/identificacao/robo_");
+        nome.append("amostras/identificacao/robo_novo_");
+        nome.append(to_string(FPS));
+        nome.append("_ncl/robo_");
         nome.append(to_string(IDROBO));
         nome.append("/robo_");
         nome.append(to_string(IDROBO));
