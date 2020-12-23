@@ -318,21 +318,25 @@ bool Control::control()
       // controla na prática são os percentuais dos motores direito e
       // esquerdo.
 
+      // Constantes para o desacoplamento do controle
+      double d_ling = 1.0;
+      double d_ang = 1.0;      
+
       pwm.me[i].right = alpha_lin + alpha_ang;
       if (fabs(pwm.me[i].right) < PWM_ZERO)
         pwm.me[i].right = 0.0;
-      else if (pwm.me[i].right > 0.0)
-        pwm.me[i].right = pwm.me[i].right;
-      else
-        pwm.me[i].right = pwm.me[i].right;
+      // else if (pwm.me[i].right > 0.0)
+      //   pwm.me[i].right = pwm.me[i].right;
+      // else
+      //   pwm.me[i].right = pwm.me[i].right;
 
       pwm.me[i].left = alpha_lin - alpha_ang;
       if (fabs(pwm.me[i].left) < PWM_ZERO)
         pwm.me[i].left = 0.0;
-      else if (pwm.me[i].left > 0.0)
-        pwm.me[i].left = pwm.me[i].left;
-      else
-        pwm.me[i].left = pwm.me[i].left;
+      // else if (pwm.me[i].left > 0.0)
+      //   pwm.me[i].left = pwm.me[i].left;
+      // else
+      //   pwm.me[i].left = pwm.me[i].left;
     }
   }
   return false;
