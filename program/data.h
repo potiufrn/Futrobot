@@ -18,7 +18,7 @@
 // #define _SO_SIMULADO_
 #define MAX_DGRAM_SIZE 65536
 
-#define FPS 30
+#define FPS 100
 
 // Lados do Campo
 enum SIDE {
