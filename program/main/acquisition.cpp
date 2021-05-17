@@ -1127,10 +1127,10 @@ bool Acquisition::calculaMinhaPose(REGION regTeam,
     index = 0;
     break;
   case REG_COLOR_PINK:
-    index = 1;
+    index = 2;
     break;
   case REG_COLOR_GREEN:
-    index = 2;
+    index = 1;
     break;
   default:
     index = -1;
