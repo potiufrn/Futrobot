@@ -1614,7 +1614,7 @@ void Strategy::calcula_referencias(int id)
 
         if(!statebypassControl)
         {
-          if ((sqrt(pow(pos.me[id].x(), 2.0) + pow(pos.me[id].y(), 2.0))) < 0.05) //se o robo tiver dentro do circulo de raio menor que 5cm, entao controlbypass() = true
+          if ((sqrt(pow(pos.me[id].x(), 2.0) + pow(pos.me[id].y(), 2.0))) < 0.10) //se o robo tiver dentro do circulo de raio menor que 5cm, entao controlbypass() = true
           {
             bypassControl[id] = true;
             statebypassControl = true;
