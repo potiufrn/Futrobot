@@ -10,9 +10,10 @@
 //Variaveis para identificacao
 
 //#define TAM 110 //atraso
-//#define TAM 500
-#define TAM 1000
-static int IDROBO = 2;
+// #define TAM 500
+#define TAM 200
+// #define TAM 1000
+static int IDROBO = 1;
 
 static int cont = 0;
 static double x[TAM];
@@ -144,9 +145,9 @@ bool Transmission::transmission()
     static uint8_t bitstream[5];
     // HEAD  | CMD
     // 0xA0  | 0x0B. Para enviar sinal de controle (sem controlador)
-    // bitstream[0] = 0xAB;
+    bitstream[0] = 0xAB;
     // 0xA0  | 0x0A. Para enviar setpoint (com controlador)
-    bitstream[0] = 0xAA;
+    // bitstream[0] = 0xAA;
     for (int i = 0; i < 3; i++)
     {
       pwm2Bitstream(pwm.me[i].left, pwm.me[i].right, bitstream);
@@ -159,7 +160,7 @@ bool Transmission::transmission()
 
 
       // IDENTIFICACAO DE SISTEMA
-      if (gameState() == IDENTIFICATION_STATE /*|| gameState() == TEST_STATE*/)
+      if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
       {
         if (i == IDROBO && cont < TAM)
         {
@@ -176,11 +177,12 @@ bool Transmission::transmission()
           setGameState(PAUSE_STATE);
 
           string nome;
-          //nome.append("amostras/identificacao/robo_novo_");
-          nome.append("amostras/identificacao_controle_local/robo_novo_");
+          // nome.append("amostras/identificacao/robo_novo_");
+          // nome.append("amostras/identificacao_controle_local/robo_novo_");
+          nome.append("amostras/desacoplamento/robo_novo_");
           nome.append(to_string(FPS));
-          //nome.append("_ncl/robo_");
-          nome.append("_cl/robo_");
+          nome.append("_ncl/robo_");
+          // nome.append("_cl/robo_");
           nome.append(to_string(IDROBO));
           nome.append("/robo_");
           nome.append(to_string(IDROBO));
@@ -226,7 +228,7 @@ bool Transmission::transmission()
     }
 
     // IDENTIFICACAO DE SISTEMA
-    if (gameState() == IDENTIFICATION_STATE /*|| gameState() == TEST_STATE*/)
+    if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
     {
       if (i == IDROBO && cont < TAM)
       {
@@ -243,11 +245,12 @@ bool Transmission::transmission()
         setGameState(PAUSE_STATE);
 
         string nome;
-        //nome.append("amostras/identificacao/robo_novo_");
-        nome.append("amostras/identificacao_controle_local/robo_novo_");
+        // nome.append("amostras/identificacao/robo_novo_");
+        // nome.append("amostras/identificacao_controle_local/robo_novo_");
+        nome.append("amostras/desacoplamento/robo_novo_");
         nome.append(to_string(FPS));
-        //nome.append("_ncl/robo_");
-        nome.append("_cl/robo_");
+        nome.append("_ncl/robo_");
+        // nome.append("_cl/robo_");
         nome.append(to_string(IDROBO));
         nome.append("/robo_");
         nome.append(to_string(IDROBO));

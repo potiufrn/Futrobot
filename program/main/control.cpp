@@ -130,12 +130,21 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdang = 0.0;//0.0;
 
   // FPS 100
-  double klin = 1.5;
-  double tilin = 10000000.0; //10000;
+  // double klin = 1.5;
+  // double tilin = 10000000.0; //10000;
+  // double tdlin = 0.0;        //0.0;
+
+  // double kang = 0.10;
+  // double tiang = 10000000.0; //4.0
+  // double tdang = 0.0;        //0.0;
+
+  // FPS 100 corrigido
+  double klin = 1.3126;
+  double tilin = 100000; //10000;
   double tdlin = 0.0;        //0.0;
 
-  double kang = 0.10;
-  double tiang = 10000000.0; //4.0
+  double kang = 0.13613;
+  double tiang = 100000; //4.0
   double tdang = 0.0;        //0.0;
 
   //################################################################
@@ -319,10 +328,15 @@ bool Control::control()
       // esquerdo.
 
       // Constantes para o desacoplamento do controle
-      double d_ling = 1.0;
-      double d_ang = 1.0;      
 
-      pwm.me[i].right = alpha_lin + alpha_ang;
+      double D11 =  1.0188;
+      double D12 = -0.0779;
+      double D21 = -0.2462;
+      double D22 =  1.0188;      
+
+      pwm.me[i].right = D11*(alpha_lin + alpha_ang) + D12*(alpha_lin - alpha_ang);
+
+      // pwm.me[i].right = alpha_lin + alpha_ang;
       if (fabs(pwm.me[i].right) < PWM_ZERO)
         pwm.me[i].right = 0.0;
       // else if (pwm.me[i].right > 0.0)
@@ -330,7 +344,9 @@ bool Control::control()
       // else
       //   pwm.me[i].right = pwm.me[i].right;
 
-      pwm.me[i].left = alpha_lin - alpha_ang;
+      pwm.me[i].left = D21*(alpha_lin + alpha_ang) + D22*(alpha_lin - alpha_ang);
+
+      // pwm.me[i].left = alpha_lin - alpha_ang;
       if (fabs(pwm.me[i].left) < PWM_ZERO)
         pwm.me[i].left = 0.0;
       // else if (pwm.me[i].left > 0.0)

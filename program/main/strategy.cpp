@@ -1577,9 +1577,17 @@ void Strategy::calcula_referencias(int id)
         //cout << "ID " << id << " | contperiodo " << contperiodo << endl;
 
 
-        ref.me[id].x() = 0.0;
-        ref.me[id].y() = 0.0;
-        ref.me[id].theta() = 0.0;
+      // Referencias para o robo ir para o centro do campo.
+      // ref.me[id].x() = 0.0;
+      // ref.me[id].y() = 0.0;
+      // ref.me[id].theta() = 0.0;
+
+      // Testes de desacoplamento
+      // Linear
+      bypassControl[id] = true;
+      pwm.me[id].right =  0.2742;
+      pwm.me[id].left  = -0.3162;
+      
         
     }
     break;
