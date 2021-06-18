@@ -139,12 +139,12 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdang = 0.0;        //0.0;
 
   // FPS 100 corrigido
-  double klin = 1.3126;
-  double tilin = 100000; //10000;
+  double klin = 1.2;
+  double tilin = 21.5522; //10000;
   double tdlin = 0.0;        //0.0;
 
-  double kang = 0.13613;
-  double tiang = 100000; //4.0
+  double kang = 0.2;
+  double tiang = 14.2843; //4.0
   double tdang = 0.0;        //0.0;
 
   //################################################################
@@ -329,10 +329,17 @@ bool Control::control()
 
       // Constantes para o desacoplamento do controle
 
-      double D11 =  1.0188;
-      double D12 = -0.0779;
-      double D21 = -0.2462;
-      double D22 =  1.0188;      
+      double D11 =  1.0;
+      double D12 =  0.0;
+      double D21 =  0.0;
+      double D22 =  1.0;
+
+      if (i==2){
+        D11 =  1.0188;
+        D12 = -0.0779;
+        D21 = -0.2462;
+        D22 =  1.0188;
+      }      
 
       pwm.me[i].right = D11*(alpha_lin + alpha_ang) + D12*(alpha_lin - alpha_ang);
 
