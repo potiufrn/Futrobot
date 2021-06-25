@@ -1582,11 +1582,26 @@ void Strategy::calcula_referencias(int id)
       // ref.me[id].y() = 0.0;
       // ref.me[id].theta() = 0.0;
 
-      // Testes de desacoplamento
+
+      // ===========================================================
+
+      // TESTES DE CORREÇÃO DE ASSIMETRIA
       // Linear
-      bypassControl[id] = true;
-      pwm.me[id].right =  0.2742;
-      pwm.me[id].left  = -0.3162;
+      // bypassControl[id] = true;
+      // pwm.me[id].right =  0.2742;
+      // pwm.me[id].left  = -0.3162;
+
+
+
+      // TESTE LINEAR
+      ref.me[id].theta() = 0.0;
+      ref.me[id].x() = sinal*FIELD_WIDTH / 2.0-0.1;
+      ref.me[id].y() = 0.0;    
+
+
+      // TESTE ANGULAR - desliga o alfa_lin=0.0 do controle
+
+
       
         
     }

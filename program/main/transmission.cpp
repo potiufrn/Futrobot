@@ -11,9 +11,9 @@
 
 //#define TAM 110 //atraso
 // #define TAM 500
-#define TAM 200
+#define TAM 300
 // #define TAM 1000
-static int IDROBO = 1;
+static int IDROBO = 2;
 
 static int cont = 0;
 static double x[TAM];
@@ -179,7 +179,7 @@ bool Transmission::transmission()
           string nome;
           // nome.append("amostras/identificacao/robo_novo_");
           // nome.append("amostras/identificacao_controle_local/robo_novo_");
-          nome.append("amostras/desacoplamento/robo_novo_");
+          nome.append("amostras/preditorsmith/robo_novo_");
           nome.append(to_string(FPS));
           nome.append("_ncl/robo_");
           // nome.append("_cl/robo_");
@@ -247,7 +247,7 @@ bool Transmission::transmission()
         string nome;
         // nome.append("amostras/identificacao/robo_novo_");
         // nome.append("amostras/identificacao_controle_local/robo_novo_");
-        nome.append("amostras/desacoplamento/robo_novo_");
+        nome.append("amostras/preditorsmith/robo_novo_");
         nome.append(to_string(FPS));
         nome.append("_ncl/robo_");
         // nome.append("_cl/robo_");

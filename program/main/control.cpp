@@ -198,22 +198,22 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdang = 0.0;//0.0;
 
   // FPS 100
-  // double klin = 1.5;
-  // double tilin = 10000000.0; //10000;
-  // double tdlin = 0.0;        //0.0;
-
-  // double kang = 0.10;
-  // double tiang = 10000000.0; //4.0
-  // double tdang = 0.0;        //0.0;
-
-  // FPS 100 corrigido
-  double klin = 1.2;
-  double tilin = 21.5522; //10000;
+  double klin = 1.5;
+  double tilin = 10000000.0; //10000;
   double tdlin = 0.0;        //0.0;
 
-  double kang = 0.2;
-  double tiang = 14.2843; //4.0
+  double kang = 0.10;
+  double tiang = 10000000.0; //4.0
   double tdang = 0.0;        //0.0;
+
+  // FPS 100 corrigido
+  // double klin = 1.2;
+  // double tilin = 21.5522; //10000;
+  // double tdlin = 0.0;        //0.0;
+
+  // double kang = 0.2;
+  // double tiang = 14.2843; //4.0
+  // double tdang = 0.0;        //0.0;
 
 
   for (int i = 0; i < 3; i++)
