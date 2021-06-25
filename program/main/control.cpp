@@ -410,6 +410,10 @@ bool Control::control()
         }
       }
 
+      // Predição
+      pslin[i].predicao(alpha_lin);
+      psang[i].predicao(alpha_ang);
+
       // Cálculo dos percentuais dos motores das rodas. Os valores
       // "alpha_ang" e "alpha_lin" são puramente teóricas, pois o que se
       // controla na prática são os percentuais dos motores direito e
@@ -435,10 +439,6 @@ bool Control::control()
 
       if (fabs(pwm.me[i].left) < PWM_ZERO)
         pwm.me[i].left = 0.0;
-
-      pslin[i].predicao(alpha_lin);
-      psang[i].predicao(alpha_ang);
-
     }
   }
   return false;
