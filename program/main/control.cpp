@@ -45,6 +45,74 @@ void PID::reset()
   D_ant = 0.0;
 }
 
+double PreditorSmith::predicao(double uatual)
+{
+    if(enable)
+    {
+         u[ORDEM-1]        = uatual;
+        ua[ORDEM+ATRASO-1] = uatual;
+
+         y[ORDEM] =  -(c-1.0)*y[ORDEM-1] +  c*y[ORDEM-2] +  a*u[ORDEM-1] +  b*u[ORDEM-2];
+        ya[ORDEM] = -(c-1.0)*ya[ORDEM-1] + c*ya[ORDEM-2] + a*ua[ORDEM-1] + b*ua[ORDEM-2];
+
+        for(int k=0; k<ORDEM; k++)
+        {
+             y[k] =  y[k+1];
+            ya[k] = ya[k+1];
+             u[k] =  u[k+1];
+        }
+
+        for(int k=0; k<ORDEM+ATRASO; k++)
+            ua[k] = ua[k+1];
+
+        predicao_old = y[ORDEM] - ya[ORDEM];
+
+        return predicao_old;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+double PreditorSmith::getPredicao(){
+  return predicao_old;
+}
+
+void PreditorSmith::fixa_coeficientes(double a, double b, double c)
+{
+    this->a = a;
+    this->b = b;
+    this->c = c;
+}
+
+void PreditorSmith::reset()
+{
+    for(int i=0; i<ORDEM+1; i++)
+    {
+         y[i] = 0.0;
+         u[i] = 0.0;
+        ya[i] = 0.0;
+    }
+
+    for(int i=0; i<ORDEM+1+ATRASO; i++)
+    {
+        ua[i] = 0.0;
+    }
+
+    predicao_old = 0.0;
+}
+
+void PreditorSmith::enabled(bool en)
+{
+    this->enable = en;
+}
+
+PreditorSmith::~PreditorSmith()
+{
+    //dtor
+}
+
 Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side, gameMode)
 {
   // Quer ou não o controle de orientação
@@ -147,8 +215,6 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   double tiang = 14.2843; //4.0
   double tdang = 0.0;        //0.0;
 
-  //################################################################
-  //################################################################
 
   for (int i = 0; i < 3; i++)
   {
@@ -156,6 +222,24 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
     sentidoGiro[i] = 0;
     lin[i].fixa_constantes(klin, tilin, tdlin, 20);
     ang[i].fixa_constantes(kang, tiang, tdang, 20);
+  }
+
+  //########### CONSTANTES DO PREDITOR DE SMITH ####################
+  //################################################################
+
+  // Modelo do robô 2
+  double a2lin =  0.001428014642213;
+  double b2lin =  0.001369750324523;
+  double c2lin = -0.882510689982987;
+
+  double a2ang =  0.046746827036809;
+  double b2ang =  0.043234910129821;
+  double c2ang = -0.791053522343057;
+
+  for (int i = 0; i < 3; i++)
+  {
+    pslin[i].fixa_coeficientes(a2lin,b2lin,c2lin);
+    psang[i].fixa_coeficientes(a2ang,b2ang,c2ang);
   }
 }
 
@@ -179,6 +263,11 @@ bool Control::control()
   double distancia, beta, beta2, gama, xref, yref,
       erro_ang, erro_ang2, erro_lin, alpha_lin, alpha_ang;
   //bool controle_orientacao;
+
+  double D11 =  1.0;
+  double D12 =  0.0;
+  double D21 =  0.0;
+  double D22 =  1.0;
 
   for (int i = 0; i < 3; i++)
   {
@@ -245,8 +334,7 @@ bool Control::control()
             beta2 = beta;
           }
           erro_ang = ang_equiv(beta2 - pos.me[i].theta());
-          erro_lin = distancia * cos(erro_ang);
-          //erro_lin = 0.0;
+          erro_lin = distancia * cos(erro_ang) - pslin[i].getPredicao();
         }
         else
         {
@@ -267,7 +355,7 @@ bool Control::control()
         }
         // Calcula o sentido mais curto para girar
         // Na medida do possível, mantém a mesma direção de giro anterior
-        erro_ang2 = ang_equiv2(erro_ang);
+        erro_ang2 = ang_equiv2(erro_ang) - psang[i].getPredicao();
 
         if (fabs(erro_ang2) > M_PI_4 && sentidoGiro[i] * erro_ang2 < 0.0)
         {
@@ -322,17 +410,16 @@ bool Control::control()
         }
       }
 
+      // Predição
+      pslin[i].predicao(alpha_lin);
+      psang[i].predicao(alpha_ang);
+
       // Cálculo dos percentuais dos motores das rodas. Os valores
       // "alpha_ang" e "alpha_lin" são puramente teóricas, pois o que se
       // controla na prática são os percentuais dos motores direito e
       // esquerdo.
 
       // Constantes para o desacoplamento do controle
-
-      double D11 =  1.0;
-      double D12 =  0.0;
-      double D21 =  0.0;
-      double D22 =  1.0;
 
       if (i==2){
         D11 =  1.0188;
@@ -342,24 +429,16 @@ bool Control::control()
       }      
 
       pwm.me[i].right = D11*(alpha_lin + alpha_ang) + D12*(alpha_lin - alpha_ang);
-
       // pwm.me[i].right = alpha_lin + alpha_ang;
+
       if (fabs(pwm.me[i].right) < PWM_ZERO)
         pwm.me[i].right = 0.0;
-      // else if (pwm.me[i].right > 0.0)
-      //   pwm.me[i].right = pwm.me[i].right;
-      // else
-      //   pwm.me[i].right = pwm.me[i].right;
 
       pwm.me[i].left = D21*(alpha_lin + alpha_ang) + D22*(alpha_lin - alpha_ang);
-
       // pwm.me[i].left = alpha_lin - alpha_ang;
+
       if (fabs(pwm.me[i].left) < PWM_ZERO)
         pwm.me[i].left = 0.0;
-      // else if (pwm.me[i].left > 0.0)
-      //   pwm.me[i].left = pwm.me[i].left;
-      // else
-      //   pwm.me[i].left = pwm.me[i].left;
     }
   }
   return false;
