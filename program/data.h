@@ -120,7 +120,8 @@ enum GAME_STATE {
   CELEBRATION_STATE,     //7
   PLAY_STATE, //8
   TEST_STATE, //9
-  IDENTIFICATION_STATE //10  
+  IDENTIFICATION_STATE //10
+  ,TEST2_STATE  //11
 };
 //Variaveis necessarias para a simulacao
 
@@ -193,6 +194,7 @@ enum ACTION {
   IMPOSSIVEL=-1, NAO_DEFINIDO=0,
   // Acoes para todos os robos teste 
   TEST_ACTION = 500, IDENTIFICATION_ACTION = 501
+  ,TEST2_ACTION=502
 };
 
 struct ROLE_JOGADOR {

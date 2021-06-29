@@ -801,6 +801,14 @@ void Strategy::escolhe_funcoes()
     papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
     break;
 
+  case TEST2_STATE:
+    // nesses casos, retorna a atribuicao de funcoes inicial
+    // Identificacao de atraso
+    papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
+    papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
+    papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
+    break;    
+
   case IDENTIFICATION_STATE:
     // Identificacao do sistema
     papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
@@ -847,6 +855,9 @@ void Strategy::acao_goleiro(int id)
   case TEST_STATE:
     papeis.me[id].acao = TEST_ACTION;
     break;
+  case TEST2_STATE:
+    papeis.me[id].acao = TEST2_ACTION;
+    break;    
   case IDENTIFICATION_STATE:
     papeis.me[id].acao = IDENTIFICATION_ACTION;
     break;
@@ -971,6 +982,9 @@ void Strategy::acao_com_bola(int id)
   case TEST_STATE:
     papeis.me[id].acao = TEST_ACTION;
     break;
+  case TEST2_STATE:
+    papeis.me[id].acao = TEST2_ACTION;
+    break;    
   case IDENTIFICATION_STATE:
     papeis.me[id].acao = IDENTIFICATION_ACTION;
     break;
@@ -1101,6 +1115,9 @@ void Strategy::acao_sem_bola(int id)
   case TEST_STATE:
     papeis.me[id].acao = TEST_ACTION;
     break;
+  case TEST2_STATE:
+    papeis.me[id].acao = TEST2_ACTION;
+    break;    
   case IDENTIFICATION_STATE:
     papeis.me[id].acao = IDENTIFICATION_ACTION;
     break;
@@ -1595,7 +1612,7 @@ void Strategy::calcula_referencias(int id)
 
       // TESTE LINEAR
       ref.me[id].theta() = 0.0;
-      ref.me[id].x() = sinal*FIELD_WIDTH / 2.0-0.1;
+      ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
       ref.me[id].y() = 0.0;    
 
 
@@ -1606,6 +1623,14 @@ void Strategy::calcula_referencias(int id)
         
     }
     break;
+
+    case TEST2_ACTION:
+    {
+      ref.me[id].theta() = POSITION_UNDEFINED;
+      ref.me[id].x() = -sinal*(FIELD_WIDTH / 2.0 - 0.15);
+      ref.me[id].y() = 0.0;   
+      break;
+    }
 
     case IDENTIFICATION_ACTION:
     {

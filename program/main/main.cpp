@@ -23,6 +23,7 @@ void print_menu_botoes()
   cout << "7 - CELEBRATE" << endl;
   cout << "8 - PLAY" << endl;
   cout << "9 - TEST" << endl;
+  cout << "10 - TEST2" << endl;
   cout << "0 - IDENTIFICATION" << endl;
   cout << ">> ";
 }
@@ -35,7 +36,8 @@ int main(int argc, char **argv)
   SIDE mySide;
   GAME_MODE mode;
 
-  char tecla, tecla1;
+  char tecla;
+  int tecla1;
 
   socket_error = myErrorSocket;
 
@@ -182,37 +184,40 @@ int main(int argc, char **argv)
       {
         cin >> tecla1;
       } while (tecla1 == EOF && fut.gameState() != FINISH_STATE);
-      tecla1 = toupper(tecla1);
+      // tecla1 = toupper(tecla1);
       switch (tecla1)
       {
-      case '1':
+      case 1:
         fut.setGameState(PAUSE_STATE);
         break;
-      case '2':
+      case 2:
         fut.setGameState(PENALTY_STATE);
         break;
-      case '3':
+      case 3:
         fut.setGameState(FREEKICK_STATE);
         break;
-      case '4':
+      case 4:
         fut.setGameState(GOALKICK_STATE);
         break;
-      case '5':
+      case 5:
         fut.setGameState(FREEBALL_STATE);
         break;
-      case '6':
+      case 6:
         fut.setGameState(INICIALPOSITION_STATE);
         break;
-      case '7':
+      case 7:
         fut.setGameState(CELEBRATION_STATE);
         break;
-      case '8':
+      case 8:
         fut.setGameState(PLAY_STATE);
         break;
-      case '9':
+      case 9:
         fut.setGameState(TEST_STATE);
         break;
-      case '0':
+      case 10:
+        fut.setGameState(TEST2_STATE);
+        break;        
+      case 0:
         fut.setGameState(IDENTIFICATION_STATE);
         break;        
       default:
