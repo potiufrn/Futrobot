@@ -197,16 +197,16 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tiang = 10000000.0;//4.0
   // double tdang = 0.0;//0.0;
 
-  // FPS 100
-  double klin = 1.5;
+  // FPS 100 P
+  double klin = 1.48847407007646; // sem sobressinal
   double tilin = 10000000.0; //10000;
   double tdlin = 0.0;        //0.0;
 
-  double kang = 0.10;
+  double kang = 0.286781972351014; // sobressinal de 5% robo 2
   double tiang = 10000000.0; //4.0
   double tdang = 0.0;        //0.0;
 
-  // FPS 100 corrigido
+  // FPS 100 PI
   // double klin = 1.2;
   // double tilin = 21.5522; //10000;
   // double tdlin = 0.0;        //0.0;
@@ -395,7 +395,7 @@ bool Control::control()
         //      alpha_lin = lin[i].controle(erro_lin, T_AMOSTR);
         alpha_lin = lin[i].controle(erro_lin, dt_amostr);
 
-        //alpha_lin = 0.0;
+        // alpha_lin = 0.0;
 
         // Saturação
         if (alpha_lin > 1 - fabs(alpha_ang))
@@ -421,22 +421,22 @@ bool Control::control()
 
       // Constantes para a correção de assimetrias
       if (i==0){
-        D11 =  1.006478605642215;
-        D12 = -0.039601617130588;
-        D21 = -0.164654336003010;
-        D22 =  1.006478605642215;
+        D11 =  1.008222145102893;
+        D12 = -0.049602174507967;
+        D21 = -0.167124704818218;
+        D22 =  1.008222145102893;
       }
       else if (i==1){
-        D11 =  0.999721066393128;
-        D12 = -0.038477856018759;
-        D21 =  0.007247176214272;
-        D22 =  0.999721066393128;
+        D11 =  0.999808713274133;
+        D12 =  0.004378663213346;
+        D21 = -0.043677744995903;
+        D22 =  0.999808713274133;
       }
       else if (i==2){
-        D11 =  1.018814896723987;
-        D12 = -0.077871132753190;
-        D21 = -0.246161785311079;
-        D22 =  1.018814896723987;
+        D11 =  1.012892845513687;
+        D12 = -0.059115513002525;
+        D21 = -0.220907682532830;
+        D22 =  1.012892845513687;
       }      
 
       pwm.me[i].right = D11*(alpha_lin + alpha_ang) + D12*(alpha_lin - alpha_ang);
