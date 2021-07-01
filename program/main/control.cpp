@@ -227,19 +227,37 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   //########### CONSTANTES DO PREDITOR DE SMITH ####################
   //################################################################
 
-  // Modelo do robô 2
-  double a2lin =  0.001428014642213;
-  double b2lin =  0.001369750324523;
-  double c2lin = -0.882510689982987;
+  double alin[3], blin[3], clin[3];
+  double aang[3], bang[3], cang[3];
 
-  double a2ang =  0.046746827036809;
-  double b2ang =  0.043234910129821;
-  double c2ang = -0.791053522343057;
+  // Modelo do robô 0
+  alin[0] =  0.001282995298595;
+  blin[0] =  0.001241502193117;
+  clin[0] = -0.906075092085835;
+  aang[0] =  0.029411735761022;
+  bang[0] =  0.028122032375883;
+  cang[0] = -0.874118501219467;
+
+  // Modelo do robô 1
+  alin[1] =  0.001144525406520;
+  blin[1] =  0.001112066407911;
+  clin[1] = -0.917305051274910;
+  aang[1] =  0.047005776297916;
+  bang[1] =  0.043285288215461;
+  cang[1] = -0.780761741669052;
+
+  // Modelo do robô 2
+  alin[2] =  0.001282141887944;
+  blin[2] =  0.001236786551202;
+  clin[2] = -0.897577458324244;
+  aang[2] =  0.042508332868416;
+  bang[2] =  0.039642769919082;
+  cang[2] = -0.811036158599964;
 
   for (int i = 0; i < 3; i++)
   {
-    pslin[i].fixa_coeficientes(a2lin,b2lin,c2lin);
-    psang[i].fixa_coeficientes(a2ang,b2ang,c2ang);
+    pslin[i].fixa_coeficientes(alin[i],blin[i],clin[i]);
+    psang[i].fixa_coeficientes(aang[i],bang[i],cang[i]);
   }
 }
 

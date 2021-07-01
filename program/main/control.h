@@ -27,7 +27,7 @@ using namespace std;
 
 // Ordem e atraso do modelo do robô identificado
 #define ORDEM 2
-#define ATRASO 4
+#define ATRASO 3
 
 class PID {
 private:
