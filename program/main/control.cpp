@@ -296,6 +296,9 @@ bool Control::control()
       lin[i].reset();
       chegou[i] = false;
       sentidoGiro[i] = 0;
+
+      sinalerro[i].lin = 0.0;
+      sinalerro[i].ang = 0.0;
     }
     else
     {
@@ -387,6 +390,8 @@ bool Control::control()
           }
         }
 
+        sinalerro[i].ang = erro_ang2;  // armazena o erro angular
+
         sentidoGiro[i] = sgn(erro_ang2);
         // Gera sinal de controle para o movimento angular
         //      alpha_ang = ang[i].controle(erro_ang2, T_AMOSTR);
@@ -409,6 +414,9 @@ bool Control::control()
           alpha_ang = -1.0;
           ang[i].anti_windup();
         }
+
+        sinalerro[i].lin = erro_lin;  // armazena o erro linear
+
         // Gera sinal de controle para o movimento linear
         //      alpha_lin = lin[i].controle(erro_lin, T_AMOSTR);
         alpha_lin = lin[i].controle(erro_lin, dt_amostr);

@@ -106,6 +106,12 @@ struct PWM_ROBOTS {
   TPWM_WHEEL me;
 };
 
+// Estrutura para armazenar os sinais de controle
+struct SINAL_ERRO{
+  double lin;
+  double ang;
+};
+
 /**
  * Variaveis necessarias para a simulacao
  */

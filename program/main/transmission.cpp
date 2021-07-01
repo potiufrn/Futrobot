@@ -11,7 +11,7 @@
 
 //#define TAM 110 //atraso
 // #define TAM 500
-#define TAM 300
+#define TAM 400
 // #define TAM 1000
 static int IDROBO = 2;
 
@@ -21,6 +21,8 @@ static double y[TAM];
 static double tetta[TAM];
 static double pwml[TAM];
 static double pwmr[TAM];
+static double sinalerro_lin[TAM];
+static double sinalerro_ang[TAM];
 
 using namespace ::std;
 
@@ -169,6 +171,10 @@ bool Transmission::transmission()
           tetta[cont] = pos.me[i].theta();
           pwmr[cont] = pwm.me[i].right;
           pwml[cont] = pwm.me[i].left;
+
+          sinalerro_lin[cont] = sinalerro[i].lin;
+          sinalerro_ang[cont] = sinalerro[i].ang;
+
           cont++;
         }
 
@@ -189,11 +195,11 @@ bool Transmission::transmission()
           nome.append("_.txt");    
 
           ofstream myfile(nome);
-          for (int ii = 0; ii < TAM; ii++)
+          for (int k = 0; k < TAM; k++)
           {
             if (myfile.is_open())
             {
-              myfile << x[ii] << '\t' << y[ii] << '\t' << tetta[ii] << '\t' << pwmr[ii] << '\t' << pwml[ii] << endl;
+              myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << endl;
             }
           }
           myfile.close();
@@ -257,11 +263,11 @@ bool Transmission::transmission()
         nome.append("_.txt");
 
         ofstream myfile(nome);
-        for (int ii = 0; ii < TAM; ii++)
+        for (int k = 0; k < TAM; k++)
         {
           if (myfile.is_open())
           {
-            myfile << x[ii] << '\t' << y[ii] << '\t' << tetta[ii] << '\t' << pwmr[ii] << '\t' << pwml[ii] << endl;
+            myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << endl;
           }
         }
         myfile.close();
