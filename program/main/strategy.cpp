@@ -1605,8 +1605,26 @@ void Strategy::calcula_referencias(int id)
       // TESTES DE CORREÇÃO DE ASSIMETRIA
       // Linear
       // bypassControl[id] = true;
-      // pwm.me[id].right =  0.2742;
-      // pwm.me[id].left  = -0.3162;
+
+      // if(id==0)
+      // {
+      //   pwm.me[id].right =  0.239654992648731;
+      //   pwm.me[id].left  =  0.210274360071169;
+      // }
+      // else if(id==1)
+      // {
+      //   pwm.me[id].right =  0.251046844121870;
+      //   pwm.me[id].left  =  0.239032742069557;
+      // }
+      // else if(id==2)
+      // {
+      //   pwm.me[id].right =  0.238444333127791;
+      //   pwm.me[id].left  =  0.197996290745214;
+      // }
+
+      // pwm.me[id].right =  0.25;
+      // pwm.me[id].left  =  0.25;    
+
 
 
 
@@ -1617,17 +1635,17 @@ void Strategy::calcula_referencias(int id)
 
 
       // TESTE ANGULAR - desliga o alfa_lin=0.0 do controle
-
-
-      
+      // ref.me[id].theta() = M_PI_2+M_PI_2/2.0;
+      // ref.me[id].x() = 0.0;
+      // ref.me[id].y() = 0.0;      
         
     }
     break;
 
     case TEST2_ACTION:
     {
-      ref.me[id].theta() = POSITION_UNDEFINED;
-      ref.me[id].x() = -sinal*(FIELD_WIDTH / 2.0 - 0.15);
+      ref.me[id].theta() = 0.0;
+      ref.me[id].x() = 0.0; //-sinal*(FIELD_WIDTH / 2.0 - 0.15);
       ref.me[id].y() = 0.0;   
       break;
     }

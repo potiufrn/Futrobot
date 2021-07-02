@@ -198,7 +198,8 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdang = 0.0;//0.0;
 
   // FPS 100 P
-  double klin = 1.48847407007646; // sem sobressinal
+  // double klin = 1.32344842556153; // sem sobressinal
+  double klin = 2.34047879427214; // com sobressinal
   double tilin = 10000000.0; //10000;
   double tdlin = 0.0;        //0.0;
 
@@ -258,6 +259,9 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   {
     pslin[i].fixa_coeficientes(alin[i],blin[i],clin[i]);
     psang[i].fixa_coeficientes(aang[i],bang[i],cang[i]);
+
+    pslin[i].enabled(false);
+    psang[i].enabled(true);
   }
 }
 

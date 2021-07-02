@@ -11,8 +11,9 @@
 
 //#define TAM 110 //atraso
 // #define TAM 500
-#define TAM 400
-// #define TAM 1000
+// #define TAM 200  // simetria
+#define TAM 400  // preditor
+// #define TAM 1000  // identificacao
 static int IDROBO = 2;
 
 static int cont = 0;
@@ -186,6 +187,7 @@ bool Transmission::transmission()
           // nome.append("amostras/identificacao/robo_novo_");
           // nome.append("amostras/identificacao_controle_local/robo_novo_");
           nome.append("amostras/preditorsmith/robo_novo_");
+          // nome.append("amostras/desacoplamento/robo_novo_");
           nome.append(to_string(FPS));
           nome.append("_ncl/robo_");
           // nome.append("_cl/robo_");
