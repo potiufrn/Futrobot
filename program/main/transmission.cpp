@@ -9,10 +9,9 @@
 
 //Variaveis para identificacao
 
-//#define TAM 110 //atraso
-// #define TAM 500
 // #define TAM 200  // simetria
-#define TAM 400  // preditor
+// #define TAM 400  // preditor
+#define TAM 1200  // eight path
 // #define TAM 1000  // identificacao
 static int IDROBO = 2;
 
@@ -24,6 +23,9 @@ static double pwml[TAM];
 static double pwmr[TAM];
 static double sinalerro_lin[TAM];
 static double sinalerro_ang[TAM];
+static double refx[TAM];
+static double refy[TAM];
+static double reftheta[TAM];
 
 using namespace ::std;
 
@@ -176,6 +178,10 @@ bool Transmission::transmission()
           sinalerro_lin[cont] = sinalerro[i].lin;
           sinalerro_ang[cont] = sinalerro[i].ang;
 
+          refx[cont] = ref.me[i].x();
+          refy[cont] = ref.me[i].y();
+          reftheta[cont] = ref.me[i].theta();
+
           cont++;
         }
 
@@ -201,7 +207,7 @@ bool Transmission::transmission()
           {
             if (myfile.is_open())
             {
-              myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << endl;
+              myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << '\t' << refx[k] << '\t' << refy[k] << '\t' << reftheta[k] << endl;
             }
           }
           myfile.close();
