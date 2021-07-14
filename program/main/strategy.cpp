@@ -32,6 +32,7 @@ bool statebypassControl;
 static int contperiodo = 0;
 double pwm_l = rnd_maxmin2()*0.5;
 double pwm_r = rnd_maxmin2()*0.5;
+IDQUADRO contquadro = 0;
 
 // Classes locais
 class Repulsao
@@ -1139,6 +1140,9 @@ void Strategy::calcula_referencias(int id)
       ref.me[id].theta() = POSITION_UNDEFINED; // pos.me.[id].theta();
       pwm.me[id].left = 0.0;
       pwm.me[id].right = 0.0;
+
+      contquadro = 0;       // apagar isso: 14/07/2021
+
       break;
     case IR_MEIO_CAMPO:
       ref.me[id].x() = (getAdvantage() ? -sinal : sinal) * ROBOT_RADIUS;
@@ -1629,15 +1633,32 @@ void Strategy::calcula_referencias(int id)
 
 
       // TESTE LINEAR
-      ref.me[id].theta() = 0.0;
-      ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
-      ref.me[id].y() = 0.0;    
+      // ref.me[id].theta() = 0.0;
+      // ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
+      // ref.me[id].y() = 0.0;    
 
 
       // TESTE ANGULAR - desliga o alfa_lin=0.0 do controle
       // ref.me[id].theta() = M_PI_2+M_PI_2/2.0;
       // ref.me[id].x() = 0.0;
       // ref.me[id].y() = 0.0;      
+
+      
+      // Lemniscate of Gerono
+
+      // contquadro = id_pos;
+
+      double tempo_volta = 5; // Uma volta em tempo_volta segundos
+      double ang_circulo = ang_equiv(2.0 * M_PI * contquadro / (FPS * tempo_volta));
+      double a = 0.60; // limite em +-x
+
+      ref.me[id].x() = a*cos(ang_circulo);
+      ref.me[id].y() = a*sin(ang_circulo)*cos(ang_circulo);
+      ref.me[id].theta() = POSITION_UNDEFINED; // ang_circulo + M_PI_2;   
+
+      // apagar contquadro na ação ESTACIONAR 
+      if (id==0)
+        contquadro++;
         
     }
     break;
