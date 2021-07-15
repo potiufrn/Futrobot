@@ -1633,9 +1633,9 @@ void Strategy::calcula_referencias(int id)
 
 
       // TESTE LINEAR
-      // ref.me[id].theta() = 0.0;
-      // ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
-      // ref.me[id].y() = 0.0;    
+      ref.me[id].theta() = 0.0;
+      ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
+      ref.me[id].y() = 0.0;    
 
 
       // TESTE ANGULAR - desliga o alfa_lin=0.0 do controle
@@ -1644,21 +1644,20 @@ void Strategy::calcula_referencias(int id)
       // ref.me[id].y() = 0.0;      
 
       
+      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
       // Lemniscate of Gerono
 
-      // contquadro = id_pos;
+      // double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      // double ang_circulo = ang_equiv(2.0 * M_PI * contquadro / (FPS * tempo_volta));
+      // double a = 0.60; // limite em +-x
 
-      double tempo_volta = 5; // Uma volta em tempo_volta segundos
-      double ang_circulo = ang_equiv(2.0 * M_PI * contquadro / (FPS * tempo_volta));
-      double a = 0.60; // limite em +-x
+      // ref.me[id].x() = a*cos(ang_circulo);
+      // ref.me[id].y() = a*sin(ang_circulo)*cos(ang_circulo);
+      // ref.me[id].theta() = POSITION_UNDEFINED; // ang_circulo + M_PI_2;   
 
-      ref.me[id].x() = a*cos(ang_circulo);
-      ref.me[id].y() = a*sin(ang_circulo)*cos(ang_circulo);
-      ref.me[id].theta() = POSITION_UNDEFINED; // ang_circulo + M_PI_2;   
-
-      // apagar contquadro na ação ESTACIONAR 
-      if (id==0)
-        contquadro++;
+      // // apagar contquadro na ação ESTACIONAR 
+      // if (id==0)
+      //   contquadro++;
         
     }
     break;

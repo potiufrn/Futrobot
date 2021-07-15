@@ -198,12 +198,13 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdang = 0.0;//0.0;
 
   // FPS 100 P
-  // double klin = 1.32344842556153; // sem sobressinal
-  double klin = 2.34047879427214; // com sobressinal
+  // double klin = 1.09841901711222; // sem sobressinal
+  double klin = 2.30600025753142; // com sobressinal de 5%
+  // double klin = 2.962916772235;
   double tilin = 10000000.0; //10000;
   double tdlin = 0.0;        //0.0;
 
-  double kang = 0.286781972351014; // sobressinal de 5% robo 2
+  double kang = 0.288533627498953; // sobressinal de 7% robo 2
   double tiang = 10000000.0; //4.0
   double tdang = 0.0;        //0.0;
 
@@ -260,7 +261,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
     pslin[i].fixa_coeficientes(alin[i],blin[i],clin[i]);
     psang[i].fixa_coeficientes(aang[i],bang[i],cang[i]);
 
-    pslin[i].enabled(false);
+    pslin[i].enabled(true);
     psang[i].enabled(true);
   }
 }

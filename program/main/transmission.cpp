@@ -10,8 +10,8 @@
 //Variaveis para identificacao
 
 // #define TAM 200  // simetria
-// #define TAM 400  // preditor
-#define TAM 1200  // eight path
+#define TAM 400  // preditor
+// #define TAM 1200  // eight path
 // #define TAM 1000  // identificacao
 static int IDROBO = 2;
 
