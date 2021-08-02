@@ -1633,9 +1633,9 @@ void Strategy::calcula_referencias(int id)
 
 
       // TESTE LINEAR
-      ref.me[id].theta() = 0.0;
-      ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
-      ref.me[id].y() = 0.0;    
+      // ref.me[id].theta() = 0.0;
+      // ref.me[id].x() = sinal*(FIELD_WIDTH / 2.0 - 0.15);
+      // ref.me[id].y() = 0.0;    
 
 
       // TESTE ANGULAR - desliga o alfa_lin=0.0 do controle
@@ -1658,6 +1658,63 @@ void Strategy::calcula_referencias(int id)
       // // apagar contquadro na ação ESTACIONAR 
       // if (id==0)
       //   contquadro++;
+
+
+      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
+      // Referência de um quadrado
+
+      double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      double l = 0.80; // aresta
+      double t = fmod(((l*4)/(tempo_volta*FPS))*contquadro,l*4);
+
+      // A = [-l/2, l/2];
+      // B = [ l/2, l/2];
+      // C = [ l/2,-l/2];
+      // D = [-l/2,-l/2];      
+
+      // Percorrer todo o quadrado
+
+      if (t <= l){
+        ref.me[id].x() = -l/2 + t;
+        ref.me[id].y() =  l/2;
+      }
+      else if (t <= l*2){
+        ref.me[id].x() = l/2;
+        ref.me[id].y() = l/2 - (t-l);
+      }
+      else if (t <= l*3){
+        ref.me[id].x() =  l/2 - (t-l*2);
+        ref.me[id].y() = -l/2;
+      }
+      else if (t <= l*4){
+        ref.me[id].x() = -l/2;
+        ref.me[id].y() = -l/2 + (t-l*3);
+      }
+
+      // Percorrer apenas os vértices
+
+      // if (t <= l){
+      //   ref.me[id].x() =  l/2;
+      //   ref.me[id].y() =  l/2;
+      // }
+      // else if (t <= l*2){
+      //   ref.me[id].x() =  l/2;
+      //   ref.me[id].y() = -l/2;
+      // }
+      // else if (t <= l*3){
+      //   ref.me[id].x() = -l/2;
+      //   ref.me[id].y() = -l/2;
+      // }
+      // else if (t <= l*4){
+      //   ref.me[id].x() = -l/2;
+      //   ref.me[id].y() =  l/2;
+      // }      
+
+      ref.me[id].theta() = POSITION_UNDEFINED;
+
+      // apagar contquadro na ação ESTACIONAR 
+      if (id==0)
+        contquadro++;      
         
     }
     break;
