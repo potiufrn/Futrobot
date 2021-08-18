@@ -106,10 +106,40 @@ struct PWM_ROBOTS {
   TPWM_WHEEL me;
 };
 
-// Estrutura para armazenar os sinais de controle
-struct SINAL_ERRO{
-  double lin;
-  double ang;
+// Estrutura para armazenar os logs do controle
+
+struct PARAM_CONTROLE{
+  bool chegou;
+  double distancia;
+
+  double erro_lin;
+  double erro_ang;
+  double erro_ang2;
+  
+  double beta;
+  double beta2;
+  double gama;
+
+  double xref;
+  double yref;
+
+  double lin_I_ant;
+  double lin_I_ant2;
+  double ang_I_ant;
+  double ang_I_ant2;
+
+  double alpha_lin;
+  double alpha_ang;
+
+  double pslin;
+  double psang;
+  // --------------------------
+  double beta_ant;
+  double betaf;
+  double betaf_ant;
+
+  double erro_ang_inicial;
+  double erro_lin_inicial;
 };
 
 /**
@@ -126,8 +156,10 @@ enum GAME_STATE {
   CELEBRATION_STATE,     //7
   PLAY_STATE, //8
   TEST_STATE, //9
-  IDENTIFICATION_STATE //10
-  ,TEST2_STATE  //11
+  IDENTIFICATION_STATE, //10
+  PERCORRER_QUADRADO_STATE,
+  PERCORRER_QUADRADO_2_STATE,
+  PERCORRER_OITO_STATE 
 };
 //Variaveis necessarias para a simulacao
 
@@ -199,8 +231,8 @@ enum ACTION {
   // As acoes impossiveis
   IMPOSSIVEL=-1, NAO_DEFINIDO=0,
   // Acoes para todos os robos teste 
-  TEST_ACTION = 500, IDENTIFICATION_ACTION = 501
-  ,TEST2_ACTION=502
+  IDENTIFICATION_ACTION = 500, TEST_ACTION = 501, TEST2_ACTION=502, 
+  PERCORRER_QUADRADO = 503, PERCORRER_QUADRADO_2 = 504, PERCORRER_OITO = 505,
 };
 
 struct ROLE_JOGADOR {
