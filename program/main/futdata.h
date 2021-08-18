@@ -44,7 +44,8 @@ protected:
   bool bloqueado[3];
   REFERENCES ref; //Contem a referencia futura dos meus robos.
   PWM_ROBOTS pwm;  //Contem o valor de PWM a ser transmitido para os robos.
-  SINAL_ERRO sinalerro[3]; //sinal de erro para o controlador.
+
+  PARAM_CONTROLE logControle[3];  // armazena as variáveis internas do controlador
 
   double dt_amostr;
 public:

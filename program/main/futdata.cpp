@@ -63,7 +63,5 @@ void FutData::start_data(TEAM team, SIDE side, GAME_MODE gameMode)
     ref.me[i].theta() = pos.me[i].theta();
     pwm.me[i].left = 0.0;
     pwm.me[i].right = 0.0;
-    sinalerro[i].lin = 0.0;
-    sinalerro[i].ang = 0.0;
   }
 }
