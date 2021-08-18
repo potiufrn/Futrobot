@@ -45,72 +45,77 @@ void PID::reset()
   D_ant = 0.0;
 }
 
-double PreditorSmith::predicao(double uatual)
-{
-    if(enable)
-    {
-         u[ORDEM-1]        = uatual;
-        ua[ORDEM+ATRASO-1] = uatual;
-
-         y[ORDEM] =  -(c-1.0)*y[ORDEM-1] +  c*y[ORDEM-2] +  a*u[ORDEM-1] +  b*u[ORDEM-2];
-        ya[ORDEM] = -(c-1.0)*ya[ORDEM-1] + c*ya[ORDEM-2] + a*ua[ORDEM-1] + b*ua[ORDEM-2];
-
-        for(int k=0; k<ORDEM; k++)
-        {
-             y[k] =  y[k+1];
-            ya[k] = ya[k+1];
-             u[k] =  u[k+1];
-        }
-
-        for(int k=0; k<ORDEM+ATRASO; k++)
-            ua[k] = ua[k+1];
-
-        predicao_old = y[ORDEM] - ya[ORDEM];
-
-        return predicao_old;
-    }
-    else
-    {
-        return 0.0;
-    }
+double PID::getIant(){
+  return I_ant;
 }
 
-double PreditorSmith::getPredicao(){
-  return predicao_old;
+double PID::getIant2(){
+  return I_ant2;
+}
+
+double PreditorSmith::predicao()
+{
+  if(enable)
+  {
+     y[ORDEM] =  -(c-1.0)*y[ORDEM-1] +  c*y[ORDEM-2] +  a*u[ORDEM-1] +  b*u[ORDEM-2];
+    ya[ORDEM] = -(c-1.0)*ya[ORDEM-1] + c*ya[ORDEM-2] + a*ua[ORDEM-1] + b*ua[ORDEM-2];
+    return y[ORDEM] - ya[ORDEM];
+  }
+  
+  return 0.0;
+}
+
+void PreditorSmith::update(double uatual)
+{
+  if (enable)
+  {
+     u[ORDEM]        = uatual;
+    ua[ORDEM+ATRASO] = uatual;
+
+    for(int k=0; k<ORDEM; k++)
+    {
+       y[k] =  y[k+1];
+      ya[k] = ya[k+1];
+       u[k] =  u[k+1];
+    }
+
+    for(int k=0; k<ORDEM+ATRASO; k++)
+    {
+      ua[k] = ua[k+1];
+    }
+  }    
 }
 
 void PreditorSmith::fixa_coeficientes(double a, double b, double c)
 {
-    this->a = a;
-    this->b = b;
-    this->c = c;
+  this->a = a;
+  this->b = b;
+  this->c = c;
 }
 
 void PreditorSmith::reset()
 {
-    for(int i=0; i<ORDEM+1; i++)
-    {
-         y[i] = 0.0;
-         u[i] = 0.0;
-        ya[i] = 0.0;
-    }
+  for(int i=0; i<ORDEM+1; i++)
+  {
+     y[i] = 0.0;
+     u[i] = 0.0;
+    ya[i] = 0.0;
+  }
 
-    for(int i=0; i<ORDEM+1+ATRASO; i++)
-    {
-        ua[i] = 0.0;
-    }
-
-    predicao_old = 0.0;
+  for(int i=0; i<ORDEM+1+ATRASO; i++)
+  {
+    ua[i] = 0.0;
+  }
 }
 
 void PreditorSmith::enabled(bool en)
 {
-    this->enable = en;
+  this->enable = en;
 }
 
 PreditorSmith::~PreditorSmith()
 {
-    //dtor
+  //dtor
 }
 
 Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side, gameMode)
@@ -197,25 +202,99 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tiang = 10000000.0;//4.0
   // double tdang = 0.0;//0.0;
 
+
+  //////////////////////////////////////////////////////////////////////
+
   // FPS 100 P
   // double klin = 1.09841901711222; // sem sobressinal
-  double klin = 2.30600025753142; // com sobressinal de 5%
-  // double klin = 2.962916772235;
-  double tilin = 10000000.0; //10000;
-  double tdlin = 0.0;        //0.0;
+  // double klin = 2.30600025753142; // com sobressinal de 5%
+  // double tilin = 10000000.0;
+  // double tdlin = 0.0;
 
-  double kang = 0.288533627498953; // sobressinal de 7% robo 2
-  double tiang = 10000000.0; //4.0
-  double tdang = 0.0;        //0.0;
+  // double kang = 0.288533627498953; // sobressinal de 7% robo 2
+  // double tiang = 10000000.0;
+  // double tdang = 0.0;
 
   // FPS 100 PI
-  // double klin = 1.2;
-  // double tilin = 21.5522; //10000;
-  // double tdlin = 0.0;        //0.0;
+  
+  // (4) old
+  // double klin = 1.46913524178599; // com sobressinal
+  // double tilin = klin/1.7744751046444; // Kp/Ki;
+  // double tdlin = 0.0;
 
-  // double kang = 0.2;
-  // double tiang = 14.2843; //4.0
-  // double tdang = 0.0;        //0.0;
+  // (5) old
+  // double klin = 1.24005473777297; // com sobressinal
+  // double tilin = klin/0.738681101603542; // Kp/Ki;
+  // double tdlin = 0.0; 
+
+  // (3) new
+  // double klin = 1.88161690574072; // com sobressinal
+  // double tilin = klin/2.28457660606269; // Kp/Ki;
+  // double tdlin = 0.0; 
+
+  // (4) new
+  // double klin = 1.42949566213783; // com sobressinal
+  // double tilin = klin/1.73563084931073; // Kp/Ki;
+  // double tdlin = 0.0; 
+
+  // (5) new
+  // double klin = 0.784944055411791; // com sobressinal
+  // double tilin = klin/0.786415174306423; // Kp/Ki;
+  // double tdlin = 0.0; 
+
+  // (6) new
+  // double klin = 1.20001431049385; // com sobressinal
+  // double tilin = klin/1.20226334176408; // Kp/Ki;
+  // double tdlin = 0.0; 
+
+  // (7) new
+  // double klin = 1.81416561466036; // com sobressinal
+  // double tilin = klin/1.81756567011057; // Kp/Ki;
+  // double tdlin = 0.0;      
+
+  // (8) new
+  // double klin = 1.37355623043105; // com sobressinal
+  // double tilin = klin/1.37613050882643; // Kp/Ki;
+  // double tdlin = 0.0;
+
+  // (9) new
+  // double klin = 2.76721429004577; // com sobressinal
+  // double tilin = klin/1.38360714519481; // Kp/Ki;
+  // double tdlin = 0.0;      
+
+  // (10) new
+  // double klin = 1.81784127914267; // com sobressinal
+  // double tilin = klin/0.908920639684282; // Kp/Ki;
+  // double tdlin = 0.0;  
+
+  // (11) new
+  double klin = 1.33864384817273; // com sobressinal
+  double tilin = klin/0.669321924169537; // Kp/Ki;
+  double tdlin = 0.0;
+
+  // (12) new
+  // double klin = 0.900600788450355; // com sobressinal
+  // double tilin = klin/0.450300394281133; // Kp/Ki;
+  // double tdlin = 0.0; 
+
+  // (13) new
+  // double klin = 0.652306357537577; // com sobressinal
+  // double tilin = klin/0.326153178809317; // Kp/Ki;
+  // double tdlin = 0.0;
+
+  // (14) new
+  // double klin = 0.960726212745493; // com sobressinal
+  // double tilin = klin/0.0388559477725262; // Kp/Ki;
+  // double tdlin = 0.0;
+
+  double kang = 0.288533627498953*2.0; // sobressinal de 7% robo 2
+  double tiang = 10000000.0;
+  double tdang = 0.0;
+
+  // PI
+  // double kang = 0.162661723171323; // sobressinal de 7% robo 2
+  // double tiang = kang/0.136648122543379;
+  // double tdang = 0.0;
 
 
   for (int i = 0; i < 3; i++)
@@ -284,7 +363,11 @@ inline double coef_orient(double d)
 bool Control::control()
 {
   double distancia, beta, beta2, gama, xref, yref,
-      erro_ang, erro_ang2, erro_lin, alpha_lin, alpha_ang;
+      erro_ang, erro_ang2, erro_lin, alpha_lin, alpha_ang,
+      betaf, 
+      erro_ang_inicial, erro_lin_inicial;
+  double betaaux;
+
   //bool controle_orientacao;
 
   double D11 =  1.0;
@@ -302,8 +385,8 @@ bool Control::control()
       chegou[i] = false;
       sentidoGiro[i] = 0;
 
-      sinalerro[i].lin = 0.0;
-      sinalerro[i].ang = 0.0;
+      pslin[i].reset();
+      psang[i].reset();
     }
     else
     {
@@ -316,6 +399,9 @@ bool Control::control()
         alpha_lin = 0.0;
         chegou[i] = false;
         sentidoGiro[i] = 0;
+
+        pslin[i].reset();
+        psang[i].reset();
       }
       else
       {
@@ -329,6 +415,9 @@ bool Control::control()
           {
             ang[i].reset();
             lin[i].reset();
+
+            pslin[i].reset();
+            psang[i].reset();            
           }
         }
         else
@@ -338,17 +427,48 @@ bool Control::control()
           {
             ang[i].reset();
             lin[i].reset();
+
+            pslin[i].reset();
+            psang[i].reset();            
           }
         }
+
         if (!chegou[i])
         {
           beta = arc_tang(ref.me[i].y() - pos.me[i].y(),
                           ref.me[i].x() - pos.me[i].x());
+
+          
+          // Correção do ângulo beta
+          betaaux = beta;
+          // if ((beta < 0) && (betaf_ant[i] > 0))
+          // {
+          //   if ((fabs(beta) + betaf_ant[i]) > M_PI)
+          //   {
+          //     betaaux = betaaux + 2*M_PI;
+          //   }
+          // }
+          // else if ((beta > 0) && (betaf_ant[i] < 0))
+          // {
+          //   if ((beta + fabs(betaf_ant[i])) > M_PI)
+          //   {
+          //     betaaux = betaaux + 2*M_PI;
+          //   }
+          // }
+
+          // Correção do ângulo beta
+          betaaux = betaf_ant[i] + ang_equiv(beta - betaf_ant[i]);
+
+          // Filtro passa-baixa para estabilizar beta corrigido
+          betaf = LAMBDAF*betaaux + (1-LAMBDAF)*betaf_ant[i];
+
+          betaf_ant[i] = betaf;
+
           // Cálculo da referência "xref,yref" para o controle de posição de
           // forma a garantir o controle de orientação
-          if (controle_orientacao && ref.me[i].theta() != POSITION_UNDEFINED)
+          if (controle_orientacao && (ref.me[i].theta() != POSITION_UNDEFINED))
           {
-            gama = coef_orient(distancia) * ang_equiv2(beta - ref.me[i].theta());
+            gama = coef_orient(distancia) * ang_equiv2(betaf - ref.me[i].theta());
             xref = pos.me[i].x() + distancia * cos(beta + gama);
             yref = pos.me[i].y() + distancia * sin(beta + gama);
             beta2 = arc_tang(yref - pos.me[i].y(), xref - pos.me[i].x());
@@ -357,10 +477,13 @@ bool Control::control()
           {
             xref = ref.me[i].x();
             yref = ref.me[i].y();
-            beta2 = beta;
+            beta2 = betaf;
           }
-          erro_ang = ang_equiv(beta2 - pos.me[i].theta());
-          erro_lin = distancia * cos(erro_ang) - pslin[i].getPredicao();
+          erro_ang_inicial = ang_equiv(beta2 - pos.me[i].theta());
+          erro_ang = ang_equiv(beta2 - pos.me[i].theta() - psang[i].predicao());
+
+          erro_lin_inicial = distancia * cos(erro_ang);
+          erro_lin = distancia * cos(erro_ang) - pslin[i].predicao();
         }
         else
         {
@@ -368,20 +491,25 @@ bool Control::control()
           //erro_ang = 0.0;
           if (ref.me[i].theta() == POSITION_UNDEFINED)
           {
-            //	    ang[i].reset();
+            // ang[i].reset();
+            erro_ang_inicial = 0.0;
             erro_ang = 0.0;
           }
           else
           {
-            erro_ang = ang_equiv(ref.me[i].theta() - pos.me[i].theta());
+            erro_ang_inicial = ang_equiv(ref.me[i].theta() - pos.me[i].theta());
+            erro_ang = ang_equiv(ref.me[i].theta() - pos.me[i].theta() - psang[i].predicao());
           }
-          //lin[i].reset();
+
+          // lin[i].reset();     
+          erro_lin_inicial = 0.0;     
           erro_lin = 0.0;
+
           //erro_lin = distancia*cos(erro_ang);
         }
         // Calcula o sentido mais curto para girar
         // Na medida do possível, mantém a mesma direção de giro anterior
-        erro_ang2 = ang_equiv2(erro_ang) - psang[i].getPredicao();
+        erro_ang2 = ang_equiv2(erro_ang);
 
         if (fabs(erro_ang2) > M_PI_4 && sentidoGiro[i] * erro_ang2 < 0.0)
         {
@@ -394,9 +522,7 @@ bool Control::control()
             erro_ang2 -= M_PI;
           }
         }
-
-        sinalerro[i].ang = erro_ang2;  // armazena o erro angular
-
+        
         sentidoGiro[i] = sgn(erro_ang2);
         // Gera sinal de controle para o movimento angular
         //      alpha_ang = ang[i].controle(erro_ang2, T_AMOSTR);
@@ -420,8 +546,6 @@ bool Control::control()
           ang[i].anti_windup();
         }
 
-        sinalerro[i].lin = erro_lin;  // armazena o erro linear
-
         // Gera sinal de controle para o movimento linear
         //      alpha_lin = lin[i].controle(erro_lin, T_AMOSTR);
         alpha_lin = lin[i].controle(erro_lin, dt_amostr);
@@ -440,10 +564,14 @@ bool Control::control()
           lin[i].anti_windup(); // Podia dispensar, já que é PD
         }
       }
+    
+      // Armazena o log da predição atual
+      logControle[i].pslin = pslin[i].predicao();
+      logControle[i].psang = psang[i].predicao();     
 
-      // Predição
-      pslin[i].predicao(alpha_lin);
-      psang[i].predicao(alpha_ang);
+      // Atualização do Preditor de Smith
+      pslin[i].update(alpha_lin);
+      psang[i].update(alpha_ang);
 
       // Cálculo dos percentuais dos motores das rodas. Os valores
       // "alpha_ang" e "alpha_lin" são puramente teóricas, pois o que se
@@ -482,6 +610,41 @@ bool Control::control()
       if (fabs(pwm.me[i].left) < PWM_ZERO)
         pwm.me[i].left = 0.0;
     }
+
+
+    // --------- LOG DO CONTROLE ---------
+
+    logControle[i].chegou    = chegou[i];
+    logControle[i].distancia = distancia;
+
+    logControle[i].erro_lin  = erro_lin;
+    logControle[i].erro_ang  = erro_ang;
+    logControle[i].erro_ang2 = erro_ang2;
+
+    logControle[i].beta  = beta;
+    logControle[i].beta2 = beta2;
+    logControle[i].gama  = gama;
+
+    logControle[i].xref = xref;
+    logControle[i].yref = yref;    
+
+    logControle[i].lin_I_ant  = lin[i].getIant();
+    logControle[i].lin_I_ant2 = lin[i].getIant2();
+    logControle[i].ang_I_ant  = ang[i].getIant();
+    logControle[i].ang_I_ant2 = ang[i].getIant2();
+
+    logControle[i].alpha_lin = alpha_lin;
+    logControle[i].alpha_ang = alpha_ang;
+
+    // logControle[i].pslin = pslin[i].predicao();
+    // logControle[i].psang = psang[i].predicao();
+
+    logControle[i].beta_ant  = 0.0; //beta_ant[i];
+    logControle[i].betaf = betaf;
+    logControle[i].betaf_ant  = betaf_ant[i];
+
+    logControle[i].erro_lin_inicial  = erro_lin_inicial;
+    logControle[i].erro_ang_inicial  = erro_ang_inicial;
   }
   return false;
 }

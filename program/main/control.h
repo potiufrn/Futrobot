@@ -29,6 +29,8 @@ using namespace std;
 #define ORDEM 2
 #define ATRASO 3
 
+#define LAMBDAF 0.2
+
 class PID {
 private:
   double K, Ti, Td, N;
@@ -47,6 +49,9 @@ public:
   void anti_windup();
   void reset();
   double controle(double erro, double h);
+
+  double getIant();
+  double getIant2();
 };
 
 // PREDITOR DE SMITH
@@ -64,7 +69,6 @@ class PreditorSmith
   private:
     bool enable;
     double a, b, c;
-    double predicao_old;
     double  y[ORDEM + 1],  u[ORDEM + 1];            // Sem atraso
     double ya[ORDEM + 1], ua[ORDEM + 1 + ATRASO];   // Com atraso
 
@@ -75,8 +79,8 @@ class PreditorSmith
         enabled(true);
     };
 
-    double predicao(double u);
-    double getPredicao();
+    void update(double u);
+    double predicao();
     void fixa_coeficientes(double a, double b, double c);
     void reset();
     void enabled(bool en);
@@ -92,6 +96,10 @@ private:
   PreditorSmith pslin[3], psang[3];
   bool chegou[3];
   int sentidoGiro[3];
+
+  double betaf_ant[3];
+
+
 public:
   Control(TEAM team, SIDE side, GAME_MODE gameMode);
   ~Control();
