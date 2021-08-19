@@ -470,8 +470,8 @@ bool Control::control()
           if (controle_orientacao && (ref.me[i].theta() != POSITION_UNDEFINED))
           {
             gama = coef_orient(distancia) * ang_equiv2(betaf - ref.me[i].theta());
-            xref = pos.me[i].x() + distancia * cos(beta + gama);
-            yref = pos.me[i].y() + distancia * sin(beta + gama);
+            xref = pos.me[i].x() + distancia * cos(betaf + gama);
+            yref = pos.me[i].y() + distancia * sin(betaf + gama);
             beta2 = arc_tang(yref - pos.me[i].y(), xref - pos.me[i].x());
           }
           else
