@@ -301,6 +301,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   {
     chegou[i] = false;
     sentidoGiro[i] = 0;
+    betaf_ant[i] = 0.0;
     lin[i].fixa_constantes(klin, tilin, tdlin, 20);
     ang[i].fixa_constantes(kang, tiang, tdang, 20);
   }
@@ -362,11 +363,11 @@ inline double coef_orient(double d)
 
 bool Control::control()
 {
-  double distancia, beta, beta2, gama, xref, yref,
-      erro_ang, erro_ang2, erro_lin, alpha_lin, alpha_ang,
-      betaf, 
-      erro_ang_inicial, erro_lin_inicial;
-  double betaaux;
+  double distancia=0.0, beta=0.0, beta2=0.0, gama=0.0, xref=0.0, yref=0.0,
+      erro_ang=0.0, erro_ang2=0.0, erro_lin=0.0, alpha_lin=0.0, alpha_ang=0.0,
+      betaf=0.0, 
+      erro_ang_inicial=0.0, erro_lin_inicial=0.0;
+  double betaaux=0.0;
 
   //bool controle_orientacao;
 
