@@ -45,11 +45,13 @@ void PID::reset()
   D_ant = 0.0;
 }
 
-double PID::getIant(){
+double PID::getIant()
+{
   return I_ant;
 }
 
-double PID::getIant2(){
+double PID::getIant2()
+{
   return I_ant2;
 }
 
@@ -363,11 +365,11 @@ inline double coef_orient(double d)
 
 bool Control::control()
 {
-  double distancia=0.0, beta=0.0, beta2=0.0, gama=0.0, xref=0.0, yref=0.0,
-      erro_ang=0.0, erro_ang2=0.0, erro_lin=0.0, alpha_lin=0.0, alpha_ang=0.0,
-      betaf=0.0, 
-      erro_ang_inicial=0.0, erro_lin_inicial=0.0;
-  double betaaux=0.0;
+  double distancia = 0.0, beta = 0.0, beta2 = 0.0, gama = 0.0, xref = 0.0, yref = 0.0,
+         erro_ang = 0.0, erro_ang2 = 0.0, erro_lin = 0.0, alpha_lin = 0.0, alpha_ang = 0.0,
+         betaf = 0.0,
+         erro_ang_inicial = 0.0, erro_lin_inicial = 0.0;
+  double betaaux = 0.0;
 
   //bool controle_orientacao;
 
@@ -439,29 +441,11 @@ bool Control::control()
           beta = arc_tang(ref.me[i].y() - pos.me[i].y(),
                           ref.me[i].x() - pos.me[i].x());
 
-          
-          // Correção do ângulo beta
-          betaaux = beta;
-          // if ((beta < 0) && (betaf_ant[i] > 0))
-          // {
-          //   if ((fabs(beta) + betaf_ant[i]) > M_PI)
-          //   {
-          //     betaaux = betaaux + 2*M_PI;
-          //   }
-          // }
-          // else if ((beta > 0) && (betaf_ant[i] < 0))
-          // {
-          //   if ((beta + fabs(betaf_ant[i])) > M_PI)
-          //   {
-          //     betaaux = betaaux + 2*M_PI;
-          //   }
-          // }
-
           // Correção do ângulo beta
           betaaux = betaf_ant[i] + ang_equiv(beta - betaf_ant[i]);
 
           // Filtro passa-baixa para estabilizar beta corrigido
-          betaf = LAMBDAF*betaaux + (1-LAMBDAF)*betaf_ant[i];
+          betaf = ang_equiv(LAMBDAF*betaaux + (1-LAMBDAF)*betaf_ant[i]);
 
           betaf_ant[i] = betaf;
 
@@ -615,23 +599,23 @@ bool Control::control()
 
     // --------- LOG DO CONTROLE ---------
 
-    logControle[i].chegou    = chegou[i];
+    logControle[i].chegou = chegou[i];
     logControle[i].distancia = distancia;
 
-    logControle[i].erro_lin  = erro_lin;
-    logControle[i].erro_ang  = erro_ang;
+    logControle[i].erro_lin = erro_lin;
+    logControle[i].erro_ang = erro_ang;
     logControle[i].erro_ang2 = erro_ang2;
 
-    logControle[i].beta  = beta;
+    logControle[i].beta = beta;
     logControle[i].beta2 = beta2;
-    logControle[i].gama  = gama;
+    logControle[i].gama = gama;
 
     logControle[i].xref = xref;
-    logControle[i].yref = yref;    
+    logControle[i].yref = yref;
 
-    logControle[i].lin_I_ant  = lin[i].getIant();
+    logControle[i].lin_I_ant = lin[i].getIant();
     logControle[i].lin_I_ant2 = lin[i].getIant2();
-    logControle[i].ang_I_ant  = ang[i].getIant();
+    logControle[i].ang_I_ant = ang[i].getIant();
     logControle[i].ang_I_ant2 = ang[i].getIant2();
 
     logControle[i].alpha_lin = alpha_lin;
@@ -640,12 +624,12 @@ bool Control::control()
     // logControle[i].pslin = pslin[i].predicao();
     // logControle[i].psang = psang[i].predicao();
 
-    logControle[i].beta_ant  = 0.0; //beta_ant[i];
+    logControle[i].beta_ant = 0.0; //beta_ant[i];
     logControle[i].betaf = betaf;
-    logControle[i].betaf_ant  = betaf_ant[i];
+    logControle[i].betaf_ant = betaf_ant[i];
 
-    logControle[i].erro_lin_inicial  = erro_lin_inicial;
-    logControle[i].erro_ang_inicial  = erro_ang_inicial;
+    logControle[i].erro_lin_inicial = erro_lin_inicial;
+    logControle[i].erro_ang_inicial = erro_ang_inicial;
   }
   return false;
 }
