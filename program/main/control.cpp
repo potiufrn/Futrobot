@@ -373,10 +373,10 @@ bool Control::control()
 
   //bool controle_orientacao;
 
-  double D11 =  1.0;
-  double D12 =  0.0;
-  double D21 =  0.0;
-  double D22 =  1.0;
+  double D11 = 1.0;
+  double D12 = 0.0;
+  double D21 = 0.0;
+  double D22 = 1.0;
 
   for (int i = 0; i < 3; i++)
   {
