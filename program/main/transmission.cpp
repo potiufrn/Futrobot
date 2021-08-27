@@ -10,22 +10,27 @@
 //Variaveis para identificacao
 
 // #define TAM 200  // simetria
-#define TAM 400  // preditor
-// #define TAM 1200  // eight path
+// #define TAM 400  // preditor
+// #define TAM 1250  // eight path
+#define TAM 1000  // path 
 // #define TAM 1000  // identificacao
 static int IDROBO = 2;
 
 static int cont = 0;
 static double x[TAM];
 static double y[TAM];
-static double tetta[TAM];
+static double theta[TAM];
 static double pwml[TAM];
 static double pwmr[TAM];
-static double sinalerro_lin[TAM];
-static double sinalerro_ang[TAM];
+
+// static double sinalerro_lin[TAM];
+// static double sinalerro_ang[TAM];
+
 static double refx[TAM];
 static double refy[TAM];
 static double reftheta[TAM];
+
+static PARAM_CONTROLE getlog[TAM];
 
 using namespace ::std;
 
@@ -165,22 +170,57 @@ bool Transmission::transmission()
 
 
       // IDENTIFICACAO DE SISTEMA
-      if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
+      if (gameState() == IDENTIFICATION_STATE /* || gameState() == TEST_STATE */ || gameState() == PERCORRER_QUADRADO_STATE
+        || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE || gameState() == CELEBRATION_STATE)
       {
         if (i == IDROBO && cont < TAM)
         {
           x[cont] = pos.me[i].x();
           y[cont] = pos.me[i].y();
-          tetta[cont] = pos.me[i].theta();
+          theta[cont] = pos.me[i].theta();
           pwmr[cont] = pwm.me[i].right;
           pwml[cont] = pwm.me[i].left;
 
-          sinalerro_lin[cont] = sinalerro[i].lin;
-          sinalerro_ang[cont] = sinalerro[i].ang;
+          // sinalerro_lin[cont] = 
+          // sinalerro_ang[cont] = 
 
           refx[cont] = ref.me[i].x();
           refy[cont] = ref.me[i].y();
           reftheta[cont] = ref.me[i].theta();
+
+          getlog[cont].chegou = logControle[i].chegou;
+          getlog[cont].distancia = logControle[i].distancia;
+
+          getlog[cont].erro_lin = logControle[i].erro_lin;
+          getlog[cont].erro_ang = logControle[i].erro_ang;
+          getlog[cont].erro_ang2 = logControle[i].erro_ang2;
+
+          getlog[cont].beta = logControle[i].beta;
+          getlog[cont].beta2 = logControle[i].beta2;
+          getlog[cont].gama = logControle[i].gama;
+
+          getlog[cont].xref = logControle[i].xref;
+          getlog[cont].yref = logControle[i].yref;
+
+          getlog[cont].lin_I_ant = logControle[i].lin_I_ant;
+          getlog[cont].lin_I_ant2 = logControle[i].lin_I_ant2;
+          getlog[cont].ang_I_ant = logControle[i].ang_I_ant;
+          getlog[cont].ang_I_ant2 = logControle[i].ang_I_ant2;
+
+          getlog[cont].alpha_lin = logControle[i].alpha_lin;
+          getlog[cont].alpha_ang = logControle[i].alpha_ang;
+
+          getlog[cont].pslin = logControle[i].pslin;
+          getlog[cont].psang = logControle[i].psang;
+
+          //
+
+          getlog[cont].beta_ant = logControle[i].beta_ant;
+          getlog[cont].betaf = logControle[i].betaf;
+          getlog[cont].betaf_ant = logControle[i].betaf_ant;
+
+          getlog[cont].erro_lin_inicial = logControle[i].erro_lin_inicial;
+          getlog[cont].erro_ang_inicial = logControle[i].erro_ang_inicial;
 
           cont++;
         }
@@ -192,7 +232,10 @@ bool Transmission::transmission()
           string nome;
           // nome.append("amostras/identificacao/robo_novo_");
           // nome.append("amostras/identificacao_controle_local/robo_novo_");
-          nome.append("amostras/preditorsmith/robo_novo_");
+          // nome.append("amostras/preditorsmith/robo_novo_");
+
+          nome.append("amostras/controle/robo_novo_");  // testes do controle
+
           // nome.append("amostras/desacoplamento/robo_novo_");
           nome.append(to_string(FPS));
           nome.append("_ncl/robo_");
@@ -207,7 +250,20 @@ bool Transmission::transmission()
           {
             if (myfile.is_open())
             {
-              myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << '\t' << refx[k] << '\t' << refy[k] << '\t' << reftheta[k] << endl;
+              // myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << '\t' << refx[k] << '\t' << refy[k] << '\t' << reftheta[k] << endl;
+
+              myfile << x[k] << '\t' << y[k] << '\t' << theta[k] << '\t' << pwmr[k] << '\t' << pwml[k]
+                << '\t' << refx[k] << '\t' << refy[k] << '\t' << reftheta[k] 
+                << '\t' << getlog[k].chegou << '\t' << getlog[k].distancia
+                << '\t' << getlog[k].erro_lin << '\t' << getlog[k].erro_ang << '\t' << getlog[k].erro_ang2
+                << '\t' << getlog[k].beta << '\t' << getlog[k].beta2 << '\t' << getlog[k].gama 
+                << '\t' << getlog[k].xref << '\t' << getlog[k].yref 
+                << '\t' << getlog[k].lin_I_ant << '\t' << getlog[k].lin_I_ant2 << '\t' << getlog[k].ang_I_ant << '\t' << getlog[k].ang_I_ant2 
+                << '\t' << getlog[k].alpha_lin << '\t' << getlog[k].alpha_ang 
+                << '\t' << getlog[k].pslin << '\t' << getlog[k].psang
+                << '\t' << getlog[k].beta_ant << '\t' << getlog[k].betaf << '\t' << getlog[k].betaf_ant
+                << '\t' << getlog[k].erro_lin_inicial << '\t' << getlog[k].erro_ang_inicial
+                << endl;
             }
           }
           myfile.close();
@@ -242,13 +298,14 @@ bool Transmission::transmission()
     }
 
     // IDENTIFICACAO DE SISTEMA
-    if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE)
+    if (gameState() == IDENTIFICATION_STATE /* || gameState() == TEST_STATE */ || gameState() == PERCORRER_QUADRADO_STATE
+        || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE || gameState() == CELEBRATION_STATE)
     {
       if (i == IDROBO && cont < TAM)
       {
         x[cont] = pos.me[i].x();
         y[cont] = pos.me[i].y();
-        tetta[cont] = pos.me[i].theta();
+        theta[cont] = pos.me[i].theta();
         pwmr[cont] = pwm.me[i].right;
         pwml[cont] = pwm.me[i].left;
         cont++;
@@ -275,7 +332,7 @@ bool Transmission::transmission()
         {
           if (myfile.is_open())
           {
-            myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << endl;
+            // myfile << x[k] << '\t' << y[k] << '\t' << tetta[k] << '\t' << pwmr[k] << '\t' << pwml[k] << '\t' << sinalerro_lin[k] << '\t' << sinalerro_ang[k] << endl;
           }
         }
         myfile.close();

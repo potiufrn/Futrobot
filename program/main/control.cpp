@@ -269,10 +269,14 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tilin = klin/0.908920639684282; // Kp/Ki;
   // double tdlin = 0.0;  
 
+
+
   // (11) new
   double klin = 1.33864384817273; // com sobressinal
   double tilin = klin/0.669321924169537; // Kp/Ki;
   double tdlin = 0.0;
+
+
 
   // (12) new
   // double klin = 0.900600788450355; // com sobressinal
@@ -289,15 +293,65 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tilin = klin/0.0388559477725262; // Kp/Ki;
   // double tdlin = 0.0;
 
-  double kang = 0.288533627498953*2.0; // sobressinal de 7% robo 2
-  double tiang = 10000000.0;
-  double tdang = 0.0;
-
-  // PI
-  // double kang = 0.162661723171323; // sobressinal de 7% robo 2
-  // double tiang = kang/0.136648122543379;
+  // P angular
+  // double kang = 0.288533627498953*2.0; // sobressinal de 7% robo 2
+  // double tiang = 10000000.0;
   // double tdang = 0.0;
 
+  // (1) PI
+  // double kang = 0.230859125458784;
+  // double tiang = kang/0.923436501835137;
+  // double tdang = 0.0;
+
+  // (2) PI
+  // double kang = 0.521882016392585;
+  // double tiang = kang/2.08752806557034;
+  // double tdang = 0.0;
+
+  // (3) PI
+  // double kang = 0.220340394600093;
+  // double tiang = kang/0.440680789200186;
+  // double tdang = 0.0;  
+
+  // (4) PI
+  // double kang = 0.177675787167677;
+  // double tiang = kang/0.355351574335354;
+  // double tdang = 0.0;  
+
+  // (5) PI
+  // double kang = 0.125807441068991;
+  // double tiang = kang/0.251614882137981;
+  // double tdang = 0.0;    
+
+  // (6) PI  - parece bom
+  // double kang = 0.632776130630691;
+  // double tiang = kang/1.26555226126138;
+  // double tdang = 0.0;      
+
+  // (7) PI
+  // double kang = 1.00477483395324;
+  // double tiang = kang/0.602864900371941;
+  // double tdang = 0.0;       
+
+  // (8) PI
+  // double kang = 0.288533627498953*2;
+  // double tiang = kang/0.146576292170515;
+  // double tdang = 0.0;     
+
+  // (9) PI dp:0.5
+  // double kang = 0.468777362439337;
+  // double tiang = 0.234388681219668;
+  // double tdang = 0.0;    
+
+  // (10) PI dp:0.4
+  // double kang = 0.729638416167339;
+  // double tiang = 0.364819208083669;
+  // double tdang = 0.0; 
+
+  // (11) PI dp:0.46
+  double kang = 0.551719640142742;
+  double tiang = 0.27585982007137;
+  double tdang = 0.0; 
 
   for (int i = 0; i < 3; i++)
   {

@@ -795,23 +795,11 @@ void Strategy::escolhe_funcoes()
     break;
 
   case TEST_STATE:
-    // nesses casos, retorna a atribuicao de funcoes inicial
-    // Identificacao de atraso
-    papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
-    papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
-    papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
-    break;
-
-  case TEST2_STATE:
-    // nesses casos, retorna a atribuicao de funcoes inicial
-    // Identificacao de atraso
-    papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
-    papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
-    papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
-    break;    
-
   case IDENTIFICATION_STATE:
-    // Identificacao do sistema
+  case PERCORRER_QUADRADO_STATE:
+  case PERCORRER_QUADRADO_2_STATE:
+  case PERCORRER_QUADRADO_3_STATE:
+  case PERCORRER_OITO_STATE:
     papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
     papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
     papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
@@ -819,7 +807,6 @@ void Strategy::escolhe_funcoes()
 
   default:
     break;
-
   }
 }
 
@@ -856,12 +843,21 @@ void Strategy::acao_goleiro(int id)
   case TEST_STATE:
     papeis.me[id].acao = TEST_ACTION;
     break;
-  case TEST2_STATE:
-    papeis.me[id].acao = TEST2_ACTION;
-    break;    
   case IDENTIFICATION_STATE:
     papeis.me[id].acao = IDENTIFICATION_ACTION;
     break;
+  case PERCORRER_QUADRADO_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO;
+    break;
+  case PERCORRER_QUADRADO_2_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO_2;
+    break;
+  case PERCORRER_QUADRADO_3_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO_3;
+    break;    
+  case PERCORRER_OITO_STATE:
+    papeis.me[id].acao = PERCORRER_OITO;
+    break;            
 
   default:
     break;    
@@ -982,13 +978,22 @@ void Strategy::acao_com_bola(int id)
 
   case TEST_STATE:
     papeis.me[id].acao = TEST_ACTION;
-    break;
-  case TEST2_STATE:
-    papeis.me[id].acao = TEST2_ACTION;
-    break;    
+    break;  
   case IDENTIFICATION_STATE:
     papeis.me[id].acao = IDENTIFICATION_ACTION;
     break;
+  case PERCORRER_QUADRADO_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO;
+    break;
+  case PERCORRER_QUADRADO_2_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO_2;
+    break;
+  case PERCORRER_QUADRADO_3_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO_3;
+    break;    
+  case PERCORRER_OITO_STATE:
+    papeis.me[id].acao = PERCORRER_OITO;
+    break;     
 
   default:
     break;    
@@ -1115,13 +1120,22 @@ void Strategy::acao_sem_bola(int id)
 
   case TEST_STATE:
     papeis.me[id].acao = TEST_ACTION;
-    break;
-  case TEST2_STATE:
-    papeis.me[id].acao = TEST2_ACTION;
-    break;    
+    break;  
   case IDENTIFICATION_STATE:
     papeis.me[id].acao = IDENTIFICATION_ACTION;
     break;
+  case PERCORRER_QUADRADO_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO;
+    break;
+  case PERCORRER_QUADRADO_2_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO_2;
+    break;
+  case PERCORRER_QUADRADO_3_STATE:
+    papeis.me[id].acao = PERCORRER_QUADRADO_3;
+    break;    
+  case PERCORRER_OITO_STATE:
+    papeis.me[id].acao = PERCORRER_OITO;
+    break;     
 
   default:
     break;    
@@ -1171,7 +1185,7 @@ void Strategy::calcula_referencias(int id)
     case COMEMORAR:
     { // :-)
 
-      double tempo_volta = 3.0; // Uma volta em 5 segundos
+      double tempo_volta = 4.0; // Uma volta em t segundos
       double ang_circulo = ang_equiv(2.0 * M_PI * id_pos / (FPS * tempo_volta));
       ang_circulo += id * 2.0 * M_PI / 3.0;
       ref.me[id].x() = 1.0 * CIRCLE_RADIUS * cos(ang_circulo);
@@ -1643,78 +1657,10 @@ void Strategy::calcula_referencias(int id)
       // ref.me[id].x() = 0.0;
       // ref.me[id].y() = 0.0;      
 
-      
-      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
-      // Lemniscate of Gerono
-
-      // double tempo_volta = 10; // Uma volta em tempo_volta segundos
-      // double ang_circulo = ang_equiv(2.0 * M_PI * contquadro / (FPS * tempo_volta));
-      // double a = 0.60; // limite em +-x
-
-      // ref.me[id].x() = a*cos(ang_circulo);
-      // ref.me[id].y() = a*sin(ang_circulo)*cos(ang_circulo);
-      // ref.me[id].theta() = POSITION_UNDEFINED; // ang_circulo + M_PI_2;   
-
-      // // apagar contquadro na ação ESTACIONAR 
-      // if (id==0)
-      //   contquadro++;
-
-
-      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
-      // Referência de um quadrado
-
-      double tempo_volta = 10; // Uma volta em tempo_volta segundos
-      double l = 0.80; // aresta
-      double t = fmod(((l*4)/(tempo_volta*FPS))*contquadro,l*4);
-
-      // A = [-l/2, l/2];
-      // B = [ l/2, l/2];
-      // C = [ l/2,-l/2];
-      // D = [-l/2,-l/2];      
-
-      // Percorrer todo o quadrado
-
-      if (t <= l){
-        ref.me[id].x() = -l/2 + t;
-        ref.me[id].y() =  l/2;
-      }
-      else if (t <= l*2){
-        ref.me[id].x() = l/2;
-        ref.me[id].y() = l/2 - (t-l);
-      }
-      else if (t <= l*3){
-        ref.me[id].x() =  l/2 - (t-l*2);
-        ref.me[id].y() = -l/2;
-      }
-      else if (t <= l*4){
-        ref.me[id].x() = -l/2;
-        ref.me[id].y() = -l/2 + (t-l*3);
-      }
-
-      // Percorrer apenas os vértices
-
-      // if (t <= l){
-      //   ref.me[id].x() =  l/2;
-      //   ref.me[id].y() =  l/2;
-      // }
-      // else if (t <= l*2){
-      //   ref.me[id].x() =  l/2;
-      //   ref.me[id].y() = -l/2;
-      // }
-      // else if (t <= l*3){
-      //   ref.me[id].x() = -l/2;
-      //   ref.me[id].y() = -l/2;
-      // }
-      // else if (t <= l*4){
-      //   ref.me[id].x() = -l/2;
-      //   ref.me[id].y() =  l/2;
-      // }      
-
-      ref.me[id].theta() = POSITION_UNDEFINED;
-
-      // apagar contquadro na ação ESTACIONAR 
-      if (id==0)
-        contquadro++;      
+      // posição para realizar o teste do quadrado
+      ref.me[id].theta() = 0.0;
+      ref.me[id].x() = -0.4;
+      ref.me[id].y() = 0.4;     
         
     }
     break;
@@ -1788,6 +1734,150 @@ void Strategy::calcula_referencias(int id)
       //cout << pwm.me[id].left << " -- " << pwm.me[id].right << "--" << statebypassControl<< endl;
     }
     break;
+
+    case PERCORRER_QUADRADO:
+    {
+      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
+      // Referência de um quadrado
+
+      double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      double l = 0.80; // aresta
+      double t = fmod(((l*4)/(tempo_volta*FPS))*contquadro,l*4);
+
+      // A = [-l/2, l/2];
+      // B = [ l/2, l/2];
+      // C = [ l/2,-l/2];
+      // D = [-l/2,-l/2];      
+
+      // Percorrer todo o quadrado
+
+      if (t <= l){
+        ref.me[id].x() = -l/2 + t;
+        ref.me[id].y() =  l/2;
+      }
+      else if (t <= l*2){
+        ref.me[id].x() = l/2;
+        ref.me[id].y() = l/2 - (t-l);
+      }
+      else if (t <= l*3){
+        ref.me[id].x() =  l/2 - (t-l*2);
+        ref.me[id].y() = -l/2;
+      }
+      else if (t <= l*4){
+        ref.me[id].x() = -l/2;
+        ref.me[id].y() = -l/2 + (t-l*3);
+      }
+
+      ref.me[id].theta() = POSITION_UNDEFINED;
+
+      // apagar contquadro na ação ESTACIONAR 
+      if (id==0)
+        contquadro++;        
+    }  
+    break; 
+
+    case PERCORRER_QUADRADO_2:
+    {
+      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
+      // Referência de um quadrado
+
+      double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      double l = 0.80; // aresta
+      double t = fmod(((l*4)/(tempo_volta*FPS))*contquadro,l*4);
+
+      // A = [-l/2, l/2];
+      // B = [ l/2, l/2];
+      // C = [ l/2,-l/2];
+      // D = [-l/2,-l/2];      
+
+      // Percorrer apenas os vértices
+
+      if (t <= l){
+        ref.me[id].x() =  l/2;
+        ref.me[id].y() =  l/2;
+      }
+      else if (t <= l*2){
+        ref.me[id].x() =  l/2;
+        ref.me[id].y() = -l/2;
+      }
+      else if (t <= l*3){
+        ref.me[id].x() = -l/2;
+        ref.me[id].y() = -l/2;
+      }
+      else if (t <= l*4){
+        ref.me[id].x() = -l/2;
+        ref.me[id].y() =  l/2;
+      }      
+
+      ref.me[id].theta() = POSITION_UNDEFINED;
+
+      // apagar contquadro na ação ESTACIONAR 
+      if (id==0)
+        contquadro++;         
+    }
+    break;  
+
+    case PERCORRER_QUADRADO_3:
+    {
+      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
+      // Referência de um quadrado
+
+      double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      double l = 0.80; // aresta
+      double t = fmod(((l*4)/(tempo_volta*FPS))*contquadro,l*4);
+
+      // A = [-l/2, l/2];
+      // B = [ l/2, l/2];
+      // C = [ l/2,-l/2];
+      // D = [-l/2,-l/2];      
+
+      // Percorrer apenas os vértices
+
+      if (t <= l){
+        ref.me[id].x() =  l/2;
+        ref.me[id].y() =  l/2;
+        ref.me[id].theta() = 0.0;
+      }
+      else if (t <= l*2){
+        ref.me[id].x() =  l/2;
+        ref.me[id].y() = -l/2;
+        ref.me[id].theta() = -M_PI_2;
+      }
+      else if (t <= l*3){
+        ref.me[id].x() = -l/2;
+        ref.me[id].y() = -l/2;
+        ref.me[id].theta() = M_PI;
+      }
+      else if (t <= l*4){
+        ref.me[id].x() = -l/2;
+        ref.me[id].y() =  l/2;
+        ref.me[id].theta() = M_PI_2;
+      }      
+
+      // apagar contquadro na ação ESTACIONAR 
+      if (id==0)
+        contquadro++;         
+    }
+    break;           
+
+    case PERCORRER_OITO:
+    {
+      // TESTE DE RASTREAMENTO DE TRAJETÓRIA
+      // Lemniscate of Gerono
+
+      double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      double ang_circulo = ang_equiv(2.0 * M_PI * contquadro / (FPS * tempo_volta));
+      double a = 0.60; // limite em +-x
+
+      ref.me[id].x() = a*cos(ang_circulo);
+      ref.me[id].y() = a*sin(ang_circulo)*cos(ang_circulo);
+      ref.me[id].theta() = POSITION_UNDEFINED; // ang_circulo + M_PI_2;   
+
+      // apagar contquadro na ação ESTACIONAR 
+      if (id==0)
+        contquadro++;      
+    }
+    break;        
 
     default:
       break;    
@@ -2054,67 +2144,67 @@ void Strategy::debugAction(int id)
   std::cout << "ROBO(" << id << ") | ACAO:";
   switch (papeis.me[id].acao)
   {
-  case ACTION::ESTACIONAR:
+  case ESTACIONAR:
     std::cout << "ESTACIONAR";
     break;
-  case ACTION::A_DESCOLAR:
+  case A_DESCOLAR:
     std::cout << "A_DESCOLAR";
     break;
-  case ACTION::A_CONTORNAR:
+  case A_CONTORNAR:
     std::cout << "A_CONTORNAR";
     break;
-  case ACTION::A_CONTORNAR_POR_DENTRO:
+  case A_CONTORNAR_POR_DENTRO:
     std::cout << "A_CONTORNAR_POR_DENTRO";
     break;
-  case ACTION::A_POSICIONAR_FRENTE_AREA:
+  case A_POSICIONAR_FRENTE_AREA:
     std::cout << "A_POSICIONAR_FRENTE_AREA";
     break;
-  case ACTION::A_LEVAR_BOLA:
+  case A_LEVAR_BOLA:
     std::cout << "A_LEVAR_BOLA";
     break;
-  case ACTION::A_POSICIONAR_PARA_DESCOLAR:
+  case A_POSICIONAR_PARA_DESCOLAR:
     std::cout << "A_POSICIONAR_PARA_DESCOLAR";
     break;
-  case ACTION::CIRCULO_CENTRAL:
+  case CIRCULO_CENTRAL:
     std::cout << "CIRCULO_CENTRAL";
     break;
-  case ACTION::FORMAR_BARREIRA:
+  case FORMAR_BARREIRA:
     std::cout << "FORMAR_BARREIRA";
     break;
-  case ACTION::G_CENTRO_GOL:
+  case G_CENTRO_GOL:
     std::cout << "G_CENTRO_GOL";
     break;
-  case ACTION::G_DEFENDER:
+  case G_DEFENDER:
     std::cout << "G_DEFENDER";
     break;
-  case ACTION::NAO_DEFINIDO:
+  case NAO_DEFINIDO:
     std::cout << "NAO_DEFINIDO";
     break;
-  case ACTION::A_ALINHAR_GOL:
+  case A_ALINHAR_GOL:
     std::cout << "A_ALINHAR_GOL";
     break;
-  case ACTION::A_ALINHAR_SEM_ORIENTACAO:
+  case A_ALINHAR_SEM_ORIENTACAO:
     std::cout << "A_ALINHAR_SEM_ORIENTACAO";
     break;
-  case ACTION::A_CHUTAR_GOL:
+  case A_CHUTAR_GOL:
     std::cout << "A_CHUTAR_GOL";
     break;
-  case ACTION::A_BOLA_CENTRO:
+  case A_BOLA_CENTRO:
     std::cout << "A_BOLA_CENTRO";
     break;
-  case ACTION::A_IR_MARCA:
+  case A_IR_MARCA:
     std::cout << "A_IR_MARCA";
     break;
-  case ACTION::D_NAO_ATRAPALHAR:
+  case D_NAO_ATRAPALHAR:
     std::cout << "D_NAO_ATRAPALHAR";
     break;
-  case ACTION::IR_BOLA:
+  case IR_BOLA:
     std::cout << "IR_BOLA";
     break;
-  case ACTION::IR_MEIO_CAMPO:
+  case IR_MEIO_CAMPO:
     std::cout << "IR_MEIO_CAMPO";
     break;
-  case ACTION::LADO_AREA:
+  case LADO_AREA:
     std::cout << "LADO_AREA";
     break;
   default:

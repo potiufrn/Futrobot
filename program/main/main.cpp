@@ -23,8 +23,11 @@ void print_menu_botoes()
   cout << "7 - CELEBRATE" << endl;
   cout << "8 - PLAY" << endl;
   cout << "9 - TEST" << endl;
-  cout << "10 - TEST2" << endl;
-  cout << "0 - IDENTIFICATION" << endl;
+  cout << "10 - IDENTIFICATION" << endl;
+  cout << "11 - PERCORRER QUADRADO" << endl;
+  cout << "12 - PERCORRER QUADRADO 2" << endl;
+  cout << "13 - PERCORRER QUADRADO 3" << endl;
+  cout << "14 - PERCORRER OITO" << endl;
   cout << ">> ";
 }
 
@@ -215,11 +218,20 @@ int main(int argc, char **argv)
         fut.setGameState(TEST_STATE);
         break;
       case 10:
-        fut.setGameState(TEST2_STATE);
-        break;        
-      case 0:
         fut.setGameState(IDENTIFICATION_STATE);
         break;        
+      case 11:
+        fut.setGameState(PERCORRER_QUADRADO_STATE);
+        break;   
+      case 12:
+        fut.setGameState(PERCORRER_QUADRADO_2_STATE);
+        break;        
+      case 13:
+        fut.setGameState(PERCORRER_QUADRADO_3_STATE);
+        break;                 
+      case 14:
+        fut.setGameState(PERCORRER_OITO_STATE);
+        break;                   
       default:
         cout << "Funcao Invalida." << endl;
         break;
