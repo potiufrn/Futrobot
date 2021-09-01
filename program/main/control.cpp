@@ -294,7 +294,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   // double tdlin = 0.0;
 
   // P angular
-  // double kang = 0.288533627498953*2.0; // sobressinal de 7% robo 2
+  // double kang = 0.288533627498953*2.0;
   // double tiang = 10000000.0;
   // double tdang = 0.0;
 
@@ -340,17 +340,17 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
 
   // (9) PI dp:0.5
   // double kang = 0.468777362439337;
-  // double tiang = 0.234388681219668;
+  // double tiang = kang/0.234388681219668;
   // double tdang = 0.0;    
 
   // (10) PI dp:0.4
   // double kang = 0.729638416167339;
-  // double tiang = 0.364819208083669;
+  // double tiang = kang/0.364819208083669;
   // double tdang = 0.0; 
 
   // (11) PI dp:0.46
   double kang = 0.551719640142742;
-  double tiang = 0.27585982007137;
+  double tiang = kang/0.27585982007137;
   double tdang = 0.0; 
 
   for (int i = 0; i < 3; i++)
@@ -595,12 +595,12 @@ bool Control::control()
         if (alpha_lin > 1 - fabs(alpha_ang))
         {
           alpha_lin = 1 - fabs(alpha_ang);
-          lin[i].anti_windup(); // Podia dispensar, já que é PD
+          lin[i].anti_windup();
         }
         if (alpha_lin < -(1 - fabs(alpha_ang)))
         {
           alpha_lin = -(1 - fabs(alpha_ang));
-          lin[i].anti_windup(); // Podia dispensar, já que é PD
+          lin[i].anti_windup();
         }
       }
     
@@ -641,13 +641,26 @@ bool Control::control()
       // pwm.me[i].right = alpha_lin + alpha_ang;
 
       if (fabs(pwm.me[i].right) < PWM_ZERO)
+      {
         pwm.me[i].right = 0.0;
-
+      }
+      else
+      {
+        pwm.me[i].right = sature(pwm.me[i].right, -1.0, 1.0);
+      }
+      
+      
       pwm.me[i].left = D21*(alpha_lin + alpha_ang) + D22*(alpha_lin - alpha_ang);
       // pwm.me[i].left = alpha_lin - alpha_ang;
 
       if (fabs(pwm.me[i].left) < PWM_ZERO)
+      {
         pwm.me[i].left = 0.0;
+      }
+      else
+      {
+        pwm.me[i].left = sature(pwm.me[i].left, -1.0, 1.0);
+      }
     }
 
 
