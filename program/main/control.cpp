@@ -242,6 +242,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
     chegou[i] = false;
     sentidoGiro[i] = 0;
     betaf_ant[i] = 0.0;
+    thetaf_ant[i] = 0.0;
     lin[i].fixa_constantes(klin, tilin, tdlin, 20);
     ang[i].fixa_constantes(kang, tiang, tdang, 20);
   }
@@ -307,7 +308,7 @@ bool Control::control()
          erro_ang = 0.0, erro_ang2 = 0.0, erro_lin = 0.0, alpha_lin = 0.0, alpha_ang = 0.0,
          betaf = 0.0,
          erro_ang_inicial = 0.0, erro_lin_inicial = 0.0;
-  double betaaux = 0.0;
+  double betaaux = 0.0,  thetaaux = 0.0;
 
   double D11 = 1.0;
   double D12 = 0.0;
@@ -405,6 +406,8 @@ bool Control::control()
 
           erro_lin_inicial = distancia * cos(erro_ang);
           erro_lin = distancia * cos(erro_ang) - pslin[i].predicao();
+
+          thetaf_ant[i] = pos.me[i].theta();
         }
         else
         {
@@ -418,8 +421,14 @@ bool Control::control()
           }
           else
           {
-            erro_ang_inicial = ang_equiv(ref.me[i].theta() - pos.me[i].theta());
-            erro_ang = ang_equiv(ref.me[i].theta() - pos.me[i].theta() - psang[i].predicao());
+            // Correção do ângulo theta do robô
+            thetaaux = thetaf_ant[i] + ang_equiv(pos.me[i].theta() - thetaf_ant[i]);
+
+            // Filtro passa-baixa para estabilizar theta corrigido
+            thetaf_ant[i] = ang_equiv(LAMBDAF*thetaaux + (1-LAMBDAF)*thetaf_ant[i]);
+
+            erro_ang_inicial = ang_equiv(ref.me[i].theta() - thetaf_ant[i]);
+            erro_ang = ang_equiv(ref.me[i].theta() - thetaf_ant[i] - psang[i].predicao());
           }
 
           // lin[i].reset();     

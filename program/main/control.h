@@ -97,7 +97,7 @@ private:
   bool chegou[3];
   int sentidoGiro[3];
 
-  double betaf_ant[3];
+  double betaf_ant[3], thetaf_ant[3];
 
 
 public:
