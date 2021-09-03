@@ -28,6 +28,7 @@ void print_menu_botoes()
   cout << "12 - PERCORRER QUADRADO 2" << endl;
   cout << "13 - PERCORRER QUADRADO 3" << endl;
   cout << "14 - PERCORRER OITO" << endl;
+  cout << "15 - PERCORRER CIRCUNFERENCIA" << endl;
   cout << ">> ";
 }
 
@@ -231,7 +232,10 @@ int main(int argc, char **argv)
         break;                 
       case 14:
         fut.setGameState(PERCORRER_OITO_STATE);
-        break;                   
+        break;   
+      case 15:
+        fut.setGameState(PERCORRER_CIRCUNFERENCIA_STATE);
+        break;                          
       default:
         cout << "Funcao Invalida." << endl;
         break;

@@ -171,7 +171,8 @@ bool Transmission::transmission()
 
       // IDENTIFICACAO DE SISTEMA
       if (gameState() == IDENTIFICATION_STATE /* || gameState() == TEST_STATE */ || gameState() == PERCORRER_QUADRADO_STATE
-        || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE || gameState() == CELEBRATION_STATE)
+        || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE 
+        || gameState() == CELEBRATION_STATE || gameState() == PERCORRER_CIRCUNFERENCIA_STATE)
       {
         if (i == IDROBO && cont < TAM)
         {
@@ -299,7 +300,8 @@ bool Transmission::transmission()
 
     // IDENTIFICACAO DE SISTEMA
     if (gameState() == IDENTIFICATION_STATE /* || gameState() == TEST_STATE */ || gameState() == PERCORRER_QUADRADO_STATE
-        || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE || gameState() == CELEBRATION_STATE)
+        || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE 
+        || gameState() == CELEBRATION_STATE || gameState() == PERCORRER_CIRCUNFERENCIA_STATE)
     {
       if (i == IDROBO && cont < TAM)
       {
