@@ -208,6 +208,7 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
   //////////////////////////////////////////////////////////////////////
 
   // FPS 100 P
+
   // double klin = 1.09841901711222; // sem sobressinal
   // double klin = 2.30600025753142; // com sobressinal de 5%
   // double tilin = 10000000.0;
@@ -219,139 +220,22 @@ Control::Control(TEAM team, SIDE side, GAME_MODE gameMode) : FutData(team, side,
 
   // FPS 100 PI
   
-  // (4) old
-  // double klin = 1.46913524178599; // com sobressinal
-  // double tilin = klin/1.7744751046444; // Kp/Ki;
-  // double tdlin = 0.0;
-
-  // (5) old
-  // double klin = 1.24005473777297; // com sobressinal
-  // double tilin = klin/0.738681101603542; // Kp/Ki;
-  // double tdlin = 0.0; 
-
-  // (3) new
-  // double klin = 1.88161690574072; // com sobressinal
-  // double tilin = klin/2.28457660606269; // Kp/Ki;
-  // double tdlin = 0.0; 
-
-  // (4) new
-  // double klin = 1.42949566213783; // com sobressinal
-  // double tilin = klin/1.73563084931073; // Kp/Ki;
-  // double tdlin = 0.0; 
-
-  // (5) new
-  // double klin = 0.784944055411791; // com sobressinal
-  // double tilin = klin/0.786415174306423; // Kp/Ki;
-  // double tdlin = 0.0; 
-
-  // (6) new
-  // double klin = 1.20001431049385; // com sobressinal
-  // double tilin = klin/1.20226334176408; // Kp/Ki;
-  // double tdlin = 0.0; 
-
-  // (7) new
-  // double klin = 1.81416561466036; // com sobressinal
-  // double tilin = klin/1.81756567011057; // Kp/Ki;
-  // double tdlin = 0.0;      
-
-  // (8) new
-  // double klin = 1.37355623043105; // com sobressinal
-  // double tilin = klin/1.37613050882643; // Kp/Ki;
-  // double tdlin = 0.0;
-
-  // (9) new
-  // double klin = 2.76721429004577; // com sobressinal
-  // double tilin = klin/1.38360714519481; // Kp/Ki;
-  // double tdlin = 0.0;      
-
-  // (10) new
-  // double klin = 1.81784127914267; // com sobressinal
-  // double tilin = klin/0.908920639684282; // Kp/Ki;
-  // double tdlin = 0.0;  
-
-
 
   // (11) new
   double klin = 1.33864384817273; // com sobressinal
   double tilin = klin/0.669321924169537; // Kp/Ki;
   double tdlin = 0.0;
 
-
-
-  // (12) new
-  // double klin = 0.900600788450355; // com sobressinal
-  // double tilin = klin/0.450300394281133; // Kp/Ki;
-  // double tdlin = 0.0; 
-
-  // (13) new
-  // double klin = 0.652306357537577; // com sobressinal
-  // double tilin = klin/0.326153178809317; // Kp/Ki;
-  // double tdlin = 0.0;
-
-  // (14) new
-  // double klin = 0.960726212745493; // com sobressinal
-  // double tilin = klin/0.0388559477725262; // Kp/Ki;
-  // double tdlin = 0.0;
-
   // P angular
   // double kang = 0.288533627498953*2.0;
   // double tiang = 10000000.0;
   // double tdang = 0.0;
 
-  // (1) PI
-  // double kang = 0.230859125458784;
-  // double tiang = kang/0.923436501835137;
-  // double tdang = 0.0;
-
-  // (2) PI
-  // double kang = 0.521882016392585;
-  // double tiang = kang/2.08752806557034;
-  // double tdang = 0.0;
-
-  // (3) PI
-  // double kang = 0.220340394600093;
-  // double tiang = kang/0.440680789200186;
-  // double tdang = 0.0;  
-
-  // (4) PI
-  // double kang = 0.177675787167677;
-  // double tiang = kang/0.355351574335354;
-  // double tdang = 0.0;  
-
-  // (5) PI
-  // double kang = 0.125807441068991;
-  // double tiang = kang/0.251614882137981;
-  // double tdang = 0.0;    
-
-  // (6) PI  - parece bom
-  // double kang = 0.632776130630691;
-  // double tiang = kang/1.26555226126138;
-  // double tdang = 0.0;      
-
-  // (7) PI
-  // double kang = 1.00477483395324;
-  // double tiang = kang/0.602864900371941;
-  // double tdang = 0.0;       
-
-  // (8) PI
-  // double kang = 0.288533627498953*2;
-  // double tiang = kang/0.146576292170515;
-  // double tdang = 0.0;     
-
-  // (9) PI dp:0.5
-  // double kang = 0.468777362439337;
-  // double tiang = kang/0.234388681219668;
-  // double tdang = 0.0;    
-
-  // (10) PI dp:0.4
-  // double kang = 0.729638416167339;
-  // double tiang = kang/0.364819208083669;
-  // double tdang = 0.0; 
-
   // (11) PI dp:0.46
   double kang = 0.551719640142742;
   double tiang = kang/0.27585982007137;
   double tdang = 0.0; 
+  
 
   for (int i = 0; i < 3; i++)
   {
@@ -424,8 +308,6 @@ bool Control::control()
          betaf = 0.0,
          erro_ang_inicial = 0.0, erro_lin_inicial = 0.0;
   double betaaux = 0.0;
-
-  //bool controle_orientacao;
 
   double D11 = 1.0;
   double D12 = 0.0;
