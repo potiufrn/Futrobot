@@ -800,6 +800,7 @@ void Strategy::escolhe_funcoes()
   case PERCORRER_QUADRADO_2_STATE:
   case PERCORRER_QUADRADO_3_STATE:
   case PERCORRER_OITO_STATE:
+  case PERCORRER_CIRCUNFERENCIA_STATE:
     papeis.me[GOLEIRO_DEFAULT].funcao = GOLEIRO;
     papeis.me[COM_BOLA_DEFAULT].funcao = COM_BOLA;
     papeis.me[SEM_BOLA_DEFAULT].funcao = SEM_BOLA;
@@ -857,7 +858,10 @@ void Strategy::acao_goleiro(int id)
     break;    
   case PERCORRER_OITO_STATE:
     papeis.me[id].acao = PERCORRER_OITO;
-    break;            
+    break;
+  case PERCORRER_CIRCUNFERENCIA_STATE:
+    papeis.me[id].acao = PERCORRER_CIRCUNFERENCIA;
+    break;                 
 
   default:
     break;    
@@ -993,7 +997,10 @@ void Strategy::acao_com_bola(int id)
     break;    
   case PERCORRER_OITO_STATE:
     papeis.me[id].acao = PERCORRER_OITO;
-    break;     
+    break;  
+  case PERCORRER_CIRCUNFERENCIA_STATE:
+    papeis.me[id].acao = PERCORRER_CIRCUNFERENCIA;
+    break;         
 
   default:
     break;    
@@ -1136,6 +1143,9 @@ void Strategy::acao_sem_bola(int id)
   case PERCORRER_OITO_STATE:
     papeis.me[id].acao = PERCORRER_OITO;
     break;     
+  case PERCORRER_CIRCUNFERENCIA_STATE:
+    papeis.me[id].acao = PERCORRER_CIRCUNFERENCIA;
+    break;      
 
   default:
     break;    
@@ -1858,7 +1868,7 @@ void Strategy::calcula_referencias(int id)
       if (id==0)
         contquadro++;         
     }
-    break;           
+    break;     
 
     case PERCORRER_OITO:
     {
@@ -1877,7 +1887,23 @@ void Strategy::calcula_referencias(int id)
       if (id==0)
         contquadro++;      
     }
-    break;        
+    break;  
+
+    case PERCORRER_CIRCUNFERENCIA:
+    {
+      double tempo_volta = 10; // Uma volta em tempo_volta segundos
+      double ang_circulo = ang_equiv(2.0 * M_PI * contquadro / (FPS * tempo_volta));
+      
+      ref.me[id].x() = 2.0 * CIRCLE_RADIUS * cos(ang_circulo);
+      ref.me[id].y() = 2.0 * CIRCLE_RADIUS * sin(ang_circulo);
+      // ref.me[id].theta() = ang_circulo + M_PI_2;
+
+      ref.me[id].theta() = POSITION_UNDEFINED;
+
+      if (id==0)
+        contquadro++;   
+    }
+    break;           
 
     default:
       break;    
