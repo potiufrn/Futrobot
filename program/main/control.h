@@ -30,6 +30,7 @@ using namespace std;
 #define ATRASO 3
 
 #define LAMBDAF 0.2
+#define LAMBDAF2 0.3
 
 class PID {
 private:

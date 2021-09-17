@@ -425,7 +425,7 @@ bool Control::control()
             thetaaux = thetaf_ant[i] + ang_equiv(pos.me[i].theta() - thetaf_ant[i]);
 
             // Filtro passa-baixa para estabilizar theta corrigido
-            thetaf_ant[i] = ang_equiv(LAMBDAF*thetaaux + (1-LAMBDAF)*thetaf_ant[i]);
+            thetaf_ant[i] = ang_equiv(LAMBDAF2*thetaaux + (1-LAMBDAF2)*thetaf_ant[i]);
 
             erro_ang_inicial = ang_equiv(ref.me[i].theta() - thetaf_ant[i]);
             erro_ang = ang_equiv(ref.me[i].theta() - thetaf_ant[i] - psang[i].predicao());
@@ -519,7 +519,7 @@ bool Control::control()
         D11 =  0.999808713274133;
         D12 =  0.004378663213346;
         D21 = -0.043677744995903;
-        D22 =  0.999808713274133;
+        D22 =  0.999808713274133;        
       }
       else if (i==2){
         D11 =  1.012892845513687;
