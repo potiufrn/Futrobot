@@ -10,9 +10,9 @@
 //Variaveis para identificacao
 
 // #define TAM 200  // simetria
-// #define TAM 400  // preditor
+#define TAM 400  // preditor
 // #define TAM 1250  // eight path
-#define TAM 1000  // path 
+// #define TAM 1000  // path 
 // #define TAM 1000  // identificacao
 static int IDROBO = 2;
 
@@ -170,7 +170,7 @@ bool Transmission::transmission()
 
 
       // IDENTIFICACAO DE SISTEMA
-      if (gameState() == IDENTIFICATION_STATE /* || gameState() == TEST_STATE */ || gameState() == PERCORRER_QUADRADO_STATE
+      if (gameState() == IDENTIFICATION_STATE || gameState() == TEST_STATE || gameState() == PERCORRER_QUADRADO_STATE
         || gameState() == PERCORRER_QUADRADO_2_STATE || gameState() == PERCORRER_QUADRADO_3_STATE || gameState() == PERCORRER_OITO_STATE 
         || gameState() == CELEBRATION_STATE || gameState() == PERCORRER_CIRCUNFERENCIA_STATE)
       {

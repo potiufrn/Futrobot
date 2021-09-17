@@ -1641,8 +1641,13 @@ void Strategy::calcula_referencias(int id)
       // }
       // else if(id==1)
       // {
-      //   pwm.me[id].right =  0.251046844121870;
-      //   pwm.me[id].left  =  0.239032742069557;
+      //   // amostra 0
+      //   // pwm.me[id].right =  0.251046844121870;
+      //   // pwm.me[id].left  =  0.239032742069557;
+
+      //   // amostra 2
+      //   pwm.me[id].right =  0.233922604512085;
+      //   pwm.me[id].left  =  0.254369695483332;
       // }
       // else if(id==2)
       // {
